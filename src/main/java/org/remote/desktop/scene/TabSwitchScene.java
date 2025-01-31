@@ -34,4 +34,9 @@ public class TabSwitchScene extends BaseScene implements SelfTriggering {
     public void changeScene(SceneAware manager) {
         this.manager = manager;
     }
+
+    @Override
+    public boolean windowTitleMaskMatches(String windowTitle) {
+        return true;
+    }
 }

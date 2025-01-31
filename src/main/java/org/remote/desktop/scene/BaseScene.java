@@ -53,7 +53,7 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene rightBumper() {
+    public BaseScene rightBumper(QualifiedEType type) {
         return this;
     }
 
@@ -82,6 +82,14 @@ public abstract class BaseScene {
     }
 
     public BaseScene start() {
+        return this;
+    }
+
+    public BaseScene home() {
+        return this;
+    }
+
+    public BaseScene select() {
         return this;
     }
 }
