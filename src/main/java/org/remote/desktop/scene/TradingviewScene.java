@@ -1,5 +1,6 @@
 package org.remote.desktop.scene;
 
+import org.asmus.model.EType;
 import org.asmus.model.QualifiedEType;
 
 import static jxdotool.xDoToolUtil.*;
@@ -23,7 +24,10 @@ public class TradingviewScene extends DesktopScene {
     }
 
     @Override
-    public BaseScene rightBumper() {
+    public BaseScene rightBumper(QualifiedEType type) {
+        if (type.getModifiers().contains(EType.BUMPER_LEFT))
+            return super.rightBumper(type);
+
         if (tabSwitchOn = !tabSwitchOn)
             tabSwitchOn();
         else

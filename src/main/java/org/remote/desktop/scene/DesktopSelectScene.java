@@ -28,7 +28,7 @@ public class DesktopSelectScene extends BaseScene {
     }
 
     @Override
-    public BaseScene leftBumper(QualifiedEType type) {
+    public BaseScene home() {
         keyMeta();
 
         return new DesktopScene();

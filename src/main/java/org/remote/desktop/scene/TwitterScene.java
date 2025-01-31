@@ -50,7 +50,6 @@ public class TwitterScene extends DesktopScene {
 
     @Override
     public BaseScene rightTrigger(TriggerPosition type) {
-        log.info("trigger");
         if (type.getPosition() < lastPos && ready) {
             pressKey("j");
             ready = false;
@@ -69,8 +68,14 @@ public class TwitterScene extends DesktopScene {
 
     @Override
     public BaseScene start() {
-        pressKey("g");
-        pressKey("n");
+        pressKey("g+n");
+
+        return this;
+    }
+
+    @Override
+    public BaseScene select() {
+        pressKey("g+h");
 
         return this;
     }
