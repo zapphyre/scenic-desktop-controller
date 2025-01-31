@@ -21,7 +21,7 @@
         <reactor.version>3.6.5</reactor.version>
         <junit.varsion>5.11.3</junit.varsion>
 
-        <j.xdotool.version>1.1-SNAPSHOT</j.xdotool.version>
+        <j.xdotool.version>1.5-SNAPSHOT</j.xdotool.version>
     </properties>
 
     <dependencies>
