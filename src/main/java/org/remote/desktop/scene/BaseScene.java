@@ -1,13 +1,15 @@
 package org.remote.desktop.scene;
 
 import jxdotool.xDoToolUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EType;
 import org.asmus.model.QualifiedEType;
+import org.asmus.model.TriggerPosition;
 import org.remote.desktop.actuate.MouseCtrl;
 
-import static jxdotool.xDoToolUtil.keyLeft;
-import static jxdotool.xDoToolUtil.keyRight;
+import static jxdotool.xDoToolUtil.*;
 
+@Slf4j
 public abstract class BaseScene {
 
     public BaseScene up(QualifiedEType e) {
@@ -41,11 +43,45 @@ public abstract class BaseScene {
         return this;
     }
 
-    public abstract BaseScene appChoose(int pos);
+    public BaseScene leftTrigger(int pos) {
+        return this;
+    }
 
-    public BaseScene click() {
+    public BaseScene leftBumper(QualifiedEType type) {
         MouseCtrl.click();
 
+        return this;
+    }
+
+    public BaseScene rightBumper() {
+        return this;
+    }
+
+    public BaseScene btnA(QualifiedEType type) {
+        return this;
+    }
+
+    public BaseScene btnB() {
+        return this;
+    }
+
+    public BaseScene btnX() {
+        return this;
+    }
+
+    public BaseScene btnY(QualifiedEType type) {
+        return this;
+    }
+
+    public boolean windowTitleMaskMatches(String windowTitle) {
+        return false;
+    }
+
+    public BaseScene rightTrigger(TriggerPosition type) {
+        return this;
+    }
+
+    public BaseScene start() {
         return this;
     }
 }

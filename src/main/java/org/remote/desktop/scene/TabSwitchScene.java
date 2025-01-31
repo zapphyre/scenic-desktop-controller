@@ -10,7 +10,7 @@ import static jxdotool.xDoToolUtil.*;
 @Slf4j
 public class TabSwitchScene extends BaseScene implements SelfTriggering {
     public static int AXIS_MIN = -32_767;
-    public static int AXIS_MAX = 969;
+    public static int AXIS_MAX = 32_767;
     public static int STEP = 6_000;
 
     private ScheduledFuture<?> future;
@@ -23,26 +23,9 @@ public class TabSwitchScene extends BaseScene implements SelfTriggering {
     }
 
     @Override
-    public BaseScene appChoose(int pos) {
+    public BaseScene leftTrigger(int pos) {
         if (pos == AXIS_MIN)
             return new DesktopScene();
-
-//        int currentPosition = pos / STEP;
-//
-//        if (currentPosition > lastPosition)
-//            keyRight();
-//        else if (currentPosition < lastPosition)
-//            keyLeft();
-//
-//        lastPosition = currentPosition;
-//
-//        if (future != null)
-//            future.cancel(true);
-//
-//        future = Executors.newSingleThreadScheduledExecutor().schedule(() -> {
-//            log.info("setting app and changing scene to desktop");
-//            this.manager.setSceneCallback(new DesktopScene(false));
-//        }, 2000, TimeUnit.MILLISECONDS);
 
         return this;
     }
