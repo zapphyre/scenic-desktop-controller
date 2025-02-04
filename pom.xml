@@ -9,19 +9,20 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>23</maven.compiler.source>
+        <maven.compiler.target>23</maven.compiler.target>
+        <maven.compiler.proc>full</maven.compiler.proc> <!-- Enable full annotation processing -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jpad.remote.version>3.0-SNAPSHOT</jpad.remote.version>
+        <jpad.remote.version>4.1-SNAPSHOT</jpad.remote.version>
 
-        <slf4j.version>2.0.9</slf4j.version>
-        <logback.version>1.4.12</logback.version>
-        <lombok.version>1.18.34</lombok.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <logback.version>1.5.16</logback.version>
+        <lombok.version>1.18.36</lombok.version>
         <reactor.version>3.6.5</reactor.version>
         <junit.varsion>5.11.3</junit.varsion>
 
-        <j.xdotool.version>1.8-SNAPSHOT</j.xdotool.version>
+        <j.xdotool.version>1.9-SNAPSHOT</j.xdotool.version>
     </properties>
 
     <dependencies>
@@ -31,11 +32,11 @@
             <version>${jpad.remote.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.bbi.linuxjoy</groupId>
-            <artifactId>LinuxJoystick</artifactId>
-            <version>1.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.bbi.linuxjoy</groupId>-->
+<!--            <artifactId>LinuxJoystick</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>j.xdotool</groupId>
@@ -74,20 +75,31 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>23</source>
+                    <target>23</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.36</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
@@ -95,11 +107,54 @@
                             <mainClass>org.remote.desktop.DesktopRemoteMain</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+<!--            <plugin>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <archive>-->
+<!--                        <manifest>-->
+<!--                            <addClasspath>true</addClasspath>-->
+<!--                            <mainClass>org.remote.desktop.DesktopRemoteMain</mainClass>-->
+<!--                        </manifest>-->
+<!--                    </archive>-->
+<!--                    <descriptorRefs>-->
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                    </descriptorRefs>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

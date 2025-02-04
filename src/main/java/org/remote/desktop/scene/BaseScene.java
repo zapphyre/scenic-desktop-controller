@@ -2,19 +2,23 @@ package org.remote.desktop.scene;
 
 import jxdotool.xDoToolUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.model.EType;
-import org.asmus.model.QualifiedEType;
+import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.GamepadEvent;
 import org.asmus.model.TriggerPosition;
 import org.remote.desktop.actuate.MouseCtrl;
+import org.remote.desktop.scene.impl.DesktopSelectScene;
 
 import static jxdotool.xDoToolUtil.*;
+import static org.remote.desktop.DesktopRemoteMain.metaKeysUp;
 
 @Slf4j
 public abstract class BaseScene {
 
-    public BaseScene up(QualifiedEType e) {
+    public BaseScene up(GamepadEvent e) {
+        if (e.getModifiers().size() > 1)
+            return this;
 
-        if (e.getModifiers().contains(EType.BUMPER_LEFT))
+        if (e.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
             xDoToolUtil.pageUp();
         else
             xDoToolUtil.keyUp();
@@ -22,8 +26,11 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene down(QualifiedEType e) {
-        if (e.getModifiers().contains(EType.BUMPER_LEFT))
+    public BaseScene down(GamepadEvent e) {
+        if (e.getModifiers().size() > 1)
+            return this;
+
+        if (e.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
             xDoToolUtil.pageDown();
         else
             xDoToolUtil.keyDown();
@@ -47,21 +54,21 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene leftBumper(QualifiedEType type) {
+    public BaseScene leftBumper(GamepadEvent type) {
         MouseCtrl.click();
 
         return this;
     }
 
-    public BaseScene rightBumper(QualifiedEType type) {
+    public BaseScene rightBumper(GamepadEvent type) {
         return this;
     }
 
-    public BaseScene btnA(QualifiedEType type) {
+    public BaseScene btnA(GamepadEvent type) {
         return this;
     }
 
-    public BaseScene btnB() {
+    public BaseScene btnB(GamepadEvent type) {
         return this;
     }
 
@@ -69,7 +76,7 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene btnY(QualifiedEType type) {
+    public BaseScene btnY(GamepadEvent type) {
         return this;
     }
 
@@ -85,9 +92,17 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene home() {
-        return this;
-    }
+    public BaseScene home(GamepadEvent type) {
+        if (type.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT) &&
+                type.getModifiers().contains(EButtonAxisMapping.BUMPER_RIGHT)) {
+            metaKeysUp();
+
+            return this;
+        }
+
+        keyMeta();
+
+        return new DesktopSelectScene(true);    }
 
     public BaseScene select() {
         return this;

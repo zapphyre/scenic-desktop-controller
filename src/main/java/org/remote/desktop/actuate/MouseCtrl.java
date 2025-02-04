@@ -26,11 +26,11 @@ public class MouseCtrl {
     }
 
     public static void moveMouse(PolarCoords polarCoords) {
-        double scaledRadius = polarCoords.getRadius() * sensitivity ;
+        double scaledRadius = polarCoords.radius() * sensitivity ;
 
         // Calculate Cartesian coordinates
-        int xMovement = (int) (scaledRadius * Math.cos(polarCoords.getTheta()));
-        int yMovement = (int) (scaledRadius * Math.sin(polarCoords.getTheta()));
+        int xMovement = (int) (scaledRadius * Math.cos(polarCoords.theta()));
+        int yMovement = (int) (scaledRadius * Math.sin(polarCoords.theta()));
 
         // Get the current mouse position
         int currentX = MouseInfo.getPointerInfo().getLocation().x;
@@ -42,8 +42,8 @@ public class MouseCtrl {
 
     @SneakyThrows
     public static void scroll(PolarCoords coords) {
-        double theta = coords.getTheta(); // 45 degrees in radians
-        double radius = coords.getRadius(); // Example value within your range
+        double theta = coords.theta(); // 45 degrees in radians
+        double radius = coords.radius(); // Example value within your range
 
         double x = radius * Math.cos(theta);
         double y = radius * Math.sin(theta);
