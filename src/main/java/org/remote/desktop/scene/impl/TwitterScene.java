@@ -1,18 +1,25 @@
-package org.remote.desktop.scene;
+package org.remote.desktop.scene.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.model.QualifiedEType;
+import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.GamepadEvent;
 import org.asmus.model.TriggerPosition;
+import org.remote.desktop.scene.BaseScene;
 
 import static jxdotool.xDoToolUtil.*;
-import static org.remote.desktop.scene.TabSwitchScene.AXIS_MAX;
-import static org.remote.desktop.scene.TabSwitchScene.AXIS_MIN;
+import static org.remote.desktop.scene.impl.TabSwitchScene.AXIS_MAX;
+import static org.remote.desktop.scene.impl.TabSwitchScene.AXIS_MIN;
 
 @Slf4j
-public class TwitterScene extends DesktopScene {
+public class TwitterScene extends BrowserScene {
+
+    public static final String X_SCENE_NAME = "/ X";
 
     @Override
-    public BaseScene btnY(QualifiedEType type) {
+    public BaseScene btnY(GamepadEvent type) {
+        if (type.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
+            return super.btnY(type);
+
         if (type.isLongPress())
             pressKey("t");
         else
@@ -22,7 +29,10 @@ public class TwitterScene extends DesktopScene {
     }
 
     @Override
-    public BaseScene btnA(QualifiedEType type) {
+    public BaseScene btnA(GamepadEvent type) {
+        if (tabSwitchOn)
+            return super.btnA(type);
+
         if (type.isLongPress())
             pressKey("l");
         else
@@ -32,8 +42,11 @@ public class TwitterScene extends DesktopScene {
     }
 
     @Override
-    public BaseScene btnB() {
-        enter();
+    public BaseScene btnB(GamepadEvent type) {
+        if (type.isLongPress())
+            pressKey("Ctrl+Enter");
+        else
+            enter();
 
         return this;
     }
@@ -82,6 +95,6 @@ public class TwitterScene extends DesktopScene {
 
     @Override
     public boolean windowTitleMaskMatches(String windowTitle) {
-        return windowTitle.contains("/ X");
+        return windowTitle.contains(X_SCENE_NAME);
     }
 }

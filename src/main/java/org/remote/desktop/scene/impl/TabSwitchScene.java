@@ -1,7 +1,9 @@
-package org.remote.desktop.scene;
+package org.remote.desktop.scene.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.manager.SceneAware;
+import org.remote.desktop.scene.BaseScene;
+import org.remote.desktop.scene.SelfTriggering;
 
 import java.util.concurrent.ScheduledFuture;
 

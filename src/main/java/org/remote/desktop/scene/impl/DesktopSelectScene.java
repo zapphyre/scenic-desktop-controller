@@ -1,13 +1,14 @@
-package org.remote.desktop.scene;
+package org.remote.desktop.scene.impl;
 
 import jxdotool.xDoToolUtil;
-import org.asmus.model.QualifiedEType;
+import org.asmus.model.GamepadEvent;
+import org.remote.desktop.scene.BaseScene;
 
 import static jxdotool.xDoToolUtil.keyMeta;
 
 public class DesktopSelectScene extends BaseScene {
 
-    private boolean onceValid;
+    private final boolean onceValid;
 
     public DesktopSelectScene(boolean onceValid) {
         this.onceValid = onceValid;
@@ -28,7 +29,7 @@ public class DesktopSelectScene extends BaseScene {
     }
 
     @Override
-    public BaseScene home() {
+    public BaseScene home(GamepadEvent type) {
         keyMeta();
 
         return new DesktopScene();
