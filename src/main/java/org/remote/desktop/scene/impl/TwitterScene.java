@@ -1,5 +1,6 @@
 package org.remote.desktop.scene.impl;
 
+import jxdotool.xDoToolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
@@ -54,6 +55,30 @@ public class TwitterScene extends BrowserScene {
     @Override
     public BaseScene btnX() {
         ffBack();
+
+        return this;
+    }
+
+    public BaseScene up(GamepadEvent e) {
+        if (e.getModifiers().size() > 1)
+            return this;
+
+        if (e.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
+            xDoToolUtil.keyUp();
+        else
+            xDoToolUtil.pageUp();
+
+        return this;
+    }
+
+    public BaseScene down(GamepadEvent e) {
+        if (e.getModifiers().size() > 1)
+            return this;
+
+        if (e.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
+            xDoToolUtil.keyDown();
+        else
+            xDoToolUtil.pageDown();
 
         return this;
     }

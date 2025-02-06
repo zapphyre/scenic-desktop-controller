@@ -8,7 +8,6 @@ import org.asmus.model.PolarCoords;
 import org.asmus.model.TriggerPosition;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.scene.BaseScene;
-import org.remote.desktop.scene.SelfTriggering;
 import org.remote.desktop.scene.impl.*;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -23,12 +22,13 @@ import static org.remote.desktop.scene.impl.SystemWideScene.bothBumpers;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DesktopSceneManager implements SceneAware {
+public class DesktopSceneManager {
 
     private final Consumer<Throwable> haltOnError;
 
     private final List<BaseScene> namedScenes = List.of(
-            new TwitterScene(), new FirefoxScene(), new TradingViewScene(), new RPCS3Scene(), new YouTubeScene()
+            new TwitterScene(), new FirefoxScene(), new TradingViewScene(), new RPCS3Scene(),
+            new IntelliJIdeaDebugScene(), new YouTubeScene()
     );
 
     private BaseScene currentScene = new DesktopScene();
@@ -78,7 +78,6 @@ public class DesktopSceneManager implements SceneAware {
 
     public Disposable handleButtons(Flux<GamepadEvent> fluxButtonEvents) {
         return fluxButtonEvents
-                .log()
                 .map(forCurrentScene())
                 .map(applyButtonEvent)
                 .subscribe(scene -> currentScene = scene, haltOnError);
@@ -88,11 +87,7 @@ public class DesktopSceneManager implements SceneAware {
         return triggerPositionFlux
                 .filter(notScene(RPCS3Scene.class))
                 .filter(filterTrigger(EButtonAxisMapping.TRIGGER_LEFT))
-                .subscribe(q -> {
-                            if ((currentScene = currentScene.leftTrigger(q.getPosition())) instanceof SelfTriggering s)
-                                s.changeScene(this);
-                        }, haltOnError
-                );
+                .subscribe(q -> currentScene = currentScene.leftTrigger(q.getPosition()), haltOnError);
     }
 
     public Disposable handleTriggerRight(Flux<TriggerPosition> triggerPositionFlux) {
@@ -109,11 +104,6 @@ public class DesktopSceneManager implements SceneAware {
                 .subscribe(MouseCtrl::moveMouse);
     }
 
-    @Override
-    public void setSceneCallback(BaseScene scene) {
-        currentScene = scene;
-    }
-
     public Disposable hanleRightStick(Flux<PolarCoords> rightStickStream) {
         return rightStickStream
                 .filter(notScene(RPCS3Scene.class))
@@ -127,6 +117,7 @@ public class DesktopSceneManager implements SceneAware {
                     switch (q.getType()) {
                         case UP: SystemWideScene.volumeUp(q); break;
                         case DOWN: SystemWideScene.volumeDown(q); break;
+                        case OTHER: SystemWideScene.resetMetaKeys(q); break;
                     }
                 }, haltOnError);
     }
