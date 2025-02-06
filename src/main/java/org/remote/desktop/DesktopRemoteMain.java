@@ -17,7 +17,6 @@ public class DesktopRemoteMain {
 
     private final static TimedButtonGamepadFactory timedButtonGamepadFactory = new TimedButtonGamepadFactory();
     private final static DesktopSceneManager sceneManager = new DesktopSceneManager(DesktopRemoteMain::halt);
-
     private final static List<Runnable> factoryDisposable = timedButtonGamepadFactory.watchForDevices(0, 1);
 
     private static Disposable disposableButtons;
@@ -31,7 +30,6 @@ public class DesktopRemoteMain {
     @SneakyThrows
     public static void main(String[] args) {
         Flux<TriggerPosition> triggerPositionFlux = timedButtonGamepadFactory.getTriggerStream().publish().autoConnect();
-//        Flux<QualifiedEType> buttonStream = TimedButtonGamepadFactory.getButtonStream().publish().autoConnect();
 
         disposableButtons = sceneManager.handleButtons(timedButtonGamepadFactory.getButtonStream());
         systemEvents = sceneManager.handleSystemEvents(timedButtonGamepadFactory.getArrowsStream());
@@ -70,10 +68,8 @@ public class DesktopRemoteMain {
     }
 
     public static void metaKeysUp() {
-
         keyUp("Super_L");
         keyUp("Ctrl");
-        keyUp("Ctrl+Tab");
-        keyUp("Alt+Tab");
+        keyUp("Alt");
     }
 }

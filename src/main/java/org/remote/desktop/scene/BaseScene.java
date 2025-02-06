@@ -88,7 +88,7 @@ public abstract class BaseScene {
         return this;
     }
 
-    public BaseScene start() {
+    public BaseScene start(GamepadEvent type) {
         return this;
     }
 
@@ -102,9 +102,10 @@ public abstract class BaseScene {
 
         keyMeta();
 
-        return new DesktopSelectScene(true);    }
+        return new DesktopSelectScene(true);
+    }
 
-    public BaseScene select() {
+    public BaseScene select(GamepadEvent type) {
         return this;
     }
 }

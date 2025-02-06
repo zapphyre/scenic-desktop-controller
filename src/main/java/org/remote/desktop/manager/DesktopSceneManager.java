@@ -28,10 +28,14 @@ public class DesktopSceneManager implements SceneAware {
     private final Consumer<Throwable> haltOnError;
 
     private final List<BaseScene> namedScenes = List.of(
-            new TwitterScene(), new FirefoxScene(), new TradingViewScene(), new YouTubeScene()
+            new TwitterScene(), new FirefoxScene(), new TradingViewScene(), new RPCS3Scene(), new YouTubeScene()
     );
 
     private BaseScene currentScene = new DesktopScene();
+
+    <T> Predicate<T> notScene(Class<? extends BaseScene> sceneClass) {
+        return q -> !sceneClass.isInstance(currentScene);
+    }
 
     Function<SceneQEType<GamepadEvent>, BaseScene> applyButtonEvent = q ->
             switch (q.type().getType()) {
@@ -49,14 +53,14 @@ public class DesktopSceneManager implements SceneAware {
                 case X -> q.scene.btnX();
                 case B -> q.scene.btnB(q.type);
 
-                case START -> q.scene.start();
+                case START -> q.scene.start(q.type);
                 case OTHER -> q.scene.home(q.type);
-                case SELECT -> q.scene.select();
+                case SELECT -> q.scene.select(q.type);
 
                 default -> q.scene;
             };
 
-    <T> Function<T, SceneQEType<T>> windowedGeneric() {
+    <T> Function<T, SceneQEType<T>> forCurrentScene() {
         return q -> {
             String currentWindowTitle = getCurrentWindowTitle();
 
@@ -74,13 +78,15 @@ public class DesktopSceneManager implements SceneAware {
 
     public Disposable handleButtons(Flux<GamepadEvent> fluxButtonEvents) {
         return fluxButtonEvents
-                .map(windowedGeneric())
+                .log()
+                .map(forCurrentScene())
                 .map(applyButtonEvent)
                 .subscribe(scene -> currentScene = scene, haltOnError);
     }
 
     public Disposable handleTriggerLeft(Flux<TriggerPosition> triggerPositionFlux) {
         return triggerPositionFlux
+                .filter(notScene(RPCS3Scene.class))
                 .filter(filterTrigger(EButtonAxisMapping.TRIGGER_LEFT))
                 .subscribe(q -> {
                             if ((currentScene = currentScene.leftTrigger(q.getPosition())) instanceof SelfTriggering s)
@@ -91,13 +97,16 @@ public class DesktopSceneManager implements SceneAware {
 
     public Disposable handleTriggerRight(Flux<TriggerPosition> triggerPositionFlux) {
         return triggerPositionFlux
+                .filter(notScene(RPCS3Scene.class))
                 .filter(filterTrigger(EButtonAxisMapping.TRIGGER_RIGHT))
-                .map(windowedGeneric())
+                .map(forCurrentScene())
                 .subscribe(q -> currentScene = q.scene.rightTrigger(q.type()), haltOnError);
     }
 
     public Disposable handleLeftStick(Flux<PolarCoords> stickEvents) {
-        return stickEvents.subscribe(MouseCtrl::moveMouse);
+        return stickEvents
+                .filter(notScene(RPCS3Scene.class))
+                .subscribe(MouseCtrl::moveMouse);
     }
 
     @Override
@@ -107,6 +116,7 @@ public class DesktopSceneManager implements SceneAware {
 
     public Disposable hanleRightStick(Flux<PolarCoords> rightStickStream) {
         return rightStickStream
+                .filter(notScene(RPCS3Scene.class))
                 .subscribe(MouseCtrl::scroll, haltOnError);
     }
 

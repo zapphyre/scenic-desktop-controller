@@ -80,14 +80,14 @@ public class TwitterScene extends BrowserScene {
     }
 
     @Override
-    public BaseScene start() {
+    public BaseScene start(GamepadEvent type) {
         pressKey("g+n");
 
         return this;
     }
 
     @Override
-    public BaseScene select() {
+    public BaseScene select(GamepadEvent type) {
         pressKey("g+h");
 
         return this;
