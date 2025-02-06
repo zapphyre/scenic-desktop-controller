@@ -3,6 +3,7 @@ package org.remote.desktop;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.facade.TimedButtonGamepadFactory;
+import org.asmus.model.GamepadEvent;
 import org.asmus.model.TriggerPosition;
 import org.remote.desktop.manager.DesktopSceneManager;
 import reactor.core.Disposable;
@@ -30,10 +31,12 @@ public class DesktopRemoteMain {
     @SneakyThrows
     public static void main(String[] args) {
         Flux<TriggerPosition> triggerPositionFlux = timedButtonGamepadFactory.getTriggerStream().publish().autoConnect();
+        Flux<GamepadEvent> buttonStream = timedButtonGamepadFactory.getButtonStream();
+        Flux<GamepadEvent> arrowsStream = timedButtonGamepadFactory.getArrowsStream();
 
-        disposableButtons = sceneManager.handleButtons(timedButtonGamepadFactory.getButtonStream());
-        systemEvents = sceneManager.handleSystemEvents(timedButtonGamepadFactory.getArrowsStream());
-        disposableArrows = sceneManager.handleButtons(timedButtonGamepadFactory.getArrowsStream());
+        disposableButtons = sceneManager.handleButtons(buttonStream);
+        disposableArrows = sceneManager.handleButtons(arrowsStream);
+        systemEvents = sceneManager.handleSystemEvents(arrowsStream.mergeWith(buttonStream));
         disposableLeftStick = sceneManager.handleLeftStick(timedButtonGamepadFactory.getLeftStickStream());
         disposableRightStick = sceneManager.hanleRightStick(timedButtonGamepadFactory.getRightStickStream());
         disposableRightTrigger = sceneManager.handleTriggerRight(triggerPositionFlux);

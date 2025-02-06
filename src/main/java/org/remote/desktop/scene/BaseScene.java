@@ -9,7 +9,7 @@ import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.scene.impl.DesktopSelectScene;
 
 import static jxdotool.xDoToolUtil.*;
-import static org.remote.desktop.DesktopRemoteMain.metaKeysUp;
+import static org.remote.desktop.scene.impl.SystemWideScene.bothBumpers;
 
 @Slf4j
 public abstract class BaseScene {
@@ -93,12 +93,7 @@ public abstract class BaseScene {
     }
 
     public BaseScene home(GamepadEvent type) {
-        if (type.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT) &&
-                type.getModifiers().contains(EButtonAxisMapping.BUMPER_RIGHT)) {
-            metaKeysUp();
-
-            return this;
-        }
+        if (bothBumpers.test(type)) return this;
 
         keyMeta();
 

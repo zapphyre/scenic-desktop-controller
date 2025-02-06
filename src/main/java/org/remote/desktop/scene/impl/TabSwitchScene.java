@@ -3,14 +3,13 @@ package org.remote.desktop.scene.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.manager.SceneAware;
 import org.remote.desktop.scene.BaseScene;
-import org.remote.desktop.scene.SelfTriggering;
 
 import java.util.concurrent.ScheduledFuture;
 
-import static jxdotool.xDoToolUtil.*;
+import static jxdotool.xDoToolUtil.appSwitchOn;
 
 @Slf4j
-public class TabSwitchScene extends BaseScene implements SelfTriggering {
+public class TabSwitchScene extends BaseScene {
     public static int AXIS_MIN = -32_767;
     public static int AXIS_MAX = 32_767;
     public static int STEP = 6_000;
@@ -30,11 +29,6 @@ public class TabSwitchScene extends BaseScene implements SelfTriggering {
             return new DesktopScene();
 
         return this;
-    }
-
-    @Override
-    public void changeScene(SceneAware manager) {
-        this.manager = manager;
     }
 
     @Override
