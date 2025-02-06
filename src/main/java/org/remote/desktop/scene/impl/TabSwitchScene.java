@@ -14,11 +14,6 @@ public class TabSwitchScene extends BaseScene {
     public static int AXIS_MAX = 32_767;
     public static int STEP = 6_000;
 
-    private ScheduledFuture<?> future;
-    private SceneAware manager;
-
-    private int lastPosition;
-
     public TabSwitchScene() {
         appSwitchOn();
     }
