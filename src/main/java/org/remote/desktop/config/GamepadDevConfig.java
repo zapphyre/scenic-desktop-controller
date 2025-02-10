@@ -1,0 +1,9 @@
+package org.remote.desktop.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GamepadDevConfig {
+
+
+}

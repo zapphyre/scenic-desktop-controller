@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 import static jxdotool.xDoToolUtil.keyUp;
+import static jxdotool.xDoToolUtil.keyup;
 
 @Slf4j
 public class DesktopRemoteMain {
@@ -71,8 +72,8 @@ public class DesktopRemoteMain {
     }
 
     public static void metaKeysUp() {
-        keyUp("Super_L");
-        keyUp("Ctrl");
-        keyUp("Alt");
+        keyup("Super_L");
+        keyup("Ctrl");
+        keyup("Alt");
     }
 }

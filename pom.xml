@@ -8,22 +8,43 @@
     <artifactId>scenic-desktop-controller</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
         <maven.compiler.target>23</maven.compiler.target>
         <maven.compiler.proc>full</maven.compiler.proc> <!-- Enable full annotation processing -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jpad.remote.version>4.1-SNAPSHOT</jpad.remote.version>
+        <jpad.remote.version>1.1-SNAPSHOT</jpad.remote.version>
 
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.16</logback.version>
         <lombok.version>1.18.36</lombok.version>
         <reactor.version>3.6.5</reactor.version>
         <junit.varsion>5.11.3</junit.varsion>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
 
-        <j.xdotool.version>1.9-SNAPSHOT</j.xdotool.version>
+        <j.xdotool.version>1.11-SNAPSHOT</j.xdotool.version>
+        <vaadin.version>24.6.4</vaadin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -58,6 +79,38 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.varsion}</version>
@@ -75,19 +128,33 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
                 <configuration>
-                    <source>23</source>
-                    <target>23</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!--                        order matters-->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.36</version>
+                            <version>${lombok.version}</version>
                         </path>
-                    </annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -151,5 +218,42 @@
 <!--            </plugin>-->
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>production</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-core</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.vaadin</groupId>
+                            <artifactId>vaadin-dev</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>frontend</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>prepare-frontend</goal>
+                                    <goal>build-frontend</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
