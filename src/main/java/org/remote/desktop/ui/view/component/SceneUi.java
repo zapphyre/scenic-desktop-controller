@@ -4,36 +4,74 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.remote.desktop.model.ActionVdo;
-import org.remote.desktop.model.SceneVdo;
+import com.vaadin.flow.component.select.Select;
+import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.SceneVto;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class SceneUi extends VerticalLayout {
 
-    private final SceneVdo scene;
+    private final SceneVto scene;
 
-    public SceneUi(SceneVdo scene, List<SceneVdo> allScenes) {
+    public SceneUi(SceneVto scene, List<SceneVto> allScenes) {
         this.scene = scene;
 
-        ComboBox<SceneVdo> inheritsFrom = new ComboBox<>("Inherits from");
+        VerticalLayout inheritedActions = new VerticalLayout();
+        VerticalLayout actions = new VerticalLayout();
+
+        Select<SceneVto> inheritsFrom = new Select<>("Inherits from", e -> scene.setInherits(e.getValue()));
         inheritsFrom.setItems(allScenes);
-        inheritsFrom.setItemLabelGenerator(SceneVdo::getName);
-        inheritsFrom.addValueChangeListener(e -> scene.setInherits(e.getValue()));
+        inheritsFrom.setValue(scene.getInherits());
+        inheritsFrom.setItemLabelGenerator(SceneVto::getName);
+        inheritsFrom.addValueChangeListener(e -> {
+            inheritedActions.removeAll();
+            List<ActionVto> actionVtos = scrapeActionsRecursive(scene);
+//            VerticalLayout qwer = new VerticalLayout();
+            actionVtos.stream()
+                    .map(q -> new ActionDefUi(q, false,p -> scene.getActions().remove(p)))
+                    .forEach(inheritedActions::add);
+//            inheritedActions.add(qwer);
+        });
 
         Button addAction = new Button("New Action");
         addAction.addClickListener(e -> {
-            ActionVdo actionVdo = new ActionVdo();
-            scene.getActions().add(actionVdo);
-            add(new ActionDefUi(actionVdo, q -> scene.getActions().remove(q)));
+            ActionVto actionVto = new ActionVto();
+            scene.getActions().add(actionVto);
+            add(new ActionDefUi(actionVto, q -> scene.getActions().remove(q)));
         });
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout(inheritsFrom, addAction);
-        horizontalLayout.setAlignItems(Alignment.BASELINE);
+        HorizontalLayout inheritsSelectLayout = new HorizontalLayout(inheritsFrom, addAction);
+        inheritsSelectLayout.setAlignItems(Alignment.BASELINE);
 
-        add(horizontalLayout);
         scene.getActions().stream()
                 .map(q -> new ActionDefUi(q, p -> scene.getActions().remove(p)))
-                .forEach(this::add);
+                .forEach(actions::add);
+
+        Optional.ofNullable(scene.getInherits())
+                .map(SceneVto::getActions)
+                .orElse(List.of()).stream()
+                .map(q -> new ActionDefUi(q, false,p -> {}))
+                .forEach(inheritedActions::add);
+
+        actions.add(inheritedActions);
+
+        add(inheritsSelectLayout, actions);
+    }
+
+    List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto) {
+        return scrapeActionsRecursive(sceneVto, new LinkedList<>());
+    }
+
+    List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto, List<ActionVto> actionVtos) {
+        if (sceneVto.getInherits() == null)
+            return sceneVto.getActions();
+
+        List<ActionVto> inherited = scrapeActionsRecursive(sceneVto.getInherits(), actionVtos);
+        actionVtos.addAll(inherited);
+
+        return actionVtos;
     }
 }

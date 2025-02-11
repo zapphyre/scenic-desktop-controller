@@ -8,9 +8,10 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import org.asmus.model.EButtonAxisMapping;
-import org.remote.desktop.model.ActionVdo;
+import org.remote.desktop.model.ActionVto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 public class ActionDefUi extends HorizontalLayout {
 
     private final HorizontalLayout triggerSection = new HorizontalLayout();
-    private final ActionVdo active;
+    private final ActionVto active;
 //    private final HorizontalLayout modifiersSection = new HorizontalLayout();
 //    private final HorizontalLayout actionSection = new HorizontalLayout();
 
@@ -28,23 +29,28 @@ public class ActionDefUi extends HorizontalLayout {
     List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
     int orighash;
 
-    public ActionDefUi(ActionVdo input, Consumer<ActionVdo> remover) {
+    public ActionDefUi(ActionVto input, Consumer<ActionVto> remover) {
+        this(input, true, remover);
+    }
+
+    public ActionDefUi(ActionVto input, boolean enabled, Consumer<ActionVto> remover) {
         this.active = input;
         dirty.setVisible(false);
         orighash = input.hashCode();
 
         setAlignItems(Alignment.END);
 
-        ComboBox<EButtonAxisMapping> trigger = new ComboBox<>("Button Trigger");
+        Select<EButtonAxisMapping> trigger = new Select<>("Button Trigger", q -> input.setTrigger(q.getValue()));
         trigger.setItems(EButtonAxisMapping.values());
         trigger.setValue(input.getTrigger());
         trigger.setItemLabelGenerator(EButtonAxisMapping::name);
-        trigger.addValueChangeListener(q -> input.setTrigger(q.getValue()));
         trigger.addValueChangeListener(q -> computeDirty(input));
+        trigger.setEnabled(enabled);
 
         Checkbox longPress = new Checkbox("Long Press");
         longPress.setValue(input.isLongPress());
         longPress.addValueChangeListener(q -> input.setLongPress(q.getValue()));
+        longPress.setEnabled(enabled);
 
         MultiSelectComboBox<EButtonAxisMapping> modifiers = new MultiSelectComboBox<>("Modifiers");
         modifiers.setItems(EButtonAxisMapping.values());
@@ -53,6 +59,7 @@ public class ActionDefUi extends HorizontalLayout {
         modifiers.addValueChangeListener(q -> input.setModifiers(q.getValue()));
         modifiers.addValueChangeListener(q -> computeDirty(input));
         modifiers.setWidthFull();
+        modifiers.setEnabled(enabled);
 
         setAlignItems(Alignment.BASELINE);
         VerticalLayout icoWrap = new VerticalLayout();
@@ -64,7 +71,7 @@ public class ActionDefUi extends HorizontalLayout {
         dlay.setHeightFull();
 //        triggerSection.add(new HorizontalLayout(dlay));
 
-        ActionMgrUi actionMgrUi = new ActionMgrUi(input.getActions());
+        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled);
 //        actionSection.add(actionMgrUi);
 //        actionSection.add(new TextField("Action_*2"));
 //        KeyInputUi keyInputUi = new KeyInputUi(input);
@@ -74,6 +81,7 @@ public class ActionDefUi extends HorizontalLayout {
 
         Button rem = new Button("-", q -> remover.accept(input));
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
+        rem.setVisible(enabled);
 
         triggerSection.add(rem, trigger, modifiers, longPress);
         triggerSection.setAlignItems(Alignment.BASELINE);
@@ -88,7 +96,7 @@ public class ActionDefUi extends HorizontalLayout {
         add(horizontalLayout);
     }
 
-    void computeDirty(ActionVdo scene) {
+    void computeDirty(ActionVto scene) {
         dirty.setVisible(orighash != scene.hashCode());
     }
 }

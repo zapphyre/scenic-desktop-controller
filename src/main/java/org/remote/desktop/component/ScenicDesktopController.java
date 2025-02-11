@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.facade.TimedButtonGamepadFactory;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.XdoActionVdo;
+import org.remote.desktop.model.XdoActionVto;
 import org.remote.desktop.service.SceneService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static jxdotool.xDoToolUtil.*;
@@ -33,7 +31,7 @@ public class ScenicDesktopController {
                 .log()
                 .map(q -> ButtonActionDef.builder()
                         .trigger(q.getType())
-                        .modifiers(new HashSet<>(q.getModifiers()))
+                        .modifiers(q.getModifiers())
                         .build())
                 .flatMap(q -> Mono.justOrEmpty(sceneService.relativeWindowNameActions(getCurrentWindowTitle()))
                         .mapNotNull(p -> p.get(q))
@@ -41,7 +39,7 @@ public class ScenicDesktopController {
                 .subscribe(act);
     }
 
-    Consumer<List<XdoActionVdo>> act = q -> q.forEach(p -> {
+    Consumer<List<XdoActionVto>> act = q -> q.forEach(p -> {
         switch (p.getKeyEvt()) {
             case PRESS:
                 keydown(p.getKeyPress());
