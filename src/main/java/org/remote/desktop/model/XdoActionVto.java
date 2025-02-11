@@ -3,7 +3,7 @@ package org.remote.desktop.model;
 import lombok.Data;
 
 @Data
-public class XdoActionVdo {
+public class XdoActionVto {
     Long id;
 
     EKeyEvt keyEvt;

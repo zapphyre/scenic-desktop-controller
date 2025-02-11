@@ -8,14 +8,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.remote.desktop.model.SceneVdo;
+import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.service.SceneService;
 import org.remote.desktop.ui.view.component.SceneDialog;
 import org.remote.desktop.ui.view.component.SceneUi;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @UIScope
 @PageTitle("Gamepad Configurer UI")
@@ -23,14 +21,14 @@ import java.util.stream.Collectors;
 @SpringComponent
 public class GamepadActionConfig extends VerticalLayout {
 
-    ComboBox<SceneVdo> allScenes = new ComboBox<>("Scene");
+    ComboBox<SceneVto> allScenes = new ComboBox<>("Scene");
     VerticalLayout selectedScene = new VerticalLayout();
 
     public GamepadActionConfig(SceneService sceneService) {
-        List<SceneVdo> scenes = sceneService.getScenes();
+        List<SceneVto> scenes = sceneService.getScenes();
 
         allScenes.setItems(scenes);
-        allScenes.setItemLabelGenerator(SceneVdo::getName);
+        allScenes.setItemLabelGenerator(SceneVto::getName);
         allScenes.addValueChangeListener(e -> {
             selectedScene.removeAll();
             selectedScene.add(new SceneUi(e.getValue(), scenes));

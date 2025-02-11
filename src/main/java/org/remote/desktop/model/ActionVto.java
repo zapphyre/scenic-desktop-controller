@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActionVdo {
+public class ActionVto {
 
     Long id;
 
@@ -23,5 +23,5 @@ public class ActionVdo {
     boolean longPress;
     Set<EButtonAxisMapping> modifiers = new HashSet<>();
 
-    List<XdoActionVdo> actions = new LinkedList<>();
+    List<XdoActionVto> actions = new LinkedList<>();
 }

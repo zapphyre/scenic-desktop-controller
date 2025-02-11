@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.SceneVdo;
-import org.remote.desktop.model.XdoActionVdo;
+import org.remote.desktop.model.SceneVto;
+import org.remote.desktop.model.XdoActionVto;
 import org.remote.desktop.repository.SceneRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -33,14 +33,14 @@ public class SceneService {
     private final CacheManager cacheManager;
 
     @Cacheable(SCENE_CACHE_NAME)
-    public List<SceneVdo> getScenes() {
+    public List<SceneVto> getScenes() {
         return Optional.of(sceneRepository.findAll())
                 .map(q -> sceneMapper.mapToVdos(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
     }
 
     //    @CacheEvict({SCENE_CACHE_NAME, MAPPED_CACHE_NAME, WINDOW_SCENE_CACHE_NAME})
-    public List<SceneVdo> saveAll(List<SceneVdo> scenes) {
+    public List<SceneVto> saveAll(List<SceneVto> scenes) {
         Stream.of(SCENE_CACHE_NAME, MAPPED_CACHE_NAME, WINDOW_SCENE_CACHE_NAME)
                 .map(cacheManager::getCache)
                 .filter(Objects::nonNull)
@@ -51,10 +51,11 @@ public class SceneService {
                 .map(sceneRepository::saveAll)
                 .map(q -> sceneMapper.mapToVdos(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
+
     }
 
     @Cacheable(MAPPED_CACHE_NAME)
-    public Map<String, Map<ButtonActionDef, List<XdoActionVdo>>> mappedActions() {
+    public Map<String, Map<ButtonActionDef, List<XdoActionVto>>> mappedActions() {
         return getScenes().stream()
                 .flatMap(q -> q.getActions().stream()
                         .map(p -> new SceneBtnActions(q.getWindowName(), ButtonActionDef.builder()
@@ -65,7 +66,7 @@ public class SceneService {
     }
 
     @Cacheable(WINDOW_SCENE_CACHE_NAME)
-    public Map<ButtonActionDef, List<XdoActionVdo>> relativeWindowNameActions(String windowName) {
+    public Map<ButtonActionDef, List<XdoActionVto>> relativeWindowNameActions(String windowName) {
         return getScenes().stream()
                 .filter(q -> windowName.contains(q.getWindowName()))
                 .flatMap(q -> q.getActions().stream()
@@ -76,6 +77,6 @@ public class SceneService {
                 .collect(toMap(SceneBtnActions::buttonActionDef, q -> q.actions));
     }
 
-    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVdo> actions) {
+    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions) {
     }
 }
