@@ -21,7 +21,9 @@ public class ActionVto {
 
     EButtonAxisMapping trigger;
     boolean longPress;
-    Set<EButtonAxisMapping> modifiers = new HashSet<>();
 
+    SceneVto nextScene;
+
+    Set<EButtonAxisMapping> modifiers = new HashSet<>();
     List<XdoActionVto> actions = new LinkedList<>();
 }

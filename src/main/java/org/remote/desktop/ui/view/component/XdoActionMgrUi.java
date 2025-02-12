@@ -22,18 +22,27 @@ public class XdoActionMgrUi extends VerticalLayout {
         button.setAriaLabel("Add Action");
         button.setVisible(enabled);
 
+        VerticalLayout actionsWrapper = new VerticalLayout();
+
         button.addClickListener(e -> {
             XdoActionVto newAction = new XdoActionVto();
+
+            if (xdoActions.isEmpty())
+                add(actionsWrapper);
+
             xdoActions.add(newAction);
             XdoActionUi xdoActionUi = new XdoActionUi(newAction, enabled, xdoActions::remove);
-            add(xdoActionUi);
+            actionsWrapper.add(xdoActionUi);
         });
-
-        add(button);
 
         xdoActions.stream()
                 .map(q -> new XdoActionUi(q, enabled, xdoActions::remove))
-                .forEach(this::add);
+                .forEach(actionsWrapper::add);
+
+        if (!xdoActions.isEmpty())
+            add(actionsWrapper);
+
+        add(button);
     }
 
 }

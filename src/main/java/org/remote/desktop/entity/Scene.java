@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
+
 @Data
 @Entity
 @Builder
@@ -22,7 +24,9 @@ public class Scene {
     private String name;
     private String windowName;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+//    @JoinColumn(name = "inherits_scene_id", nullable = true, unique = false)
+//    @OneToOne(cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     private Scene inherits;
 
 //    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)

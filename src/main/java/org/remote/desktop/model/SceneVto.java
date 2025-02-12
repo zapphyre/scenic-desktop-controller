@@ -6,18 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SceneVto {
 
     Long id;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
     String name;
     String windowName;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     SceneVto inherits;
 
     List<ActionVto> actions = new LinkedList<>();

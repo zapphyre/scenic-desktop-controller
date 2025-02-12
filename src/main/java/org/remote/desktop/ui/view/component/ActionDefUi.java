@@ -3,7 +3,6 @@ package org.remote.desktop.ui.view.component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -12,6 +11,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.SceneVto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,11 +29,11 @@ public class ActionDefUi extends HorizontalLayout {
     List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
     int orighash;
 
-    public ActionDefUi(ActionVto input, Consumer<ActionVto> remover) {
-        this(input, true, remover);
+    public ActionDefUi(ActionVto input, List<SceneVto> allScenes, Consumer<ActionVto> remover) {
+        this(input, allScenes, true, remover);
     }
 
-    public ActionDefUi(ActionVto input, boolean enabled, Consumer<ActionVto> remover) {
+    public ActionDefUi(ActionVto input, List<SceneVto> allScenes, boolean enabled, Consumer<ActionVto> remover) {
         this.active = input;
         dirty.setVisible(false);
         orighash = input.hashCode();
@@ -61,14 +61,19 @@ public class ActionDefUi extends HorizontalLayout {
         modifiers.setWidthFull();
         modifiers.setEnabled(enabled);
 
-        setAlignItems(Alignment.BASELINE);
-        VerticalLayout icoWrap = new VerticalLayout();
-        icoWrap.setAlignItems(Alignment.BASELINE);
-        icoWrap.add(dirty);
+        Select<SceneVto> nextSceneSelect = new Select<>("Next Scene", q -> input.setNextScene(q.getValue()));
+        nextSceneSelect.setItems(allScenes);
+        nextSceneSelect.setValue(input.getNextScene());
+        nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
 
-        VerticalLayout dlay = new VerticalLayout(dirty);
-        dlay.setAlignItems(Alignment.BASELINE);
-        dlay.setHeightFull();
+//        setAlignItems(Alignment.BASELINE);
+//        VerticalLayout icoWrap = new VerticalLayout();
+//        icoWrap.setAlignItems(Alignment.BASELINE);
+//        icoWrap.add(dirty);
+
+//        VerticalLayout dlay = new VerticalLayout(dirty);
+//        dlay.setAlignItems(Alignment.BASELINE);
+//        dlay.setHeightFull();
 //        triggerSection.add(new HorizontalLayout(dlay));
 
         XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled);
@@ -87,11 +92,14 @@ public class ActionDefUi extends HorizontalLayout {
         triggerSection.setAlignItems(Alignment.BASELINE);
         triggerSection.setWidthFull();
 
-        Button button = new Button();
-        button.setVisible(false);
-        VerticalLayout actionsWplaceholder = new VerticalLayout(button, actionMgrUi);
-        HorizontalLayout horizontalLayout = new HorizontalLayout(triggerSection, actionsWplaceholder);
-        horizontalLayout.setAlignItems(Alignment.START);
+        VerticalLayout actionRowWrapper = new VerticalLayout();
+        actionRowWrapper.add(triggerSection, nextSceneSelect);
+        actionRowWrapper.setAlignItems(Alignment.STRETCH);
+//        Button button = new Button();
+//        button.setVisible(false);
+//        VerticalLayout actionsWplaceholder = new VerticalLayout(button, actionMgrUi);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(actionRowWrapper, actionMgrUi);
+        horizontalLayout.setAlignItems(Alignment.BASELINE);
 
         add(horizontalLayout);
     }
