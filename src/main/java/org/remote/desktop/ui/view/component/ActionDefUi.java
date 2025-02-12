@@ -14,8 +14,10 @@ import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ActionDefUi extends HorizontalLayout {
 
@@ -29,11 +31,11 @@ public class ActionDefUi extends HorizontalLayout {
     List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
     int orighash;
 
-    public ActionDefUi(ActionVto input, List<SceneVto> allScenes, Consumer<ActionVto> remover) {
+    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, Consumer<ActionVto> remover) {
         this(input, allScenes, true, remover);
     }
 
-    public ActionDefUi(ActionVto input, List<SceneVto> allScenes, boolean enabled, Consumer<ActionVto> remover) {
+    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled, Consumer<ActionVto> remover) {
         this.active = input;
         dirty.setVisible(false);
         orighash = input.hashCode();
@@ -62,9 +64,10 @@ public class ActionDefUi extends HorizontalLayout {
         modifiers.setEnabled(enabled);
 
         Select<SceneVto> nextSceneSelect = new Select<>("Next Scene", q -> input.setNextScene(q.getValue()));
-        nextSceneSelect.setItems(allScenes);
+        nextSceneSelect.setItems(allScenes.get());
         nextSceneSelect.setValue(input.getNextScene());
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
+        nextSceneSelect.setEnabled(enabled);
 
 //        setAlignItems(Alignment.BASELINE);
 //        VerticalLayout icoWrap = new VerticalLayout();
@@ -94,6 +97,7 @@ public class ActionDefUi extends HorizontalLayout {
 
         VerticalLayout actionRowWrapper = new VerticalLayout();
         actionRowWrapper.add(triggerSection, nextSceneSelect);
+        actionRowWrapper.setPadding(false);
         actionRowWrapper.setAlignItems(Alignment.STRETCH);
 //        Button button = new Button();
 //        button.setVisible(false);

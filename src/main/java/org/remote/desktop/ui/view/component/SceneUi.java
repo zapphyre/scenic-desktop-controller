@@ -1,5 +1,6 @@
 package org.remote.desktop.ui.view.component;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -7,64 +8,78 @@ import com.vaadin.flow.component.select.Select;
 import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
 
-    private final SceneVto scene;
+    private final Supplier<Collection<SceneVto>> allScenes;
 
-    public SceneUi(SceneVto scene, List<SceneVto> allScenes) {
-        this.scene = scene;
+    VerticalLayout inheritedActions;
+    VerticalLayout newlyAddedActions;
+    VerticalLayout ownActions;
+    VerticalLayout actions;
 
-        VerticalLayout inheritedActions = new VerticalLayout();
-        VerticalLayout newlyAddedActions = new VerticalLayout();
-        VerticalLayout ownActions = new VerticalLayout();
-        VerticalLayout actions = new VerticalLayout();
+    Select<SceneVto> inheritsFrom;
 
-        Select<SceneVto> inheritsFrom = new Select<>("Inherits from", e -> scene.setInherits(e.getValue()));
-        inheritsFrom.setItems(allScenes);
+    public SceneUi(Supplier<Collection<SceneVto>> allScenes) {
+        this.allScenes = allScenes;
 
-        if (scene.getInherits() != null)
-            inheritsFrom.setValue(scene.getInherits());
+        inheritedActions = new VerticalLayout();
+        newlyAddedActions = new VerticalLayout();
+        ownActions = new VerticalLayout();
+        actions = new VerticalLayout();
+
+        inheritsFrom = new Select<>("Inherits from",
+                e -> currentVto.get().setInherits(e.getValue()));
+        inheritsFrom.setItems(allScenes.get());
 
         inheritsFrom.setItemLabelGenerator(SceneVto::getName);
         inheritsFrom.addValueChangeListener(e -> {
             inheritedActions.removeAll();
-            List<ActionVto> actionVtos = scrapeActionsRecursive(scene);
-//            VerticalLayout qwer = new VerticalLayout();
-            actionVtos.stream()
-                    .map(q -> new ActionDefUi(q, allScenes, false, p -> scene.getActions().remove(p)))
+            scrapeActionsRecursive(currentVto.get()).stream()
+                    .map(q -> new ActionDefUi(q, allScenes, false, p -> currentVto.get().getActions().remove(p)))
                     .forEach(inheritedActions::add);
-//            inheritedActions.add(qwer);
         });
 
         Button addAction = new Button("New Action");
         addAction.addClickListener(e -> {
             ActionVto actionVto = new ActionVto();
-            scene.getActions().add(actionVto);
-            newlyAddedActions.add(new ActionDefUi(actionVto, allScenes, q -> scene.getActions().remove(q)));
+            SceneVto sceneVto = currentVto.get();
+            sceneVto.getActions().add(actionVto);
+            newlyAddedActions.add(new ActionDefUi(actionVto, allScenes, q -> sceneVto.getActions().remove(q)));
         });
 
         HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, addAction);
         selectAbnButtonHoriz.setAlignItems(Alignment.BASELINE);
 
-        scene.getActions().stream()
-                .map(q -> new ActionDefUi(q, allScenes, true, p -> scene.getActions().remove(p)))
+        actions.add(newlyAddedActions, ownActions, inheritedActions);
+        add(selectAbnButtonHoriz, actions);
+    }
+
+    Supplier<SceneVto> currentVto = SceneVto::new;
+
+    public Component render(SceneVto sceneVto) {
+        currentVto = () -> sceneVto;
+        newlyAddedActions.removeAll();
+        ownActions.removeAll();
+        inheritedActions.removeAll();
+
+        if (sceneVto.getInherits() != null)
+            inheritsFrom.setValue(sceneVto.getInherits());
+
+        sceneVto.getActions().stream()
+                .map(q -> new ActionDefUi(q, allScenes, true, p -> sceneVto.getActions().remove(p)))
                 .forEach(ownActions::add);
 
-        scrapeActionsRecursive(scene.getInherits()).stream()
+        scrapeActionsRecursive(sceneVto.getInherits()).stream()
                 .map(p -> new ActionDefUi(p, allScenes, false, o -> {
                 }))
                 .forEach(inheritedActions::add);
 
-        actions.add(newlyAddedActions, ownActions, inheritedActions);
-
-        add(selectAbnButtonHoriz, actions);
-    }
-
-    void render(SceneVto sceneVto) {
-
+        return this;
     }
 
     List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto) {

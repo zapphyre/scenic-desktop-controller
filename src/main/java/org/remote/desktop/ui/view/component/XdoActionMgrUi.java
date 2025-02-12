@@ -8,27 +8,24 @@ import java.util.List;
 
 public class XdoActionMgrUi extends VerticalLayout {
 
-    private final List<XdoActionVto> xdoActions;
-
     public XdoActionMgrUi(List<XdoActionVto> xdoActions) {
         this(xdoActions, true);
     }
 
     public XdoActionMgrUi(List<XdoActionVto> xdoActions, boolean enabled) {
-        this.xdoActions = xdoActions;
 
         setAlignItems(Alignment.CENTER);
-        Button button = new Button("+");
-        button.setAriaLabel("Add Action");
-        button.setVisible(enabled);
+        Button addButton = new Button("+");
+        addButton.setAriaLabel("Add Action");
+        addButton.setVisible(enabled);
 
         VerticalLayout actionsWrapper = new VerticalLayout();
 
-        button.addClickListener(e -> {
+        addButton.addClickListener(e -> {
             XdoActionVto newAction = new XdoActionVto();
 
-            if (xdoActions.isEmpty())
-                add(actionsWrapper);
+//            if (xdoActions.isEmpty())
+//                add(actionsWrapper);
 
             xdoActions.add(newAction);
             XdoActionUi xdoActionUi = new XdoActionUi(newAction, enabled, xdoActions::remove);
@@ -39,10 +36,10 @@ public class XdoActionMgrUi extends VerticalLayout {
                 .map(q -> new XdoActionUi(q, enabled, xdoActions::remove))
                 .forEach(actionsWrapper::add);
 
-        if (!xdoActions.isEmpty())
-            add(actionsWrapper);
+//        if (!xdoActions.isEmpty())
+//            add(actionsWrapper);
 
-        add(button);
+        add(actionsWrapper, addButton);
     }
 
 }
