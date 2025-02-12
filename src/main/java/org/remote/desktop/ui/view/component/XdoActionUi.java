@@ -14,21 +14,17 @@ import java.util.function.Consumer;
 
 public class XdoActionUi extends HorizontalLayout {
 
-    private final XdoActionVto xdoAction;
 
     public XdoActionUi(XdoActionVto xdoAction, Consumer<XdoActionVto> remover) {
         this(xdoAction, true, remover);
     }
 
     public XdoActionUi(XdoActionVto xdoAction, boolean enabled, Consumer<XdoActionVto> remover) {
-        this.xdoAction = xdoAction;
-
         setSizeFull();
         setAlignItems(Alignment.BASELINE);
         Button remove = new Button("-", e -> remover.accept(xdoAction));
         remove.setVisible(enabled);
 
-//        remove.addClickListener(e -> parent.remove(this));
         remove.addClickListener(e -> getParent()
                 .ifPresent(q -> ((HasComponents)q).remove(this)));
 
