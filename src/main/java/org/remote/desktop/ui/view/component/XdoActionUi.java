@@ -23,6 +23,7 @@ public class XdoActionUi extends HorizontalLayout {
     public XdoActionUi(XdoActionVto xdoAction, boolean enabled, Consumer<XdoActionVto> remover) {
         this.xdoAction = xdoAction;
 
+        setSizeFull();
         setAlignItems(Alignment.BASELINE);
         Button remove = new Button("-", e -> remover.accept(xdoAction));
         remove.setVisible(enabled);

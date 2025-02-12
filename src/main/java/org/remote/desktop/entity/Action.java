@@ -20,6 +20,9 @@ public class Action {
     String trigger;
     Boolean longPress;
 
+//    @OneToOne(fetch = FetchType.EAGER)
+//    Scene nextScene;
+
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     Set<String> modifiers;

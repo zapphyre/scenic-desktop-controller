@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -13,6 +14,7 @@ import org.remote.desktop.service.SceneService;
 import org.remote.desktop.ui.view.component.SceneDialog;
 import org.remote.desktop.ui.view.component.SceneUi;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @UIScope
@@ -24,10 +26,19 @@ public class GamepadActionConfig extends VerticalLayout {
     ComboBox<SceneVto> allScenes = new ComboBox<>("Scene");
     VerticalLayout selectedScene = new VerticalLayout();
 
-    public GamepadActionConfig(SceneService sceneService) {
-        List<SceneVto> scenes = sceneService.getScenes();
 
-        allScenes.setItems(scenes);
+    public GamepadActionConfig(SceneService sceneService) {
+        List<SceneVto> scenes = new LinkedList<>(sceneService.getScenes());
+        ListDataProvider<SceneVto> dataProvider = new ListDataProvider<>(scenes);
+
+        dataProvider.addDataProviderListener(event ->
+                {
+                    System.out.println(event);
+                }
+                );
+
+//        allScenes.setItems(scenes);
+        allScenes.setItems(dataProvider);
         allScenes.setItemLabelGenerator(SceneVto::getName);
         allScenes.addValueChangeListener(e -> {
             selectedScene.removeAll();
@@ -37,10 +48,17 @@ public class GamepadActionConfig extends VerticalLayout {
         Button newScene = new Button("New Scene");
         newScene.addClickListener(e -> new SceneDialog(scenes, q -> {
             scenes.add(q);
-            allScenes.setItems(scenes);
+//            allScenes.setItems(scenes);
+            allScenes.setValue(q);
+            allScenes.getDataProvider().refreshAll();
         }).open());
 
-        Button saveAll = new Button("Save All", q -> sceneService.saveAll(scenes));
+        Button saveAll = new Button("Save All", q -> {
+            sceneService.saveAll(scenes)
+                    .forEach(item ->
+                            dataProvider.refreshItem(item)
+                    );
+        });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(allScenes, newScene, saveAll);
         horizontalLayout.setAlignItems(Alignment.BASELINE);

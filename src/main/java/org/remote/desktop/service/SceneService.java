@@ -1,7 +1,6 @@
 package org.remote.desktop.service;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.SceneVto;
@@ -13,7 +12,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -34,9 +35,9 @@ public class SceneService {
 
     @Cacheable(SCENE_CACHE_NAME)
     public List<SceneVto> getScenes() {
-        return Optional.of(sceneRepository.findAll())
-                .map(q -> sceneMapper.mapToVdos(q, new CycleAvoidingMappingContext()))
-                .orElseThrow();
+        return sceneRepository.findAll().stream()
+                .map(sceneMapper::map)
+                .toList();
     }
 
     //    @CacheEvict({SCENE_CACHE_NAME, MAPPED_CACHE_NAME, WINDOW_SCENE_CACHE_NAME})
@@ -46,12 +47,11 @@ public class SceneService {
                 .filter(Objects::nonNull)
                 .forEach(Cache::invalidate);
 
-        return Optional.of(scenes)
-                .map(q -> sceneMapper.mapToEntities(q, new CycleAvoidingMappingContext()))
-                .map(sceneRepository::saveAll)
-                .map(q -> sceneMapper.mapToVdos(q, new CycleAvoidingMappingContext()))
-                .orElseThrow();
-
+        return scenes.stream()
+                .map(sceneMapper::map)
+                .map(sceneRepository::save)
+                .map(sceneMapper::map)
+                .toList();
     }
 
     @Cacheable(MAPPED_CACHE_NAME)
