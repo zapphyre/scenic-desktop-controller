@@ -20,8 +20,9 @@ public class Action {
     String trigger;
     Boolean longPress;
 
-//    @OneToOne(fetch = FetchType.EAGER)
-//    Scene nextScene;
+    // has to me many-one otherwise hibernate creates unique constrain on this column
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    Scene nextScene;
 
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))

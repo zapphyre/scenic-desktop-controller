@@ -98,7 +98,7 @@ public class ActionDefUi extends HorizontalLayout {
         VerticalLayout actionRowWrapper = new VerticalLayout();
         actionRowWrapper.add(triggerSection, nextSceneSelect);
         actionRowWrapper.setPadding(false);
-        actionRowWrapper.setAlignItems(Alignment.STRETCH);
+        actionRowWrapper.setAlignItems(Alignment.BASELINE);
 //        Button button = new Button();
 //        button.setVisible(false);
 //        VerticalLayout actionsWplaceholder = new VerticalLayout(button, actionMgrUi);

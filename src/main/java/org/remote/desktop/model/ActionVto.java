@@ -17,13 +17,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class ActionVto {
 
-    Long id;
+    private Long id;
 
-    EButtonAxisMapping trigger;
-    boolean longPress;
+    private EButtonAxisMapping trigger;
+    private boolean longPress;
 
-    SceneVto nextScene;
+    private SceneVto nextScene;
 
-    Set<EButtonAxisMapping> modifiers = new HashSet<>();
-    List<XdoActionVto> actions = new LinkedList<>();
+    private Set<EButtonAxisMapping> modifiers = new HashSet<>();
+    private List<XdoActionVto> actions = new LinkedList<>();
 }
