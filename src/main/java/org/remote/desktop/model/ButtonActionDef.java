@@ -11,4 +11,5 @@ import java.util.Set;
 public class ButtonActionDef {
     EButtonAxisMapping trigger;
     Set<EButtonAxisMapping> modifiers;
+    boolean longPress;
 }
