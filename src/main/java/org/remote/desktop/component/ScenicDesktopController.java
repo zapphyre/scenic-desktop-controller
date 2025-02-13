@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,16 +39,15 @@ public class ScenicDesktopController {
                         .trigger(q.getType())
                         .modifiers(q.getModifiers())
                         .build())
-                .flatMap(forcedScene == null ?
+                .flatMap(Objects.isNull(forcedScene) ?
                         getActionsOn(SceneService::relativeWindowNameActions, getCurrentWindowTitle()) :
                         getActionsOn(SceneService::extractActions, forcedScene)
                 )
-                .map(q -> {
+                .doOnNext(q -> {
                     if (forcedScene == null)
                         forcedScene = q.nextScene();
-
-                    return q.actions();
                 })
+                .map(NextSceneXdoAction::actions)
                 .subscribe(act);
     }
 
