@@ -29,15 +29,6 @@ public class GamepadActionConfig extends VerticalLayout {
 
     public GamepadActionConfig(SceneService sceneService) {
         List<SceneVto> scenes = new LinkedList<>(sceneService.getScenes());
-//        ListDataProvider<SceneVto> dataProvider = new ListDataProvider<>(scenes);
-
-//        dataProvider.addDataProviderListener(event ->
-//                {
-//                    System.out.println(event);
-//                }
-//                );
-
-//        allScenes.setItems(scenes);
 
         ComboBoxListDataView<SceneVto> dataProv = allScenes.setItems(scenes);
         SceneUi sceneUi = new SceneUi(() -> dataProv.getItems().toList());
@@ -50,23 +41,17 @@ public class GamepadActionConfig extends VerticalLayout {
         Button newScene = new Button("New Scene");
         newScene.addClickListener(e -> new SceneDialog(scenes, q -> {
             dataProv.addItem(q);
-//            allScenes.setItems(scenes);
             allScenes.setValue(q);
-            List<SceneVto> saved = sceneService.saveAll(scenes);
             scenes.clear();
-            scenes.addAll(saved);
-            allScenes.getDataProvider().refreshAll();
+            scenes.addAll(sceneService.saveAll(scenes));
+            dataProv.refreshAll();
         }).open());
 
-        Button saveAll = new Button("Save All", q ->
-//                sceneService.saveAll(dataProv.getItems().toList()).forEach(dataProv::refreshItem)
-        {
-            List<SceneVto> saved = sceneService.saveAll(scenes);
+        Button saveAll = new Button("Save All", q -> {
             scenes.clear();
-            scenes.addAll(saved);
+            scenes.addAll(sceneService.saveAll(scenes));
             dataProv.refreshAll();
-        }
-        );
+        });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(allScenes, newScene, saveAll);
         horizontalLayout.setAlignItems(Alignment.BASELINE);
