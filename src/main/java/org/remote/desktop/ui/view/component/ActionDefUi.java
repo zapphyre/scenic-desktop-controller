@@ -49,7 +49,7 @@ public class ActionDefUi extends HorizontalLayout {
         trigger.addValueChangeListener(q -> computeDirty(input));
         trigger.setEnabled(enabled);
 
-        Checkbox longPress = new Checkbox("Long Press");
+        Checkbox longPress = new Checkbox("Long press");
         longPress.setValue(input.isLongPress());
         longPress.addValueChangeListener(q -> input.setLongPress(q.getValue()));
         longPress.setEnabled(enabled);
@@ -69,29 +69,13 @@ public class ActionDefUi extends HorizontalLayout {
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
 
-//        setAlignItems(Alignment.BASELINE);
-//        VerticalLayout icoWrap = new VerticalLayout();
-//        icoWrap.setAlignItems(Alignment.BASELINE);
-//        icoWrap.add(dirty);
-
-//        VerticalLayout dlay = new VerticalLayout(dirty);
-//        dlay.setAlignItems(Alignment.BASELINE);
-//        dlay.setHeightFull();
-//        triggerSection.add(new HorizontalLayout(dlay));
-
         XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled);
-//        actionSection.add(actionMgrUi);
-//        actionSection.add(new TextField("Action_*2"));
-//        KeyInputUi keyInputUi = new KeyInputUi(input);
-//        actionSection.add(keyInputUi);
-
-//        triggerSection.setAlignItems(Alignment.CENTER);
 
         Button rem = new Button("-", q -> remover.accept(input));
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
         rem.setVisible(enabled);
 
-        triggerSection.add(rem, trigger, modifiers, longPress);
+        triggerSection.add(rem, trigger, modifiers, new VerticalLayout(longPress));
         triggerSection.setAlignItems(Alignment.BASELINE);
         triggerSection.setWidthFull();
 

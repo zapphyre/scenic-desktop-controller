@@ -3,6 +3,7 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.facade.TimedButtonGamepadFactory;
+import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.SceneVto;
@@ -28,6 +29,7 @@ public class ScenicDesktopController {
     private final static TimedButtonGamepadFactory timedButtonGamepadFactory = new TimedButtonGamepadFactory();
     private final static List<Runnable> factoryDisposable = timedButtonGamepadFactory.watchForDevices(0, 1);
 
+    private final ButtonPressMapper buttonPressMapper;
     private final SceneService sceneService;
     private SceneVto forcedScene;
 
@@ -35,14 +37,8 @@ public class ScenicDesktopController {
     public void employController() {
         Flux.merge(timedButtonGamepadFactory.getButtonStream(), timedButtonGamepadFactory.getArrowsStream())
                 .log()
-                .map(q -> ButtonActionDef.builder()
-                        .trigger(q.getType())
-                        .modifiers(q.getModifiers())
-                        .build())
-                .flatMap(Objects.isNull(forcedScene) ?
-                        getActionsOn(SceneService::relativeWindowNameActions, getCurrentWindowTitle()) :
-                        getActionsOn(SceneService::extractActions, forcedScene)
-                )
+                .map(buttonPressMapper::map)
+                .flatMap(getNextSceneXdoAction)
                 .doOnNext(q -> {
                     if (forcedScene == null)
                         forcedScene = q.nextScene();
@@ -51,9 +47,17 @@ public class ScenicDesktopController {
                 .subscribe(act);
     }
 
-    <P> Function<ButtonActionDef, Mono<NextSceneXdoAction>> getActionsOn(BiFunction<SceneService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter, P param) {
-        return q -> Mono.justOrEmpty(paramGetter.apply(sceneService, param))
-                .mapNotNull(getActionsForButtons(q));
+    Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction =q -> isSceneForced() ?
+                getActionsOn(SceneService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
+                getActionsOn(SceneService::extractActions, forcedScene, q);
+
+    boolean isSceneForced() {
+        return forcedScene == null;
+    }
+
+    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<SceneService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter, P param, ButtonActionDef buttons) {
+        return Mono.justOrEmpty(paramGetter.apply(sceneService, param))
+                .mapNotNull(getActionsForButtons(buttons));
     }
 
     Function<Map<ButtonActionDef, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ButtonActionDef def) {

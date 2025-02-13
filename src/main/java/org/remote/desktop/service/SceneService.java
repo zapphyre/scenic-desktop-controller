@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -39,6 +40,19 @@ public class SceneService {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
                 .toList();
+    }
+
+    public SceneVto save(SceneVto sceneVto) {
+        Stream.of(SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME)
+                .map(cacheManager::getCache)
+                .filter(Objects::nonNull)
+                .forEach(Cache::invalidate);
+
+        return Optional.of(sceneVto)
+                .map(sceneMapper::map)
+                .map(sceneRepository::save)
+                .map(sceneMapper::map)
+                .orElseThrow();
     }
 
     //    @CacheEvict({SCENE_CACHE_NAME, MAPPED_CACHE_NAME, WINDOW_SCENE_CACHE_NAME})
@@ -70,7 +84,8 @@ public class SceneService {
                 .map(p -> new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
                         .trigger(p.getTrigger())
                         .modifiers(p.getModifiers())
-                        .build(), p.getActions(), p.getNextScene()))
+                        .longPress(p.isLongPress())
+                         .build(), p.getActions(), p.getNextScene()))
                 .collect(toMap(SceneBtnActions::buttonActionDef, q -> new NextSceneXdoAction(q.nextScene, q.actions)));
     }
 

@@ -20,5 +20,6 @@ public class SceneVto {
     private String windowName;
     private SceneVto inherits;
 
+    @Builder.Default
     private List<ActionVto> actions = new LinkedList<>();
 }

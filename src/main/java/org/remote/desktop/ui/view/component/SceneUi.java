@@ -69,6 +69,8 @@ public class SceneUi extends VerticalLayout {
 
         if (sceneVto.getInherits() != null)
             inheritsFrom.setValue(sceneVto.getInherits());
+        else
+            inheritsFrom.setValue(null);
 
         sceneVto.getActions().stream()
                 .map(q -> new ActionDefUi(q, allScenes, true, p -> sceneVto.getActions().remove(p)))
