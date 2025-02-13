@@ -55,7 +55,8 @@ public abstract class BaseScene {
     }
 
     public BaseScene leftBumper(GamepadEvent type) {
-        MouseCtrl.click();
+//        MouseCtrl.click();
+        System.out.println(getCurrentWindowTitle());
 
         return this;
     }

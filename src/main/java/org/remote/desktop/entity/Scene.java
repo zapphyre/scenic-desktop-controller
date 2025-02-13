@@ -24,18 +24,10 @@ public class Scene {
     private String name;
     private String windowName;
 
-    @ManyToOne
-//    @JoinColumn(name = "inherits_scene_id", nullable = true, unique = false)
-//    @OneToOne(cascade = {CascadeType.REFRESH, CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private Scene inherits;
 
-//    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Action> actions;
 
-//    @PreUpdate
-//    @PrePersist
-//    void relinkEntities() {
-//        actions.forEach(q -> q.setScene(this));
-//    }
 }

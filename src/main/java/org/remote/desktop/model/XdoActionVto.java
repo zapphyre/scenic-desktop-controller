@@ -1,11 +1,17 @@
 package org.remote.desktop.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class XdoActionVto {
-    Long id;
+    private Long id;
 
-    EKeyEvt keyEvt;
-    String keyPress;
+    private EKeyEvt keyEvt;
+    private String keyPress;
 }

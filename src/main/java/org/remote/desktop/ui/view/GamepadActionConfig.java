@@ -52,6 +52,9 @@ public class GamepadActionConfig extends VerticalLayout {
             dataProv.addItem(q);
 //            allScenes.setItems(scenes);
             allScenes.setValue(q);
+            List<SceneVto> saved = sceneService.saveAll(scenes);
+            scenes.clear();
+            scenes.addAll(saved);
             allScenes.getDataProvider().refreshAll();
         }).open());
 

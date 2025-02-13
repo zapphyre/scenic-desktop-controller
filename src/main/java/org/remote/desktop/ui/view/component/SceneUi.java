@@ -74,10 +74,10 @@ public class SceneUi extends VerticalLayout {
                 .map(q -> new ActionDefUi(q, allScenes, true, p -> sceneVto.getActions().remove(p)))
                 .forEach(ownActions::add);
 
-        scrapeActionsRecursive(sceneVto.getInherits()).stream()
-                .map(p -> new ActionDefUi(p, allScenes, false, o -> {
-                }))
-                .forEach(inheritedActions::add);
+//        scrapeActionsRecursive(sceneVto.getInherits()).stream()
+//                .map(p -> new ActionDefUi(p, allScenes, false, o -> {
+//                }))
+//                .forEach(inheritedActions::add);
 
         return this;
     }

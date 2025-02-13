@@ -12,13 +12,13 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SceneVto {
 
-    Long id;
+    private Long id;
 
     @ToString.Include
     @EqualsAndHashCode.Include
-    String name;
-    String windowName;
-    SceneVto inherits;
+    private String name;
+    private String windowName;
+    private SceneVto inherits;
 
-    List<ActionVto> actions = new LinkedList<>();
+    private List<ActionVto> actions = new LinkedList<>();
 }

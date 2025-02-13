@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.remote.desktop.entity.Scene;
 import org.remote.desktop.mapper.SceneMapper;
+import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -44,6 +45,9 @@ public class SceneRepositoryTest {
                 .name("asdf")
                 .windowName("windowName")
                 .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                .actions(List.of(ActionVto.builder()
+                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                        .build()))
                 .build();
 
         Scene scene2 = sceneMapper.map(scene2Vto);
@@ -53,6 +57,9 @@ public class SceneRepositoryTest {
                 .name("xzcv")
                 .windowName("windowName")
                 .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                .actions(List.of(ActionVto.builder()
+                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                        .build()))
                 .build();
 
         Scene e3 = sceneMapper.map(scene3Vto);
