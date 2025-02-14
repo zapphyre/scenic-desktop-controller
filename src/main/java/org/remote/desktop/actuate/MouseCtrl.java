@@ -49,7 +49,7 @@ public class MouseCtrl {
         double y = radius * Math.sin(theta);
 
         // Adjust scroll sensitivity based on both radius and angle
-        double mappedRadius = mapRadius(radius, -32767, 32768, -1_560_000, 1_560_000); // One third of the range
+        double mappedRadius = mapVal(radius, -32767, 32768, -1_560_000, 1_560_000); // One third of the range
         double sensitivityFactor = Math.abs(y) / Math.abs(mappedRadius); // Use mapped radius for sensitivity calculation
 
         int scrollAmount = (int) (Math.abs(radius) * sensitivityFactor * 0.002); // Adjust the 0.01 to fine-tune sensitivity
@@ -62,7 +62,7 @@ public class MouseCtrl {
         Thread.sleep(delay);
     }
 
-    private static double mapRadius(double value, int start1, int stop1, int start2, int stop2) {
+    public static double mapVal(double value, int start1, int stop1, int start2, int stop2) {
         return start2 + (stop2 - start2) * (value - start1) / (stop1 - start1);
     }
 }
