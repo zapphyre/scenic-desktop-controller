@@ -31,8 +31,9 @@ public class TriggerController {
                 .filter(filterTrigger(EButtonAxisMapping.TRIGGER_LEFT))
                 .subscribe(q -> {
                     int jump = Math.abs(previousPosition - q.getPosition());
+                    jump /= 10;
 
-                    int mapped = (int) mapVal(jump, 0, 5_000, 1, 6);
+                    int mapped = (int) mapVal(jump, 0, 4000, 1, 6);
                     System.out.println(mapped);
 
                     if (previousPosition < q.getPosition())
