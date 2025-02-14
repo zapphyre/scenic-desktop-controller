@@ -72,7 +72,7 @@ public class DesktopSceneManager {
         };
     }
 
-    Predicate<TriggerPosition> filterTrigger(EButtonAxisMapping eType) {
+    public static Predicate<TriggerPosition> filterTrigger(EButtonAxisMapping eType) {
         return q -> q.getType() == eType;
     }
 

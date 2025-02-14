@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -26,15 +25,13 @@ import static jxdotool.xDoToolUtil.*;
 @RequiredArgsConstructor
 public class ScenicDesktopController {
 
-    private final static TimedButtonGamepadFactory timedButtonGamepadFactory = new TimedButtonGamepadFactory();
-    private final static List<Runnable> factoryDisposable = timedButtonGamepadFactory.watchForDevices(0, 1);
-
+    private final TimedButtonGamepadFactory timedButtonGamepadFactory;
     private final ButtonPressMapper buttonPressMapper;
     private final SceneService sceneService;
     private SceneVto forcedScene;
 
-    @PostConstruct
-    public void employController() {
+//    @PostConstruct
+    void employController() {
         Flux.merge(timedButtonGamepadFactory.getButtonStream(), timedButtonGamepadFactory.getArrowsStream())
                 .log()
                 .map(buttonPressMapper::map)
