@@ -5,14 +5,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.remote.desktop.model.XdoActionVto;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class XdoActionMgrUi extends VerticalLayout {
 
-    public XdoActionMgrUi(List<XdoActionVto> xdoActions) {
-        this(xdoActions, true);
+    public XdoActionMgrUi(List<XdoActionVto> xdoActions, Consumer<XdoActionVto> chageCb) {
+        this(xdoActions, true, chageCb);
     }
 
-    public XdoActionMgrUi(List<XdoActionVto> xdoActions, boolean enabled) {
+    public XdoActionMgrUi(List<XdoActionVto> xdoActions, boolean enabled, Consumer<XdoActionVto> chageCb) {
 
         setAlignItems(Alignment.CENTER);
         Button addButton = new Button("+");
@@ -28,12 +29,12 @@ public class XdoActionMgrUi extends VerticalLayout {
 //                add(actionsWrapper);
 
             xdoActions.add(newAction);
-            XdoActionUi xdoActionUi = new XdoActionUi(newAction, enabled, xdoActions::remove);
+            XdoActionUi xdoActionUi = new XdoActionUi(newAction, enabled, xdoActions::remove, chageCb);
             actionsWrapper.add(xdoActionUi);
         });
 
         xdoActions.stream()
-                .map(q -> new XdoActionUi(q, enabled, xdoActions::remove))
+                .map(q -> new XdoActionUi(q, enabled, xdoActions::remove, chageCb))
                 .forEach(actionsWrapper::add);
 
 //        if (!xdoActions.isEmpty())

@@ -31,11 +31,11 @@ public class ActionDefUi extends HorizontalLayout {
     List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
     int orighash;
 
-    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, Consumer<ActionVto> remover) {
-        this(input, allScenes, true, remover);
+    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, Consumer<ActionVto> remover, Consumer<ActionVto> chageCb) {
+        this(input, allScenes, true, remover, chageCb);
     }
 
-    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled, Consumer<ActionVto> remover) {
+    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled, Consumer<ActionVto> remover, Consumer<ActionVto> chageCb) {
         this.active = input;
         dirty.setVisible(false);
         orighash = input.hashCode();
@@ -69,11 +69,12 @@ public class ActionDefUi extends HorizontalLayout {
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
 
-        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled);
+        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled, q -> chageCb.accept(input));
 
         Button rem = new Button("-", q -> remover.accept(input));
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
         rem.setVisible(enabled);
+        rem.addClickListener(q -> chageCb.accept(input));
 
         triggerSection.add(rem, trigger, modifiers, new VerticalLayout(longPress));
         triggerSection.setAlignItems(Alignment.BASELINE);

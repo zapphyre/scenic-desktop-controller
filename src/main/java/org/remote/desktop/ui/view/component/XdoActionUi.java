@@ -15,11 +15,11 @@ import java.util.function.Consumer;
 public class XdoActionUi extends HorizontalLayout {
 
 
-    public XdoActionUi(XdoActionVto xdoAction, Consumer<XdoActionVto> remover) {
-        this(xdoAction, true, remover);
+    public XdoActionUi(XdoActionVto xdoAction, Consumer<XdoActionVto> remover, Consumer<XdoActionVto> chageCb) {
+        this(xdoAction, true, remover, chageCb);
     }
 
-    public XdoActionUi(XdoActionVto xdoAction, boolean enabled, Consumer<XdoActionVto> remover) {
+    public XdoActionUi(XdoActionVto xdoAction, boolean enabled, Consumer<XdoActionVto> remover, Consumer<XdoActionVto> chageCb) {
         setSizeFull();
         setAlignItems(Alignment.BASELINE);
         Button remove = new Button("-", e -> remover.accept(xdoAction));
@@ -27,6 +27,7 @@ public class XdoActionUi extends HorizontalLayout {
 
         remove.addClickListener(e -> getParent()
                 .ifPresent(q -> ((HasComponents)q).remove(this)));
+        remove.addClickListener(e -> chageCb.accept(xdoAction));
 
         Select<EKeyEvt> keyEvtComboBox = new Select<>("First Press", q ->
                 xdoAction.setKeyEvt(q.getValue())
@@ -38,6 +39,7 @@ public class XdoActionUi extends HorizontalLayout {
 
         TextField key = new TextField("key");
         key.addValueChangeListener(q -> xdoAction.setKeyPress(q.getValue()));
+        key.addValueChangeListener(e -> chageCb.accept(xdoAction));
         Optional.ofNullable(xdoAction.getKeyPress())
                         .ifPresent(key::setValue);
         key.setEnabled(enabled);
