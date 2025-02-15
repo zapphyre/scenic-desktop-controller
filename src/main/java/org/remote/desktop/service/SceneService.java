@@ -87,12 +87,12 @@ public class SceneService {
 
     public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
         return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getActions())
-                .flatMap(q -> q.stream().map(p ->
-                        new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
+                .flatMap(Collection::stream)
+                .map(p -> new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
                                 .trigger(p.getTrigger())
                                 .modifiers(p.getModifiers())
                                 .longPress(p.isLongPress())
-                                .build(), p.getActions(), p.getNextScene())))
+                                .build(), p.getActions(), p.getNextScene()))
                 .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
