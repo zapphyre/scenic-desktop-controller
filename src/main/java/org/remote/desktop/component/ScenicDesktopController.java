@@ -47,7 +47,7 @@ public class ScenicDesktopController {
 
     Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction =q -> isSceneForced() ?
                 getActionsOn(SceneService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
-                getActionsOn(SceneService::extractActions, forcedScene, q);
+                getActionsOn(SceneService::extractInheritedActions, forcedScene, q);
 
     boolean isSceneForced() {
         return forcedScene == null;
