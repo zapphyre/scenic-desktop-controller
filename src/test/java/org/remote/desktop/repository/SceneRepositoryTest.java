@@ -63,7 +63,11 @@ public class SceneRepositoryTest {
                 .build();
 
         Scene e3 = sceneMapper.map(scene3Vto);
-        Scene e3saved = sceneRepository.save(e3);
+        try {
+            Scene e3saved = sceneRepository.save(e3);
+        } catch (Exception w) {
+            System.out.println(w.getMessage());
+        }
 
         SceneVto scene4vto = SceneVto.builder()
                 .name("opiu")

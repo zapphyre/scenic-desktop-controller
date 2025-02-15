@@ -30,10 +30,11 @@ public class ScenicDesktopController {
     private final SceneService sceneService;
     private SceneVto forcedScene;
 
-//    @PostConstruct
+    int previousPosition = -32767;
+
+    @PostConstruct
     void employController() {
         Flux.merge(timedButtonGamepadFactory.getButtonStream(), timedButtonGamepadFactory.getArrowsStream())
-                .log()
                 .map(buttonPressMapper::map)
                 .flatMap(getNextSceneXdoAction)
                 .doOnNext(q -> {

@@ -20,7 +20,7 @@ public class TriggerController {
     private int previousPosition = -32767;
 
     @SneakyThrows
-    @PostConstruct
+//    @PostConstruct
     void init() {
         Robot robot = new Robot();
         timedButtonGamepadFactory.getButtonStream()

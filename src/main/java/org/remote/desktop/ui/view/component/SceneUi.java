@@ -5,17 +5,20 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.select.data.SelectListDataView;
 import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
 
     private final Supplier<Collection<SceneVto>> allScenes;
+    private final Consumer<SceneVto> chageCb;
 
     VerticalLayout inheritedActions;
     VerticalLayout newlyAddedActions;
@@ -23,9 +26,11 @@ public class SceneUi extends VerticalLayout {
     VerticalLayout actions;
 
     Select<SceneVto> inheritsFrom;
+    SelectListDataView<SceneVto> items;
 
-    public SceneUi(Supplier<Collection<SceneVto>> allScenes) {
+    public SceneUi(Supplier<Collection<SceneVto>> allScenes, Consumer<SceneVto> chageCb) {
         this.allScenes = allScenes;
+        this.chageCb = chageCb;
 
         inheritedActions = new VerticalLayout();
         newlyAddedActions = new VerticalLayout();
@@ -34,14 +39,22 @@ public class SceneUi extends VerticalLayout {
 
         inheritsFrom = new Select<>("Inherits from",
                 e -> currentVto.get().setInherits(e.getValue()));
-        inheritsFrom.setItems(allScenes.get());
+        items = inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
 
         inheritsFrom.setItemLabelGenerator(SceneVto::getName);
         inheritsFrom.addValueChangeListener(e -> {
-            inheritedActions.removeAll();
-            scrapeActionsRecursive(currentVto.get()).stream()
-                    .map(q -> new ActionDefUi(q, allScenes, false, p -> currentVto.get().getActions().remove(p)))
-                    .forEach(inheritedActions::add);
+            currentVto.get().setInherits(e.getValue());
+
+            refreshInheritedSelectionList();
+            chageCb.accept(currentVto.get());
+        });
+
+        Button removeInherits = new Button("✗", o -> {
+            currentVto.get().setInherits(null);
+            inheritsFrom.setValue(null);
+            chageCb.accept(currentVto.get());
+
+            refreshInheritedSelectionList();
         });
 
         Button addAction = new Button("New Action");
@@ -49,10 +62,11 @@ public class SceneUi extends VerticalLayout {
             ActionVto actionVto = new ActionVto();
             SceneVto sceneVto = currentVto.get();
             sceneVto.getActions().add(actionVto);
-            newlyAddedActions.add(new ActionDefUi(actionVto, allScenes, q -> sceneVto.getActions().remove(q)));
+            newlyAddedActions.addComponentAsFirst(new ActionDefUi(actionVto, allScenes, q -> sceneVto.getActions().remove(q),
+                    q -> chageCb.accept(currentVto.get())));
         });
 
-        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, addAction);
+        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, removeInherits, addAction);
         selectAbnButtonHoriz.setAlignItems(Alignment.BASELINE);
 
         actions.add(newlyAddedActions, ownActions, inheritedActions);
@@ -67,13 +81,17 @@ public class SceneUi extends VerticalLayout {
         ownActions.removeAll();
         inheritedActions.removeAll();
 
+        items.removeItems(List.of(sceneVto));
+
         if (sceneVto.getInherits() != null)
             inheritsFrom.setValue(sceneVto.getInherits());
         else
             inheritsFrom.setValue(null);
 
         sceneVto.getActions().stream()
-                .map(q -> new ActionDefUi(q, allScenes, true, p -> sceneVto.getActions().remove(p)))
+                .map(q -> new ActionDefUi(q, allScenes, true,
+                        p -> sceneVto.getActions().remove(p),
+                        w -> chageCb.accept(currentVto.get())))
                 .forEach(ownActions::add);
 
 //        scrapeActionsRecursive(sceneVto.getInherits()).stream()
@@ -84,17 +102,27 @@ public class SceneUi extends VerticalLayout {
         return this;
     }
 
-    List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto) {
+
+    public static List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto) {
         return sceneVto == null ? List.of() : scrapeActionsRecursive(sceneVto, new LinkedList<>());
     }
 
-    List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto, List<ActionVto> actionVtos) {
+    public static List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto, List<ActionVto> actionVtos) {
         if (sceneVto.getInherits() == null)
             return sceneVto.getActions();
 
-        List<ActionVto> inherited = scrapeActionsRecursive(sceneVto.getInherits(), actionVtos);
-        actionVtos.addAll(inherited);
+        actionVtos.addAll(scrapeActionsRecursive(sceneVto.getInherits(), actionVtos));
 
         return actionVtos;
+    }
+
+    void refreshInheritedSelectionList() {
+        inheritedActions.removeAll();
+        scrapeActionsRecursive(currentVto.get()).stream()
+                .filter(q -> !currentVto.get().getActions().contains(q))
+                .map(q -> new ActionDefUi(q, allScenes, false,
+                        p -> currentVto.get().getActions().remove(p),
+                        w -> chageCb.accept(currentVto.get())))
+                .forEach(inheritedActions::add);
     }
 }

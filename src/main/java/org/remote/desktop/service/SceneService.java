@@ -1,5 +1,6 @@
 package org.remote.desktop.service;
 
+import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.ButtonActionDef;
@@ -13,13 +14,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
+import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
 
 
 @Service
@@ -42,6 +41,13 @@ public class SceneService {
                 .toList();
     }
 
+    @Cacheable(SCENE_CACHE_NAME)
+    public SceneVto getScene(String sceneName) {
+        return sceneRepository.findById(sceneName)
+                .map(sceneMapper::map)
+                .orElse(new SceneVto());
+    }
+
     public SceneVto save(SceneVto sceneVto) {
         Stream.of(SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME)
                 .map(cacheManager::getCache)
@@ -55,8 +61,7 @@ public class SceneService {
                 .orElseThrow();
     }
 
-    //    @CacheEvict({SCENE_CACHE_NAME, MAPPED_CACHE_NAME, WINDOW_SCENE_CACHE_NAME})
-    public List<SceneVto> saveAll(List<SceneVto> scenes) {
+    public List<SceneVto> saveAll(Collection<SceneVto> scenes) {
         Stream.of(SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME)
                 .map(cacheManager::getCache)
                 .filter(Objects::nonNull)
@@ -71,24 +76,27 @@ public class SceneService {
 
     @Cacheable(WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
-        return getScenes().stream()
-                .filter(q -> windowName.contains(q.getWindowName()))
-                .findFirst()
-                .map(this::extractActions)
+        return Optional.of(getScenes().stream()
+                        .filter(q -> !Strings.isNullOrEmpty(q.getWindowName()))
+                        .filter(q -> windowName.contains(q.getWindowName()))
+                        .findFirst().orElseGet(() -> getScene("Base"))
+                )
+                .map(this::extractInheritedActions)
                 .orElse(Map.of());
     }
 
-    @Cacheable(SCENE_NAME_CACHE_NAME)
-    public Map<ButtonActionDef, NextSceneXdoAction> extractActions(SceneVto sceneVto) {
-        return sceneVto.getActions().stream()
-                .map(p -> new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
-                        .trigger(p.getTrigger())
-                        .modifiers(p.getModifiers())
-                        .longPress(p.isLongPress())
-                         .build(), p.getActions(), p.getNextScene()))
-                .collect(toMap(SceneBtnActions::buttonActionDef, q -> new NextSceneXdoAction(q.nextScene, q.actions)));
+    public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
+        return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getActions())
+                .flatMap(q -> q.stream().map(p ->
+                        new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
+                                .trigger(p.getTrigger())
+                                .modifiers(p.getModifiers())
+                                .longPress(p.isLongPress())
+                                .build(), p.getActions(), p.getNextScene())))
+                .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
-    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions, SceneVto nextScene) {
+    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
+                           SceneVto nextScene) {
     }
 }

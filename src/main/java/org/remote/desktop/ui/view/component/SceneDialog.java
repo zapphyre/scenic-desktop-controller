@@ -7,18 +7,18 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import org.remote.desktop.model.SceneVto;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class SceneDialog extends Dialog {
 
-    public SceneDialog(List<SceneVto> scenes, Consumer<SceneVto> callback) {
-        this(null, scenes, callback, q -> {
+    public SceneDialog(Collection<SceneVto> scenes, Consumer<SceneVto> okCallback) {
+        this(null, scenes, okCallback, q -> {
         });
     }
 
-    public SceneDialog(SceneVto in, List<SceneVto> scenes, Consumer<SceneVto> okCallback, Consumer<SceneVto> removeCallback) {
+    public SceneDialog(SceneVto in, Collection<SceneVto> scenes, Consumer<SceneVto> okCallback, Consumer<SceneVto> removeCallback) {
         SceneVto scene = in == null ? SceneVto.builder()
                 .windowName("")
                 .name("")

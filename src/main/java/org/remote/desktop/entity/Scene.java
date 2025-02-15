@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
-
 @Data
 @Entity
 @Builder
@@ -17,10 +15,11 @@ import static jakarta.persistence.ConstraintMode.NO_CONSTRAINT;
 @AllArgsConstructor
 public class Scene {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
+    @Id
     private String name;
     private String windowName;
 

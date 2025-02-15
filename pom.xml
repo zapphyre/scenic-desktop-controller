@@ -32,6 +32,7 @@
 
         <j.xdotool.version>1.11-SNAPSHOT</j.xdotool.version>
         <vaadin.version>24.6.4</vaadin.version>
+        <liquibase.version>4.17.0</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -111,6 +112,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
@@ -152,7 +159,8 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
                             <version>0.2.0</version>
-                        </path>                    </annotationProcessorPaths>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
@@ -192,28 +200,37 @@
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifest>-->
-<!--                            <addClasspath>true</addClasspath>-->
-<!--                            <mainClass>org.remote.desktop.DesktopRemoteMain</mainClass>-->
-<!--                        </manifest>-->
-<!--                    </archive>-->
-<!--                    <descriptorRefs>-->
-<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
-<!--                    </descriptorRefs>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version> <!-- Make sure to use the latest version -->
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                </configuration>
+            </plugin>
+
+            <!--            <plugin>-->
+            <!--                <artifactId>maven-assembly-plugin</artifactId>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>package</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>single</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <configuration>-->
+            <!--                    <archive>-->
+            <!--                        <manifest>-->
+            <!--                            <addClasspath>true</addClasspath>-->
+            <!--                            <mainClass>org.remote.desktop.DesktopRemoteMain</mainClass>-->
+            <!--                        </manifest>-->
+            <!--                    </archive>-->
+            <!--                    <descriptorRefs>-->
+            <!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+            <!--                    </descriptorRefs>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 
