@@ -16,23 +16,18 @@ public class XdoActionMgrUi extends VerticalLayout {
     }
 
     public XdoActionMgrUi(SceneDbToolbox dbToolbox, ActionVto parent, List<XdoActionVto> xdoActions, boolean enabled, Consumer<XdoActionVto> chageCb) {
+        setWidthFull();
 
-        setAlignItems(Alignment.CENTER);
         Button addButton = new Button("+");
         addButton.setAriaLabel("Add Action");
         addButton.setVisible(enabled);
-
-        VerticalLayout actionsWrapper = new VerticalLayout();
 
         xdoActions.stream()
                 .map(q -> new XdoActionUi(q, enabled, o -> {
                     xdoActions.remove(o);
                     dbToolbox.remove(o);
-                }, qr -> {
-                    System.out.println("invoking xdoActUi update callback for some reason");
-                    chageCb.accept(qr);
-                }))
-                .forEach(actionsWrapper::add);
+                }, chageCb))
+                .forEach(this::addComponentAsFirst);
 
         addButton.addClickListener(e -> {
             XdoActionVto newAction = XdoActionVto.builder()
@@ -48,10 +43,11 @@ public class XdoActionMgrUi extends VerticalLayout {
                 dbToolbox.remove(o);
             }, chageCb);
 
-            actionsWrapper.add(xdoActionUi);
+            addComponentAsFirst(xdoActionUi);
         });
 
-        add(actionsWrapper, addButton);
+        setAlignItems(Alignment.CENTER);
+        add(addButton);
     }
 
 }

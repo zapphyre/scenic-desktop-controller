@@ -26,10 +26,6 @@ public class XdoActionUi extends HorizontalLayout {
 
         remove.addClickListener(e -> getParent()
                 .ifPresent(q -> ((HasComponents)q).remove(this)));
-        remove.addClickListener(e -> {
-            System.out.println("remove action cb invoked");
-            remover.accept(xdoAction);
-        });
 
         Select<EKeyEvt> keyEvtComboBox = new Select<>("First Press", q -> {});
         keyEvtComboBox.setItems(EKeyEvt.values());
