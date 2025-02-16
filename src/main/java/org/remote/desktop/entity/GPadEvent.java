@@ -3,6 +3,7 @@ package org.remote.desktop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public class GPadEvent {
     private Set<String> modifiers;
 
     @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private Set<XdoAction> actions;
+    private Set<XdoAction> actions = new HashSet<>();
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn
@@ -49,17 +50,15 @@ public class GPadEvent {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(actions)
-                .ifPresent(q -> q.forEach(p -> p.setGPadEvent(this)));
+        actions.forEach(p -> p.setGPadEvent(this));
 
         Optional.ofNullable(scene)
-                .ifPresent(q -> q.getGPadEvents().add(this));
+                .map(Scene::getGPadEvents)
+                .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(actions)
-                .orElse(Set.of())
-                .forEach(pos -> pos.setGPadEvent(null));
+        actions.forEach(q -> q.setGPadEvent(null));
     }
 }
