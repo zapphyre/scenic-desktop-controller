@@ -49,7 +49,7 @@ public class ActionDefUi extends HorizontalLayout {
         modifiers.setEnabled(enabled);
 
         Select<SceneVto> nextSceneSelect = new Select<>("Next Scene", q -> input.setNextScene(q.getValue()));
-        nextSceneSelect.setItems(allScenes.get());
+        nextSceneSelect.setItems(allScenes.get().stream().filter(q -> !q.getName().equals(parent.getName())).toList());
         nextSceneSelect.setValue(input.getNextScene());
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
