@@ -13,15 +13,21 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ToString.Include
+    @EqualsAndHashCode.Include
     private String trigger;
+
     @ToString.Include
+    @EqualsAndHashCode.Include
     private Boolean longPress;
 
     // has to me many-one otherwise hibernate creates unique constrain on this column
@@ -29,12 +35,13 @@ public class Action {
     private Scene nextScene;
 
     @ToString.Include
+    @EqualsAndHashCode.Include
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     private Set<String> modifiers;
 
     @OneToMany(mappedBy = "action", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<XdoAction> actions;
+    private List<XdoAction> actions;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn

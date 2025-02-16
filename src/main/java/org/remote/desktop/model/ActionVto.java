@@ -2,6 +2,7 @@ package org.remote.desktop.model;
 
 import lombok.*;
 import org.asmus.model.EButtonAxisMapping;
+import org.remote.desktop.component.ReplaceableSet;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,7 +30,7 @@ public class ActionVto {
 
     @Builder.Default
     @ToString.Include
-    private Set<EButtonAxisMapping> modifiers = new HashSet<>();
+    private ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
     @Builder.Default
     private List<XdoActionVto> actions = new LinkedList<>();
 

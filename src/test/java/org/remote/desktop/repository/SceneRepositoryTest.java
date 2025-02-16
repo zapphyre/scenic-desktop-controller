@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.remote.desktop.entity.Scene;
+import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
@@ -38,31 +39,31 @@ public class SceneRepositoryTest {
                 .windowName("windowName")
                 .build();
 
-        Scene e1 = sceneMapper.map(scene1vto);
+        Scene e1 = sceneMapper.map(scene1vto, new CycleAvoidingMappingContext());
         Scene saveScene1 = sceneRepository.save(e1);
 
         SceneVto scene2Vto = SceneVto.builder()
                 .name("asdf")
                 .windowName("windowName")
-                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
+//                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
                 .actions(List.of(ActionVto.builder()
-                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+//                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
                         .build()))
                 .build();
 
-        Scene scene2 = sceneMapper.map(scene2Vto);
+        Scene scene2 = sceneMapper.map(scene2Vto, new CycleAvoidingMappingContext());
         Scene e2saved = sceneRepository.save(scene2);
 
         SceneVto scene3Vto = SceneVto.builder()
                 .name("xzcv")
                 .windowName("windowName")
-                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
+//                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
                 .actions(List.of(ActionVto.builder()
-                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+//                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
                         .build()))
                 .build();
 
-        Scene e3 = sceneMapper.map(scene3Vto);
+        Scene e3 = sceneMapper.map(scene3Vto, new CycleAvoidingMappingContext());
         try {
             Scene e3saved = sceneRepository.save(e3);
         } catch (Exception w) {
@@ -74,12 +75,12 @@ public class SceneRepositoryTest {
                 .windowName("windowName")
                 .build();
 
-        Scene e4 = sceneMapper.map(scene4vto);
+        Scene e4 = sceneMapper.map(scene4vto, new CycleAvoidingMappingContext());
         Scene e4saved = sceneRepository.save(e4);
 
         sceneRepository.flush();
 
-        Scene dvojka = sceneRepository.findById(scene2.getId()).orElseThrow();
+        Scene dvojka = sceneRepository.findById(scene2.getName()).orElseThrow();
 //
         Assertions.assertEquals("asdf", dvojka.getName());
         Assertions.assertEquals(e1.getName(), dvojka.getInherits().getName());
