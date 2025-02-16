@@ -24,6 +24,10 @@ public class ActionVto {
 
     private SceneVto nextScene;
 
+    @Builder.Default
     private Set<EButtonAxisMapping> modifiers = new HashSet<>();
+    @Builder.Default
     private List<XdoActionVto> actions = new LinkedList<>();
+
+    private SceneVto scene;
 }

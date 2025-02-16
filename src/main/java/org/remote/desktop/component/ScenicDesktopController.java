@@ -63,7 +63,7 @@ public class ScenicDesktopController {
     }
 
     Consumer<List<XdoActionVto>> act = q -> q.forEach(p -> {
-        switch (p.getKeyEvt()) {
+            switch (p.getKeyEvt()) {
             case PRESS:
                 keydown(p.getKeyPress());
                 break;

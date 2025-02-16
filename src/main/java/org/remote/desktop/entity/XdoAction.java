@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.remote.desktop.model.EKeyEvt;
 
+import java.util.Optional;
+
 @Data
 @Entity
 @Builder
@@ -22,4 +24,14 @@ public class XdoAction {
     private EKeyEvt keyEvt;
 
     private String keyPress;
+
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn
+    private Action action;
+
+    @PreRemove
+    public void detachEntity() {
+        Optional.ofNullable(action)
+                .ifPresent(p -> p.getActions().remove(this));
+    }
 }

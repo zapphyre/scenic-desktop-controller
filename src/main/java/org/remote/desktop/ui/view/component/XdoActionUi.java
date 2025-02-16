@@ -2,7 +2,6 @@ package org.remote.desktop.ui.view.component;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
@@ -27,22 +26,26 @@ public class XdoActionUi extends HorizontalLayout {
 
         remove.addClickListener(e -> getParent()
                 .ifPresent(q -> ((HasComponents)q).remove(this)));
-        remove.addClickListener(e -> chageCb.accept(xdoAction));
+        remove.addClickListener(e -> {
+            System.out.println("remove action cb invoked");
+            remover.accept(xdoAction);
+        });
 
-        Select<EKeyEvt> keyEvtComboBox = new Select<>("First Press", q ->
-                xdoAction.setKeyEvt(q.getValue())
-        );
+        Select<EKeyEvt> keyEvtComboBox = new Select<>("First Press", q -> {});
         keyEvtComboBox.setItems(EKeyEvt.values());
         keyEvtComboBox.setItemLabelGenerator(EKeyEvt::name);
         keyEvtComboBox.setValue(xdoAction.getKeyEvt());
         keyEvtComboBox.setEnabled(enabled);
+        keyEvtComboBox.addValueChangeListener(q -> {
+            xdoAction.setKeyEvt(q.getValue());
+            chageCb.accept(xdoAction);
+        });
 
-        TextField key = new TextField("key");
+        TextField key = new TextField("Key");
+        Optional.ofNullable(xdoAction.getKeyPress()).ifPresent(key::setValue);
+        key.setEnabled(enabled);
         key.addValueChangeListener(q -> xdoAction.setKeyPress(q.getValue()));
         key.addValueChangeListener(e -> chageCb.accept(xdoAction));
-        Optional.ofNullable(xdoAction.getKeyPress())
-                        .ifPresent(key::setValue);
-        key.setEnabled(enabled);
 
         add(keyEvtComboBox, key, remove);
     }
