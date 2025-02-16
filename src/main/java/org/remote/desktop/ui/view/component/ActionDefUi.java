@@ -4,62 +4,51 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.theme.lumo.LumoIcon;
 import org.asmus.model.EButtonAxisMapping;
+import org.remote.desktop.component.SceneDbToolbox;
 import org.remote.desktop.model.ActionVto;
 import org.remote.desktop.model.SceneVto;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ActionDefUi extends HorizontalLayout {
 
     private final HorizontalLayout triggerSection = new HorizontalLayout();
-    private final ActionVto active;
-//    private final HorizontalLayout modifiersSection = new HorizontalLayout();
-//    private final HorizontalLayout actionSection = new HorizontalLayout();
-
-    Icon dirty = LumoIcon.ERROR.create();
 
     List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
-    int orighash;
 
-    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, Consumer<ActionVto> remover, Consumer<ActionVto> chageCb) {
-        this(input, allScenes, true, remover, chageCb);
+    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, ActionVto input, Supplier<Collection<SceneVto>> allScenes) {
+        this(dbToolbox, parent, input, allScenes, true);
     }
 
-    public ActionDefUi(ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled, Consumer<ActionVto> remover, Consumer<ActionVto> chageCb) {
-        this.active = input;
-        dirty.setVisible(false);
-        orighash = input.hashCode();
-
+    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
         setAlignItems(Alignment.END);
 
         Select<EButtonAxisMapping> trigger = new Select<>("Button Trigger", q -> input.setTrigger(q.getValue()));
         trigger.setItems(EButtonAxisMapping.values());
         trigger.setValue(input.getTrigger());
         trigger.setItemLabelGenerator(EButtonAxisMapping::name);
-        trigger.addValueChangeListener(q -> computeDirty(input));
+        trigger.addValueChangeListener(q -> dbToolbox.update(input));
         trigger.setEnabled(enabled);
 
         Checkbox longPress = new Checkbox("Long press");
         longPress.setValue(input.isLongPress());
         longPress.addValueChangeListener(q -> input.setLongPress(q.getValue()));
+        longPress.addValueChangeListener(q -> dbToolbox.update(input));
         longPress.setEnabled(enabled);
 
         MultiSelectComboBox<EButtonAxisMapping> modifiers = new MultiSelectComboBox<>("Modifiers");
         modifiers.setItems(EButtonAxisMapping.values());
         modifiers.setValue(input.getModifiers());
         modifiers.setAutoExpand(MultiSelectComboBox.AutoExpandMode.HORIZONTAL);
-        modifiers.addValueChangeListener(q -> input.setModifiers(q.getValue()));
-        modifiers.addValueChangeListener(q -> computeDirty(input));
+        modifiers.addValueChangeListener(q -> input.getModifiers().addAll(q.getValue()));
+        modifiers.addValueChangeListener(q -> dbToolbox.update(input));
         modifiers.setWidthFull();
         modifiers.setEnabled(enabled);
 
@@ -68,13 +57,16 @@ public class ActionDefUi extends HorizontalLayout {
         nextSceneSelect.setValue(input.getNextScene());
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
+        nextSceneSelect.addValueChangeListener(q -> dbToolbox.update(input));
 
-        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(input.getActions(), enabled, q -> chageCb.accept(input));
+        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, input.getActions(), enabled, dbToolbox::update);
 
-        Button rem = new Button("-", q -> remover.accept(input));
+        Button rem = new Button("-", q -> {
+            dbToolbox.remove(input);
+            parent.getActions().remove(input);
+        });
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
         rem.setVisible(enabled);
-        rem.addClickListener(q -> chageCb.accept(input));
 
         triggerSection.add(rem, trigger, modifiers, new VerticalLayout(longPress));
         triggerSection.setAlignItems(Alignment.BASELINE);
@@ -91,9 +83,5 @@ public class ActionDefUi extends HorizontalLayout {
         horizontalLayout.setAlignItems(Alignment.BASELINE);
 
         add(horizontalLayout);
-    }
-
-    void computeDirty(ActionVto scene) {
-        dirty.setVisible(orighash != scene.hashCode());
     }
 }

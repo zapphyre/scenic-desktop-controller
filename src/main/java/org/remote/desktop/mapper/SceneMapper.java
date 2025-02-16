@@ -1,23 +1,18 @@
 package org.remote.desktop.mapper;
 
+import org.mapstruct.Builder;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.remote.desktop.entity.Scene;
 import org.remote.desktop.model.SceneVto;
 
-import java.util.List;
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface SceneMapper {
 
-    SceneVto map(Scene scene);
+    SceneVto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
-    Scene map(SceneVto sceneVto);
+    Scene map(SceneVto sceneVto, @Context CycleAvoidingMappingContext ctx);
 
-    SceneVto update(SceneVto source, @MappingTarget SceneVto target);
-
-    List<SceneVto> mapToVdos(List<Scene> scenes, @Context CycleAvoidingMappingContext ctx);
-
-    List<Scene> mapToEntities(List<SceneVto> scenes, @Context CycleAvoidingMappingContext ctx);
+    void update(Scene source, @MappingTarget SceneVto target, @Context CycleAvoidingMappingContext ctx);
 }

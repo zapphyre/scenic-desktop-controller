@@ -9,10 +9,9 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SceneVto {
-
-    private Long id;
 
     @ToString.Include
     @EqualsAndHashCode.Include

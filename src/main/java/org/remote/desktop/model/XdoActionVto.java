@@ -14,4 +14,6 @@ public class XdoActionVto {
 
     private EKeyEvt keyEvt;
     private String keyPress;
+
+    private ActionVto action;
 }

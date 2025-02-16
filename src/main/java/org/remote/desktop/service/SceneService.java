@@ -1,7 +1,11 @@
 package org.remote.desktop.service;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.remote.desktop.entity.Scene;
+import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
@@ -12,6 +16,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -31,20 +36,23 @@ public class SceneService {
     private final String SCENE_NAME_CACHE_NAME = "scene_name";
 
     private final SceneRepository sceneRepository;
-    private final SceneMapper sceneMapper;
+    private final SceneMapper sceneMapper = Mappers.getMapper(SceneMapper.class);
     private final CacheManager cacheManager;
+
+    Function<Scene, SceneVto> mapEntity = q -> sceneMapper.map(q, new CycleAvoidingMappingContext());
+    Function<SceneVto, Scene> mapVto = q -> sceneMapper.map(q, new CycleAvoidingMappingContext());
 
     @Cacheable(SCENE_CACHE_NAME)
     public List<SceneVto> getScenes() {
         return sceneRepository.findAll().stream()
-                .map(sceneMapper::map)
+                .map(mapEntity)
                 .toList();
     }
 
     @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getScene(String sceneName) {
         return sceneRepository.findById(sceneName)
-                .map(sceneMapper::map)
+                .map(mapEntity)
                 .orElse(new SceneVto());
     }
 
@@ -55,9 +63,9 @@ public class SceneService {
                 .forEach(Cache::invalidate);
 
         return Optional.of(sceneVto)
-                .map(sceneMapper::map)
+                .map(mapVto)
                 .map(sceneRepository::save)
-                .map(sceneMapper::map)
+                .map(mapEntity)
                 .orElseThrow();
     }
 
@@ -68,9 +76,9 @@ public class SceneService {
                 .forEach(Cache::invalidate);
 
         return scenes.stream()
-                .map(sceneMapper::map)
+                .map(mapVto)
                 .map(sceneRepository::save)
-                .map(sceneMapper::map)
+                .map(mapEntity)
                 .toList();
     }
 

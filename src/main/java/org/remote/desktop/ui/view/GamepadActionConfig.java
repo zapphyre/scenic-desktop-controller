@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.remote.desktop.component.ReplaceableSet;
+import org.remote.desktop.component.SceneDbToolbox;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.service.SceneService;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
@@ -39,7 +40,7 @@ public class GamepadActionConfig extends VerticalLayout {
     ComboBoxListDataView<SceneVto> dataProv;
     Map<String, Integer> sceneHashes;
 
-    public GamepadActionConfig(SceneService sceneService) {
+    public GamepadActionConfig(SceneDbToolbox dbToolbox, SceneService sceneService) {
         scenes = new ReplaceableSet<>(sceneService.getScenes());
         this.sceneService = sceneService;
 
@@ -47,12 +48,14 @@ public class GamepadActionConfig extends VerticalLayout {
                 .collect(toMap(SceneVto::getName, q -> Objects.hash(q)));
 
         dataProv = allScenes.setItems(scenes);
-        SceneUi sceneUi = new SceneUi(() -> dataProv.getItems().toList(), this::saveSceneCallback);
+
         allScenes.setItemLabelGenerator(SceneVto::getName);
         allScenes.addValueChangeListener(e -> {
             selectedScene.removeAll();
             selected = e.getValue();
-            selectedScene.add(sceneUi.render(e.getValue()));
+//            selectedScene.add(sceneUi.render(e.getValue()));
+            SceneUi sceneUi = new SceneUi(dbToolbox, e.getValue(), () -> dataProv.getItems().toList());
+            selectedScene.add(sceneUi);
         });
 
         Button newScene = new Button("New Scene");
@@ -61,7 +64,7 @@ public class GamepadActionConfig extends VerticalLayout {
         Button edit = new Button("Edit");
         edit.addClickListener(e -> {
             new SceneDialog(selected, scenes, this::saveSceneCallback, p -> {
-                scenes.removeIf(s -> Objects.equals(s.getId(), selected.getId()));
+//                scenes.removeIf(s -> Objects.equals(s.getId(), selected.getId()));
                 dataProv.refreshAll();
             }).open();
         });
