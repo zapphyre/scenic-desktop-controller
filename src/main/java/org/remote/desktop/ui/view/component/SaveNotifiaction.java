@@ -5,8 +5,8 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 
 public class SaveNotifiaction extends Notification {
 
-    public static void success() {
-        Notification.show("Saved", 2100, Position.TOP_END).open();
+    public static void success(String message) {
+        Notification.show(message, 2100, Position.TOP_END).open();
     }
 
     public static void error() {

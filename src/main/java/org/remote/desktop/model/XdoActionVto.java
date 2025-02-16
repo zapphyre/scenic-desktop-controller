@@ -1,18 +1,24 @@
 package org.remote.desktop.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class XdoActionVto {
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private Long id;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private EKeyEvt keyEvt;
+
+    @ToString.Include
+    @EqualsAndHashCode.Include
     private String keyPress;
 
     private ActionVto action;

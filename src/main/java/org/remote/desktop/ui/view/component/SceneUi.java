@@ -44,7 +44,7 @@ public class SceneUi extends VerticalLayout {
         inheritsFrom = new Select<>("Inherits from",
                 e -> sceneVto.setInherits(e.getValue()));
         items = inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
-        inheritsFrom.addComponentAsFirst(new Button("[none]", e -> {
+        inheritsFrom.addComponentAsFirst(new FullWidthButton("[none]", e -> {
             sceneVto.setInherits(null);
             inheritsFrom.setValue(null);
 //            dbToolbox.remove(sceneVto);
@@ -59,18 +59,9 @@ public class SceneUi extends VerticalLayout {
             refreshInheritedSelectionList(sceneVto);
         });
 
-        Button removeInherits = new Button("✗", o -> {
-            sceneVto.setInherits(null);
-            inheritsFrom.setValue(null);
-
-            dbToolbox.remove(sceneVto);
-            refreshInheritedSelectionList(sceneVto);
-        });
-
         addAction = new Button("New Action");
 
-
-        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, removeInherits, addAction);
+        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, addAction);
         selectAbnButtonHoriz.setAlignItems(Alignment.BASELINE);
 
         if (sceneVto.getInherits() != null)

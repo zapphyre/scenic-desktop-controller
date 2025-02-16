@@ -32,10 +32,7 @@ public class XdoActionMgrUi extends VerticalLayout {
                     System.out.println("invoking xdoActUi update callback for some reason");
                     chageCb.accept(qr);
                 }))
-                .forEach(components -> {
-                    System.out.println("before adding existing");
-                    actionsWrapper.add(components);
-                });
+                .forEach(actionsWrapper::add);
 
         addButton.addClickListener(e -> {
             XdoActionVto newAction = XdoActionVto.builder()
@@ -43,7 +40,6 @@ public class XdoActionMgrUi extends VerticalLayout {
                     .build();
             parent.getActions().add(newAction);
 
-            System.out.println("addButton before save");
             XdoActionVto saved = dbToolbox.save(newAction);
 
             xdoActions.add(saved);
@@ -52,9 +48,7 @@ public class XdoActionMgrUi extends VerticalLayout {
                 dbToolbox.remove(o);
             }, chageCb);
 
-            System.out.println("before adding");
             actionsWrapper.add(xdoActionUi);
-            System.out.println("after adding");
         });
 
         add(actionsWrapper, addButton);

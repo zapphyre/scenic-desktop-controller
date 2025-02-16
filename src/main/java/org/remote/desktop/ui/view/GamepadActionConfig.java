@@ -18,12 +18,6 @@ import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.remote.desktop.ui.view.component.SceneDialog;
 import org.remote.desktop.ui.view.component.SceneUi;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toMap;
-
 
 @UIScope
 @PageTitle("Gamepad Configurer UI")
@@ -57,15 +51,11 @@ public class GamepadActionConfig extends VerticalLayout {
         Button edit = new Button("Edit");
         edit.addClickListener(e -> {
             new SceneDialog(selected, scenes, this::saveSceneCallback, p -> {
-//                scenes.removeIf(s -> Objects.equals(s.getId(), selected.getId()));
                 dataProv.refreshAll();
             }).open();
         });
 
         Button saveAll = new Button("Save All", q -> {
-//            List<SceneVto> saved = sceneService.saveAll(scenes);
-//            scenes.clear();
-//            scenes.addAll(saved);
             scenes.replaceAll(sceneService.saveAll(scenes));
             dataProv.refreshAll();
         });
@@ -92,7 +82,7 @@ public class GamepadActionConfig extends VerticalLayout {
             scenes.replace(sceneService.save(sceneVto));
             dataProv.refreshAll();
             allScenes.setValue(sceneVto);
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("all saved");
         } catch (Exception e) {
             SaveNotifiaction.error();
         }

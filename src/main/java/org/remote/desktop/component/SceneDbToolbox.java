@@ -37,7 +37,7 @@ public class SceneDbToolbox {
                     .map(xdoActionRepository::save)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
                     .orElseThrow();
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("saved");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -52,7 +52,7 @@ public class SceneDbToolbox {
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
                     .map(xdoActionRepository::save)
                     .ifPresent(q -> xdoActionMapper.update(q, actionVto, new CycleAvoidingMappingContext()));
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -64,7 +64,7 @@ public class SceneDbToolbox {
             Optional.of(vto)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
                     .ifPresent(xdoActionRepository::delete);
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("removed");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -77,7 +77,7 @@ public class SceneDbToolbox {
                     .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
                     .map(actionRepository::save)
                     .ifPresent(q -> actionMapper.update(q, actionVto, new CycleAvoidingMappingContext()));
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -89,7 +89,7 @@ public class SceneDbToolbox {
             Optional.of(vto)
                     .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
                     .ifPresent(actionRepository::delete);
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("removed");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -102,7 +102,7 @@ public class SceneDbToolbox {
                     .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                     .map(sceneRepository::save)
                     .ifPresent(q -> sceneMapper.update(q, sceneVto, new CycleAvoidingMappingContext()));
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -114,7 +114,7 @@ public class SceneDbToolbox {
             Optional.of(vto)
                     .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                     .ifPresent(sceneRepository::delete);
-            SaveNotifiaction.success();
+            SaveNotifiaction.success("removed");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
