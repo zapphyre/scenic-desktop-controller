@@ -32,10 +32,8 @@ public class XdoActionUi extends HorizontalLayout {
         keyEvtComboBox.setItemLabelGenerator(EKeyEvt::name);
         keyEvtComboBox.setValue(xdoAction.getKeyEvt());
         keyEvtComboBox.setEnabled(enabled);
-        keyEvtComboBox.addValueChangeListener(q -> {
-            xdoAction.setKeyEvt(q.getValue());
-            chageCb.accept(xdoAction);
-        });
+        keyEvtComboBox.addValueChangeListener(q -> xdoAction.setKeyEvt(q.getValue()));
+        keyEvtComboBox.addValueChangeListener(q -> chageCb.accept(xdoAction));
 
         TextField key = new TextField("Key");
         Optional.ofNullable(xdoAction.getKeyPress()).ifPresent(key::setValue);

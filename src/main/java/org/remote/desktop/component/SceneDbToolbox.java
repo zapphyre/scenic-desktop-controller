@@ -5,7 +5,7 @@ import org.remote.desktop.mapper.ActionMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
-import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
 import org.remote.desktop.repository.ActionRepository;
@@ -13,11 +13,12 @@ import org.remote.desktop.repository.SceneRepository;
 import org.remote.desktop.repository.XdoActionRepository;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class SceneDbToolbox {
 
@@ -50,9 +51,9 @@ public class SceneDbToolbox {
     public void update(XdoActionVto actionVto) {
         try {
             Optional.of(actionVto)
-                    .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
-                    .map(xdoActionRepository::save)
-                    .ifPresent(q -> xdoActionMapper.update(q, actionVto, new CycleAvoidingMappingContext()));
+                    .map(XdoActionVto::getId)
+                    .flatMap(xdoActionRepository::findById)
+                    .ifPresent(xdoActionMapper.updater(actionVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,6 +65,7 @@ public class SceneDbToolbox {
         try {
             Optional.of(vto)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
+                    //update with against entity
                     .ifPresent(xdoActionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
@@ -72,13 +74,12 @@ public class SceneDbToolbox {
         }
     }
 
-    public void update(ActionVto actionVto) {
+    public void update(GPadEventVto gPadEventVto) {
         try {
-            Optional.of(actionVto)
-                    .map(ActionVto::getId)
-                    .map(actionRepository::findById)
-                    .flatMap(Function.identity())
-                    .ifPresent(q -> actionMapper.update(actionVto, q, new CycleAvoidingMappingContext()));
+            Optional.of(gPadEventVto)
+                    .map(GPadEventVto::getId)
+                    .flatMap(actionRepository::findById)
+                    .ifPresent(actionMapper.updater(gPadEventVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +87,7 @@ public class SceneDbToolbox {
         }
     }
 
-    public void remove(ActionVto vto) {
+    public void remove(GPadEventVto vto) {
         try {
             Optional.of(vto)
                     .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
@@ -101,9 +102,9 @@ public class SceneDbToolbox {
     public void update(SceneVto sceneVto) {
         try {
             Optional.of(sceneVto)
-                    .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
-                    .map(sceneRepository::save)
-                    .ifPresent(q -> sceneMapper.update(q, sceneVto, new CycleAvoidingMappingContext()));
+                    .map(SceneVto::getName)
+                    .flatMap(sceneRepository::findById)
+                    .ifPresent(sceneMapper.updater(sceneVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,5 +122,13 @@ public class SceneDbToolbox {
             e.printStackTrace();
             SaveNotifiaction.error();
         }
+    }
+
+    public GPadEventVto save(GPadEventVto GPadEventVto) {
+        return Optional.of(GPadEventVto)
+                .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(actionRepository::save)
+                .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElseThrow();
     }
 }

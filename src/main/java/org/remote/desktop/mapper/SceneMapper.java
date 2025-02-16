@@ -7,6 +7,8 @@ import org.mapstruct.MappingTarget;
 import org.remote.desktop.entity.Scene;
 import org.remote.desktop.model.SceneVto;
 
+import java.util.function.Consumer;
+
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface SceneMapper {
 
@@ -14,5 +16,9 @@ public interface SceneMapper {
 
     Scene map(SceneVto sceneVto, @Context CycleAvoidingMappingContext ctx);
 
-    void update(Scene source, @MappingTarget SceneVto target, @Context CycleAvoidingMappingContext ctx);
+    void update(SceneVto source, @MappingTarget Scene target, @Context CycleAvoidingMappingContext ctx);
+
+    default Consumer<Scene> updater(SceneVto source) {
+        return q -> update(source, q, new CycleAvoidingMappingContext());
+    }
 }

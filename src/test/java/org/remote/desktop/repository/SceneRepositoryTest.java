@@ -6,12 +6,11 @@ import org.mapstruct.factory.Mappers;
 import org.remote.desktop.entity.Scene;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
-import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class SceneRepositoryTest {
                 .name("asdf")
                 .windowName("windowName")
 //                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
-                .actions(List.of(ActionVto.builder()
+                .actions(List.of(GPadEventVto.builder()
 //                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
                         .build()))
                 .build();
@@ -58,7 +57,7 @@ public class SceneRepositoryTest {
                 .name("xzcv")
                 .windowName("windowName")
 //                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
-                .actions(List.of(ActionVto.builder()
+                .actions(List.of(GPadEventVto.builder()
 //                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
                         .build()))
                 .build();

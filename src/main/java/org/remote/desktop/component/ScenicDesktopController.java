@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -62,7 +63,7 @@ public class ScenicDesktopController {
         return q -> q.get(def);
     }
 
-    Consumer<List<XdoActionVto>> act = q -> q.forEach(p -> {
+    Consumer<Set<XdoActionVto>> act = q -> q.forEach(p -> {
             switch (p.getKeyEvt()) {
             case PRESS:
                 keydown(p.getKeyPress());

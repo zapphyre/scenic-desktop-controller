@@ -1,19 +1,16 @@
 package org.remote.desktop.ui.view.component;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.select.data.SelectListDataView;
 import org.remote.desktop.component.SceneDbToolbox;
-import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
@@ -28,7 +25,6 @@ public class SceneUi extends VerticalLayout {
     VerticalLayout actions;
 
     Select<SceneVto> inheritsFrom;
-    SelectListDataView<SceneVto> items;
     Button addAction;
 
     public SceneUi(SceneDbToolbox dbToolbox, SceneVto sceneVto, Supplier<Collection<SceneVto>> allScenes) {
@@ -43,7 +39,7 @@ public class SceneUi extends VerticalLayout {
 
         inheritsFrom = new Select<>("Inherits from",
                 e -> sceneVto.setInherits(e.getValue()));
-        items = inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
+        inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
         inheritsFrom.addComponentAsFirst(new FullWidthButton("[none]", e -> {
             sceneVto.setInherits(null);
             inheritsFrom.setValue(null);
@@ -69,59 +65,38 @@ public class SceneUi extends VerticalLayout {
         else
             inheritsFrom.setValue(null);
 
-        sceneVto.getActions().stream()
+        sceneVto.getGPadEvents().stream()
                 .map(q -> new ActionDefUi(dbToolbox, sceneVto, q, allScenes, true))
                 .forEach(ownActions::add);
 
         addAction.addClickListener(e -> {
-            ActionVto actionVto = new ActionVto();
-            actionVto.setScene(sceneVto);
-//            sceneVto.getActions().add(actionVto);
-            newlyAddedActions.addComponentAsFirst(new ActionDefUi(dbToolbox, sceneVto, actionVto, allScenes));
+            GPadEventVto GPadEventVto = new GPadEventVto();
+            GPadEventVto.setScene(sceneVto);
+            sceneVto.getGPadEvents().add(GPadEventVto = dbToolbox.save(GPadEventVto));
+            newlyAddedActions.addComponentAsFirst(new ActionDefUi(dbToolbox, sceneVto, GPadEventVto, allScenes));
         });
 
         actions.add(newlyAddedActions, ownActions, inheritedActions);
         add(selectAbnButtonHoriz, actions);
     }
 
-//    Supplier<SceneVto> currentScene = SceneVto::new;
-
-    public Component render(SceneVto sceneVto) {
-//        currentScene = () -> sceneVto;
-        newlyAddedActions.removeAll();
-        ownActions.removeAll();
-        inheritedActions.removeAll();
-
-        items.removeItems(List.of(sceneVto));
-
-
-
-//        scrapeActionsRecursive(sceneVto.getInherits()).stream()
-//                .map(p -> new ActionDefUi(p, allScenes, false, o -> {
-//                }))
-//                .forEach(inheritedActions::add);
-
-        return this;
-    }
-
-
-    public static List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto) {
+    public static List<GPadEventVto> scrapeActionsRecursive(SceneVto sceneVto) {
         return sceneVto == null ? List.of() : scrapeActionsRecursive(sceneVto, new LinkedList<>());
     }
 
-    public static List<ActionVto> scrapeActionsRecursive(SceneVto sceneVto, List<ActionVto> actionVtos) {
+    public static List<GPadEventVto> scrapeActionsRecursive(SceneVto sceneVto, List<GPadEventVto> GPadEventVtos) {
         if (sceneVto.getInherits() == null)
-            return sceneVto.getActions();
+            return sceneVto.getGPadEvents();
 
-        actionVtos.addAll(scrapeActionsRecursive(sceneVto.getInherits(), actionVtos));
+        GPadEventVtos.addAll(scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos));
 
-        return actionVtos;
+        return GPadEventVtos;
     }
 
     void refreshInheritedSelectionList(SceneVto sceneVto) {
         inheritedActions.removeAll();
         scrapeActionsRecursive(sceneVto).stream()
-                .filter(q -> !sceneVto.getActions().contains(q))
+                .filter(q -> !sceneVto.getGPadEvents().contains(q))
                 .map(q -> new ActionDefUi(dbToolbox, sceneVto, q, allScenes, false))
                 .forEach(inheritedActions::add);
     }

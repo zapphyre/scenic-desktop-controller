@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class ActionVto {
+public class GPadEventVto {
 
     @ToString.Include
     @EqualsAndHashCode.Include
@@ -32,7 +32,7 @@ public class ActionVto {
     @ToString.Include
     private ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
     @Builder.Default
-    private List<XdoActionVto> actions = new LinkedList<>();
+    private Set<XdoActionVto> actions = new HashSet<>();
 
     private SceneVto scene;
 }

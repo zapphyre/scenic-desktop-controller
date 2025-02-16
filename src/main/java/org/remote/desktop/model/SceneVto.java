@@ -20,5 +20,5 @@ public class SceneVto {
     private SceneVto inherits;
 
     @Builder.Default
-    private List<ActionVto> actions = new LinkedList<>();
+    private List<GPadEventVto> gPadEvents = new LinkedList<>();
 }

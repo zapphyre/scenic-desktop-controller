@@ -3,6 +3,7 @@ package org.remote.desktop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,10 +16,6 @@ import java.util.Optional;
 @ToString(onlyExplicitlyIncluded = true)
 public class Scene {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
     @Id
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -28,13 +25,13 @@ public class Scene {
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private Scene inherits;
 
-    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Action> actions;
+    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    private List<GPadEvent> gPadEvents = new LinkedList<>();
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(actions)
+        Optional.ofNullable(gPadEvents)
                 .ifPresent(q -> q.forEach(p -> p.setScene(this)));
     }
 }
