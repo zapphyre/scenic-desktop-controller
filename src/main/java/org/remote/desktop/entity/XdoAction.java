@@ -45,6 +45,7 @@ public class XdoAction {
     @PreRemove
     public void detachEntity() {
         Optional.ofNullable(gPadEvent)
-                .ifPresent(p -> p.getActions().remove(this));
+                .map(GPadEvent::getActions)
+                .ifPresent(p -> p.remove(this));
     }
 }

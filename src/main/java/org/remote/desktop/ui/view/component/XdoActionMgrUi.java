@@ -29,12 +29,8 @@ public class XdoActionMgrUi extends VerticalLayout {
                     .gPadEvent(gPadEventVto)
                     .build();
             XdoActionVto saved = dbToolbox.save(newAction);
-            gPadEventVto.getActions().add(saved);
 
-            XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, o -> {
-                gPadEventVto.getActions().remove(o);
-                dbToolbox.remove(o);
-            }, chageCb);
+            XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, dbToolbox::remove, chageCb);
 
             addComponentAsFirst(xdoActionUi);
         });
