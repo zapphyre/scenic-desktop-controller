@@ -57,6 +57,9 @@ public class ActionDefUi extends HorizontalLayout {
         nextSceneSelect.setValue(input.getNextScene());
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
+        nextSceneSelect.addComponentAsFirst(new FullWidthButton("[none]", e -> {
+            nextSceneSelect.setValue(null);
+        }));
         nextSceneSelect.addValueChangeListener(q -> dbToolbox.update(input));
 
         XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, input.getActions(), enabled, dbToolbox::update);
