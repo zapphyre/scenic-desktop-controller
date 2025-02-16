@@ -46,7 +46,7 @@ public class ActionDefUi extends HorizontalLayout {
         MultiSelectComboBox<EButtonAxisMapping> modifiers = new MultiSelectComboBox<>("Modifiers");
         modifiers.setItems(EButtonAxisMapping.values());
         modifiers.setValue(input.getModifiers());
-        modifiers.setAutoExpand(MultiSelectComboBox.AutoExpandMode.HORIZONTAL);
+//        modifiers.setAutoExpand(MultiSelectComboBox.AutoExpandMode.HORIZONTAL);
         modifiers.addValueChangeListener(q -> input.getModifiers().addAll(q.getValue()));
         modifiers.addValueChangeListener(q -> dbToolbox.update(input));
         modifiers.setWidthFull();
@@ -63,6 +63,7 @@ public class ActionDefUi extends HorizontalLayout {
         nextSceneSelect.addValueChangeListener(q -> dbToolbox.update(input));
 
         XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, input.getActions(), enabled, dbToolbox::update);
+        actionMgrUi.setWidthFull();
 
         Button rem = new Button("-", q -> {
             dbToolbox.remove(input);
@@ -79,11 +80,11 @@ public class ActionDefUi extends HorizontalLayout {
         actionRowWrapper.add(triggerSection, nextSceneSelect);
         actionRowWrapper.setPadding(false);
         actionRowWrapper.setAlignItems(Alignment.BASELINE);
-//        Button button = new Button();
-//        button.setVisible(false);
-//        VerticalLayout actionsWplaceholder = new VerticalLayout(button, actionMgrUi);
+
         HorizontalLayout horizontalLayout = new HorizontalLayout(actionRowWrapper, actionMgrUi);
         horizontalLayout.setAlignItems(Alignment.BASELINE);
+        horizontalLayout.setWidthFull();
+        setWidthFull();
 
         add(horizontalLayout);
     }
