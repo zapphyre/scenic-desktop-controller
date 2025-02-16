@@ -47,7 +47,7 @@ public class ActionDefUi extends HorizontalLayout {
         modifiers.setItems(EButtonAxisMapping.values());
         modifiers.setValue(input.getModifiers());
 //        modifiers.setAutoExpand(MultiSelectComboBox.AutoExpandMode.HORIZONTAL);
-        modifiers.addValueChangeListener(q -> input.getModifiers().addAll(q.getValue()));
+        modifiers.addValueChangeListener(q -> input.getModifiers().replaceAll(q.getValue()));
         modifiers.addValueChangeListener(q -> dbToolbox.update(input));
         modifiers.setWidthFull();
         modifiers.setEnabled(enabled);

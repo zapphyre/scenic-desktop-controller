@@ -15,4 +15,7 @@ public interface ActionMapper {
     Action map(ActionVto vto, @Context CycleAvoidingMappingContext ctx);
 
     void update(Action src, @MappingTarget ActionVto tgt, @Context CycleAvoidingMappingContext ctx);
+    void update(ActionVto src, @MappingTarget Action tgt, @Context CycleAvoidingMappingContext ctx);
+
+    void update(Action src, @MappingTarget Action tgt, @Context CycleAvoidingMappingContext ctx);
 }

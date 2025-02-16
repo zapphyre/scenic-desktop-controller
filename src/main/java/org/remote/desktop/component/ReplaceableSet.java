@@ -5,6 +5,10 @@ import java.util.HashSet;
 
 public class ReplaceableSet<T> extends HashSet<T> {
 
+    public ReplaceableSet() {
+        super();
+    }
+
     public ReplaceableSet(Collection<? extends T> c) {
         super(c);
     }
@@ -15,7 +19,7 @@ public class ReplaceableSet<T> extends HashSet<T> {
     }
 
     public void replaceAll(Collection<? extends T> c) {
-        removeAll(c);
+        clear();
         addAll(c);
     }
 }

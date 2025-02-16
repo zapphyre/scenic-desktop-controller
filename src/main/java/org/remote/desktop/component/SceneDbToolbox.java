@@ -15,6 +15,7 @@ import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -74,9 +75,10 @@ public class SceneDbToolbox {
     public void update(ActionVto actionVto) {
         try {
             Optional.of(actionVto)
-                    .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
-                    .map(actionRepository::save)
-                    .ifPresent(q -> actionMapper.update(q, actionVto, new CycleAvoidingMappingContext()));
+                    .map(ActionVto::getId)
+                    .map(actionRepository::findById)
+                    .flatMap(Function.identity())
+                    .ifPresent(q -> actionMapper.update(actionVto, q, new CycleAvoidingMappingContext()));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
             e.printStackTrace();
