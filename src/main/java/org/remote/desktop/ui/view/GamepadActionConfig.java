@@ -38,24 +38,17 @@ public class GamepadActionConfig extends VerticalLayout {
     private SceneVto selected;
     Checkbox autoSave;
     ComboBoxListDataView<SceneVto> dataProv;
-    Map<String, Integer> sceneHashes;
 
     public GamepadActionConfig(SceneDbToolbox dbToolbox, SceneService sceneService) {
         scenes = new ReplaceableSet<>(sceneService.getScenes());
         this.sceneService = sceneService;
-
-        sceneHashes = scenes.stream()
-                .collect(toMap(SceneVto::getName, q -> Objects.hash(q)));
 
         dataProv = allScenes.setItems(scenes);
 
         allScenes.setItemLabelGenerator(SceneVto::getName);
         allScenes.addValueChangeListener(e -> {
             selectedScene.removeAll();
-            selected = e.getValue();
-//            selectedScene.add(sceneUi.render(e.getValue()));
-            SceneUi sceneUi = new SceneUi(dbToolbox, e.getValue(), () -> dataProv.getItems().toList());
-            selectedScene.add(sceneUi);
+            selectedScene.add(new SceneUi(dbToolbox, selected = e.getValue(), () -> dataProv.getItems().toList()));
         });
 
         Button newScene = new Button("New Scene");
@@ -99,7 +92,6 @@ public class GamepadActionConfig extends VerticalLayout {
             scenes.replace(sceneService.save(sceneVto));
             dataProv.refreshAll();
             allScenes.setValue(sceneVto);
-            sceneHashes.put(sceneVto.getName(), sceneVto.hashCode());
             SaveNotifiaction.success();
         } catch (Exception e) {
             SaveNotifiaction.error();
