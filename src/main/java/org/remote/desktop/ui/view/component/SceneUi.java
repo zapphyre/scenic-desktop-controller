@@ -44,6 +44,12 @@ public class SceneUi extends VerticalLayout {
         inheritsFrom = new Select<>("Inherits from",
                 e -> sceneVto.setInherits(e.getValue()));
         items = inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
+        inheritsFrom.addComponentAsFirst(new Button("[none]", e -> {
+            sceneVto.setInherits(null);
+            inheritsFrom.setValue(null);
+//            dbToolbox.remove(sceneVto);
+            refreshInheritedSelectionList(sceneVto);
+        }));
 
         inheritsFrom.setItemLabelGenerator(SceneVto::getName);
         inheritsFrom.addValueChangeListener(e -> {
@@ -51,13 +57,11 @@ public class SceneUi extends VerticalLayout {
 
             dbToolbox.update(sceneVto);
             refreshInheritedSelectionList(sceneVto);
-//            chageCb.accept(currentScene.get());
         });
 
         Button removeInherits = new Button("✗", o -> {
             sceneVto.setInherits(null);
             inheritsFrom.setValue(null);
-//            chageCb.accept(currentScene.get());
 
             dbToolbox.remove(sceneVto);
             refreshInheritedSelectionList(sceneVto);
