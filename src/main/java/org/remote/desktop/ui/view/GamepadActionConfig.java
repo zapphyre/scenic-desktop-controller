@@ -27,11 +27,11 @@ public class GamepadActionConfig extends VerticalLayout {
 
     private ComboBox<SceneVto> allScenes = new ComboBox<>("Scene");
     private VerticalLayout selectedScene = new VerticalLayout();
-    ReplaceableSet<SceneVto> scenes;
+    private ReplaceableSet<SceneVto> scenes;
     private final SceneService sceneService;
     private SceneVto selected;
-    Checkbox autoSave;
-    ComboBoxListDataView<SceneVto> dataProv;
+    private Checkbox autoSave;
+    private ComboBoxListDataView<SceneVto> dataProv;
 
     public GamepadActionConfig(SceneDbToolbox dbToolbox, SceneService sceneService) {
         scenes = new ReplaceableSet<>(sceneService.getScenes());

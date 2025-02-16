@@ -21,5 +21,5 @@ public class XdoActionVto {
     @EqualsAndHashCode.Include
     private String keyPress;
 
-    private ActionVto action;
+    private GPadEventVto gPadEvent;
 }

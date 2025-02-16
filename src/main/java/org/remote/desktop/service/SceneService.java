@@ -31,7 +31,7 @@ import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursiv
 @RequiredArgsConstructor
 public class SceneService {
 
-    private final String SCENE_CACHE_NAME = "scenes";
+    public final String SCENE_CACHE_NAME = "scenes";
     private final String WINDOW_SCENE_CACHE_NAME = "mapped_scenes";
     private final String SCENE_NAME_CACHE_NAME = "scene_name";
 
@@ -42,7 +42,7 @@ public class SceneService {
     Function<Scene, SceneVto> mapEntity = q -> sceneMapper.map(q, new CycleAvoidingMappingContext());
     Function<SceneVto, Scene> mapVto = q -> sceneMapper.map(q, new CycleAvoidingMappingContext());
 
-    @Cacheable(SCENE_CACHE_NAME)
+//    @Cacheable(SCENE_CACHE_NAME)
     public List<SceneVto> getScenes() {
         return sceneRepository.findAll().stream()
                 .map(mapEntity)
@@ -94,7 +94,7 @@ public class SceneService {
     }
 
     public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
-        return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getActions())
+        return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getGPadEvents())
                 .flatMap(Collection::stream)
                 .map(p -> new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
                                 .trigger(p.getTrigger())
@@ -104,7 +104,7 @@ public class SceneService {
                 .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
-    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
+    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, Set<XdoActionVto> actions,
                            SceneVto nextScene) {
     }
 }

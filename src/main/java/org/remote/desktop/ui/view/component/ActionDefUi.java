@@ -9,25 +9,21 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.component.SceneDbToolbox;
-import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Supplier;
 
 public class ActionDefUi extends HorizontalLayout {
 
     private final HorizontalLayout triggerSection = new HorizontalLayout();
 
-    List<String> buttonNames = Arrays.stream(EButtonAxisMapping.values()).map(Enum::name).toList();
-
-    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, ActionVto input, Supplier<Collection<SceneVto>> allScenes) {
+    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes) {
         this(dbToolbox, parent, input, allScenes, true);
     }
 
-    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, ActionVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
+    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
         setAlignItems(Alignment.END);
 
         Select<EButtonAxisMapping> trigger = new Select<>("Button Trigger", q -> input.setTrigger(q.getValue()));
@@ -62,12 +58,12 @@ public class ActionDefUi extends HorizontalLayout {
         }));
         nextSceneSelect.addValueChangeListener(q -> dbToolbox.update(input));
 
-        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, input.getActions(), enabled, dbToolbox::update);
+        XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, enabled, dbToolbox::update);
         actionMgrUi.setWidthFull();
 
         Button rem = new Button("-", q -> {
             dbToolbox.remove(input);
-            parent.getActions().remove(input);
+            parent.getGPadEvents().remove(input);
         });
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
         rem.setVisible(enabled);

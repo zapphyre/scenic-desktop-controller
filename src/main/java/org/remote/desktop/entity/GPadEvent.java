@@ -3,7 +3,6 @@ package org.remote.desktop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,7 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Action {
+public class GPadEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +39,8 @@ public class Action {
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     private Set<String> modifiers;
 
-    @OneToMany(mappedBy = "action", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<XdoAction> actions;
+    @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    private Set<XdoAction> actions;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn
@@ -51,13 +50,16 @@ public class Action {
     @PrePersist
     public void relinkEntities() {
         Optional.ofNullable(actions)
-                .ifPresent(q -> q.forEach(p -> p.setAction(this)));
+                .ifPresent(q -> q.forEach(p -> p.setGPadEvent(this)));
+
+        Optional.ofNullable(scene)
+                .ifPresent(q -> q.getGPadEvents().add(this));
     }
 
     @PreRemove
     public void detachEntity() {
         Optional.ofNullable(actions)
-                .orElse(List.of())
-                .forEach(pos -> pos.setAction(null));
+                .orElse(Set.of())
+                .forEach(pos -> pos.setGPadEvent(null));
     }
 }

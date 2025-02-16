@@ -4,18 +4,25 @@ import org.mapstruct.Builder;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.remote.desktop.entity.Action;
-import org.remote.desktop.model.ActionVto;
+import org.remote.desktop.entity.GPadEvent;
+import org.remote.desktop.model.GPadEventVto;
+
+import java.util.function.Consumer;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface ActionMapper {
 
-    ActionVto map(Action action, @Context CycleAvoidingMappingContext ctx);
+    GPadEventVto map(GPadEvent GPadEvent, @Context CycleAvoidingMappingContext ctx);
 
-    Action map(ActionVto vto, @Context CycleAvoidingMappingContext ctx);
+    GPadEvent map(GPadEventVto vto, @Context CycleAvoidingMappingContext ctx);
 
-    void update(Action src, @MappingTarget ActionVto tgt, @Context CycleAvoidingMappingContext ctx);
-    void update(ActionVto src, @MappingTarget Action tgt, @Context CycleAvoidingMappingContext ctx);
+    void update(GPadEventVto src, @MappingTarget GPadEvent tgt, @Context CycleAvoidingMappingContext ctx);
 
-    void update(Action src, @MappingTarget Action tgt, @Context CycleAvoidingMappingContext ctx);
+    default Consumer<GPadEvent> updater(GPadEventVto src) {
+        return q -> {
+            update(src, q, new CycleAvoidingMappingContext());
+            System.out.println(q);
+        };
+    }
+
 }
