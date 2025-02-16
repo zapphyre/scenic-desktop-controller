@@ -18,10 +18,7 @@ public class XdoActionMgrUi extends VerticalLayout {
         addButton.setVisible(enabled);
 
         gPadEventVto.getActions().stream()
-                .map(q -> new XdoActionUi(q, enabled, o -> {
-                    gPadEventVto.getActions().remove(o);
-                    dbToolbox.remove(o);
-                }, chageCb))
+                .map(q -> new XdoActionUi(q, enabled, dbToolbox::remove, chageCb))
                 .forEach(this::addComponentAsFirst);
 
         addButton.addClickListener(e -> {

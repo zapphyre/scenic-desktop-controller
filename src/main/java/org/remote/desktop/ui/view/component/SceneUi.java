@@ -41,10 +41,7 @@ public class SceneUi extends VerticalLayout {
                 e -> sceneVto.setInherits(e.getValue()));
         inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
         inheritsFrom.addComponentAsFirst(new FullWidthButton("[none]", e -> {
-            sceneVto.setInherits(null);
             inheritsFrom.setValue(null);
-//            dbToolbox.remove(sceneVto);
-            refreshInheritedSelectionList(sceneVto);
         }));
 
         inheritsFrom.setItemLabelGenerator(SceneVto::getName);
