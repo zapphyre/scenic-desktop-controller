@@ -39,7 +39,7 @@ public class SceneUi extends VerticalLayout {
 
         inheritsFrom = new Select<>("Inherits from",
                 e -> sceneVto.setInherits(e.getValue()));
-        inheritsFrom.setItems(new LinkedList<>(allScenes.get()));
+        inheritsFrom.setItems(scenesWithout(allScenes.get(), sceneVto));
         inheritsFrom.addComponentAsFirst(new FullWidthButton("[none]", e -> {
             inheritsFrom.setValue(null);
         }));
@@ -88,6 +88,12 @@ public class SceneUi extends VerticalLayout {
         GPadEventVtos.addAll(scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos));
 
         return GPadEventVtos;
+    }
+
+    static List<SceneVto> scenesWithout(Collection<SceneVto> sceneVtos, SceneVto sceneVto) {
+        return sceneVtos.stream()
+                .filter(q -> !q.getName().equals(sceneVto.getName()))
+                .toList();
     }
 
     void refreshInheritedSelectionList(SceneVto sceneVto) {

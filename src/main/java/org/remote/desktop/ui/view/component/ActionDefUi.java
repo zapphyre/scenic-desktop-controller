@@ -15,6 +15,8 @@ import org.remote.desktop.model.SceneVto;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import static org.remote.desktop.ui.view.component.SceneUi.scenesWithout;
+
 public class ActionDefUi extends HorizontalLayout {
 
     private final HorizontalLayout triggerSection = new HorizontalLayout();
@@ -42,29 +44,23 @@ public class ActionDefUi extends HorizontalLayout {
         MultiSelectComboBox<EButtonAxisMapping> modifiers = new MultiSelectComboBox<>("Modifiers");
         modifiers.setItems(EButtonAxisMapping.values());
         modifiers.setValue(input.getModifiers());
-//        modifiers.setAutoExpand(MultiSelectComboBox.AutoExpandMode.HORIZONTAL);
         modifiers.addValueChangeListener(q -> input.getModifiers().replaceAll(q.getValue()));
         modifiers.addValueChangeListener(q -> dbToolbox.update(input));
         modifiers.setWidthFull();
         modifiers.setEnabled(enabled);
 
         Select<SceneVto> nextSceneSelect = new Select<>("Next Scene", q -> input.setNextScene(q.getValue()));
-        nextSceneSelect.setItems(allScenes.get().stream().filter(q -> !q.getName().equals(parent.getName())).toList());
+        nextSceneSelect.setItems(scenesWithout(allScenes.get(), parent));
         nextSceneSelect.setValue(input.getNextScene());
         nextSceneSelect.setItemLabelGenerator(SceneVto::getName);
         nextSceneSelect.setEnabled(enabled);
-        nextSceneSelect.addComponentAsFirst(new FullWidthButton("[none]", e -> {
-            nextSceneSelect.setValue(null);
-        }));
+        nextSceneSelect.addComponentAsFirst(new FullWidthButton("[none]", e -> nextSceneSelect.setValue(null)));
         nextSceneSelect.addValueChangeListener(q -> dbToolbox.update(input));
 
         XdoActionMgrUi actionMgrUi = new XdoActionMgrUi(dbToolbox, input, enabled, dbToolbox::update);
         actionMgrUi.setWidthFull();
 
-        Button rem = new Button("-", q -> {
-            dbToolbox.remove(input);
-            parent.getGPadEvents().remove(input);
-        });
+        Button rem = new Button("-", q -> dbToolbox.remove(input));
         rem.addClickListener(e -> getParent().ifPresent(q -> ((HasComponents) q).remove(this)));
         rem.setVisible(enabled);
 

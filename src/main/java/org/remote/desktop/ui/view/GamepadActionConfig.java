@@ -13,7 +13,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.remote.desktop.component.ReplaceableSet;
 import org.remote.desktop.component.SceneDbToolbox;
 import org.remote.desktop.model.SceneVto;
-import org.remote.desktop.service.SceneService;
+import org.remote.desktop.service.GPadEventStreamService;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.remote.desktop.ui.view.component.SceneDialog;
 import org.remote.desktop.ui.view.component.SceneUi;
@@ -28,14 +28,14 @@ public class GamepadActionConfig extends VerticalLayout {
     private ComboBox<SceneVto> allScenes = new ComboBox<>("Scene");
     private VerticalLayout selectedScene = new VerticalLayout();
     private ReplaceableSet<SceneVto> scenes;
-    private final SceneService sceneService;
+    private final SceneDbToolbox dbToolbox;
     private SceneVto selected;
     private Checkbox autoSave;
     private ComboBoxListDataView<SceneVto> dataProv;
 
-    public GamepadActionConfig(SceneDbToolbox dbToolbox, SceneService sceneService) {
-        scenes = new ReplaceableSet<>(sceneService.getScenes());
-        this.sceneService = sceneService;
+    public GamepadActionConfig(SceneDbToolbox dbToolbox) {
+        scenes = new ReplaceableSet<>(dbToolbox.getAllScenes());
+        this.dbToolbox = dbToolbox;
 
         dataProv = allScenes.setItems(scenes);
 
@@ -56,7 +56,7 @@ public class GamepadActionConfig extends VerticalLayout {
         });
 
         Button saveAll = new Button("Save All", q -> {
-            scenes.replaceAll(sceneService.saveAll(scenes));
+            scenes.replaceAll(dbToolbox.saveAll(scenes));
             dataProv.refreshAll();
         });
 
@@ -79,7 +79,7 @@ public class GamepadActionConfig extends VerticalLayout {
         if (!autoSave.getValue()) return;
 
         try {
-            scenes.replace(sceneService.save(sceneVto));
+            scenes.replace(dbToolbox.save(sceneVto));
             dataProv.refreshAll();
             allScenes.setValue(sceneVto);
             SaveNotifiaction.success("all saved");

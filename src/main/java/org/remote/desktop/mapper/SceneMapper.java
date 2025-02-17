@@ -8,6 +8,7 @@ import org.remote.desktop.entity.Scene;
 import org.remote.desktop.model.SceneVto;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface SceneMapper {
