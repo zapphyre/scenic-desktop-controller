@@ -8,12 +8,11 @@ import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
-import org.remote.desktop.service.SceneService;
+import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -28,10 +27,8 @@ public class ScenicDesktopController {
 
     private final TimedButtonGamepadFactory timedButtonGamepadFactory;
     private final ButtonPressMapper buttonPressMapper;
-    private final SceneService sceneService;
+    private final GPadEventStreamService gPadEventStreamService;
     private SceneVto forcedScene;
-
-    int previousPosition = -32767;
 
     @PostConstruct
     void employController() {
@@ -46,16 +43,16 @@ public class ScenicDesktopController {
                 .subscribe(act);
     }
 
-    Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction =q -> isSceneForced() ?
-                getActionsOn(SceneService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
-                getActionsOn(SceneService::extractInheritedActions, forcedScene, q);
+    Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction = q -> isSceneForced() ?
+            getActionsOn(GPadEventStreamService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
+            getActionsOn(GPadEventStreamService::extractInheritedActions, forcedScene, q);
 
     boolean isSceneForced() {
         return forcedScene == null;
     }
 
-    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<SceneService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter, P param, ButtonActionDef buttons) {
-        return Mono.justOrEmpty(paramGetter.apply(sceneService, param))
+    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter, P param, ButtonActionDef buttons) {
+        return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
                 .mapNotNull(getActionsForButtons(buttons));
     }
 
@@ -64,7 +61,7 @@ public class ScenicDesktopController {
     }
 
     Consumer<Set<XdoActionVto>> act = q -> q.forEach(p -> {
-            switch (p.getKeyEvt()) {
+        switch (p.getKeyEvt()) {
             case PRESS:
                 keydown(p.getKeyPress());
                 break;

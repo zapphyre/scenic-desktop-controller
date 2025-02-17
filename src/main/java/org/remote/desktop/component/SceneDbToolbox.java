@@ -12,9 +12,14 @@ import org.remote.desktop.repository.ActionRepository;
 import org.remote.desktop.repository.SceneRepository;
 import org.remote.desktop.repository.XdoActionRepository;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -22,15 +27,54 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SceneDbToolbox {
 
+    public static final String SCENE_CACHE_NAME = "scenes";
+    public static final String WINDOW_SCENE_CACHE_NAME = "mapped_scenes";
+    public static final String SCENE_NAME_CACHE_NAME = "scene_name";
+
     private final SceneRepository sceneRepository;
     private final ActionRepository actionRepository;
     private final XdoActionRepository xdoActionRepository;
+
+    private final CacheManager cacheManager;
 
     private final SceneMapper sceneMapper;
     private final XdoActionMapper xdoActionMapper;
     private final ActionMapper actionMapper;
 
 
+    @Cacheable(SCENE_CACHE_NAME)
+    public List<SceneVto> getAllScenes() {
+        return sceneRepository.findAll().stream()
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .toList();
+    }
+
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    public List<SceneVto> saveAll(Collection<SceneVto> scenes) {
+        return scenes.stream()
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(sceneRepository::save)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .toList();
+    }
+
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    public SceneVto save(SceneVto sceneVto) {
+        return Optional.of(sceneVto)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(sceneRepository::save)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElseThrow();
+    }
+
+    @Cacheable(SCENE_CACHE_NAME)
+    public SceneVto getScene(String sceneName) {
+        return sceneRepository.findById(sceneName)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElse(new SceneVto());
+    }
+
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public XdoActionVto save(XdoActionVto actionVto) {
         XdoActionVto xdoActionVto = null;
         try {
@@ -48,6 +92,7 @@ public class SceneDbToolbox {
         return xdoActionVto;
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(XdoActionVto actionVto) {
         try {
             Optional.of(actionVto)
@@ -61,11 +106,11 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(XdoActionVto vto) {
         try {
             Optional.of(vto)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
-                    //update with against entity
                     .ifPresent(xdoActionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
@@ -74,6 +119,7 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(GPadEventVto gPadEventVto) {
         try {
             Optional.of(gPadEventVto)
@@ -87,6 +133,7 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(GPadEventVto vto) {
         try {
             Optional.of(vto)
@@ -99,6 +146,7 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(SceneVto sceneVto) {
         try {
             Optional.of(sceneVto)
@@ -112,6 +160,7 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(SceneVto vto) {
         try {
             Optional.of(vto)
@@ -124,6 +173,7 @@ public class SceneDbToolbox {
         }
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public GPadEventVto save(GPadEventVto GPadEventVto) {
         return Optional.of(GPadEventVto)
                 .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))

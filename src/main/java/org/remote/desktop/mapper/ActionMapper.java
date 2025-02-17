@@ -19,10 +19,7 @@ public interface ActionMapper {
     void update(GPadEventVto src, @MappingTarget GPadEvent tgt, @Context CycleAvoidingMappingContext ctx);
 
     default Consumer<GPadEvent> updater(GPadEventVto src) {
-        return q -> {
-            update(src, q, new CycleAvoidingMappingContext());
-            System.out.println(q);
-        };
+        return q -> update(src, q, new CycleAvoidingMappingContext());
     }
 
 }
