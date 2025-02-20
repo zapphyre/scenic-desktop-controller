@@ -8,7 +8,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import org.asmus.model.EButtonAxisMapping;
-import org.remote.desktop.component.SceneDbToolbox;
+import org.remote.desktop.component.SceneDao;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 
@@ -21,11 +21,11 @@ public class ActionDefUi extends HorizontalLayout {
 
     private final HorizontalLayout triggerSection = new HorizontalLayout();
 
-    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes) {
+    public ActionDefUi(SceneDao dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes) {
         this(dbToolbox, parent, input, allScenes, true);
     }
 
-    public ActionDefUi(SceneDbToolbox dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
+    public ActionDefUi(SceneDao dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
         setAlignItems(Alignment.END);
 
         Select<EButtonAxisMapping> trigger = new Select<>("Button Trigger", q -> input.setTrigger(q.getValue()));

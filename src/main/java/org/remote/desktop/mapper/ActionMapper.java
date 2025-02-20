@@ -1,9 +1,6 @@
 package org.remote.desktop.mapper;
 
-import org.mapstruct.Builder;
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.remote.desktop.entity.GPadEvent;
 import org.remote.desktop.model.GPadEventVto;
 
@@ -16,6 +13,7 @@ public interface ActionMapper {
 
     GPadEvent map(GPadEventVto vto, @Context CycleAvoidingMappingContext ctx);
 
+//    @Mapping(target = "", ignore = true)
     void update(GPadEventVto src, @MappingTarget GPadEvent tgt, @Context CycleAvoidingMappingContext ctx);
 
     default Consumer<GPadEvent> updater(GPadEventVto src) {
