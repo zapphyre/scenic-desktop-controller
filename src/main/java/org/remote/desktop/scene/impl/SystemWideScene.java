@@ -7,7 +7,7 @@ import org.asmus.model.GamepadEvent;
 import java.util.function.Predicate;
 
 import static jxdotool.xDoToolUtil.pressKey;
-import static org.remote.desktop.DesktopRemoteMain.metaKeysUp;
+//import static org.remote.desktop.DesktopRemoteMain.metaKeysUp;
 
 @Slf4j
 public class SystemWideScene {
@@ -26,6 +26,6 @@ public class SystemWideScene {
 
     public static void resetMetaKeys(GamepadEvent evt) {
         log.info("resetMetaKeys");
-            metaKeysUp();
+//            metaKeysUp();
     }
 }

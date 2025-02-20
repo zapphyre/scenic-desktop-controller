@@ -11,9 +11,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.remote.desktop.component.ReplaceableSet;
-import org.remote.desktop.component.SceneDbToolbox;
+import org.remote.desktop.component.SceneDao;
 import org.remote.desktop.model.SceneVto;
-import org.remote.desktop.service.GPadEventStreamService;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.remote.desktop.ui.view.component.SceneDialog;
 import org.remote.desktop.ui.view.component.SceneUi;
@@ -28,12 +27,12 @@ public class GamepadActionConfig extends VerticalLayout {
     private ComboBox<SceneVto> allScenes = new ComboBox<>("Scene");
     private VerticalLayout selectedScene = new VerticalLayout();
     private ReplaceableSet<SceneVto> scenes;
-    private final SceneDbToolbox dbToolbox;
+    private final SceneDao dbToolbox;
     private SceneVto selected;
     private Checkbox autoSave;
     private ComboBoxListDataView<SceneVto> dataProv;
 
-    public GamepadActionConfig(SceneDbToolbox dbToolbox) {
+    public GamepadActionConfig(SceneDao dbToolbox) {
         scenes = new ReplaceableSet<>(dbToolbox.getAllScenes());
         this.dbToolbox = dbToolbox;
 

@@ -2,18 +2,22 @@ package org.remote.desktop.component;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.asmus.facade.TimedButtonGamepadFactory;
+import org.asmus.builder.GamepadEventSourceBuilder;
+import org.asmus.builder.closure.OsDevice;
+import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
+import org.remote.desktop.repository.GPadEventRepository;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -25,14 +29,24 @@ import static jxdotool.xDoToolUtil.*;
 @RequiredArgsConstructor
 public class ScenicDesktopController {
 
-    private final TimedButtonGamepadFactory timedButtonGamepadFactory;
+    private final JoyWorker worker;
     private final ButtonPressMapper buttonPressMapper;
     private final GPadEventStreamService gPadEventStreamService;
+    private final GPadEventRepository eventRepository;
     private SceneVto forcedScene;
+    private Disposable currentSubs;
 
     @PostConstruct
     void employController() {
-        Flux.merge(timedButtonGamepadFactory.getButtonStream(), timedButtonGamepadFactory.getArrowsStream())
+        Optional.ofNullable(currentSubs).ifPresent(Disposable::dispose);
+        GamepadEventSourceBuilder gamepadEventSourceBuilder = new GamepadEventSourceBuilder();
+
+        OsDevice wrapper = gamepadEventSourceBuilder.getButtonStream()
+                .act(() -> gPadEventStreamService.getActuatorForScene(getCurrentWindowTitle()));
+
+        worker.getButtonStream().subscribe(wrapper::processButtonEvents);
+
+        gamepadEventSourceBuilder.getQualifiedEventStream().asFlux()
                 .map(buttonPressMapper::map)
                 .flatMap(getNextSceneXdoAction)
                 .doOnNext(q -> {
@@ -51,7 +65,9 @@ public class ScenicDesktopController {
         return forcedScene == null;
     }
 
-    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter, P param, ButtonActionDef buttons) {
+    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter,
+                                              P param,
+                                              ButtonActionDef buttons) {
         return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
                 .mapNotNull(getActionsForButtons(buttons));
     }

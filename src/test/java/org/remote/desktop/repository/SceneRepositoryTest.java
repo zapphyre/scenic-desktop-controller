@@ -3,6 +3,7 @@ package org.remote.desktop.repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.remote.desktop.entity.GPadEvent;
 import org.remote.desktop.entity.Scene;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
@@ -12,18 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-@DataJpaTest(properties = {
-        """
-                spring.datasource.url=jdbc:h2:file:./scene_test
-                spring.datasource.driverClassName=org.h2.Driver
-                spring.datasource.username=sa
-                spring.datasource.password=password
-                spring.jpa.defer-datasource-initialization=true
-                spring.jpa.hibernate.ddl-auto=create
-                """
-})
+@DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SceneRepositoryTest {
 
@@ -44,9 +38,9 @@ public class SceneRepositoryTest {
         SceneVto scene2Vto = SceneVto.builder()
                 .name("asdf")
                 .windowName("windowName")
-//                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
-                .actions(List.of(GPadEventVto.builder()
-//                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                .inherits(scene1vto)
+                .gPadEvents(List.of(GPadEventVto.builder()
+                        .nextScene(scene1vto)
                         .build()))
                 .build();
 
@@ -56,9 +50,9 @@ public class SceneRepositoryTest {
         SceneVto scene3Vto = SceneVto.builder()
                 .name("xzcv")
                 .windowName("windowName")
-//                .inherits(scene1vto.toBuilder().id(saveScene1.getId()).build())
-                .actions(List.of(GPadEventVto.builder()
-//                        .nextScene(scene1vto.toBuilder().id(saveScene1.getId()).build())
+                .inherits(scene1vto)
+                .gPadEvents(List.of(GPadEventVto.builder()
+                        .nextScene(scene1vto)
                         .build()))
                 .build();
 
@@ -88,4 +82,26 @@ public class SceneRepositoryTest {
 
         sceneRepository.flush();
     }
+
+    @Test
+    void getSceneByWindowNameTest() {
+        Scene s = createScene("Joe Rogan Experience");
+        sceneRepository.save(s);
+
+//        sceneRepository.flush();
+
+        Optional<Scene> rogan = sceneRepository.findBySceneContain("Rogan");
+
+        Assertions.assertTrue(rogan.isPresent());
+    }
+
+    Scene createScene(String wName, GPadEvent ...gpadEvents) {
+        return Scene.builder()
+                .windowName(wName)
+                .name("Base")
+                .gPadEvents(Arrays.asList(gpadEvents))
+                .build();
+    }
+
+
 }

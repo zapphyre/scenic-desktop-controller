@@ -4,7 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import org.remote.desktop.component.SceneDbToolbox;
+import org.remote.desktop.component.SceneDao;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
 
-    private final SceneDbToolbox dbToolbox;
+    private final SceneDao dbToolbox;
     private final Supplier<Collection<SceneVto>> allScenes;
 //    private final Consumer<SceneVto> chageCb;
 
@@ -27,7 +27,7 @@ public class SceneUi extends VerticalLayout {
     Select<SceneVto> inheritsFrom;
     Button addAction;
 
-    public SceneUi(SceneDbToolbox dbToolbox, SceneVto sceneVto, Supplier<Collection<SceneVto>> allScenes) {
+    public SceneUi(SceneDao dbToolbox, SceneVto sceneVto, Supplier<Collection<SceneVto>> allScenes) {
         this.dbToolbox = dbToolbox;
         this.allScenes = allScenes;
 //        this.chageCb = chageCb;

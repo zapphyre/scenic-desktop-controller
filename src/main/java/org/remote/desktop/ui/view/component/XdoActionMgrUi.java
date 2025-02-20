@@ -2,7 +2,7 @@ package org.remote.desktop.ui.view.component;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.remote.desktop.component.SceneDbToolbox;
+import org.remote.desktop.component.SceneDao;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.XdoActionVto;
 
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 public class XdoActionMgrUi extends VerticalLayout {
 
-    public XdoActionMgrUi(SceneDbToolbox dbToolbox, GPadEventVto gPadEventVto, boolean enabled, Consumer<XdoActionVto> chageCb) {
+    public XdoActionMgrUi(SceneDao dbToolbox, GPadEventVto gPadEventVto, boolean enabled, Consumer<XdoActionVto> chageCb) {
         setWidthFull();
 
         Button addButton = new Button("+");

@@ -2,6 +2,7 @@ package org.remote.desktop.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.asmus.model.EMultiplicity;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -28,7 +29,10 @@ public class GPadEvent {
 
     @ToString.Include
     @EqualsAndHashCode.Include
-    private Boolean longPress;
+    private boolean longPress;
+
+    @Enumerated(EnumType.STRING)
+    private EMultiplicity multiplicity;
 
     // has to me many-one otherwise hibernate creates unique constrain on this column
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
@@ -41,16 +45,18 @@ public class GPadEvent {
     private Set<String> modifiers;
 
     @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private Set<XdoAction> actions = new HashSet<>();
+    private Set<XdoAction> actions;
 
-    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn
+    @ManyToOne(cascade = CascadeType.DETACH)
     private Scene scene;
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        actions.forEach(p -> p.setGPadEvent(this));
+        Optional.ofNullable(actions).orElse(Set.of()).stream()
+                .filter(q -> q.getGPadEvent() != null)
+                .forEach(p -> p.setGPadEvent(this));
 
         Optional.ofNullable(scene)
                 .map(Scene::getGPadEvents)

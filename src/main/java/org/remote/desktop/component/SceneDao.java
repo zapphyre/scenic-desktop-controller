@@ -8,7 +8,7 @@ import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
-import org.remote.desktop.repository.ActionRepository;
+import org.remote.desktop.repository.GPadEventRepository;
 import org.remote.desktop.repository.SceneRepository;
 import org.remote.desktop.repository.XdoActionRepository;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
@@ -25,14 +25,14 @@ import java.util.Optional;
 @Component
 @Transactional
 @RequiredArgsConstructor
-public class SceneDbToolbox {
+public class SceneDao {
 
     public static final String SCENE_CACHE_NAME = "scenes";
     public static final String WINDOW_SCENE_CACHE_NAME = "mapped_scenes";
     public static final String SCENE_NAME_CACHE_NAME = "scene_name";
 
     private final SceneRepository sceneRepository;
-    private final ActionRepository actionRepository;
+    private final GPadEventRepository actionRepository;
     private final XdoActionRepository xdoActionRepository;
 
     private final CacheManager cacheManager;
@@ -71,7 +71,13 @@ public class SceneDbToolbox {
     public SceneVto getScene(String sceneName) {
         return sceneRepository.findById(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
-                .orElse(new SceneVto());
+                .orElseThrow();
+    }
+
+    public SceneVto getSceneLikeName(String sceneName) {
+        return sceneRepository.findBySceneContain(sceneName)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElseGet(() -> getScene("Base"));
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
