@@ -7,7 +7,8 @@ import org.remote.desktop.model.Behavioral;
 
 import java.util.function.Predicate;
 
-import static org.asmus.builder.GamepadEventSourceBuilder.*;
+import static org.asmus.builder.IntrospectedEventFactory.*;
+
 
 @Getter
 @RequiredArgsConstructor

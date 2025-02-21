@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 public class XdoActionMgrUi extends VerticalLayout {
 
-    public XdoActionMgrUi(SceneDao dbToolbox, GPadEventVto gPadEventVto, boolean enabled, Consumer<XdoActionVto> chageCb) {
+    public XdoActionMgrUi(SceneDao dbToolbox, GPadEventVto gPadEventVto, boolean enabled, Consumer<XdoActionVto> changeCb) {
         setWidthFull();
 
         Button addButton = new Button("+");
@@ -18,18 +18,19 @@ public class XdoActionMgrUi extends VerticalLayout {
         addButton.setVisible(enabled);
 
         gPadEventVto.getActions().stream()
-                .map(q -> new XdoActionUi(q, enabled, dbToolbox::remove, chageCb))
+                .map(q -> new XdoActionUi(q, enabled, dbToolbox::remove, changeCb))
                 .forEach(this::addComponentAsFirst);
 
         addButton.addClickListener(e -> {
             XdoActionVto newAction = XdoActionVto.builder()
                     .gPadEvent(gPadEventVto)
                     .build();
+
             XdoActionVto saved = dbToolbox.save(newAction);
 
-            XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, dbToolbox::remove, chageCb);
+            XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, dbToolbox::remove, changeCb);
 
-            addComponentAsFirst(xdoActionUi);
+            add(xdoActionUi);
         });
 
         setAlignItems(Alignment.CENTER);

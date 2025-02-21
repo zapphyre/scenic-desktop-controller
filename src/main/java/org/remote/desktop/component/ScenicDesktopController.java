@@ -2,8 +2,9 @@ package org.remote.desktop.component;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.asmus.builder.GamepadEventSourceBuilder;
+import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.builder.closure.OsDevice;
+import org.asmus.builder.closure.RawArrowSource;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
@@ -17,7 +18,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -38,15 +39,15 @@ public class ScenicDesktopController {
 
     @PostConstruct
     void employController() {
-        Optional.ofNullable(currentSubs).ifPresent(Disposable::dispose);
-        GamepadEventSourceBuilder gamepadEventSourceBuilder = new GamepadEventSourceBuilder();
+        IntrospectedEventFactory gamepadObserver = new IntrospectedEventFactory();
 
-        OsDevice wrapper = gamepadEventSourceBuilder.getButtonStream()
-                .act(gPadEventStreamService::getActuatorForScene);
+        OsDevice wrapper = gamepadObserver.getButtonStream().act(gPadEventStreamService::getActuatorForScene);
+        RawArrowSource arrowSource = gamepadObserver.getArrowsStream();
 
         worker.getButtonStream().subscribe(wrapper::processButtonEvents);
+        worker.getAxisStream().subscribe(arrowSource::processArrowEvents);
 
-        gamepadEventSourceBuilder.getQualifiedEventStream().asFlux()
+        gamepadObserver.getEventStream()
                 .map(buttonPressMapper::map)
                 .flatMap(getNextSceneXdoAction)
                 .doOnNext(q -> {
@@ -54,7 +55,8 @@ public class ScenicDesktopController {
                         forcedScene = q.nextScene();
                 })
                 .map(NextSceneXdoAction::actions)
-                .subscribe(act);
+                .log()
+                .subscribe(act, q -> System.out.println(q.getMessage()));
     }
 
     Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction = q -> isSceneForced() ?
@@ -62,7 +64,7 @@ public class ScenicDesktopController {
             getActionsOn(GPadEventStreamService::extractInheritedActions, forcedScene, q);
 
     boolean isSceneForced() {
-        return forcedScene == null;
+        return Objects.isNull(forcedScene);
     }
 
     <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter,
@@ -76,26 +78,30 @@ public class ScenicDesktopController {
         return q -> q.get(def);
     }
 
-    Consumer<Set<XdoActionVto>> act = q -> q.forEach(p -> {
-        switch (p.getKeyEvt()) {
-            case PRESS:
-                keydown(p.getKeyPress());
-                break;
-            case STROKE:
-                pressKey(p.getKeyPress());
-                break;
-            case RELEASE:
-                keyup(p.getKeyPress());
-                break;
-            case SCENE_RESET:
-                forcedScene = null;
-                break;
-            case TIMEOUT:
-                try {
-                    Thread.sleep(Integer.parseInt(p.getKeyPress()));
-                } catch (InterruptedException e) {
-                }
-                break;
-        }
-    });
+    Consumer<Set<XdoActionVto>> act = q ->
+            q.stream()
+                    .sorted((x, y) -> x.getId() > y.getId() ? -1 : 1)
+                    .forEach(p -> {
+                        System.out.println("executing: " + p.getKeyPress());
+                        switch (p.getKeyEvt()) {
+                            case PRESS:
+                                keydown(p.getKeyPress());
+                                break;
+                            case STROKE:
+                                pressKey(p.getKeyPress());
+                                break;
+                            case RELEASE:
+                                keyup(p.getKeyPress());
+                                break;
+                            case SCENE_RESET:
+                                forcedScene = null;
+                                break;
+                            case TIMEOUT:
+                                try {
+                                    Thread.sleep(Integer.parseInt(p.getKeyPress()));
+                                } catch (InterruptedException e) {
+                                }
+                                break;
+                        }
+                    });
 }

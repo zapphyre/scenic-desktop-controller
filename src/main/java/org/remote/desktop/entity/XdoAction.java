@@ -11,27 +11,23 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString
+@EqualsAndHashCode
 public class XdoAction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @ToString.Include
-    @EqualsAndHashCode.Include
     private Long id;
 
-    @ToString.Include
-    @EqualsAndHashCode.Include
     @Enumerated(EnumType.STRING)
     private EKeyEvt keyEvt;
 
-    @ToString.Include
-    @EqualsAndHashCode.Include
     private String keyPress;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private GPadEvent gPadEvent;
 
     @PreUpdate

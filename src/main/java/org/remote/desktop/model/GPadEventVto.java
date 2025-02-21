@@ -12,27 +12,20 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
 public class GPadEventVto implements Behavioral {
 
-    @ToString.Include
-    @EqualsAndHashCode.Include
     private Long id;
-
-    @ToString.Include
     private EButtonAxisMapping trigger;
-    @ToString.Include
     private boolean longPress;
 
     private SceneVto nextScene;
 
     @Builder.Default
-    @ToString.Include
     private ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
-    @Builder.Default
     private Set<XdoActionVto> actions = new HashSet<>();
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private SceneVto scene;
 
     private EMultiplicity multiplicity = EMultiplicity.CLICK;

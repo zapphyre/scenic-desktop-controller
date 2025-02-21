@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.asmus.model.EMultiplicity;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Data
 @Entity
@@ -42,10 +41,10 @@ public class GPadEvent {
     @EqualsAndHashCode.Include
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
-    private Set<String> modifiers;
+    private List<String> modifiers;
 
     @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private Set<XdoAction> actions;
+    private List<XdoAction> actions;
 
     @JoinColumn
     @ManyToOne(cascade = CascadeType.DETACH)
@@ -54,7 +53,7 @@ public class GPadEvent {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(actions).orElse(Set.of()).stream()
+        Optional.ofNullable(actions).orElse(List.of()).stream()
                 .filter(q -> q.getGPadEvent() != null)
                 .forEach(p -> p.setGPadEvent(this));
 
