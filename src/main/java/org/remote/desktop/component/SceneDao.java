@@ -74,6 +74,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
+    @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getSceneLikeName(String sceneName) {
         return sceneRepository.findBySceneContain(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -91,7 +92,6 @@ public class SceneDao {
                     .orElseThrow();
             SaveNotifiaction.success("saved");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
 
@@ -107,7 +107,6 @@ public class SceneDao {
                     .ifPresent(xdoActionMapper.updater(actionVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
@@ -120,7 +119,6 @@ public class SceneDao {
                     .ifPresent(xdoActionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
@@ -134,7 +132,6 @@ public class SceneDao {
                     .ifPresent(actionMapper.updater(gPadEventVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
@@ -147,7 +144,6 @@ public class SceneDao {
                     .ifPresent(actionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
@@ -161,7 +157,6 @@ public class SceneDao {
                     .ifPresent(sceneMapper.updater(sceneVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
@@ -174,7 +169,6 @@ public class SceneDao {
                     .ifPresent(sceneRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
-            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
