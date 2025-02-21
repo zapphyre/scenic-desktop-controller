@@ -6,7 +6,7 @@ import org.asmus.model.EMultiplicity;
 import java.util.Set;
 
 public interface Behavioral {
-    default boolean hasModifiers() {
+    default boolean hasModifiersAssigned() {
         return !getModifiers().isEmpty();
     }
 

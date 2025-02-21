@@ -27,9 +27,9 @@ public class GPadEventVto implements Behavioral {
 
     private SceneVto nextScene;
 
-//    @Builder.Default
+    @Builder.Default
     @ToString.Include
-    private ReplaceableSet<EButtonAxisMapping> modifiers;
+    private ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
     @Builder.Default
     private Set<XdoActionVto> actions = new HashSet<>();
 
