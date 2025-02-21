@@ -42,7 +42,7 @@ public class ScenicDesktopController {
         GamepadEventSourceBuilder gamepadEventSourceBuilder = new GamepadEventSourceBuilder();
 
         OsDevice wrapper = gamepadEventSourceBuilder.getButtonStream()
-                .act(() -> gPadEventStreamService.getActuatorForScene(getCurrentWindowTitle()));
+                .act(gPadEventStreamService::getActuatorForScene);
 
         worker.getButtonStream().subscribe(wrapper::processButtonEvents);
 

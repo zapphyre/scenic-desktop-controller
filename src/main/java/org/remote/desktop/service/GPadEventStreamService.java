@@ -3,6 +3,7 @@ package org.remote.desktop.service;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.BehavioralFilter;
+import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.component.SceneDao;
 import org.remote.desktop.model.*;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
+import static jxdotool.xDoToolUtil.getCurrentWindowTitle;
 import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
 
 
@@ -46,22 +48,20 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
-    public BehavioralFilter getActuatorForScene(String currentWindowTitle) {
-        SceneVto scene = sceneDao.getSceneLikeName(currentWindowTitle);
+    @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
+    public BehavioralFilter getActuatorForScene(ButtonClick click) {
+        System.out.println("getActuatorForScene");
+        SceneVto scene = sceneDao.getSceneLikeName(getCurrentWindowTitle());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scene.getGPadEvents().stream()
+                        .filter(p -> p.getTrigger() == EButtonAxisMapping.getByName(click.getPush().getName()))
                         .anyMatch(q.getPredicate()))
                 .findFirst()
-                .orElse(EQualifiedSceneDict.FAST_CLICK);
-
-        List<EButtonAxisMapping> buttons = scene.getGPadEvents().stream()
-                .map(GPadEventVto::getTrigger)
-                .toList();
+                .orElseThrow();
 
         return BehavioralFilter.builder()
                 .behaviour(foundQualifier.getBehaviour())
-                .buttons(buttons)
                 .build();
     }
 

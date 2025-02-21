@@ -13,7 +13,8 @@ import static org.asmus.builder.GamepadEventSourceBuilder.*;
 @RequiredArgsConstructor
 public enum EQualifiedSceneDict {
 
-    MODIFIED(MODIFIER, Behavioral::hasModifiers),
+    //order matters!
+    MODIFIED(MODIFIER, Behavioral::hasModifiersAssigned),
     MULTI_CLICK(MULTIPLICITY, Behavioral::hasClickMultiplicity),
     LONG_CLICK(LONG, Behavioral::isLongPress),
     FAST_CLICK(PUSH, q -> true),
