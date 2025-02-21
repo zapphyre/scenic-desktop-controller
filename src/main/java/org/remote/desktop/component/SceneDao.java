@@ -16,6 +16,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -49,7 +51,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public List<SceneVto> saveAll(Collection<SceneVto> scenes) {
         return scenes.stream()
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -58,7 +60,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public SceneVto save(SceneVto sceneVto) {
         return Optional.of(sceneVto)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -74,44 +76,46 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getSceneLikeName(String sceneName) {
         return sceneRepository.findBySceneContain(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseGet(() -> getScene("Base"));
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public XdoActionVto save(XdoActionVto actionVto) {
         XdoActionVto xdoActionVto = null;
         try {
             xdoActionVto = Optional.of(actionVto)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
-                    .map(xdoActionRepository::save)
+                    .map(xdoActionRepository::saveAndFlush)
                     .map(q -> xdoActionMapper.map(q, new CycleAvoidingMappingContext()))
                     .orElseThrow();
             SaveNotifiaction.success("saved");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
 
         return xdoActionVto;
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(XdoActionVto actionVto) {
         try {
             Optional.of(actionVto)
                     .map(XdoActionVto::getId)
                     .flatMap(xdoActionRepository::findById)
                     .ifPresent(xdoActionMapper.updater(actionVto));
+            xdoActionRepository.flush();
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(XdoActionVto vto) {
         try {
             Optional.of(vto)
@@ -119,11 +123,12 @@ public class SceneDao {
                     .ifPresent(xdoActionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(GPadEventVto gPadEventVto) {
         try {
             Optional.of(gPadEventVto)
@@ -132,11 +137,12 @@ public class SceneDao {
                     .ifPresent(actionMapper.updater(gPadEventVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(GPadEventVto vto) {
         try {
             Optional.of(vto)
@@ -144,11 +150,12 @@ public class SceneDao {
                     .ifPresent(actionRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void update(SceneVto sceneVto) {
         try {
             Optional.of(sceneVto)
@@ -157,11 +164,12 @@ public class SceneDao {
                     .ifPresent(sceneMapper.updater(sceneVto));
             SaveNotifiaction.success("updated");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public void remove(SceneVto vto) {
         try {
             Optional.of(vto)
@@ -169,11 +177,12 @@ public class SceneDao {
                     .ifPresent(sceneRepository::delete);
             SaveNotifiaction.success("removed");
         } catch (Exception e) {
+            e.printStackTrace();
             SaveNotifiaction.error();
         }
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public GPadEventVto save(GPadEventVto GPadEventVto) {
         return Optional.of(GPadEventVto)
                 .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))

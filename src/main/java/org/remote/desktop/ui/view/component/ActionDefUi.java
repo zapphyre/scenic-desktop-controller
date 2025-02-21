@@ -3,6 +3,7 @@ package org.remote.desktop.ui.view.component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -28,10 +29,11 @@ public class ActionDefUi extends HorizontalLayout {
     public ActionDefUi(SceneDao dbToolbox, SceneVto parent, GPadEventVto input, Supplier<Collection<SceneVto>> allScenes, boolean enabled) {
         setAlignItems(Alignment.END);
 
-        Select<EButtonAxisMapping> trigger = new Select<>("Button Trigger", q -> input.setTrigger(q.getValue()));
+        ComboBox<EButtonAxisMapping> trigger = new ComboBox<>("Button Trigger");
         trigger.setItems(EButtonAxisMapping.values());
         trigger.setValue(input.getTrigger());
         trigger.setItemLabelGenerator(EButtonAxisMapping::name);
+        trigger.addValueChangeListener(q -> input.setTrigger(q.getValue()));
         trigger.addValueChangeListener(q -> dbToolbox.update(input));
         trigger.setEnabled(enabled);
 

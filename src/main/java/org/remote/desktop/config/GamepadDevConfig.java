@@ -18,6 +18,4 @@ public class GamepadDevConfig {
         return eventProducer.getWorker();
     }
 
-
-
 }
