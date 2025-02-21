@@ -49,7 +49,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public List<SceneVto> saveAll(Collection<SceneVto> scenes) {
         return scenes.stream()
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -58,7 +58,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public SceneVto save(SceneVto sceneVto) {
         return Optional.of(sceneVto)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -80,7 +80,7 @@ public class SceneDao {
                 .orElseGet(() -> getScene("Base"));
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public XdoActionVto save(XdoActionVto actionVto) {
         XdoActionVto xdoActionVto = null;
         try {
@@ -98,7 +98,7 @@ public class SceneDao {
         return xdoActionVto;
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void update(XdoActionVto actionVto) {
         try {
             Optional.of(actionVto)
@@ -112,7 +112,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void remove(XdoActionVto vto) {
         try {
             Optional.of(vto)
@@ -125,7 +125,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void update(GPadEventVto gPadEventVto) {
         try {
             Optional.of(gPadEventVto)
@@ -139,7 +139,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void remove(GPadEventVto vto) {
         try {
             Optional.of(vto)
@@ -152,7 +152,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void update(SceneVto sceneVto) {
         try {
             Optional.of(sceneVto)
@@ -166,7 +166,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public void remove(SceneVto vto) {
         try {
             Optional.of(vto)
@@ -179,7 +179,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
     public GPadEventVto save(GPadEventVto GPadEventVto) {
         return Optional.of(GPadEventVto)
                 .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))

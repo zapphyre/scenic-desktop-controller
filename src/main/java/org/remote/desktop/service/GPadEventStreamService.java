@@ -2,11 +2,14 @@ package org.remote.desktop.service;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
-import org.asmus.model.BehavioralFilter;
+import org.asmus.behaviour.ActuationBehaviour;
 import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.component.SceneDao;
-import org.remote.desktop.model.*;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.SceneVto;
+import org.remote.desktop.model.XdoActionVto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -49,8 +52,7 @@ public class GPadEventStreamService {
     }
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
-    public BehavioralFilter getActuatorForScene(ButtonClick click) {
-        System.out.println("getActuatorForScene");
+    public ActuationBehaviour getActuatorForScene(ButtonClick click) {
         SceneVto scene = sceneDao.getSceneLikeName(getCurrentWindowTitle());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
@@ -60,9 +62,7 @@ public class GPadEventStreamService {
                 .findFirst()
                 .orElseThrow();
 
-        return BehavioralFilter.builder()
-                .behaviour(foundQualifier.getBehaviour())
-                .build();
+        return foundQualifier.getBehaviour();
     }
 
     record SceneBtnActions(String name, ButtonActionDef buttonActionDef, Set<XdoActionVto> actions,
