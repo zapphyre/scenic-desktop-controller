@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.asmus.behaviour.ActuationBehaviour;
 import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
-import org.remote.desktop.component.SceneDao;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.*;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
 import org.springframework.cache.annotation.Cacheable;

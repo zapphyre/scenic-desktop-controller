@@ -1,4 +1,4 @@
-package org.remote.desktop.entity;
+package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,7 +1,6 @@
-package org.remote.desktop.component;
+package org.remote.desktop.db.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.entity.Scene;
 import org.remote.desktop.mapper.ActionMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
@@ -9,11 +8,10 @@ import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
-import org.remote.desktop.repository.GPadEventRepository;
-import org.remote.desktop.repository.SceneRepository;
-import org.remote.desktop.repository.XdoActionRepository;
+import org.remote.desktop.db.repository.GPadEventRepository;
+import org.remote.desktop.db.repository.SceneRepository;
+import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -35,8 +33,6 @@ public class SceneDao {
     private final SceneRepository sceneRepository;
     private final GPadEventRepository actionRepository;
     private final XdoActionRepository xdoActionRepository;
-
-    private final CacheManager cacheManager;
 
     private final SceneMapper sceneMapper;
     private final XdoActionMapper xdoActionMapper;

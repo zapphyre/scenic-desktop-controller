@@ -11,7 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.remote.desktop.pojo.ReplaceableSet;
-import org.remote.desktop.component.SceneDao;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.remote.desktop.ui.view.component.SceneDialog;
