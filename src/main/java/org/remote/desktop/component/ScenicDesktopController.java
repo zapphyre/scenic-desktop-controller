@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class ScenicDesktopController {
         return q -> q.get(def);
     }
 
-    Consumer<Set<XdoActionVto>> act = q ->
+    Consumer<List<XdoActionVto>> act = q ->
             q.stream()
                     .sorted((x, y) -> x.getId() > y.getId() ? -1 : 1)
                     .forEach(p -> {

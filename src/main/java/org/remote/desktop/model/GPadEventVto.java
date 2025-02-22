@@ -6,6 +6,8 @@ import org.asmus.model.EMultiplicity;
 import org.remote.desktop.component.ReplaceableSet;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,7 +24,7 @@ public class GPadEventVto implements Behavioral {
 
     @Builder.Default
     private ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
-    private Set<XdoActionVto> actions = new HashSet<>();
+    private List<XdoActionVto> actions = new LinkedList<>();
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

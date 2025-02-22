@@ -108,7 +108,7 @@ public class SceneDao {
                     .flatMap(xdoActionRepository::findById)
                     .ifPresent(xdoActionMapper.updater(actionVto));
             xdoActionRepository.flush();
-            SaveNotifiaction.success("updated");
+            SaveNotifiaction.success("xDoActoin updated");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();
@@ -135,7 +135,7 @@ public class SceneDao {
                     .map(GPadEventVto::getId)
                     .flatMap(actionRepository::findById)
                     .ifPresent(actionMapper.updater(gPadEventVto));
-            SaveNotifiaction.success("updated");
+            SaveNotifiaction.success("gPadEvent updated");
         } catch (Exception e) {
             e.printStackTrace();
             SaveNotifiaction.error();

@@ -3,6 +3,7 @@ package org.remote.desktop.ui.view.component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.remote.desktop.component.SceneDao;
+import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.XdoActionVto;
 
@@ -24,9 +25,13 @@ public class XdoActionMgrUi extends VerticalLayout {
         addButton.addClickListener(e -> {
             XdoActionVto newAction = XdoActionVto.builder()
                     .gPadEvent(gPadEventVto)
+                    .keyEvt(EKeyEvt.STROKE)
                     .build();
 
             XdoActionVto saved = dbToolbox.save(newAction);
+
+            //has to he here, b/c in entity hibernate hook does this, but it still needs to be added here
+            gPadEventVto.getActions().add(saved);
 
             XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, dbToolbox::remove, changeCb);
 
