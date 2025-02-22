@@ -1,10 +1,11 @@
 package org.remote.desktop.component;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.builder.closure.OsDevice;
-import org.asmus.builder.closure.RawArrowSource;
+import org.asmus.builder.closure.button.OsDevice;
+import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
@@ -20,7 +21,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -29,7 +29,7 @@ import static jxdotool.xDoToolUtil.*;
 
 @Component
 @RequiredArgsConstructor
-public class ScenicDesktopController {
+public class ButtonAdapter {
 
     private final JoyWorker worker;
     private final ButtonPressMapper buttonPressMapper;
@@ -68,6 +68,7 @@ public class ScenicDesktopController {
         return Objects.isNull(forcedScene);
     }
 
+    @WithSpan
     <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter,
                                               P param,
                                               ButtonActionDef buttons) {
@@ -75,6 +76,7 @@ public class ScenicDesktopController {
                 .mapNotNull(getActionsForButtons(buttons));
     }
 
+    @WithSpan
     Function<Map<ButtonActionDef, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ButtonActionDef def) {
         return q -> q.get(def);
     }
@@ -83,7 +85,6 @@ public class ScenicDesktopController {
             q.stream()
                     .sorted((x, y) -> x.getId() > y.getId() ? -1 : 1)
                     .forEach(p -> {
-                        System.out.println("executing: " + p.getKeyPress());
                         switch (p.getKeyEvt()) {
                             case PRESS:
                                 keydown(p.getKeyPress());

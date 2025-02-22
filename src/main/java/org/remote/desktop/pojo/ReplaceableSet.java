@@ -1,4 +1,4 @@
-package org.remote.desktop.component;
+package org.remote.desktop.pojo;
 
 import java.util.Collection;
 import java.util.HashSet;

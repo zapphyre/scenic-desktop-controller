@@ -1,6 +1,7 @@
 package org.remote.desktop.service;
 
 import com.google.common.base.Predicate;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.behaviour.ActuationBehaviour;
@@ -27,6 +28,7 @@ public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
 
+    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return Optional.ofNullable(windowName)
@@ -35,6 +37,7 @@ public class GPadEventStreamService {
                 .orElse(Map.of());
     }
 
+    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
         return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getGPadEvents())
@@ -47,10 +50,16 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
-    Predicate<EButtonAxisMapping> sameAsClick(ButtonClick click) {
+    public Predicate<GPadEventVto> triggerAndModifiersSameAsClick(ButtonClick click) {
+        return q -> sameAsClick(click).test(q.getTrigger()) ||
+                q.getModifiers().stream().anyMatch(sameAsClick(click));
+    }
+
+    public Predicate<EButtonAxisMapping> sameAsClick(ButtonClick click) {
         return q -> q == EButtonAxisMapping.getByName(click.getPush().getName());
     }
 
+    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public ActuationBehaviour getActuatorForScene(ButtonClick click) {
         String currentWindowTitle = getCurrentWindowTitle();
@@ -61,9 +70,9 @@ public class GPadEventStreamService {
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> gPadEventVtos.stream()
-                        .filter(p -> sameAsClick(click).test(p.getTrigger()) ||
-                                p.getModifiers().stream().anyMatch(sameAsClick(click)))
-                        .anyMatch(q.getPredicate()))
+                        .filter(triggerAndModifiersSameAsClick(click))
+                        .anyMatch(q.getPredicate())
+                )
                 .findFirst()
                 .orElse(EQualifiedSceneDict.FAST_CLICK);
 

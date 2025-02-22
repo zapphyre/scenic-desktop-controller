@@ -76,13 +76,8 @@ public class SceneDao {
     }
 
     public SceneVto getSceneForWindowNameOrBase(String sceneName) {
-        Optional<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
-
-        if (bySceneContain.isPresent()) {
-            System.out.println("found scene: " + sceneName);
-        }
-
-        return bySceneContain.map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+        return sceneRepository.findBySceneContain(sceneName)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseGet(() -> getScene("Base"));
     }
 
