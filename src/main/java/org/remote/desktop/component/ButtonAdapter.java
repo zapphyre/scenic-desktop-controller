@@ -7,12 +7,12 @@ import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.builder.closure.button.OsDevice;
 import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.db.repository.GPadEventRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.SceneVto;
 import org.remote.desktop.model.XdoActionVto;
-import org.remote.desktop.repository.GPadEventRepository;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -36,7 +36,6 @@ public class ButtonAdapter {
     private final GPadEventStreamService gPadEventStreamService;
     private final GPadEventRepository eventRepository;
     private SceneVto forcedScene;
-    private Disposable currentSubs;
 
     @PostConstruct
     void employController() {
@@ -82,28 +81,27 @@ public class ButtonAdapter {
     }
 
     Consumer<List<XdoActionVto>> act = q ->
-            q.stream()
-                    .sorted((x, y) -> x.getId() > y.getId() ? -1 : 1)
-                    .forEach(p -> {
-                        switch (p.getKeyEvt()) {
-                            case PRESS:
-                                keydown(p.getKeyPress());
-                                break;
-                            case STROKE:
-                                pressKey(p.getKeyPress());
-                                break;
-                            case RELEASE:
-                                keyup(p.getKeyPress());
-                                break;
-                            case SCENE_RESET:
-                                forcedScene = null;
-                                break;
-                            case TIMEOUT:
-                                try {
-                                    Thread.sleep(Integer.parseInt(p.getKeyPress()));
-                                } catch (InterruptedException e) {
-                                }
-                                break;
+            q.forEach(p -> {
+                System.out.println("executing: " + p.getKeyPress());
+                switch (p.getKeyEvt()) {
+                    case PRESS:
+                        keydown(p.getKeyPress());
+                        break;
+                    case STROKE:
+                        pressKey(p.getKeyPress());
+                        break;
+                    case RELEASE:
+                        keyup(p.getKeyPress());
+                        break;
+                    case SCENE_RESET:
+                        forcedScene = null;
+                        break;
+                    case TIMEOUT:
+                        try {
+                            Thread.sleep(Integer.parseInt(p.getKeyPress()));
+                        } catch (InterruptedException e) {
                         }
-                    });
+                        break;
+                }
+            });
 }

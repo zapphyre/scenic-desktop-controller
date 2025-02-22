@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import org.asmus.model.EButtonAxisMapping;
-import org.remote.desktop.component.SceneDao;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.SceneVto;
 

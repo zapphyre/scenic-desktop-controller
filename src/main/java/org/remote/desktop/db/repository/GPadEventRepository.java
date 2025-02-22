@@ -1,6 +1,6 @@
-package org.remote.desktop.repository;
+package org.remote.desktop.db.repository;
 
-import org.remote.desktop.entity.GPadEvent;
+import org.remote.desktop.db.entity.GPadEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

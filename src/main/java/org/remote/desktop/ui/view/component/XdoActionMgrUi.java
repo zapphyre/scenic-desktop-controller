@@ -2,11 +2,12 @@ package org.remote.desktop.ui.view.component;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.remote.desktop.component.SceneDao;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.GPadEventVto;
 import org.remote.desktop.model.XdoActionVto;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class XdoActionMgrUi extends VerticalLayout {
@@ -18,9 +19,10 @@ public class XdoActionMgrUi extends VerticalLayout {
         addButton.setAriaLabel("Add Action");
         addButton.setVisible(enabled);
 
+        AtomicInteger i = new AtomicInteger();
         gPadEventVto.getActions().stream()
-                .map(q -> new XdoActionUi(q, enabled, dbToolbox::remove, changeCb))
-                .forEach(this::addComponentAsFirst);
+                .map(q -> new XdoActionUi(i.incrementAndGet(), q, enabled, dbToolbox::remove, changeCb))
+                .forEach(this::add);
 
         addButton.addClickListener(e -> {
             XdoActionVto newAction = XdoActionVto.builder()
@@ -33,7 +35,10 @@ public class XdoActionMgrUi extends VerticalLayout {
             //has to he here, b/c in entity hibernate hook does this, but it still needs to be added here
             gPadEventVto.getActions().add(saved);
 
-            XdoActionUi xdoActionUi = new XdoActionUi(saved, enabled, dbToolbox::remove, changeCb);
+            XdoActionUi xdoActionUi = new XdoActionUi(gPadEventVto.getActions().size(), saved, enabled, q -> {
+                gPadEventVto.getActions().remove(q);
+                dbToolbox.remove(q);
+            }, changeCb);
 
             add(xdoActionUi);
         });
