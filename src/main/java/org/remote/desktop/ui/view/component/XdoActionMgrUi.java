@@ -4,8 +4,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.EKeyEvt;
-import org.remote.desktop.model.GPadEventVto;
-import org.remote.desktop.model.XdoActionVto;
+import org.remote.desktop.model.vto.GPadEventVto;
+import org.remote.desktop.model.vto.XdoActionVto;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;

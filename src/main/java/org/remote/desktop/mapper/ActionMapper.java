@@ -2,7 +2,7 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.GPadEvent;
-import org.remote.desktop.model.GPadEventVto;
+import org.remote.desktop.model.vto.GPadEventVto;
 
 import java.util.function.Consumer;
 

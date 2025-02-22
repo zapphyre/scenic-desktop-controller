@@ -1,8 +1,9 @@
-package org.remote.desktop.model;
+package org.remote.desktop.model.vto;
 
 import lombok.*;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EMultiplicity;
+import org.remote.desktop.model.Behavioral;
 import org.remote.desktop.pojo.ReplaceableSet;
 
 import java.util.LinkedList;

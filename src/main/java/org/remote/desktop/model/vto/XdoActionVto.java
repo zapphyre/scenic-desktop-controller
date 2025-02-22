@@ -1,6 +1,7 @@
-package org.remote.desktop.model;
+package org.remote.desktop.model.vto;
 
 import lombok.*;
+import org.remote.desktop.model.EKeyEvt;
 
 @Data
 @Builder

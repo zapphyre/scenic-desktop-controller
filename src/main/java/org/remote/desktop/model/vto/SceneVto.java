@@ -1,4 +1,4 @@
-package org.remote.desktop.model;
+package org.remote.desktop.model.vto;
 
 import lombok.*;
 

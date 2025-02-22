@@ -2,7 +2,7 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.XdoAction;
-import org.remote.desktop.model.XdoActionVto;
+import org.remote.desktop.model.vto.XdoActionVto;
 
 import java.util.function.Consumer;
 

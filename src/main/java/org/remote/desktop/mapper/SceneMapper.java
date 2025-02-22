@@ -5,7 +5,7 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.model.SceneVto;
+import org.remote.desktop.model.vto.SceneVto;
 
 import java.util.function.Consumer;
 
