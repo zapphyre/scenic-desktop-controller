@@ -1,6 +1,7 @@
 package org.remote.desktop.component;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.entity.Scene;
 import org.remote.desktop.mapper.ActionMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
@@ -16,8 +17,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -76,9 +75,14 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    public SceneVto getSceneLikeName(String sceneName) {
-        return sceneRepository.findBySceneContain(sceneName)
-                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+    public SceneVto getSceneForWindowNameOrBase(String sceneName) {
+        Optional<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
+
+        if (bySceneContain.isPresent()) {
+            System.out.println("found scene: " + sceneName);
+        }
+
+        return bySceneContain.map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseGet(() -> getScene("Base"));
     }
 

@@ -1,7 +1,6 @@
 package org.remote.desktop.service;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.behaviour.ActuationBehaviour;
@@ -30,11 +29,8 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
-        return Optional.ofNullable(sceneDao.getAllScenes().stream()
-                        .filter(q -> !Strings.isNullOrEmpty(q.getWindowName()))
-                        .filter(q -> windowName.contains(q.getWindowName()))
-                        .findFirst().orElseGet(() -> sceneDao.getScene("Base"))
-                )
+        return Optional.ofNullable(windowName)
+                .map(sceneDao::getSceneForWindowNameOrBase)
                 .map(this::extractInheritedActions)
                 .orElse(Map.of());
     }
@@ -57,10 +53,11 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public ActuationBehaviour getActuatorForScene(ButtonClick click) {
-        System.out.println("click: " + click);
-
-        SceneVto scene = sceneDao.getSceneLikeName(getCurrentWindowTitle());
-        List<GPadEventVto> gPadEventVtos = scrapeActionsRecursive(scene);
+        String currentWindowTitle = getCurrentWindowTitle();
+        SceneVto scene = sceneDao.getSceneForWindowNameOrBase(currentWindowTitle);
+        List<GPadEventVto> gPadEventVtos = Stream.of(scene.getGPadEvents(), scrapeActionsRecursive(scene))
+                .flatMap(Collection::stream)
+                .toList();
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> gPadEventVtos.stream()
@@ -70,12 +67,10 @@ public class GPadEventStreamService {
                 .findFirst()
                 .orElse(EQualifiedSceneDict.FAST_CLICK);
 
-        System.out.println("found qualifier: " + foundQualifier.name());
-            return foundQualifier.getBehaviour();
-
-//        return EQualifiedSceneDict.MODIFIED.getBehaviour();
+        return foundQualifier.getBehaviour();
     }
 
     record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
-                           SceneVto nextScene) {}
+                           SceneVto nextScene) {
+    }
 }

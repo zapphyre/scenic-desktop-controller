@@ -85,20 +85,21 @@ public class SceneRepositoryTest {
 
     @Test
     void getSceneByWindowNameTest() {
-        Scene s = createScene("Joe Rogan Experience");
+        Scene s = createScene("/ X", "x");
+        Scene empty = createScene("", "Base");
+
         sceneRepository.save(s);
+        sceneRepository.save(empty);
 
-//        sceneRepository.flush();
-
-        Optional<Scene> rogan = sceneRepository.findBySceneContain("Rogan");
+        Optional<Scene> rogan = sceneRepository.findBySceneContain("Home / X — Mozilla Firefox");
 
         Assertions.assertTrue(rogan.isPresent());
     }
 
-    Scene createScene(String wName, GPadEvent ...gpadEvents) {
+    Scene createScene(String wName, String sName, GPadEvent ...gpadEvents) {
         return Scene.builder()
                 .windowName(wName)
-                .name("Base")
+                .name(sName)
                 .gPadEvents(Arrays.asList(gpadEvents))
                 .build();
     }
