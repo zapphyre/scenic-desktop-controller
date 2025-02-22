@@ -76,6 +76,6 @@ public class GPadEventStreamService {
 //        return EQualifiedSceneDict.MODIFIED.getBehaviour();
     }
 
-    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, Set<XdoActionVto> actions,
+    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
                            SceneVto nextScene) {}
 }

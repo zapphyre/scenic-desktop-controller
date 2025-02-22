@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.asmus.model.EMultiplicity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class GPadEvent {
     private List<String> modifiers;
 
     @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private List<XdoAction> actions;
+    private List<XdoAction> actions = new ArrayList<>();
 
     @JoinColumn
     @ManyToOne(cascade = CascadeType.DETACH)

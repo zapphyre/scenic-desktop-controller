@@ -1,6 +1,6 @@
 package org.remote.desktop.model;
 
-import java.util.Set;
+import java.util.List;
 
-public record NextSceneXdoAction(SceneVto nextScene, Set<XdoActionVto> actions) {
+public record NextSceneXdoAction(SceneVto nextScene, List<XdoActionVto> actions) {
 }
