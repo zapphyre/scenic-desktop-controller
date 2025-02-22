@@ -10,8 +10,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.model.GPadEventVto;
-import org.remote.desktop.model.SceneVto;
+import org.remote.desktop.model.vto.GPadEventVto;
+import org.remote.desktop.model.vto.SceneVto;
 
 import java.util.Collection;
 import java.util.function.Supplier;

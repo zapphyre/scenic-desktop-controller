@@ -6,7 +6,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import org.remote.desktop.model.EKeyEvt;
-import org.remote.desktop.model.XdoActionVto;
+import org.remote.desktop.model.vto.XdoActionVto;
 
 import java.util.Optional;
 import java.util.function.Consumer;

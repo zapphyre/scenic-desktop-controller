@@ -5,7 +5,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import org.remote.desktop.model.SceneVto;
+import org.remote.desktop.model.vto.SceneVto;
 
 import java.util.Collection;
 import java.util.Objects;

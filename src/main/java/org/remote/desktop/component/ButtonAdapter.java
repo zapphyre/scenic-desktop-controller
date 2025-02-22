@@ -7,15 +7,17 @@ import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.builder.closure.button.OsDevice;
 import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.service.JoyWorker;
-import org.remote.desktop.db.repository.GPadEventRepository;
+import org.remote.desktop.event.ActuatedStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.SceneVto;
-import org.remote.desktop.model.XdoActionVto;
+import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.vto.SceneVto;
+import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -34,7 +36,8 @@ public class ButtonAdapter {
     private final JoyWorker worker;
     private final ButtonPressMapper buttonPressMapper;
     private final GPadEventStreamService gPadEventStreamService;
-    private final GPadEventRepository eventRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ActuatedStateRepository actuatedStateRepository;
     private SceneVto forcedScene;
 
     @PostConstruct
@@ -49,19 +52,23 @@ public class ButtonAdapter {
 
         gamepadObserver.getEventStream()
                 .map(buttonPressMapper::map)
-                .flatMap(getNextSceneXdoAction)
-                .doOnNext(q -> {
-                    if (forcedScene == null)
-                        forcedScene = q.nextScene();
-                })
-                .map(NextSceneXdoAction::actions)
-                .log()
-                .subscribe(act, q -> System.out.println(q.getMessage()));
+                .flatMap(this::getNextSceneXdoAction)
+//                .doOnNext(q -> {
+//                    if (forcedScene == null)
+//                        forcedScene = q.nextScene();
+//                })
+                .flatMap(q -> Flux.fromIterable(q.actions())
+                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.nextScene()))
+                )
+                .subscribe(eventPublisher::publishEvent);
+//                .subscribe(act, q -> System.out.println(q.getMessage()));
     }
 
-    Function<ButtonActionDef, Mono<NextSceneXdoAction>> getNextSceneXdoAction = q -> isSceneForced() ?
-            getActionsOn(GPadEventStreamService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
-            getActionsOn(GPadEventStreamService::extractInheritedActions, forcedScene, q);
+    Mono<NextSceneXdoAction> getNextSceneXdoAction(ButtonActionDef q) {
+        return actuatedStateRepository.isSceneForced() ?
+                getActionsOn(GPadEventStreamService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
+                getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q);
+    }
 
     boolean isSceneForced() {
         return Objects.isNull(forcedScene);
