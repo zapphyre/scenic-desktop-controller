@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -19,10 +20,10 @@ public class GPadEventRepositoryTest {
 
     @Test
     void findAllKeyPressOnlyTest() {
-        GPadEvent x = createGPadEvent(false, Set.of(), "x");
-        GPadEvent y = createGPadEvent(false, Set.of(), "y");
-        GPadEvent ya = createGPadEvent(false, Set.of("a"), "y");
-        GPadEvent yl = createGPadEvent(true, Set.of(), "y");
+        GPadEvent x = createGPadEvent(false, "x");
+        GPadEvent y = createGPadEvent(false, "y");
+        GPadEvent ya = createGPadEvent(false, "y");
+        GPadEvent yl = createGPadEvent(true, "y");
 
         gpadEventRepository.save(x);
         gpadEventRepository.save(y);
@@ -37,8 +38,8 @@ public class GPadEventRepositoryTest {
 
     @Test
     void findAllByModifiersNotEmptyTest() {
-        GPadEvent y = createGPadEvent(false, Set.of(), "y");
-        GPadEvent ya = createGPadEvent(false, Set.of("a"), "y");
+        GPadEvent y = createGPadEvent(false, "y");
+        GPadEvent ya = createGPadEvent(false, "y");
 
         gpadEventRepository.save(y);
         gpadEventRepository.save(ya);
@@ -50,8 +51,8 @@ public class GPadEventRepositoryTest {
 
     @Test
     void findAllByLongPressTrue() {
-        GPadEvent ya = createGPadEvent(false, Set.of("a"), "y");
-        GPadEvent yl = createGPadEvent(true, Set.of(), "y");
+        GPadEvent ya = createGPadEvent(false, "y", "a");
+        GPadEvent yl = createGPadEvent(true,"y");
 
         gpadEventRepository.save(ya);
         gpadEventRepository.save(yl);
@@ -61,9 +62,9 @@ public class GPadEventRepositoryTest {
         Assertions.assertEquals(1, allByLongPressTrue.size());
     }
 
-    GPadEvent createGPadEvent(boolean longpress, Set<String> modifiers, String trigger) {
+    GPadEvent createGPadEvent(boolean longpress, String trigger, String ...modifiers) {
         return GPadEvent.builder()
-                .modifiers(modifiers)
+                .modifiers(Arrays.asList(modifiers))
                 .longPress(longpress)
                 .trigger(trigger)
                 .build();

@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface SceneRepository extends JpaRepository<Scene, String> {
 
-    @Query("select S from Scene S where S.windowName like %:windowname%")
+    @Query("SELECT S FROM Scene S WHERE :windowname LIKE CONCAT('%', S.windowName, '%') AND S.windowName <> ''")
     Optional<Scene> findBySceneContain(@Param("windowname") String windowname);
 }
