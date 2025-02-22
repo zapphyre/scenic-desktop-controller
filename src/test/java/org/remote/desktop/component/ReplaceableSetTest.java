@@ -4,6 +4,7 @@ package org.remote.desktop.component;
 import org.asmus.model.EButtonAxisMapping;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.remote.desktop.pojo.ReplaceableSet;
 
 import java.util.Set;
 

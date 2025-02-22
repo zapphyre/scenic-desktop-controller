@@ -3,12 +3,10 @@ package org.remote.desktop.model;
 import lombok.*;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EMultiplicity;
-import org.remote.desktop.component.ReplaceableSet;
+import org.remote.desktop.pojo.ReplaceableSet;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
