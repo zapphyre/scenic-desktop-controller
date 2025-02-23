@@ -1,6 +1,5 @@
 package org.remote.desktop.ui.view;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -11,7 +10,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.Command;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import lombok.RequiredArgsConstructor;
 import org.remote.desktop.event.KeyboardStateRepository;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.model.event.XdoCommandEvent;
@@ -26,7 +24,11 @@ import java.util.Optional;
 @SpringComponent
 public class KeyboardStateConfig extends VerticalLayout {
 
+    private final KeyboardStateRepository stateRepository;
+
     public KeyboardStateConfig(KeyboardStateRepository stateRepository, SceneStateRepository sceneStateRepository) {
+        this.stateRepository = stateRepository;
+
         HorizontalLayout pressedButtons = new HorizontalLayout();
         Map<XdoCommandEvent, Button> pressedButtonMap = new HashMap<>();
         HorizontalLayout sceneName = new HorizontalLayout();
@@ -38,18 +40,20 @@ public class KeyboardStateConfig extends VerticalLayout {
             sceneName.add(new Text(q));
         }));
 
-        stateRepository.getPressedKeys().forEach(key ->
-                add(new Button(key.getKeyPart().getKeyPress() + " [down]", q -> stateRepository.onApplicationEvent(key)))
-        );
+        stateRepository.getPressedKeys().forEach(key -> add(togglePressButton(key)));
 
         stateRepository.registerXdoCommandObserver(q -> uiReadyCb(() -> {
             if (pressedButtonMap.containsKey(q.invert()))
                 pressedButtons.remove(pressedButtonMap.remove(q.invert()));
             else
-                pressedButtons.add(pressedButtonMap.computeIfAbsent(q, k -> new Button(k.getKeyPart().getKeyPress() + " [down]", p -> stateRepository.issueKeyupCommand(k))));
+                pressedButtons.add(pressedButtonMap.computeIfAbsent(q, this::togglePressButton));
         }));
 
         add(sceneName, pressedButtons);
+    }
+
+    Button togglePressButton(XdoCommandEvent key) {
+        return new Button(key.getKeyPart().getKeyPress() + " [down]", q -> stateRepository.onApplicationEvent(key));
     }
 
     void uiReadyCb(Runnable callback) {
