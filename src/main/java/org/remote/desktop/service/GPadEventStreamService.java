@@ -8,8 +8,10 @@ import org.asmus.behaviour.ActuationBehaviour;
 import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.model.*;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.vto.GPadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
@@ -21,7 +23,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
-import static jxdotool.xDoToolUtil.getCurrentWindowTitle;
 import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
 
 
@@ -32,6 +33,7 @@ public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
     private final ButtonPressMapper buttonPressMapper;
+    private final SceneStateRepository sceneStateRepository;
 
     @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
@@ -63,7 +65,7 @@ public class GPadEventStreamService {
     @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public ActuationBehaviour getActuatorForScene(ButtonClick click) {
-        String currentWindowTitle = getCurrentWindowTitle();
+        String currentWindowTitle = sceneStateRepository.tryGetCurrentName();
         SceneVto scene = sceneDao.getSceneForWindowNameOrBase(currentWindowTitle);
         List<GPadEventVto> gPadEventVtos = Stream.of(scene.getGPadEvents(), scrapeActionsRecursive(scene))
                 .flatMap(Collection::stream)

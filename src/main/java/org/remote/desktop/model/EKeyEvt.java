@@ -2,8 +2,8 @@ package org.remote.desktop.model;
 
 public enum EKeyEvt {
     PRESS,
-    STROKE,
     RELEASE,
+    STROKE,
     TIMEOUT,
     SCENE_RESET
     ;

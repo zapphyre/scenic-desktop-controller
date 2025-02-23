@@ -33,6 +33,7 @@ public class ButtonAdapter {
     private final GPadEventStreamService gPadEventStreamService;
     private final ApplicationEventPublisher eventPublisher;
     private final SceneStateRepository actuatedStateRepository;
+    private final SceneStateRepository sceneStateRepository;
 
     @PostConstruct
     void employController() {
@@ -55,7 +56,7 @@ public class ButtonAdapter {
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
         return actuatedStateRepository.isSceneForced() ?
-                getActionsOn(GPadEventStreamService::relativeWindowNameActions, getCurrentWindowTitle(), q) :
+                getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q) :
                 getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q);
     }
 
