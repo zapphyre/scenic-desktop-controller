@@ -17,11 +17,11 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     @Override
     @SneakyThrows
     public void onApplicationEvent(XdoCommandEvent e) {
-        switch (e.getKeyEvt()) {
-            case PRESS -> keydown(e.getKeyPress());
-            case STROKE -> pressKey(e.getKeyPress());
-            case RELEASE -> keyup(e.getKeyPress());
-            case TIMEOUT -> Thread.sleep(Integer.parseInt(e.getKeyPress()));
+        switch (e.getKeyPart().getKeyEvt()) {
+            case PRESS -> keydown(e.getKeyPart().getKeyPress());
+            case STROKE -> pressKey(e.getKeyPart().getKeyPress());
+            case RELEASE -> keyup(e.getKeyPart().getKeyPress());
+            case TIMEOUT -> Thread.sleep(Integer.parseInt(e.getKeyPart().getKeyPress()));
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
         }
     }
