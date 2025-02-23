@@ -1,9 +1,10 @@
 package org.remote.desktop.model.event;
 
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.remote.desktop.model.EKeyEvt;
+import org.remote.desktop.model.event.keyboard.impl.KeyDownEvent;
+import org.remote.desktop.model.event.keyboard.impl.KeyUpEvent;
+import org.remote.desktop.model.event.keyboard.impl.KeyboardEvent;
 import org.remote.desktop.model.vto.SceneVto;
 import org.springframework.context.ApplicationEvent;
 
@@ -18,5 +19,10 @@ public class XdoCommandEvent extends ApplicationEvent {
         this.keyEvt = keyEvt;
         this.keyPress = keyPress;
         this.nextScene = nextScene;
+    }
+
+    public KeyboardEvent mapToKeyboardEvent() {
+        return keyEvt == EKeyEvt.PRESS ?
+                new KeyDownEvent(getSource(), keyEvt, keyPress) : new KeyUpEvent(getSource(), keyEvt, keyPress);
     }
 }

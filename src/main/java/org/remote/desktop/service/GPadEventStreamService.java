@@ -8,6 +8,7 @@ import org.asmus.behaviour.ActuationBehaviour;
 import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.*;
 import org.remote.desktop.model.vto.GPadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
@@ -30,6 +31,7 @@ import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursiv
 public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
+    private final ButtonPressMapper buttonPressMapper;
 
     @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
@@ -45,11 +47,7 @@ public class GPadEventStreamService {
     public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
         return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getGPadEvents())
                 .flatMap(Collection::stream)
-                .map(p -> new SceneBtnActions(sceneVto.getWindowName(), ButtonActionDef.builder()
-                        .trigger(p.getTrigger())
-                        .modifiers(p.getModifiers())
-                        .longPress(p.isLongPress())
-                        .build(), p.getActions(), p.getNextScene()))
+                .map(buttonPressMapper.map(sceneVto.getWindowName()))
                 .collect(toMap(SceneBtnActions::buttonActionDef, o -> new NextSceneXdoAction(o.nextScene, o.actions), (p, q) -> q));
     }
 
@@ -82,7 +80,7 @@ public class GPadEventStreamService {
         return foundQualifier.getBehaviour();
     }
 
-    record SceneBtnActions(String name, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
-                           SceneVto nextScene) {
+    public record SceneBtnActions(String windowName, ButtonActionDef buttonActionDef, List<XdoActionVto> actions,
+                                  SceneVto nextScene) {
     }
 }
