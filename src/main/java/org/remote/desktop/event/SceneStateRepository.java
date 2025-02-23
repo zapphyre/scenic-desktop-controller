@@ -7,16 +7,18 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ActuatedStateRepository implements ApplicationListener<XdoCommandEvent> {
+public class SceneStateRepository implements ApplicationListener<XdoCommandEvent> {
     private SceneVto forcedScene;
 
     @Override
     public void onApplicationEvent(XdoCommandEvent event) {
-        if (forcedScene == null)
-            forcedScene = event.getNextScene();
+        Optional.of(event)
+                .map(XdoCommandEvent::getNextScene)
+                .ifPresent(q -> forcedScene = q);
     }
 
     public void nullifyForcedScene() {
