@@ -1,7 +1,6 @@
 package org.remote.desktop.service;
 
 import com.google.common.base.Predicate;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.behaviour.ActuationBehaviour;
@@ -35,7 +34,6 @@ public class GPadEventStreamService {
     private final ButtonPressMapper buttonPressMapper;
     private final SceneStateRepository sceneStateRepository;
 
-    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return Optional.ofNullable(windowName)
@@ -44,7 +42,6 @@ public class GPadEventStreamService {
                 .orElse(Map.of());
     }
 
-    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ButtonActionDef, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
         return Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getGPadEvents())
@@ -62,7 +59,6 @@ public class GPadEventStreamService {
         return q -> q == EButtonAxisMapping.getByName(click.getPush().getName());
     }
 
-    @WithSpan
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public ActuationBehaviour getActuatorForScene(ButtonClick click) {
         String currentWindowTitle = sceneStateRepository.tryGetCurrentName();

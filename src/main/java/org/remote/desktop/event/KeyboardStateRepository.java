@@ -2,7 +2,6 @@ package org.remote.desktop.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -24,7 +23,6 @@ public class KeyboardStateRepository implements ApplicationListener<XdoCommandEv
 
     @Override
     public void onApplicationEvent(XdoCommandEvent event) {
-//        System.out.println("received event " + event);
         if (event.getKeyPart().getKeyEvt().ordinal() > 1) return;
 
         switch (event.getKeyPart().getKeyEvt()) {
