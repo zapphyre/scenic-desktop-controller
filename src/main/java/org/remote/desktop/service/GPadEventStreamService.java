@@ -86,7 +86,9 @@ public class GPadEventStreamService {
 
         System.out.println("getActuatorForScene: " + scene);
 
-        List<GPadEventVto> gPadEventVtos = scrapeActionsRecursive(scene);
+        List<GPadEventVto> gPadEventVtos = Stream.of(scrapeActionsRecursive(scene), scene.getGPadEvents())
+                .flatMap(Collection::stream)
+                .toList();
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> gPadEventVtos.stream()
