@@ -31,8 +31,13 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
     public void onApplicationEvent(XdoCommandEvent event) {
         Optional.of(event)
                 .map(XdoCommandEvent::getNextScene)
+                .map(q -> {
+                    System.out.println("setting scene name forced: " + q.getName());
+
+                    return forcedScene = q;
+                })
                 .ifPresent(q ->
-                        sceneObservers.forEach(p -> p.accept((forcedScene = q).getName()))
+                        sceneObservers.forEach(p -> p.accept((q).getName()))
                 );
     }
 
@@ -54,7 +59,7 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
     }
 
     public boolean isSceneForced() {
-        return Objects.isNull(forcedScene);
+        return Objects.nonNull(forcedScene);
     }
 
     public void registerSceneObserver(Consumer<String> observer) {

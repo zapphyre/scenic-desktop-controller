@@ -15,6 +15,7 @@ import org.remote.desktop.ui.view.component.SaveNotifiaction;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@Transactional
+@Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
 public class SceneDao {
 

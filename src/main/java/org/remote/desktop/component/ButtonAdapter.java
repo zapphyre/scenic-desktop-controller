@@ -3,22 +3,16 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.builder.closure.button.OsDevice;
-import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.model.TimedValue;
-import org.asmus.service.JoyWorker;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
+import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,41 +33,54 @@ public class ButtonAdapter {
     private final SceneStateRepository sceneStateRepository;
 
     private final IntrospectedEventFactory gamepadObserver = new IntrospectedEventFactory();
-    private final RawArrowSource arrowSource = gamepadObserver.getArrowsStream();
 
     @PostConstruct
     void employController() {
         gamepadObserver.getEventStream()
+//                .log()
+                .filter(gPadEventStreamService::withoutPreviousRelease)
+                .filter(gPadEventStreamService::getActuatorForScene)
                 .map(buttonPressMapper::map)
                 .flatMap(this::getNextSceneButtonEvent)
-                .flatMap(q -> Flux.fromIterable(q.actions())
-                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.nextScene()))
+                .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
+                .flatMap(q -> Flux.fromIterable(q.getActions())
+                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
                 )
                 .subscribe(eventPublisher::publishEvent);
     }
 
     public Consumer<List<TimedValue>> getButtonConsumer() {
-        return gamepadObserver.getButtonStream().act(gPadEventStreamService::getActuatorForScene)::processButtonEvents;
+        return gamepadObserver.getButtonStream()::processButtonEvents;
     }
 
     public Consumer<Map<String, Integer>> getArrowConsumer() {
-        return arrowSource::processArrowEvents;
+        return gamepadObserver.getArrowsStream()::processArrowEvents;
     }
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
+//        System.out.println("getNextSceneButtonEvent; buttonDef: " + q);
+//        System.out.println("isForced: " + actuatedStateRepository.isSceneForced());
+
         return actuatedStateRepository.isSceneForced() ?
-                getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q) :
-                getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q);
+                getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q) :
+                getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q);
     }
 
-    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ButtonActionDef, NextSceneXdoAction>> paramGetter,
+    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ActionMatch, NextSceneXdoAction>> paramGetter,
                                               P param,
                                               ButtonActionDef buttons) {
         return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
-                .mapNotNull(getActionsForButtons(buttons));
+                .mapNotNull(getActionsForButtons(buttonPressMapper.map(buttons)))
+                .map(q -> q.withButtonTrigger(buttons));
     }
 
-    Function<Map<ButtonActionDef, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ButtonActionDef def) {
-        return q -> q.get(def);
+    Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
+        return q -> {
+//            System.out.println("for buttonDef: " + def);
+
+            NextSceneXdoAction nextSceneXdoAction = q.get(def);
+            System.out.println("nextSceneXdoAction: " + nextSceneXdoAction);
+            return nextSceneXdoAction;
+        };
     }
 }
