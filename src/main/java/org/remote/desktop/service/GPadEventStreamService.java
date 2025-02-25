@@ -78,6 +78,8 @@ public class GPadEventStreamService {
 //        if (releaseOfPrevious(click)) {
 //            return false;
 //        }
+        if (click.getQualified() == EQualificationType.ARROW)
+            return true;
 
         SceneVto scene = sceneStateRepository.isSceneForced() ?
                 sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());

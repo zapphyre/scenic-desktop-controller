@@ -3,6 +3,7 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
+import org.asmus.model.GamepadEvent;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -15,6 +16,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -33,11 +37,12 @@ public class ButtonAdapter {
     private final SceneStateRepository sceneStateRepository;
 
     private final IntrospectedEventFactory gamepadObserver = new IntrospectedEventFactory();
+    private final Sinks.Many<GamepadEvent> arrowSink = Sinks.many().multicast().directBestEffort();
 
     @PostConstruct
     void employController() {
-        gamepadObserver.getEventStream()
-//                .log()
+        gamepadObserver.getButtonEventStream()
+                .log()
                 .filter(gPadEventStreamService::withoutPreviousRelease)
                 .filter(gPadEventStreamService::getActuatorForScene)
                 .map(buttonPressMapper::map)
@@ -46,6 +51,7 @@ public class ButtonAdapter {
                 .flatMap(q -> Flux.fromIterable(q.getActions())
                         .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
                 )
+                .publishOn(Schedulers.parallel())
                 .subscribe(eventPublisher::publishEvent);
     }
 
