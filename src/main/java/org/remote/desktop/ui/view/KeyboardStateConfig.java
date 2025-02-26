@@ -67,17 +67,22 @@ public class KeyboardStateConfig extends VerticalLayout {
         grid.addColumn(SourceStateVto::getSourceName)
                 .setHeader("Source Name");
 
-        grid.addComponentColumn(q -> new Button("Toggle source state", event -> {
-                    if (sourceManager.toggleSourceConnection(q.getSource()))
-                        rerenderConnectionSection(sourceManager, sourceStateSection);
-                }))
+        grid.addComponentColumn(q -> {
+                    Button button = new Button("Toggle source state", event -> {
+                        if (sourceManager.toggleSourceConnection(q.getSource()))
+                            rerenderConnectionSection(sourceManager, sourceStateSection);
+                    });
+                    button.setEnabled(q.isAvailable());
+
+                    return button;
+                })
                 .setHeader("Action");
 
         grid.addColumn(q -> q.isAvailable() ? "Available" : "Unavailable")
                 .setHeader("Availability");
 
         grid.addColumn(q -> q.isConnected() ? "Connected" : "Disconnected")
-                .setHeader("Connected");
+                .setHeader("Status");
 
         grid.setItems(sourceManager.getSourceStates());
 
@@ -85,7 +90,7 @@ public class KeyboardStateConfig extends VerticalLayout {
     }
 
     Button togglePressButton(XdoCommandEvent key) {
-        return new Button(key.getKeyPart().getKeyPress() + " [down]", q -> stateRepository.issueKeyupCommand(key));
+        return new Button(key.getKeyPart().getKeyPress() + " [down]", Connectedq -> stateRepository.issueKeyupCommand(key));
     }
 
     void uiReadyCb(Runnable callback) {

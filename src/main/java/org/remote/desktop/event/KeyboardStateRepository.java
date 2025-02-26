@@ -7,8 +7,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @Component
@@ -16,7 +18,7 @@ import java.util.function.Consumer;
 public class KeyboardStateRepository implements ApplicationListener<XdoCommandEvent> {
 
     @Getter
-    private final List<XdoCommandEvent> pressedKeys = new LinkedList<>();
+    private final Set<XdoCommandEvent> pressedKeys = new HashSet<>();
     private final List<Consumer<XdoCommandEvent>> issuedCommandObservers = new LinkedList<>();
 
     private final ApplicationEventPublisher eventPublisher;
