@@ -3,7 +3,7 @@ package org.remote.desktop.ui.view;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -15,6 +15,7 @@ import org.remote.desktop.component.SourceManager;
 import org.remote.desktop.event.KeyboardStateRepository;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.vto.SourceStateVto;
 
 import java.util.Optional;
 
@@ -61,24 +62,26 @@ public class KeyboardStateConfig extends VerticalLayout {
     void rerenderConnectionSection(SourceManager sourceManager, VerticalLayout sourceStateSection) {
         sourceStateSection.removeAll();
 
-        sourceStateSection.add(new HorizontalLayout(new Text("Is Available?"), new Text("Toggle State"), new Text("Is Connected?")));
-        sourceManager.getConnectableSources().forEach(q -> {
-            HorizontalLayout sourcesRow = new HorizontalLayout();
-            sourcesRow.setAlignItems(Alignment.CENTER);
+        Grid<SourceStateVto> grid = new Grid<>();
 
-            Checkbox avail = new Checkbox(q.isAvailable());
-            avail.setEnabled(false);
-            Button toggleSourceStateBtn = new Button(q.describe());
-            toggleSourceStateBtn.addClickListener(e -> {
-                if (sourceManager.toggleSourceConnection(q))
-                    rerenderConnectionSection(sourceManager, sourceStateSection);
-            });
-            Checkbox state = new Checkbox(sourceManager.isConnected(q));
-            state.setEnabled(false);
+        grid.addColumn(SourceStateVto::getSourceName)
+                .setHeader("Source Name");
 
-            sourcesRow.add(avail, toggleSourceStateBtn, state);
-            sourceStateSection.add(sourcesRow);
-        });
+        grid.addComponentColumn(q -> new Button("Toggle source state", event -> {
+                    if (sourceManager.toggleSourceConnection(q.getSource()))
+                        rerenderConnectionSection(sourceManager, sourceStateSection);
+                }))
+                .setHeader("Action");
+
+        grid.addColumn(q -> q.isAvailable() ? "Available" : "Unavailable")
+                .setHeader("Availability");
+
+        grid.addColumn(q -> q.isConnected() ? "Connected" : "Disconnected")
+                .setHeader("Connected");
+
+        grid.setItems(sourceManager.getSourceStates());
+
+        sourceStateSection.add(grid);
     }
 
     Button togglePressButton(XdoCommandEvent key) {
