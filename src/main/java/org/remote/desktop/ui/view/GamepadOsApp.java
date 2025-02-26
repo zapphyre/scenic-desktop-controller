@@ -2,6 +2,7 @@ package org.remote.desktop.ui.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -50,7 +51,17 @@ public class GamepadOsApp extends AppLayout {
             setContent(selected.view);
         });
 
+        HorizontalLayout pading = new HorizontalLayout();
+        pading.setWidthFull();
+        pading.setSpacing(true);
+        pading.setPadding(true);
+        pading.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        pading.add(VaadinIcon.GAMEPAD.create());
+        pading.add(VaadinIcon.CTRL_A.create());
+        pading.add(VaadinIcon.BROWSER.create());
+
         navbarLayout.add(tabs);
+        navbarLayout.add(pading);
         addToNavbar(navbarLayout);
     }
 
