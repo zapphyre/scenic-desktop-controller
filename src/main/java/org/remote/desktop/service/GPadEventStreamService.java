@@ -16,8 +16,10 @@ import org.remote.desktop.model.vto.GPadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -28,102 +30,73 @@ import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursiv
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
     private final ButtonPressMapper buttonPressMapper;
     private final SceneStateRepository sceneStateRepository;
+    private final Set<ButtonActionDef> appliedCommands = new HashSet<>();
+
+    private final CacheManager cacheManager;
+
+    private final String SERVICE_CACHE = "gpadEventStreamService";
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
-//        System.out.println("getting relative window name" + windowName);
         return Optional.ofNullable(windowName)
                 .map(sceneDao::getSceneForWindowNameOrBase)
                 .map(this::extractInheritedActions)
                 .orElse(Map.of());
     }
 
-//    @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
+    @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
-//        System.out.println("getting mappings for: " + sceneVto.getName());
-
-        Map<ActionMatch, NextSceneXdoAction> collect = Stream.of(scrapeActionsRecursive(sceneVto), sceneVto.getGPadEvents())
-                .flatMap(Collection::stream)
-//        Map<ActionMatch, NextSceneXdoAction> collect = scrapeActionsRecursive(sceneVto).stream()
+        return getRecursiveScrapedGpadEvents(sceneVto).stream()
                 .map(buttonPressMapper.map(sceneVto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, o -> NextSceneXdoAction.builder()
                         .actions(o.actions)
                         .nextScene(o.nextScene)
                         .build(), (p, q) -> q));
-
-        collect.forEach((key, value) -> System.out.println(key + ": " + value));
-
-        return collect;
     }
 
-    public Predicate<GPadEventVto> triggerAndModifiersSameAsClick(GamepadEvent click) {
+    public Predicate<GPadEventVto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
         return q -> sameAsClick(click).test(q.getTrigger()) ||
                 q.getModifiers().stream().anyMatch(sameAsClick(click));
     }
 
-    public Predicate<EButtonAxisMapping> sameAsClick(GamepadEvent click) {
-        return q -> q == click.getType();
+    public Predicate<EButtonAxisMapping> sameAsClick(ButtonActionDef click) {
+        return q -> q == click.getTrigger();
     }
 
-    Set<ButtonActionDef> appliedCommands = new HashSet<>();
+    @Cacheable(SERVICE_CACHE)
+    public List<GPadEventVto> getRecursiveScrapedGpadEvents(SceneVto scene) {
+        return Stream.of(scrapeActionsRecursive(scene), scene.getGPadEvents())
+                .flatMap(Collection::stream)
+                .toList();
+    }
 
-//    @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
-    public boolean getActuatorForScene(GamepadEvent click) {
-//        if (releaseOfPrevious(click)) {
-//            return false;
-//        }
+    public boolean getActuatorForScene(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
 
         SceneVto scene = sceneStateRepository.isSceneForced() ?
                 sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
-        System.out.println("getActuatorForScene: " + scene);
-
-        List<GPadEventVto> gPadEventVtos = Stream.of(scrapeActionsRecursive(scene), scene.getGPadEvents())
-                .flatMap(Collection::stream)
-                .toList();
-
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q -> gPadEventVtos.stream()
+                .filter(q -> getRecursiveScrapedGpadEvents(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))
                         .anyMatch(q.getPredicate())
                 )
                 .findFirst()
-                .orElseGet(() -> {
-//                    System.out.println("was not found");
-                    return EQualifiedSceneDict.FAST_CLICK;
-                });
+                .orElse(EQualifiedSceneDict.FAST_CLICK);
 
-        System.out.println("foundQualifier: " + foundQualifier);
-
-//        if (foundQualifier.getQualifierType() == click.getQualified()) {
-//            boolean add = appliedCommands.add(buttonPressMapper.map(click));
-//            System.out.println("adding to command buffer result: " + add);
-//
-//            return add;
-//        }
-//
-//        return false;
-        boolean b = foundQualifier.getQualifierType().ordinal() == click.getQualified().ordinal();
-
-
-        return b;
+        return foundQualifier.getQualifierType().ordinal() == click.getQualified().ordinal();
     }
 
     public boolean addAppliedCommand(ButtonActionDef click) {
-//        appliedCommands.clear();
-
-        System.out.println("before reduce");
-        showAppliedCommands();
-
-        List<ButtonActionDef> list = Arrays.stream(EQualificationType.values())
+        List<ButtonActionDef> defs = Arrays.stream(EQualificationType.values())
                 .filter(q -> q.ordinal() > click.getQualified().ordinal())
                 .map(q -> ButtonActionDef.builder()
                         .trigger(click.getTrigger())
@@ -133,43 +106,12 @@ public class GPadEventStreamService {
                         .build())
                 .toList();
 
-        appliedCommands.addAll(list);
-//                .reduce(true, (p, q) -> p & appliedCommands.add(click), (a, b) -> a && b);
-
-//        System.out.println("reduced: " + reduce);
-
-        System.out.println("after reduce");
-        showAppliedCommands();
-
-//        return reduce;
-
+        boolean b = appliedCommands.addAll(defs);
         return true;
-
-//        boolean add = appliedCommands.add(click);
-//        System.out.println("addAppliedCommand: " + appliedCommands);
-//        return add;
     }
 
-    void showAppliedCommands() {
-        System.out.println("appliedCommands: ");
-        appliedCommands.forEach(System.out::println);
-    }
-
-    public boolean withoutPreviousRelease(GamepadEvent click) {
-//        if (click.getQualified().ordinal() > 1) {
-//
-//        }
-
-        System.out.println("applied commands before remove");
-        showAppliedCommands();
-
-        ButtonActionDef def = buttonPressMapper.map(click);
-        boolean remove = appliedCommands.remove(def);
-
-        System.out.println("removing click: " + click);
-        System.out.println("result: " + remove);
-
-            return !remove;
+    public boolean withoutPreviousRelease(ButtonActionDef def) {
+        return !appliedCommands.remove(def);
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionVto> actions,

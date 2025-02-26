@@ -43,16 +43,16 @@ public class ButtonAdapter {
     void employController() {
         gamepadObserver.getButtonEventStream()
                 .log()
+                .map(buttonPressMapper::map)
                 .filter(gPadEventStreamService::withoutPreviousRelease)
                 .filter(gPadEventStreamService::getActuatorForScene)
-                .map(buttonPressMapper::map)
                 .flatMap(this::getNextSceneButtonEvent)
                 .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
                 .flatMap(q -> Flux.fromIterable(q.getActions())
                         .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
                 )
-                .publishOn(Schedulers.parallel())
-                .subscribe(eventPublisher::publishEvent);
+//                .publishOn(Schedulers.parallel())
+                .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
     public Consumer<List<TimedValue>> getButtonConsumer() {
