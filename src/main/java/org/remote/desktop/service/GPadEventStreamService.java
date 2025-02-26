@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
-import org.asmus.model.GamepadEvent;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -16,13 +15,10 @@ import org.remote.desktop.model.vto.GPadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
@@ -30,7 +26,6 @@ import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursiv
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class GPadEventStreamService {
 
@@ -39,9 +34,8 @@ public class GPadEventStreamService {
     private final SceneStateRepository sceneStateRepository;
     private final Set<ButtonActionDef> appliedCommands = new HashSet<>();
 
-    private final CacheManager cacheManager;
-
     private final String SERVICE_CACHE = "gpadEventStreamService";
+    private final String SERVICE_CACHE_BUTTON_CLICK = "buttonClick_cache";
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
@@ -53,7 +47,7 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
-        return getRecursiveScrapedGpadEvents(sceneVto).stream()
+        return scrapeActionsRecursive(sceneVto).stream()
                 .map(buttonPressMapper.map(sceneVto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, o -> NextSceneXdoAction.builder()
                         .actions(o.actions)
@@ -70,13 +64,7 @@ public class GPadEventStreamService {
         return q -> q == click.getTrigger();
     }
 
-    @Cacheable(SERVICE_CACHE)
-    public List<GPadEventVto> getRecursiveScrapedGpadEvents(SceneVto scene) {
-        return Stream.of(scrapeActionsRecursive(scene), scene.getGPadEvents())
-                .flatMap(Collection::stream)
-                .toList();
-    }
-
+//    @Cacheable(SERVICE_CACHE_BUTTON_CLICK)
     public boolean getActuatorForScene(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
@@ -85,14 +73,14 @@ public class GPadEventStreamService {
                 sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q -> getRecursiveScrapedGpadEvents(scene).stream()
+                .filter(q -> scrapeActionsRecursive(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))
                         .anyMatch(q.getPredicate())
                 )
                 .findFirst()
                 .orElse(EQualifiedSceneDict.FAST_CLICK);
 
-        return foundQualifier.getQualifierType().ordinal() == click.getQualified().ordinal();
+        return foundQualifier.getQualifierType() == click.getQualified();
     }
 
     public boolean addAppliedCommand(ButtonActionDef click) {
@@ -107,7 +95,8 @@ public class GPadEventStreamService {
                 .toList();
 
         boolean b = appliedCommands.addAll(defs);
-        return true;
+
+        return true; //forced b/c of arrows
     }
 
     public boolean withoutPreviousRelease(ButtonActionDef def) {

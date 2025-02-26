@@ -23,6 +23,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case STROKE -> pressKey(e.getKeyPart().getKeyPress());
             case RELEASE -> keyup(e.getKeyPart().getKeyPress());
             case TIMEOUT -> Thread.sleep(Integer.parseInt(e.getKeyPart().getKeyPress()));
+            case CLICK -> click(e.getKeyPart().getKeyPress());
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
         }
     }

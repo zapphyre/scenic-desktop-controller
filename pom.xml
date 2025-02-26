@@ -30,7 +30,7 @@
         <junit.varsion>5.11.3</junit.varsion>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
 
-        <j.xdotool.version>1.11-SNAPSHOT</j.xdotool.version>
+        <j.xdotool.version>1.12-SNAPSHOT</j.xdotool.version>
         <vaadin.version>24.6.4</vaadin.version>
         <liquibase.version>4.17.0</liquibase.version>
     </properties>

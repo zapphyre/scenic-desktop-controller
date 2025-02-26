@@ -3,7 +3,6 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.model.GamepadEvent;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -16,9 +15,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -31,18 +27,16 @@ import java.util.function.Function;
 public class ButtonAdapter {
 
     private final ButtonPressMapper buttonPressMapper;
-    private final GPadEventStreamService gPadEventStreamService;
     private final ApplicationEventPublisher eventPublisher;
+    private final GPadEventStreamService gPadEventStreamService;
     private final SceneStateRepository actuatedStateRepository;
     private final SceneStateRepository sceneStateRepository;
 
     private final IntrospectedEventFactory gamepadObserver = new IntrospectedEventFactory();
-    private final Sinks.Many<GamepadEvent> arrowSink = Sinks.many().multicast().directBestEffort();
 
     @PostConstruct
     void employController() {
         gamepadObserver.getButtonEventStream()
-                .log()
                 .map(buttonPressMapper::map)
                 .filter(gPadEventStreamService::withoutPreviousRelease)
                 .filter(gPadEventStreamService::getActuatorForScene)
@@ -64,9 +58,6 @@ public class ButtonAdapter {
     }
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
-//        System.out.println("getNextSceneButtonEvent; buttonDef: " + q);
-//        System.out.println("isForced: " + actuatedStateRepository.isSceneForced());
-
         return actuatedStateRepository.isSceneForced() ?
                 getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q) :
                 getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q);
@@ -81,12 +72,6 @@ public class ButtonAdapter {
     }
 
     Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
-        return q -> {
-//            System.out.println("for buttonDef: " + def);
-
-            NextSceneXdoAction nextSceneXdoAction = q.get(def);
-            System.out.println("nextSceneXdoAction: " + nextSceneXdoAction);
-            return nextSceneXdoAction;
-        };
+        return q -> q.get(def);
     }
 }
