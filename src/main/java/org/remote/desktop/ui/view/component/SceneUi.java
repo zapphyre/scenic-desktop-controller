@@ -83,9 +83,6 @@ public class SceneUi extends VerticalLayout {
     }
 
     public static List<GPadEventVto> scrapeActionsRecursive(SceneVto sceneVto, List<GPadEventVto> GPadEventVtos) {
-//        if (sceneVto.getInherits() == null)
-//            return GPadEventVtos;
-
         if (sceneVto != null)
             scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos);
 

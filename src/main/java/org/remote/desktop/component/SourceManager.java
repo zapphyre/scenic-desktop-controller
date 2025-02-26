@@ -3,6 +3,7 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.vto.SourceStateVto;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.springframework.stereotype.Component;
@@ -37,5 +38,16 @@ public class SourceManager {
 
     public boolean isConnected(ConnectableSource connectableSource) {
         return connected.contains(connectableSource);
+    }
+
+    public List<SourceStateVto> getSourceStates() {
+        return connectableSources.stream()
+                .map(q -> SourceStateVto.builder()
+                        .connected(connected.contains(q))
+                        .sourceName(q.describe())
+                        .available(q.isAvailable())
+                        .source(q)
+                        .build())
+                .toList();
     }
 }
