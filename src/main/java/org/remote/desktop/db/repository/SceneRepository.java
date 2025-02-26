@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface SceneRepository extends JpaRepository<Scene, String> {
 
     @Query("SELECT S FROM Scene S WHERE :windowname LIKE CONCAT('%', S.windowName, '%') AND S.windowName <> ''")
-    Optional<Scene> findBySceneContain(@Param("windowname") String windowname);
+    List<Scene> findBySceneContain(@Param("windowname") String windowname);
+
+    List<Scene> findAllByWindowName(String windowName);
 }

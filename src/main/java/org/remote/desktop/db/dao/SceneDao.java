@@ -1,6 +1,8 @@
 package org.remote.desktop.db.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.mapper.ActionMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
@@ -22,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @Transactional(isolation = Isolation.SERIALIZABLE)
 @RequiredArgsConstructor
@@ -74,9 +77,15 @@ public class SceneDao {
 
     @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getSceneForWindowNameOrBase(String sceneName) {
-        return sceneRepository.findBySceneContain(sceneName)
-                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
-                .orElseGet(() -> getScene("Base"));
+        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
+
+        if (bySceneContain.size() > 1)
+            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
+
+        if (bySceneContain.isEmpty())
+            return getScene("Base");
+
+        return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
