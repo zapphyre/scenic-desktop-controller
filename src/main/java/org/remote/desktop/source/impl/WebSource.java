@@ -1,6 +1,5 @@
 package org.remote.desktop.source.impl;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.asmus.model.PolarCoords;
@@ -14,18 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Disposable;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-//@Component
+@Component
 @RequiredArgsConstructor
 public class WebSource implements ConnectableSource {
 
@@ -46,9 +43,15 @@ public class WebSource implements ConnectableSource {
                 .pathSegment("actuator", "health")
                 .build();
 
-        return new RestTemplate()
-                .getForObject(uri.toUriString(), Health.class)
-                .status();
+        EHStatus status = EHStatus.UNKNOWN;
+        try {
+            status = new RestTemplate()
+                    .getForObject(uri.toUriString(), Health.class)
+                    .status();
+        } catch (Exception e) {
+        }
+
+        return status;
     }
 
     @Override
@@ -108,7 +111,8 @@ public class WebSource implements ConnectableSource {
         return "WebSource";
     }
 
-    record Health(EHStatus status) {}
+    record Health(EHStatus status) {
+    }
 
     enum EHStatus {
         UP, DOWN, UNKNOWN

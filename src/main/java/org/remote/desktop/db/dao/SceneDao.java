@@ -72,6 +72,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
+    @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getSceneForWindowNameOrBase(String sceneName) {
         return sceneRepository.findBySceneContain(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
