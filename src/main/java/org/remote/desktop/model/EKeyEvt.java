@@ -5,6 +5,7 @@ public enum EKeyEvt {
     RELEASE,
     STROKE,
     TIMEOUT,
-    SCENE_RESET
+    SCENE_RESET,
+    CLICK
     ;
 }

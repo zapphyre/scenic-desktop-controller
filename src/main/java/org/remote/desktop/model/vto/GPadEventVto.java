@@ -31,6 +31,4 @@ public class GPadEventVto implements Behavioral {
     private SceneVto scene;
 
     private EMultiplicity multiplicity = EMultiplicity.CLICK;
-
-    private EQualificationType qualified;
 }

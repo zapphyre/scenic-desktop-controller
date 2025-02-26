@@ -11,6 +11,7 @@ import org.remote.desktop.model.vto.SceneVto;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
@@ -82,10 +83,15 @@ public class SceneUi extends VerticalLayout {
     }
 
     public static List<GPadEventVto> scrapeActionsRecursive(SceneVto sceneVto, List<GPadEventVto> GPadEventVtos) {
-        if (sceneVto.getInherits() == null)
-            return sceneVto.getGPadEvents();
+//        if (sceneVto.getInherits() == null)
+//            return GPadEventVtos;
 
-        GPadEventVtos.addAll(scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos));
+        if (sceneVto != null)
+            scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos);
+
+        Optional.ofNullable(sceneVto)
+                .map(SceneVto::getGPadEvents)
+                .ifPresent(GPadEventVtos::addAll);
 
         return GPadEventVtos;
     }

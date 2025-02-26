@@ -31,14 +31,8 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
     public void onApplicationEvent(XdoCommandEvent event) {
         Optional.of(event)
                 .map(XdoCommandEvent::getNextScene)
-                .map(q -> {
-                    System.out.println("setting scene name forced: " + q.getName());
-
-                    return forcedScene = q;
-                })
-                .ifPresent(q ->
-                        sceneObservers.forEach(p -> p.accept((q).getName()))
-                );
+                .map(q -> forcedScene = q)
+                .ifPresent(q -> sceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
     public String tryGetCurrentName() {

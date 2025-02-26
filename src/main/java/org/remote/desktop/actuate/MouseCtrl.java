@@ -9,7 +9,7 @@ import java.awt.event.InputEvent;
 
 @UtilityClass
 public class MouseCtrl {
-    double sensitivity = 0.002;
+    double sensitivity = 0.004;
     final static Robot robot;
 
     static {
