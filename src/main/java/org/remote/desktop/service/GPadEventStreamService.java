@@ -3,7 +3,6 @@ package org.remote.desktop.service;
 import com.google.common.base.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
@@ -20,10 +19,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
 
 import static java.util.stream.Collectors.toMap;
-import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
+import static org.remote.desktop.ui.component.SceneUi.scrapeActionsRecursive;
 
 
 @Slf4j

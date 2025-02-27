@@ -1,22 +1,16 @@
 package org.remote.desktop.component;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.PolarCoords;
-import org.asmus.service.JoyWorker;
-import org.atmosphere.interceptor.InvokationOrder;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.vto.SceneVto;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,7 +39,7 @@ public class AxisAdapter {
     void init() {
         updateAxisConsumers("Base");
 
-        sceneStateRepository.registerSceneObserver(this::updateAxisConsumers);
+        sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
     }
 
     void updateAxisConsumers(String windowName) {

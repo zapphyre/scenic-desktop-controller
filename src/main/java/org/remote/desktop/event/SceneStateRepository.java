@@ -17,7 +17,8 @@ import static jxdotool.xDoToolUtil.getCurrentWindowTitle;
 @Component
 @RequiredArgsConstructor
 public class SceneStateRepository implements ApplicationListener<XdoCommandEvent> {
-    private final List<Consumer<String>> sceneObservers = new LinkedList<>();
+    private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
+    private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
     private String lastRecognized;
 
@@ -32,13 +33,13 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
         Optional.of(event)
                 .map(XdoCommandEvent::getNextScene)
                 .map(q -> forcedScene = q)
-                .ifPresent(q -> sceneObservers.forEach(p -> p.accept((q).getName())));
+                .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
     public String tryGetCurrentName() {
         return Optional.ofNullable(getCurrentWindowTitle())
                 .map(q -> {
-                    sceneObservers.forEach(p -> p.accept(q));
+                    recognizedSceneObservers.forEach(p -> p.accept(q));
                     return lastRecognized = q;
                 })
                 .orElse(lastRecognized);
@@ -56,8 +57,12 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
         return Objects.nonNull(forcedScene);
     }
 
-    public void registerSceneObserver(Consumer<String> observer) {
-        sceneObservers.add(observer);
+    public void registerRecognizedSceneObserver(Consumer<String> observer) {
+        recognizedSceneObservers.add(observer);
+    }
+
+    public void registerForcedSceneObserver(Consumer<String> observer) {
+        forcedSceneObservers.add(observer);
     }
 
 }

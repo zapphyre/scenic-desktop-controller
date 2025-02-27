@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.view.component;
+package org.remote.desktop.ui.component;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
@@ -16,7 +16,7 @@ import org.remote.desktop.model.vto.SceneVto;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import static org.remote.desktop.ui.view.component.SceneUi.scenesWithout;
+import static org.remote.desktop.ui.component.SceneUi.scenesWithout;
 
 public class ActionDefUi extends HorizontalLayout {
 

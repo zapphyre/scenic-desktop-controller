@@ -24,7 +24,9 @@ public class GamepadOsApp extends AppLayout {
     private final Tabs tabs = new Tabs();
     private final Map<Tab, TabView> tabViewMap = new HashMap<>();
 
-    public GamepadOsApp(GamepadActionConfig gamepadActionConfig, KeyboardStateConfig keyboardStateConfig) {
+    public GamepadOsApp(GamepadActionConfig gamepadActionConfig,
+                        SourcesManagerView sourcesManagerView,
+                        SceneView sceneView) {
         HorizontalLayout navbarLayout = new HorizontalLayout();
         navbarLayout.setWidthFull();
         navbarLayout.setSpacing(true);
@@ -33,7 +35,8 @@ public class GamepadOsApp extends AppLayout {
         tabs.setWidthFull();
 
         tabs.add(createTab("Gamepad Configurer UI", gamepadActionConfig));
-        tabs.add(createTab("Sources Config", keyboardStateConfig));
+        tabs.add(createTab("Sources Config", sourcesManagerView));
+        tabs.add(createTab("Scene State", sceneView));
         tabs.setOrientation(Tabs.Orientation.HORIZONTAL);
 
         // Handle tab selection

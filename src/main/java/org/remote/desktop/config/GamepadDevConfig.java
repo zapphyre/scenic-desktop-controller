@@ -1,5 +1,6 @@
 package org.remote.desktop.config;
 
+import jakarta.annotation.PreDestroy;
 import org.asmus.builder.EventProducer;
 import org.asmus.service.JoyWorker;
 import org.springframework.context.annotation.Bean;
@@ -18,4 +19,8 @@ public class GamepadDevConfig {
         return eventProducer.getWorker();
     }
 
+    @PreDestroy
+    void cleanup() {
+        factoryDisposable.forEach(Runnable::run);
+    }
 }

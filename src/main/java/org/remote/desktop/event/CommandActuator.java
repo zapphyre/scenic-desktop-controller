@@ -2,7 +2,6 @@ package org.remote.desktop.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;

@@ -23,34 +23,26 @@ import java.util.Optional;
 @PageTitle("Keyboard state UI")
 @Route(value = "state")
 @SpringComponent
-public class KeyboardStateConfig extends VerticalLayout {
+public class SourcesManagerView extends VerticalLayout {
 
     private final KeyboardStateRepository stateRepository;
 
-    public KeyboardStateConfig(KeyboardStateRepository stateRepository,
-                               SceneStateRepository sceneStateRepository,
-                               SourceManager sourceManager) {
+    public SourcesManagerView(KeyboardStateRepository stateRepository,
+                              SceneStateRepository sceneStateRepository,
+                              SourceManager sourceManager) {
         this.stateRepository = stateRepository;
 
         HorizontalLayout pressedButtons = new HorizontalLayout();
-        HorizontalLayout sceneName = new HorizontalLayout();
-
-        sceneName.add(new Text(sceneStateRepository.getLastSceneNameRecorded()));
-
-        sceneStateRepository.registerSceneObserver(q -> uiReadyCb(() -> {
-            sceneName.removeAll();
-            sceneName.add(new Text(q));
-        }));
 
         stateRepository.getPressedKeys().forEach(key -> pressedButtons.add(togglePressButton(key)));
 
-        stateRepository.registerXdoCommandObserver(q -> uiReadyCb(() -> {
+        stateRepository.registerXdoCommandObserver(q -> uiReadyCb(this, () -> {
             pressedButtons.removeAll();
             stateRepository.getPressedKeys()
                     .forEach(key -> pressedButtons.add(togglePressButton(key)));
         }));
 
-        add(sceneName, pressedButtons);
+        add(pressedButtons);
 
         VerticalLayout sourceStateSection = new VerticalLayout();
 
@@ -93,8 +85,8 @@ public class KeyboardStateConfig extends VerticalLayout {
         return new Button(key.getKeyPart().getKeyPress() + " [down]", Connectedq -> stateRepository.issueKeyupCommand(key));
     }
 
-    void uiReadyCb(Runnable callback) {
-        getUI().flatMap(ui -> Optional.of(ui).filter(Component::isAttached)).ifPresent(u -> {
+    public static void uiReadyCb(Component onComponent, Runnable callback) {
+        onComponent.getUI().flatMap(ui -> Optional.of(ui).filter(Component::isAttached)).ifPresent(u -> {
             u.access((Command) callback::run);
         });
     }

@@ -26,7 +26,9 @@ public class MouseCtrl {
     }
 
     public static void moveMouse(PolarCoords polarCoords) {
-        double scaledRadius = polarCoords.radius() * sensitivity ;
+        double scaledRadius = polarCoords.radius();
+
+        scaledRadius = mapVal(scaledRadius, -32767, 32768, -10, 10);
 
         // Calculate Cartesian coordinates
         int xMovement = (int) (scaledRadius * Math.cos(polarCoords.theta()));
