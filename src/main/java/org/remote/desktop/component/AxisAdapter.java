@@ -49,16 +49,17 @@ public class AxisAdapter {
     }
 
     void updateAxisConsumers(String windowName) {
-        Consumers consumer = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
+        Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
-        if (Objects.isNull(consumer)) {
+        if (Objects.isNull(consumers)) {
             leftStickConsumer = findCoordsConsumer(windowName, SceneVto::getLeftAxisEvent);
             rightStickConsumer = findCoordsConsumer(windowName, SceneVto::getRightAxisEvent);
 
-            cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));
+            cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
+                    .put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));
         } else {
-            leftStickConsumer = consumer.leftStickConsumer;
-            rightStickConsumer = consumer.rightStickConsumer;
+            leftStickConsumer = consumers.leftStickConsumer;
+            rightStickConsumer = consumers.rightStickConsumer;
         }
     }
 
