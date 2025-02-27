@@ -34,7 +34,7 @@ public class SceneDialog extends Dialog {
 
         ComboBox<SceneVto> inherits = new ComboBox<>("Inherits");
         inherits.setItems(scenes);
-        inherits.setValue(scene);
+        inherits.setValue(scene.getInherits());
         inherits.addValueChangeListener(e -> scene.setInherits(e.getValue()));
         inherits.setItemLabelGenerator(SceneVto::getName);
         FormLayout formLayout = new FormLayout();
