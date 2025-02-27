@@ -2,6 +2,7 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.remote.desktop.model.EAxisEvent;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +28,12 @@ public class Scene {
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
     private List<GPadEvent> gPadEvents = new LinkedList<>();
+
+    @Enumerated(EnumType.STRING)
+    private EAxisEvent leftAxisEvent;
+
+    @Enumerated(EnumType.STRING)
+    private EAxisEvent rightAxisEvent;
 
     @PreUpdate
     @PrePersist

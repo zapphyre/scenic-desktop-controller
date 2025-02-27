@@ -30,8 +30,9 @@ public class LocalSource implements ConnectableSource {
 
         Disposable disposable = worker.getButtonStream().subscribe(buttonAdapter.getButtonConsumer());
         Disposable disposable1 = worker.getAxisStream().subscribe(buttonAdapter.getArrowConsumer());
-        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter.getMouseConsumer());
-        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter.getScrollConsumer());
+
+        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
+        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
 
         disposables.add(disposable);
         disposables.add(disposable1);

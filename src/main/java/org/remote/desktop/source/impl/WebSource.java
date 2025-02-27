@@ -77,13 +77,13 @@ public class WebSource implements ConnectableSource {
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
-                .subscribe(axisAdapter.getMouseConsumer());
+                .subscribe(axisAdapter::getLeftStickConsumer);
 
         Disposable disposable3 = spec.uri("gpad/right-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
-                .subscribe(axisAdapter.getScrollConsumer());
+                .subscribe(axisAdapter::getRightStickConsumer);
 
         disposables.add(disposable);
         disposables.add(disposable1);

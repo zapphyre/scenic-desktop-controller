@@ -33,6 +33,7 @@ public class SceneDao {
     public static final String SCENE_CACHE_NAME = "scenes";
     public static final String WINDOW_SCENE_CACHE_NAME = "mapped_scenes";
     public static final String SCENE_NAME_CACHE_NAME = "scene_name";
+    public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
 
     private final SceneRepository sceneRepository;
     private final GPadEventRepository actionRepository;
@@ -50,7 +51,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public List<SceneVto> saveAll(Collection<SceneVto> scenes) {
         return scenes.stream()
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -59,7 +60,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public SceneVto save(SceneVto sceneVto) {
         return Optional.of(sceneVto)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
@@ -77,6 +78,8 @@ public class SceneDao {
 
     @Cacheable(SCENE_CACHE_NAME)
     public SceneVto getSceneForWindowNameOrBase(String sceneName) {
+        System.out.println("getting scene " + sceneName);
+
         List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
 
         if (bySceneContain.size() > 1)
@@ -161,7 +164,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public void update(SceneVto sceneVto) {
         try {
             Optional.of(sceneVto)
@@ -175,7 +178,7 @@ public class SceneDao {
         }
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public void remove(SceneVto vto) {
         try {
             Optional.of(vto)
