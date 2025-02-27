@@ -13,7 +13,7 @@ import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.db.repository.GPadEventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
-import org.remote.desktop.ui.view.component.SaveNotifiaction;
+import org.remote.desktop.ui.component.SaveNotifiaction;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;

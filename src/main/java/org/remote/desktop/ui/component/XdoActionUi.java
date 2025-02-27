@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.view.component;
+package org.remote.desktop.ui.component;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
