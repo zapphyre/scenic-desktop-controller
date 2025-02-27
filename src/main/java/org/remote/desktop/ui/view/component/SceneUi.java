@@ -5,6 +5,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.vto.GPadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 
@@ -12,6 +13,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SceneUi extends VerticalLayout {
@@ -53,9 +56,12 @@ public class SceneUi extends VerticalLayout {
             refreshInheritedSelectionList(sceneVto);
         });
 
+        Select<EAxisEvent> leftAxis = bindAxis(sceneVto, SceneVto::getLeftAxisEvent, sceneVto::setLeftAxisEvent, dbToolbox::update, "Left Axis");
+        Select<EAxisEvent> rightAxis = bindAxis(sceneVto, SceneVto::getRightAxisEvent, sceneVto::setRightAxisEvent, dbToolbox::update, "Right Axis");
+
         addAction = new Button("New Action");
 
-        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, addAction);
+        HorizontalLayout selectAbnButtonHoriz = new HorizontalLayout(inheritsFrom, leftAxis, rightAxis);
         selectAbnButtonHoriz.setAlignItems(Alignment.BASELINE);
 
         if (sceneVto.getInherits() != null)
@@ -75,7 +81,7 @@ public class SceneUi extends VerticalLayout {
         });
 
         actions.add(newlyAddedActions, ownActions, inheritedActions);
-        add(selectAbnButtonHoriz, actions);
+        add(selectAbnButtonHoriz, addAction, actions);
     }
 
     public static List<GPadEventVto> scrapeActionsRecursive(SceneVto sceneVto) {
@@ -105,5 +111,18 @@ public class SceneUi extends VerticalLayout {
                 .filter(q -> !sceneVto.getGPadEvents().contains(q))
                 .map(q -> new ActionDefUi(dbToolbox, sceneVto, q, allScenes, false))
                 .forEach(inheritedActions::add);
+    }
+
+    Select<EAxisEvent> bindAxis(SceneVto scene, Function<SceneVto, EAxisEvent> getter, Consumer<EAxisEvent> setter, Consumer<SceneVto> updater, String title) {
+        Select<EAxisEvent> axisSelect = new Select<>(title, q -> {});
+        axisSelect.setItems(EAxisEvent.values());
+        axisSelect.setItemLabelGenerator(EAxisEvent::name);
+        axisSelect.setValue(getter.apply(scene));
+        axisSelect.addValueChangeListener(e -> {
+            setter.accept(e.getValue());
+            updater.accept(scene);
+        });
+
+        return axisSelect;
     }
 }

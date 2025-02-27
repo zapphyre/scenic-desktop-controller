@@ -3,6 +3,7 @@ package org.remote.desktop.service;
 import com.google.common.base.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.model.ButtonClick;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
@@ -19,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 
 import static java.util.stream.Collectors.toMap;
 import static org.remote.desktop.ui.view.component.SceneUi.scrapeActionsRecursive;
@@ -49,10 +51,7 @@ public class GPadEventStreamService {
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
         return scrapeActionsRecursive(sceneVto).stream()
                 .map(buttonPressMapper.map(sceneVto.getWindowName()))
-                .collect(toMap(SceneBtnActions::action, o -> NextSceneXdoAction.builder()
-                        .actions(o.actions)
-                        .nextScene(o.nextScene)
-                        .build(), (p, q) -> q));
+                .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
 
     public Predicate<GPadEventVto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
@@ -86,12 +85,7 @@ public class GPadEventStreamService {
     public boolean addAppliedCommand(ButtonActionDef click) {
         List<ButtonActionDef> defs = Arrays.stream(EQualificationType.values())
                 .filter(q -> q.ordinal() > click.getQualified().ordinal())
-                .map(q -> ButtonActionDef.builder()
-                        .trigger(click.getTrigger())
-                        .modifiers(click.getModifiers())
-                        .longPress(click.isLongPress())
-                        .qualified(q)
-                        .build())
+                .map(click::withQualified)
                 .toList();
 
         boolean b = appliedCommands.addAll(defs);

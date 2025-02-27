@@ -50,6 +50,8 @@ public class GamepadOsApp extends AppLayout {
         padding.add(VaadinIcon.BROWSER.create());
 
         navbarLayout.add(tabs, padding);
+
+        setContent(gamepadActionConfig);
         addToNavbar(navbarLayout);
     }
 
