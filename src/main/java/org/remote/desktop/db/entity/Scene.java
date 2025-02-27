@@ -2,6 +2,7 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.remote.desktop.model.EAxisEvent;
 
 import java.util.LinkedList;
@@ -30,10 +31,18 @@ public class Scene {
     private List<GPadEvent> gPadEvents = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent leftAxisEvent;
+    private EAxisEvent leftAxisEvent = EAxisEvent.MOUSE;
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent rightAxisEvent;
+    private EAxisEvent rightAxisEvent = EAxisEvent.SCROLL;
+
+    public EAxisEvent getLeftAxisEvent() {
+        return Optional.ofNullable(leftAxisEvent).orElse(EAxisEvent.MOUSE);
+    }
+
+    public EAxisEvent getRightAxisEvent() {
+        return Optional.ofNullable(rightAxisEvent).orElse(EAxisEvent.SCROLL);
+    }
 
     @PreUpdate
     @PrePersist
