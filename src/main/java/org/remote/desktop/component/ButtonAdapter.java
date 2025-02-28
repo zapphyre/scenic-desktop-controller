@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class ButtonAdapter {
                 .flatMap(q -> Flux.fromIterable(q.getActions())
                         .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
                 )
-//                .publishOn(Schedulers.parallel())
+                .publishOn(Schedulers.parallel())
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
