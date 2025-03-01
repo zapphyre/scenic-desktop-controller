@@ -1,6 +1,5 @@
 package org.remote.desktop.service;
 
-import com.google.common.base.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
@@ -11,18 +10,17 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.vto.GPadEventVto;
-import org.remote.desktop.model.vto.SceneVto;
-import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.model.dto.GPadEventDto;
+import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toMap;
-import static org.remote.desktop.ui.component.SceneUi.scrapeActionsRecursive;
-
 
 @Slf4j
 @Service
@@ -46,13 +44,13 @@ public class GPadEventStreamService {
     }
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
-    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneVto sceneVto) {
-        return scrapeActionsRecursive(sceneVto).stream()
-                .map(buttonPressMapper.map(sceneVto.getWindowName()))
+    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
+        return scrapeActionsRecursive(sceneDto).stream()
+                .map(buttonPressMapper.map(sceneDto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
 
-    public Predicate<GPadEventVto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+    public Predicate<GPadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
         return q -> sameAsClick(click).test(q.getTrigger()) ||
                 q.getModifiers().stream().anyMatch(sameAsClick(click));
     }
@@ -66,7 +64,7 @@ public class GPadEventStreamService {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
 
-        SceneVto scene = sceneStateRepository.isSceneForced() ?
+        SceneDto scene = sceneStateRepository.isSceneForced() ?
                 sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
@@ -95,7 +93,22 @@ public class GPadEventStreamService {
         return !appliedCommands.remove(def);
     }
 
-    public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionVto> actions,
-                                  SceneVto nextScene) {
+    public static List<GPadEventDto> scrapeActionsRecursive(SceneDto sceneDto) {
+        return sceneDto == null ? List.of() : scrapeActionsRecursive(sceneDto, new LinkedList<>());
+    }
+
+    public static List<GPadEventDto> scrapeActionsRecursive(SceneDto sceneDto, List<GPadEventDto> GPadEventDtos) {
+//        if (sceneVto != null)
+//            scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos);
+
+        Optional.ofNullable(sceneDto)
+                .map(SceneDto::getGPadEvents)
+                .ifPresent(GPadEventDtos::addAll);
+
+        return GPadEventDtos;
+    }
+
+    public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,
+                                  SceneDto nextScene) {
     }
 }

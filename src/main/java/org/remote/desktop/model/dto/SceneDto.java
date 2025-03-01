@@ -1,4 +1,4 @@
-package org.remote.desktop.model.vto;
+package org.remote.desktop.model.dto;
 
 import lombok.*;
 import org.remote.desktop.model.EAxisEvent;
@@ -12,18 +12,20 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class SceneVto {
+public class SceneDto {
 
     @ToString.Include
     @EqualsAndHashCode.Include
     private String name;
     private String windowName;
-    private SceneVto inherits;
+
+    private SceneDto inherits;
+
     @Builder.Default
     private EAxisEvent leftAxisEvent = EAxisEvent.NOOP;
     @Builder.Default
     private EAxisEvent rightAxisEvent = EAxisEvent.NOOP;
 
     @Builder.Default
-    private List<GPadEventVto> gPadEvents = new LinkedList<>();
+    private List<GPadEventDto> gPadEvents = new LinkedList<>();
 }

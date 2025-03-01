@@ -3,8 +3,8 @@ package org.remote.desktop.model;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
-import org.remote.desktop.model.vto.SceneVto;
-import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.model.dto.XdoActionDto;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @Value
 @Builder
 public class NextSceneXdoAction {
-    SceneVto nextScene;
-    List<XdoActionVto> actions;
+    SceneDto nextScene;
+    List<XdoActionDto> actions;
     ButtonActionDef buttonTrigger;
 }
