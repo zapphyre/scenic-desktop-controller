@@ -2,25 +2,20 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.XdoAction;
-import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.model.dto.XdoActionDto;
 
 import java.util.function.Consumer;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface XdoActionMapper {
 
-    XdoAction map(XdoActionVto vto, @Context CycleAvoidingMappingContext ctx);
+    XdoAction map(XdoActionDto vto, @Context CycleAvoidingMappingContext ctx);
 
-    XdoActionVto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
+    XdoActionDto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
 
-    void update(XdoActionVto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);
+    void update(XdoActionDto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);
 
-//    @AfterMapping
-    default void relinkToActions(@MappingTarget XdoAction to, XdoActionVto from) {
-        from.getGPadEvent().setActions(to.getGPadEvent().getActions().stream().map(q -> this.map(q, new CycleAvoidingMappingContext())).toList());
-    }
-
-    default Consumer<XdoAction> updater(XdoActionVto from) {
+    default Consumer<XdoAction> updater(XdoActionDto from) {
         return q -> update(from, q, new CycleAvoidingMappingContext());
     }
 }

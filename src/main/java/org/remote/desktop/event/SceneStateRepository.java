@@ -2,7 +2,7 @@ package org.remote.desktop.event;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.model.event.XdoCommandEvent;
-import org.remote.desktop.model.vto.SceneVto;
+import org.remote.desktop.model.dto.SceneDto;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
         return lastRecognized;
     }
 
-    private SceneVto forcedScene;
+    private SceneDto forcedScene;
 
     @Override
     public void onApplicationEvent(XdoCommandEvent event) {
@@ -49,7 +49,7 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
         forcedScene = null;
     }
 
-    public SceneVto getForcedScene() {
+    public SceneDto getForcedScene() {
         return forcedScene;
     }
 

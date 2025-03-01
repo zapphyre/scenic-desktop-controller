@@ -7,7 +7,7 @@ import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.model.EAxisEvent;
-import org.remote.desktop.model.vto.SceneVto;
+import org.remote.desktop.model.dto.SceneDto;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +46,8 @@ public class AxisAdapter {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            leftStickConsumer = findCoordsConsumer(windowName, SceneVto::getLeftAxisEvent);
-            rightStickConsumer = findCoordsConsumer(windowName, SceneVto::getRightAxisEvent);
+            leftStickConsumer = findCoordsConsumer(windowName, SceneDto::getLeftAxisEvent);
+            rightStickConsumer = findCoordsConsumer(windowName, SceneDto::getRightAxisEvent);
 
             cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
                     .put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));
@@ -57,7 +57,7 @@ public class AxisAdapter {
         }
     }
 
-    Consumer<PolarCoords> findCoordsConsumer(String windowName, Function<SceneVto, EAxisEvent> getter) {
+    Consumer<PolarCoords> findCoordsConsumer(String windowName, Function<SceneDto, EAxisEvent> getter) {
         return Optional.of(windowName)
                 .map(sceneDao::getSceneForWindowNameOrBase)
                 .map(axisEventCurrentOrInherited(getter))
@@ -65,12 +65,12 @@ public class AxisAdapter {
                 .orElse(q -> {});
     }
 
-    Function<SceneVto, EAxisEvent> axisEventCurrentOrInherited(Function<SceneVto, EAxisEvent> getter) {
+    Function<SceneDto, EAxisEvent> axisEventCurrentOrInherited(Function<SceneDto, EAxisEvent> getter) {
         return q -> getter.apply(q) == EAxisEvent.INHERITED ?
                 getAxisEventOrNoop(q.getInherits(), getter) : getAxisEventOrNoop(q, getter);
     }
 
-    EAxisEvent getAxisEventOrNoop(SceneVto current, Function<SceneVto, EAxisEvent> getter) {
+    EAxisEvent getAxisEventOrNoop(SceneDto current, Function<SceneDto, EAxisEvent> getter) {
         return Optional.ofNullable(current).map(getter).orElse(EAxisEvent.NOOP);
     }
 
