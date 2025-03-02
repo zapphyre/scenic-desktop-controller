@@ -10,11 +10,17 @@ const inheritedAvailableRef = ref<Scene[]>();
 const inheritedSceneRef = ref<Scene>();
 
 const props = defineProps<{
-  inherited: Scene | undefined;
+  selScene: Scene | undefined;
   allScenes: Scene[];
 }>();
 
-inheritedAvailableRef.value = _.filter(props.allScenes, s => s?.name !== props.inherited?.name);
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: any): void; // Custom event for v-model
+}>();
+
+inheritedAvailableRef.value = _.filter(props.allScenes, s => s?.name !== props.selScene?.name);
+// const inheritedScene = inheritedAvailableRef.value.find(s => s.name === props.selScene?.inherits?.name);
+
 console.log("avail", inheritedAvailableRef.value);
 
 </script>
@@ -24,7 +30,6 @@ console.log("avail", inheritedAvailableRef.value);
   <!--        <div class="flex items-center">-->
   <FloatLabel class="w-full md:w-56" variant="on">
     <Select name="inherited" checkmark
-            v-model="inherited"
             :options="inheritedAvailableRef"
             optionLabel="name"
             class="w-full"/>
