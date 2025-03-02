@@ -18,10 +18,10 @@ const props = defineProps<{
 
 <template>
 
-  <div class="grid">
+  <div class="grid grid-nogutter">
     <div class=" flex flex-wrap justify-center">
       <div class="flex items-center">
-        <div class="col-6">
+        <div class="col">
           <Select
               v-model="xdoAction.keyEvt"
               :options="actionValues"
@@ -30,13 +30,13 @@ const props = defineProps<{
               @change="q => change(xdoAction)"
           />
         </div>
-        <div class="col-3">
-          <FloatLabel>
+        <div class="col">
+          <FloatLabel variant="on">
             <InputText @change="q => change(xdoAction)" name="xDoKeyPress" v-model="xdoAction.keyPress"/>
             <label for="xDoKeyPress">xDo Press</label>
           </FloatLabel>
         </div>
-        <div class="col-7">
+        <div class="col">
           <Button @click="q => remove(xdoAction)" icon="pi pi-trash"/>
         </div>
       </div>
@@ -46,6 +46,6 @@ const props = defineProps<{
 
 <style scoped>
 .input-item {
-  min-width: 12rem; /* Consistent width for Select and MultiSelect */
+  min-width: 11rem; /* Consistent width for Select and MultiSelect */
 }
 </style>

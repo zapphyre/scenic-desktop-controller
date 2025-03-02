@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Select from 'primevue/select';
+import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
 import type {GPadEvent, Scene, EButtonAxisMapping} from '@/model/gpadOs';
 import GpadAction from "@/components/GpadAction.vue";
@@ -39,29 +40,53 @@ onMounted(fetchScenes);
 </script>
 
 <template>
-<div class="grid">
-  <div class="col-12">
-    <label for="scene">Scene</label>
-    <Select name="scene" v-model="selectedSceneRef" :options="scenesRef" optionLabel="name"
-            placeholder="Select a scene"
-            class="w-full md:w-56"/>
-  </div>
+  <div class="card grid nested-grid grid-nogutter">
 
-  <div class="col-12" v-if="inheritedRef">
-    <div v-for="action in actions">
-      <GpadAction :action="action"/>
+    <div class="col-12">
+      <div class="col-4">
+        <!--      <div class="card flex flex-wrap justify-center gap-4">-->
+        <!--        <div class="flex items-center">-->
+
+        <FloatLabel class="w-full md:w-56" variant="on">
+          <Select name="scene" v-model="selectedSceneRef" :options="scenesRef" optionLabel="name"
+                  class="input-item"
+                  placeholder="Select a scene"/>
+          <label for="scene">Scene</label>
+        </FloatLabel>
+
+        <!--        </div>-->
+        <!--      </div>-->
+      </div>
+
+      <!--    <div class="grid grid-nogutter">-->
+      <div class="col-4">
+        <!--      <div class="card flex flex-wrap justify-center gap-4">-->
+        <!--        <div class="flex items-center">-->
+        <FloatLabel class="w-full md:w-56" variant="on">
+          <Select name="inherited" checkmark v-model="inheritedRef" :options="inheritedAvailableRef"
+                  optionLabel="name"
+                  placeholder="Select a scene"
+                  class="w-full"/>
+          <label for="inherited">Inherited</label>
+        </FloatLabel>
+        <!--        </div>-->
+        <!--      </div>-->
+      </div>
+      <!--    </div>-->
     </div>
 
-<!--    <div>-->
-<!--      <label for="inherited">Inherited</label>-->
-<!--      <Select name="inherited" v-model="inheritedRef" :options="inheritedAvailableRef" optionLabel="name"-->
-<!--              placeholder="Select a scene"-->
-<!--              class="w-full md:w-56"/>-->
-<!--    </div>-->
+    <div class="grid grid-nogutter">
+      <div class="col" v-if="inheritedRef">
+        <div v-for="action in actions">
+          <GpadAction :action="action"/>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 </template>
 
 <style scoped>
-
+.input-item {
+  width: 100%;
+}
 </style>

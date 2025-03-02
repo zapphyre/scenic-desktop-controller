@@ -23,77 +23,69 @@ const removeAction = (action: XdoAction): void => {
 </script>
 
 <template>
-  <hr/>
+    <hr/>
 
   <div class="grid nested-grid">
-    <div class="col-6">
+    <div class="card flex flex-wrap justify-center gap-4">
+      <div class="flex items-center gap-2">
 
-      <div class="grid">
-        <div class="col-4">
-          <div class="card flex flex-wrap justify-center gap-4">
-            <div class="flex items-center gap-2">
-              <Select
-                  v-model="action.trigger"
-                  :options="buttonValues"
-                  placeholder="Trigger"
-                  class="input-item"
-              />
+        <div class="col-6">
+          <div class="col-12">
+            <div class="grid">
+              <div class="col-4">
+                <Select
+                    v-model="action.trigger"
+                    :options="buttonValues"
+                    placeholder="Trigger"
+                    class="input-item"
+                />
+              </div>
+              <div class="col-4">
+                <Select
+                    :options="multiplicityValues"
+                    placeholder="Multiplicity"
+                    class="input-item"
+                />
+              </div>
+              <div class="col">
+                <MultiSelect
+                    v-model="action.modifiers"
+                    :options="buttonValues"
+                    placeholder="Modifiers"
+                    class="input-item"
+                />
+              </div>
+
+              <div class="col-4">
+                <div class="flex flex-wrap justify-content-end gap-5">
+                  <div class="flex align-items-end gap-2">
+                    <label for="longPress">Long Press</label>
+                    <Checkbox name="longPress" v-model="action.longPress" binary label="Long Press"/>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-8">
+                <div class="flex justify-content-center align-items-center justify-center gap-4">
+                  <Select
+                      v-model="action.nextScene"
+                      placeholder="Forced next scene"
+                      class="input-item"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
-        <div class="col-4">
-          <div class="card flex flex-wrap justify-center gap-4">
-            <div class="flex items-center gap-2">
-              <Select
-                  :options="multiplicityValues"
-                  placeholder="Multiplicity"
-                  class="input-item"
-              />
-            </div>
+
+        <div class="col-6">
+          <XdoActionSection v-for="act in action.actions" :xdo-action="act" :change="updateAction"
+                            :remove="removeAction"/>
+          <div class="flex justify-content-center align-items-center justify-center">
+            <Button @click="addNewAction">Add Action</Button>
           </div>
         </div>
-        <div class="col-4">
-          <div class="card flex flex-wrap justify-center gap-4">
-            <div class="flex items-center gap-2">
-              <MultiSelect
-                  v-model="action.modifiers"
-                  :options="buttonValues"
-                  placeholder="Modifiers"
-                  class="input-item"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div class="col-4">
-          <div class="flex flex-wrap justify-content-end gap-5">
-            <div class="flex align-items-end gap-2">
-              <label for="longPress">Long Press</label>
-              <Checkbox name="longPress" v-model="action.longPress" binary label="Long Press"/>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-8">
-          <div class="flex justify-content-center align-items-center justify-center gap-4">
-            <Select
-                v-model="action.nextScene"
-                placeholder="Forced next scene"
-                class="input-item"
-            />
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-    <div class="col-6">
-      <div class="card">
-        <XdoActionSection v-for="act in action.actions" :xdo-action="act" :change="updateAction"
-                          :remove="removeAction"/>
-      </div>
-      <div class="flex justify-content-center align-items-center justify-center gap-4">
-        <Button @click="addNewAction">Add Action</Button>
       </div>
     </div>
   </div>
@@ -109,13 +101,8 @@ const removeAction = (action: XdoAction): void => {
 }
 
 
-.grid {
-  width: 100%; /* Ensure grid takes full width */
-  justify-content: start; /* Align grid items to the left */
-}
-
 .input-item {
-  min-width: 11rem; /* Consistent width for Select and MultiSelect */
+  min-width: 9rem; /* Consistent width for Select and MultiSelect */
 }
 
 /* Adjust Checkbox alignment */
