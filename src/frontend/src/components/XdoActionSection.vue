@@ -6,8 +6,8 @@ import FloatLabel from 'primevue/floatlabel';
 import {actionValues} from "@/model/gpadOs";
 import type {XdoAction} from "@/model/gpadOs";
 
-console.log("action vals");
-console.log(actionValues);
+// console.log("action vals");
+// console.log(actionValues);
 
 const props = defineProps<{
   xdoAction: XdoAction;
