@@ -82,8 +82,10 @@ export const actionValues = Object.values(EKeyEvt)
     .map(key => (key));
     // .map(key => ({name: key}));
 
-
-
 export const multiplicityValues = Object.values(EMultiplicity)
+    .filter(key => isNaN(Number(key)))
+    .map(key => (key));
+
+export const axisValues = Object.values(EAxisEvent)
     .filter(key => isNaN(Number(key)))
     .map(key => (key));
