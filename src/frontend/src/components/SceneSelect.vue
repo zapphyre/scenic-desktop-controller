@@ -2,7 +2,8 @@
 import Select from 'primevue/select';
 import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
-import {axisValues, EAxisEvent, GPadEvent, Scene,} from '@/model/gpadOs';
+import {axisValues, EAxisEvent, GPadEvent, type XdoAction,} from '@/model/gpadOs';
+import type {Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/GpadAction.vue";
 import _ from 'lodash';
 import {onMounted, ref, watch} from "vue";
@@ -15,6 +16,9 @@ const inheritedRef = ref<Scene>();
 
 const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
+
+// const currScene: Scene = {} as Scene;
+const allScenes = [] as Scene[];
 
 const fetchScenes = async () => {
   const scenes = await apiClient.get("allScenes");
@@ -50,9 +54,9 @@ const changedRightAxis = (event: any) => {
   selectedSceneRef!.value!.rightAxisEvent = event.value.rightAxisEvent ?? undefined;
 }
 
-watch(inheritedRef, q => {
-
-})
+defineProps<{
+  currScene: Scene;
+}>();
 
 onMounted(fetchScenes);
 </script>
@@ -82,7 +86,7 @@ onMounted(fetchScenes);
       <div class="grid">
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
-            <Select name="inherited__"
+            <Select name="inherited"
                     v-model="inheritedRef"
                     :options="inheritedAvailableRef"
                     optionLabel="name"

@@ -14,6 +14,8 @@ const props = defineProps<{
   change: (xdoAction: XdoAction) => void;
   remove: (xdoAction: XdoAction) => void;
 }>();
+
+
 </script>
 
 <template>
