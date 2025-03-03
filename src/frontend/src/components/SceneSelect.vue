@@ -2,14 +2,14 @@
 import Select from 'primevue/select';
 import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
-import {axisValues, EAxisEvent, GPadEvent, type XdoAction,} from '@/model/gpadOs';
+import {axisValues, EAxisEvent, GPadEvent} from '@/model/gpadOs';
 import type {Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/GpadAction.vue";
 import _ from 'lodash';
 import {onMounted, ref, watch} from "vue";
 
 const scenesRef = ref<Scene[]>([]);
-const selectedSceneRef = ref<Scene>();
+let selectedSceneRef = ref<Scene>();
 const actionsRef = ref<GPadEvent[]>([]);
 const inheritedAvailableRef = ref<Scene[]>();
 const inheritedRef = ref<Scene>();
@@ -27,10 +27,13 @@ const fetchScenes = async () => {
 }
 
 let actions: GPadEvent[];
+let currScene: Scene | undefined;
 
 
 const chagedScene = (event: any) => {
+  // selectedSceneRef.value = scenesRef.value.filter(s => s.name === event.value?.name)[0];
   selectedSceneRef.value = event.value;
+
   inheritedAvailableRef.value = _.filter(scenesRef.value, s => s.name !== event.value?.name);
   console.log("inherited name ", event.value.inherits?.name)
   console.log("chagedScene", event.value);
@@ -47,16 +50,12 @@ const chagedScene = (event: any) => {
 }
 
 const changedLeftAxis = (event: any) => {
-  selectedSceneRef!.value!.leftAxisEvent = event.value.leftAxisEvent ?? undefined;
+  selectedSceneRef!.value!.leftAxisEvent = event.value;
 }
 
 const changedRightAxis = (event: any) => {
-  selectedSceneRef!.value!.rightAxisEvent = event.value.rightAxisEvent ?? undefined;
+  selectedSceneRef!.value!.rightAxisEvent = event.value;
 }
-
-defineProps<{
-  currScene: Scene;
-}>();
 
 onMounted(fetchScenes);
 </script>
