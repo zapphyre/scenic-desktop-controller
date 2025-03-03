@@ -9,16 +9,12 @@ import _ from 'lodash';
 import {onMounted, ref, watch} from "vue";
 
 const scenesRef = ref<Scene[]>([]);
-let selectedSceneRef = ref<Scene>();
-const actionsRef = ref<GPadEvent[]>([]);
+const selectedSceneRef = ref<Scene>();
 const inheritedAvailableRef = ref<Scene[]>();
 const inheritedRef = ref<Scene>();
 
 const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
-
-// const currScene: Scene = {} as Scene;
-const allScenes = [] as Scene[];
 
 const fetchScenes = async () => {
   const scenes = await apiClient.get("allScenes");
@@ -26,25 +22,13 @@ const fetchScenes = async () => {
   scenesRef.value = scenes.data;
 }
 
-let actions: GPadEvent[];
-let currScene: Scene | undefined;
-
 
 const chagedScene = (event: any) => {
-  // selectedSceneRef.value = scenesRef.value.filter(s => s.name === event.value?.name)[0];
   selectedSceneRef.value = event.value;
-
   inheritedAvailableRef.value = _.filter(scenesRef.value, s => s.name !== event.value?.name);
-  console.log("inherited name ", event.value.inherits?.name)
-  console.log("chagedScene", event.value);
-  console.log("chagedScene name", event.value.name);
 
-  const inheritedScene = inheritedAvailableRef.value.find(s => s.name == event.value.inherits?.name);
-  console.log("is the same name", event.value.inherits === inheritedScene);
-  console.log("inheritedScene", inheritedScene);
-  inheritedRef.value = inheritedScene;
-  actions = selectedSceneRef.value?.gpadEvents ?? [];
-  console.log("actions", actions);
+  inheritedRef.value = inheritedAvailableRef.value.find(s => s.name == event.value.inherits?.name);
+
   leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
 }
@@ -119,7 +103,7 @@ onMounted(fetchScenes);
 
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
-        <div v-for="action in actions">
+        <div v-for="action in selectedSceneRef.gpadEvents">
           <GpadAction :action="action"/>
         </div>
       </div>
