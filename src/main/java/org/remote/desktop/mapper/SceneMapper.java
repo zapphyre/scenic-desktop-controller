@@ -1,15 +1,15 @@
 package org.remote.desktop.mapper;
 
-import org.mapstruct.Builder;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
 
 import java.util.function.Consumer;
 
-@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
+@Mapper(componentModel = "spring")
 public interface SceneMapper {
 
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);

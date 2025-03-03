@@ -6,15 +6,11 @@ import FloatLabel from 'primevue/floatlabel';
 import {actionValues} from "@/model/gpadOs";
 import type {XdoAction} from "@/model/gpadOs";
 
-// console.log("action vals");
-// console.log(actionValues);
-
 const props = defineProps<{
   xdoAction: XdoAction;
-  change: (xdoAction: XdoAction) => void;
-  remove: (xdoAction: XdoAction) => void;
 }>();
 
+console.log("props.xdoAction", props.xdoAction);
 
 </script>
 
@@ -29,17 +25,16 @@ const props = defineProps<{
               :options="actionValues"
               placeholder="XdoActionType"
               class="input-item"
-              @change="q => change(xdoAction)"
           />
         </div>
         <div class="col">
           <FloatLabel variant="on">
-            <InputText @change="q => change(xdoAction)" name="xDoKeyPress" v-model="xdoAction.keyPress"/>
+            <InputText name="xDoKeyPress" v-model="xdoAction.keyPress"/>
             <label for="xDoKeyPress">xDo Press</label>
           </FloatLabel>
         </div>
         <div class="col">
-          <Button @click="q => remove(xdoAction)" icon="pi pi-trash"/>
+          <Button icon="pi pi-trash"/>
         </div>
       </div>
     </div>
@@ -48,6 +43,6 @@ const props = defineProps<{
 
 <style scoped>
 .input-item {
-  min-width: 11rem; /* Consistent width for Select and MultiSelect */
+  min-width: 11rem;
 }
 </style>

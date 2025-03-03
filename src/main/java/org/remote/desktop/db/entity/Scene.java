@@ -2,7 +2,6 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.remote.desktop.model.EAxisEvent;
 
 import java.util.LinkedList;
@@ -28,7 +27,7 @@ public class Scene {
     private Scene inherits;
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private List<GPadEvent> gPadEvents = new LinkedList<>();
+    private List<GamepadEvent> gamepadEvents = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)
     private EAxisEvent leftAxisEvent = EAxisEvent.MOUSE;
@@ -47,7 +46,7 @@ public class Scene {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(gPadEvents)
+        Optional.ofNullable(gamepadEvents)
                 .ifPresent(q -> q.forEach(p -> p.setScene(this)));
     }
 }

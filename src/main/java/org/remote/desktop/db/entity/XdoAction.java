@@ -11,8 +11,6 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
 public class XdoAction {
 
     @Id
@@ -28,20 +26,20 @@ public class XdoAction {
     @JoinColumn
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private GPadEvent gPadEvent;
+    private GamepadEvent gamepadEvent;
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(gPadEvent)
-                .map(GPadEvent::getActions)
+        Optional.ofNullable(gamepadEvent)
+                .map(GamepadEvent::getActions)
                 .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(gPadEvent)
-                .map(GPadEvent::getActions)
+        Optional.ofNullable(gamepadEvent)
+                .map(GamepadEvent::getActions)
                 .ifPresent(p -> p.remove(this));
     }
 }

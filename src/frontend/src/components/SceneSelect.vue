@@ -5,8 +5,7 @@ import apiClient from '@/api';
 import {axisValues, EAxisEvent, GPadEvent} from '@/model/gpadOs';
 import type {Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/GpadAction.vue";
-import _ from 'lodash';
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
@@ -22,11 +21,10 @@ const fetchScenes = async () => {
   scenesRef.value = scenes.data;
 }
 
-
-const chagedScene = (event: any) => {
+const changedScene = (event: any) => {
   selectedSceneRef.value = event.value;
-  inheritedAvailableRef.value = _.filter(scenesRef.value, s => s.name !== event.value?.name);
 
+  inheritedAvailableRef.value = scenesRef.value.filter(s => s.name !== event.value?.name);
   inheritedRef.value = inheritedAvailableRef.value.find(s => s.name == event.value.inherits?.name);
 
   leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
@@ -35,10 +33,12 @@ const chagedScene = (event: any) => {
 
 const changedLeftAxis = (event: any) => {
   selectedSceneRef!.value!.leftAxisEvent = event.value;
+  apiClient.put("updateScene", selectedSceneRef.value);
 }
 
 const changedRightAxis = (event: any) => {
   selectedSceneRef!.value!.rightAxisEvent = event.value;
+  apiClient.put("updateScene", selectedSceneRef.value);
 }
 
 onMounted(fetchScenes);
@@ -53,7 +53,7 @@ onMounted(fetchScenes);
         <!--        <div class="flex items-center">-->
 
         <FloatLabel class="w-full md:w-56" variant="on">
-          <Select name="scene" @change="chagedScene"
+          <Select name="scene" @change="changedScene"
                   v-model="selectedSceneRef"
                   :options="scenesRef"
                   optionLabel="name"
@@ -87,6 +87,7 @@ onMounted(fetchScenes);
             <label for="leftAxis">Left Axis</label>
           </FloatLabel>
         </div>
+
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
             <Select name="rightAxis"
@@ -98,12 +99,11 @@ onMounted(fetchScenes);
           </FloatLabel>
         </div>
       </div>
-      <!--    </div>-->
     </div>
 
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
-        <div v-for="action in selectedSceneRef.gpadEvents">
+        <div v-for="action in selectedSceneRef.gamepadEvents">
           <GpadAction :action="action"/>
         </div>
       </div>

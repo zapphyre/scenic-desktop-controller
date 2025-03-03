@@ -3,12 +3,12 @@ package org.remote.desktop.repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.remote.desktop.db.entity.GPadEvent;
+import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
-import org.remote.desktop.model.dto.GPadEventDto;
+import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -39,7 +39,7 @@ public class SceneRepositoryTest {
                 .name("asdf")
                 .windowName("windowName")
                 .inherits(scene1vto)
-                .gPadEvents(List.of(GPadEventDto.builder()
+                .gamepadEvents(List.of(GamepadEventDto.builder()
                         .nextScene(scene1vto)
                         .build()))
                 .build();
@@ -51,7 +51,7 @@ public class SceneRepositoryTest {
                 .name("xzcv")
                 .windowName("windowName")
                 .inherits(scene1vto)
-                .gPadEvents(List.of(GPadEventDto.builder()
+                .gamepadEvents(List.of(GamepadEventDto.builder()
                         .nextScene(scene1vto)
                         .build()))
                 .build();
@@ -96,11 +96,11 @@ public class SceneRepositoryTest {
         Assertions.assertFalse(rogan.isEmpty());
     }
 
-    Scene createScene(String wName, String sName, GPadEvent ...gpadEvents) {
+    Scene createScene(String wName, String sName, GamepadEvent...gpadEvents) {
         return Scene.builder()
                 .windowName(wName)
                 .name(sName)
-                .gPadEvents(Arrays.asList(gpadEvents))
+                .gamepadEvents(Arrays.asList(gpadEvents))
                 .build();
     }
 

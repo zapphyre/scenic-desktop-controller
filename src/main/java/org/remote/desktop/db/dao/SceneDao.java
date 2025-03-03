@@ -7,7 +7,7 @@ import org.remote.desktop.mapper.ActionMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
-import org.remote.desktop.model.dto.GPadEventDto;
+import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.db.repository.GPadEventRepository;
@@ -131,19 +131,19 @@ public class SceneDao {
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
-    public void update(GPadEventDto gPadEventDto) {
+    public void update(GamepadEventDto gamepadEventDto) {
         try {
-            Optional.of(gPadEventDto)
-                    .map(GPadEventDto::getId)
+            Optional.of(gamepadEventDto)
+                    .map(GamepadEventDto::getId)
                     .flatMap(actionRepository::findById)
-                    .ifPresent(actionMapper.updater(gPadEventDto));
+                    .ifPresent(actionMapper.updater(gamepadEventDto));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
-    public void remove(GPadEventDto vto) {
+    public void remove(GamepadEventDto vto) {
         try {
             Optional.of(vto)
                     .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
@@ -177,8 +177,8 @@ public class SceneDao {
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
-    public GPadEventDto save(GPadEventDto GPadEventDto) {
-        return Optional.of(GPadEventDto)
+    public GamepadEventDto save(GamepadEventDto GamepadEventDto) {
+        return Optional.of(GamepadEventDto)
                 .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
                 .map(actionRepository::save)
                 .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
