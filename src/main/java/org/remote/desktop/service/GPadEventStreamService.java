@@ -10,7 +10,7 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.dto.GPadEventDto;
+import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
@@ -50,7 +50,7 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
 
-    public Predicate<GPadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+    public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
         return q -> sameAsClick(click).test(q.getTrigger()) ||
                 q.getModifiers().stream().anyMatch(sameAsClick(click));
     }
@@ -93,19 +93,19 @@ public class GPadEventStreamService {
         return !appliedCommands.remove(def);
     }
 
-    public static List<GPadEventDto> scrapeActionsRecursive(SceneDto sceneDto) {
+    public static List<GamepadEventDto> scrapeActionsRecursive(SceneDto sceneDto) {
         return sceneDto == null ? List.of() : scrapeActionsRecursive(sceneDto, new LinkedList<>());
     }
 
-    public static List<GPadEventDto> scrapeActionsRecursive(SceneDto sceneDto, List<GPadEventDto> GPadEventDtos) {
+    public static List<GamepadEventDto> scrapeActionsRecursive(SceneDto sceneDto, List<GamepadEventDto> GamepadEventDtos) {
 //        if (sceneVto != null)
 //            scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos);
 
         Optional.ofNullable(sceneDto)
-                .map(SceneDto::getGPadEvents)
-                .ifPresent(GPadEventDtos::addAll);
+                .map(SceneDto::getGamepadEvents )
+                .ifPresent(GamepadEventDtos::addAll);
 
-        return GPadEventDtos;
+        return GamepadEventDtos;
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,

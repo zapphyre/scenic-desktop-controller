@@ -1,19 +1,16 @@
 package org.remote.desktop.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EKeyEvt;
 
-@Data
+@Value
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Jacksonized
 public class XdoActionDto {
-    private Long id;
-    private EKeyEvt keyEvt;
-    private String keyPress;
+    Long id;
+    EKeyEvt keyEvt;
+    String keyPress;
 
 //    @ToString.Exclude
 //    @EqualsAndHashCode.Exclude

@@ -5,7 +5,7 @@ export interface Scene {
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
     inherits: Scene;
-    gpadEvents: GPadEvent[];
+    gamepadEvents: GPadEvent[];
 }
 
 export interface GPadEvent {

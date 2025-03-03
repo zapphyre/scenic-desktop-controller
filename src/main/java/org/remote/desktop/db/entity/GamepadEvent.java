@@ -15,7 +15,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class GPadEvent {
+public class GamepadEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,7 @@ public class GPadEvent {
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     private List<String> modifiers;
 
-    @OneToMany(mappedBy = "gPadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    @OneToMany(mappedBy = "gamepadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
     private List<XdoAction> actions = new ArrayList<>();
 
     @JoinColumn
@@ -55,16 +55,16 @@ public class GPadEvent {
     @PrePersist
     public void relinkEntities() {
         Optional.ofNullable(actions).orElse(List.of()).stream()
-                .filter(q -> q.getGPadEvent() != null)
-                .forEach(p -> p.setGPadEvent(this));
+                .filter(q -> q.getGamepadEvent() != null)
+                .forEach(p -> p.setGamepadEvent(this));
 
         Optional.ofNullable(scene)
-                .map(Scene::getGPadEvents)
+                .map(Scene::getGamepadEvents)
                 .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        actions.forEach(q -> q.setGPadEvent(null));
+        actions.forEach(q -> q.setGamepadEvent(null));
     }
 }

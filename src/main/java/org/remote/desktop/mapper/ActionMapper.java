@@ -1,22 +1,22 @@
 package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
-import org.remote.desktop.db.entity.GPadEvent;
-import org.remote.desktop.model.dto.GPadEventDto;
+import org.remote.desktop.db.entity.GamepadEvent;
+import org.remote.desktop.model.dto.GamepadEventDto;
 
 import java.util.function.Consumer;
 
-@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
+@Mapper(componentModel = "spring")
 public interface ActionMapper {
 
-    GPadEventDto map(GPadEvent GPadEvent, @Context CycleAvoidingMappingContext ctx);
+    GamepadEventDto map(GamepadEvent GamepadEvent, @Context CycleAvoidingMappingContext ctx);
 
-    GPadEvent map(GPadEventDto vto, @Context CycleAvoidingMappingContext ctx);
+    GamepadEvent map(GamepadEventDto vto, @Context CycleAvoidingMappingContext ctx);
 
 //    @Mapping(target = "", ignore = true)
-    void update(GPadEventDto src, @MappingTarget GPadEvent tgt, @Context CycleAvoidingMappingContext ctx);
+    void update(GamepadEventDto src, @MappingTarget GamepadEvent tgt, @Context CycleAvoidingMappingContext ctx);
 
-    default Consumer<GPadEvent> updater(GPadEventDto src) {
+    default Consumer<GamepadEvent> updater(GamepadEventDto src) {
         return q -> update(src, q, new CycleAvoidingMappingContext());
     }
 
