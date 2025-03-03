@@ -3,14 +3,16 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import FloatLabel from 'primevue/floatlabel';
-import {actionValues} from "@/model/gpadOs";
 import type {XdoAction} from "@/model/gpadOs";
+import {actionValues} from "@/model/gpadOs";
+import {watch} from "vue";
+import apiClient from "@/api";
 
 const props = defineProps<{
   xdoAction: XdoAction;
 }>();
 
-console.log("props.xdoAction", props.xdoAction);
+watch(props.xdoAction, (q) => apiClient.put("updateXdoAction", props.xdoAction));
 
 </script>
 

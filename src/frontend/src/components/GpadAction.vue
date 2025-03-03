@@ -8,22 +8,29 @@ import type {GPadEvent, XdoAction} from "@/model/gpadOs";
 import {buttonValues, multiplicityValues} from '@/model/gpadOs';
 import XdoActionSection from "@/components/XdoActionSection.vue";
 import _ from "lodash";
+import apiClient from "@/api";
+import {watch} from "vue";
 
 const props = defineProps<{
-  action: GPadEvent;
+  gpadEvent: GPadEvent;
 }>();
 
-const addNewAction = () => props.action.actions.push({} as XdoAction);
+watch(props.gpadEvent, (q) => apiClient.put("updateGamepadEvent", props.gpadEvent));
+
+const addNewAction = async () => {
+  const id = (await apiClient.post("saveXdoAction", {})).data;
+  props.gpadEvent.actions.push({id} as XdoAction);
+}
 const updateAction = (action: XdoAction): void => {
   console.log("updated", action);
 }
 const removeAction = (action: XdoAction): void => {
-  _.remove(props.action.actions, q => q === action);
+  _.remove(props.gpadEvent.actions, q => q === action);
 }
 </script>
 
 <template>
-    <hr/>
+  <hr/>
 
   <div class="grid nested-grid">
     <div class="card flex flex-wrap justify-center gap-4">
@@ -34,7 +41,7 @@ const removeAction = (action: XdoAction): void => {
             <div class="grid">
               <div class="col-4">
                 <Select
-                    v-model="action.trigger"
+                    v-model="gpadEvent.trigger"
                     :options="buttonValues"
                     placeholder="Trigger"
                     class="input-item"
@@ -42,6 +49,7 @@ const removeAction = (action: XdoAction): void => {
               </div>
               <div class="col-4">
                 <Select
+                    v-model="gpadEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="input-item"
@@ -49,7 +57,7 @@ const removeAction = (action: XdoAction): void => {
               </div>
               <div class="col">
                 <MultiSelect
-                    v-model="action.modifiers"
+                    v-model="gpadEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="input-item"
@@ -60,7 +68,7 @@ const removeAction = (action: XdoAction): void => {
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
-                    <Checkbox name="longPress" v-model="action.longPress" binary label="Long Press"/>
+                    <Checkbox name="longPress" v-model="gpadEvent.longPress" binary label="Long Press"/>
                   </div>
                 </div>
               </div>
@@ -68,7 +76,7 @@ const removeAction = (action: XdoAction): void => {
               <div class="col-8">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
-                      v-model="action.nextScene"
+                      v-model="gpadEvent.nextScene"
                       placeholder="Forced next scene"
                       class="input-item"
                   />
@@ -80,7 +88,7 @@ const removeAction = (action: XdoAction): void => {
         </div>
 
         <div class="col-6">
-          <XdoActionSection v-for="act in action.actions" :xdo-action="act" :change="updateAction"
+          <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act" :change="updateAction"
                             :remove="removeAction"/>
           <div class="flex justify-content-center align-items-center justify-center">
             <Button @click="addNewAction">Add Action</Button>
