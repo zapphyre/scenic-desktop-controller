@@ -2,15 +2,16 @@ package org.remote.desktop.db.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.mapper.ActionMapper;
+import org.remote.desktop.mapper.GamepadEventMapper;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
-import org.remote.desktop.db.repository.GPadEventRepository;
+import org.remote.desktop.db.repository.GamepadEventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,12 +36,13 @@ public class SceneDao {
     public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
 
     private final SceneRepository sceneRepository;
-    private final GPadEventRepository actionRepository;
+    private final GamepadEventRepository gamepadEventRepository;
     private final XdoActionRepository xdoActionRepository;
 
     private final SceneMapper sceneMapper;
+
     private final XdoActionMapper xdoActionMapper;
-    private final ActionMapper actionMapper;
+    private final GamepadEventMapper gamepadEventMapper;
 
 
     @Cacheable(SCENE_CACHE_NAME)
@@ -135,8 +137,8 @@ public class SceneDao {
         try {
             Optional.of(gamepadEventDto)
                     .map(GamepadEventDto::getId)
-                    .flatMap(actionRepository::findById)
-                    .ifPresent(actionMapper.updater(gamepadEventDto));
+                    .flatMap(gamepadEventRepository::findById)
+                    .ifPresent(gamepadEventMapper.updater(gamepadEventDto));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,8 +148,8 @@ public class SceneDao {
     public void remove(GamepadEventDto vto) {
         try {
             Optional.of(vto)
-                    .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
-                    .ifPresent(actionRepository::delete);
+                    .map(q -> gamepadEventMapper.map(q, new CycleAvoidingMappingContext()))
+                    .ifPresent(gamepadEventRepository::delete);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -179,9 +181,9 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME}, allEntries = true)
     public GamepadEventDto save(GamepadEventDto GamepadEventDto) {
         return Optional.of(GamepadEventDto)
-                .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
-                .map(actionRepository::save)
-                .map(q -> actionMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(q -> gamepadEventMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(gamepadEventRepository::save)
+                .map(q -> gamepadEventMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
     }
 }

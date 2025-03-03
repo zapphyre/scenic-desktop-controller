@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GPadEventRepository extends JpaRepository<GamepadEvent, Long> {
+public interface GamepadEventRepository extends JpaRepository<GamepadEvent, Long> {
 
     @Query("select E from GamepadEvent E where E.modifiers is empty and E.longPress = false")
     List<GamepadEvent> findAllKeyPressOnly();

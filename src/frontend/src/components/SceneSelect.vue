@@ -46,26 +46,22 @@ onMounted(fetchScenes);
 
 <template>
   <div class="card grid nested-grid grid-nogutter">
-
     <div class="col-12">
-      <div class="col-4">
-        <!--      <div class="card flex flex-wrap justify-center gap-4">-->
-        <!--        <div class="flex items-center">-->
-
-        <FloatLabel class="w-full md:w-56" variant="on">
-          <Select name="scene" @change="changedScene"
-                  v-model="selectedSceneRef"
-                  :options="scenesRef"
-                  optionLabel="name"
-                  class="input-item"
-                  placeholder="Select a scene"/>
-          <label for="scene">Scene</label>
-        </FloatLabel>
-
-        <!--        </div>-->
-        <!--      </div>-->
+      <div class="grid">
+        <div class="col-4">
+          <FloatLabel class="w-full md:w-56" variant="on">
+            <Select name="scene" @change="changedScene"
+                    v-model="selectedSceneRef"
+                    :options="scenesRef"
+                    optionLabel="name"
+                    class="input-item"
+                    placeholder="Select a scene"/>
+            <label for="scene">Scene</label>
+          </FloatLabel>
+        </div>
       </div>
-
+    </div>
+    <div class="col-12">
       <div class="grid">
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
@@ -77,6 +73,7 @@ onMounted(fetchScenes);
             <label for="inherited">Inherited</label>
           </FloatLabel>
         </div>
+
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
             <Select name="leftAxis"
@@ -104,7 +101,7 @@ onMounted(fetchScenes);
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
         <div v-for="action in selectedSceneRef.gamepadEvents">
-          <GpadAction :action="action"/>
+          <GpadAction :gpadEvent="action"/>
         </div>
       </div>
     </div>

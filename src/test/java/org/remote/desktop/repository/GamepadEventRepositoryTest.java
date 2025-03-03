@@ -3,7 +3,7 @@ package org.remote.desktop.repository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.remote.desktop.db.entity.GamepadEvent;
-import org.remote.desktop.db.repository.GPadEventRepository;
+import org.remote.desktop.db.repository.GamepadEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,7 +16,7 @@ import java.util.List;
 public class GamepadEventRepositoryTest {
 
     @Autowired
-    private GPadEventRepository gpadEventRepository;
+    private GamepadEventRepository gpadEventRepository;
 
     @Test
     void findAllKeyPressOnlyTest() {
