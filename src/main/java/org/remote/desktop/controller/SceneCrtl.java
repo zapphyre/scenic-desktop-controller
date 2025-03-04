@@ -2,13 +2,11 @@ package org.remote.desktop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -19,8 +17,8 @@ public class SceneCrtl {
     private final SceneDao sceneDao;
 
     @GetMapping("allScenes")
-    public Mono<List<SceneDto>> getAllScenes() {
-        return Mono.just(sceneDao.getAllScenes());
+    public List<SceneDto> getAllScenes() {
+        return sceneDao.getAllScenes();
     }
 
     @PutMapping("updateScene")
@@ -43,13 +41,13 @@ public class SceneCrtl {
 
     @PostMapping("saveXdoAction")
     @ResponseStatus(HttpStatus.CREATED)
-    public Long saveXdoAction(XdoActionDto xdoActionDto) {
+    public Long saveXdoAction(@RequestBody XdoActionDto xdoActionDto) {
         return sceneDao.save(xdoActionDto).getId();
     }
 
     @PostMapping("saveGamepadEvent")
     @ResponseStatus(HttpStatus.CREATED)
-    public Long saveGamepadEvent(GamepadEventDto gamepadEventDto) {
+    public Long saveGamepadEvent(@RequestBody GamepadEventDto gamepadEventDto) {
         return sceneDao.save(gamepadEventDto).getId();
     }
 }

@@ -4,8 +4,7 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import type {GPadEvent, XdoAction} from "@/model/gpadOs";
-import {buttonValues, multiplicityValues} from '@/model/gpadOs';
+import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, XdoAction} from "@/model/gpadOs";
 import XdoActionSection from "@/components/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
@@ -15,14 +14,20 @@ const props = defineProps<{
   gpadEvent: GPadEvent;
 }>();
 
-watch(props.gpadEvent, (q) => apiClient.put("updateGamepadEvent", props.gpadEvent));
+watch(props.gpadEvent, (q) => {
+  console.log('sending update', props.gpadEvent);
+  apiClient.put("updateGamepadEvent", props.gpadEvent)
+});
 
 const addNewAction = async () => {
-  const id = (await apiClient.post("saveXdoAction", {})).data;
-  props.gpadEvent.actions.push({id} as XdoAction);
+  const toSave: XdoAction = {gamepadEvent: props.gpadEvent, id: undefined, keyEvt: EKeyEvt.STROKE, keyPress: ""};
+  toSave.id = (await apiClient.post("saveXdoAction",  toSave)).data;
+  props.gpadEvent.actions.push(toSave);
 }
 const updateAction = (action: XdoAction): void => {
-  console.log("updated", action);
+  console.log("updated qqqqqqqqqqqqq", action);
+  // apiClient.put("updateGamepadEvent", props.gpadEvent);
+  _.assign(props.gpadEvent, action);
 }
 const removeAction = (action: XdoAction): void => {
   _.remove(props.gpadEvent.actions, q => q === action);
@@ -88,8 +93,8 @@ const removeAction = (action: XdoAction): void => {
         </div>
 
         <div class="col-6">
-          <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act" :change="updateAction"
-                            :remove="removeAction"/>
+          <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
+                            @remove="removeAction"/>
           <div class="flex justify-content-center align-items-center justify-center">
             <Button @click="addNewAction">Add Action</Button>
           </div>

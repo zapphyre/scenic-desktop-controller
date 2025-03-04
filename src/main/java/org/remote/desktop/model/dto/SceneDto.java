@@ -1,5 +1,7 @@
 package org.remote.desktop.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EAxisEvent;
@@ -12,6 +14,7 @@ import java.util.List;
 @Jacksonized
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name") // Use 'name' as ID
 public class SceneDto {
 
     @ToString.Include

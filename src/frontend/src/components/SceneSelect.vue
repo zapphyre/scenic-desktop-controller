@@ -2,10 +2,11 @@
 import Select from 'primevue/select';
 import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
-import {axisValues, EAxisEvent, GPadEvent} from '@/model/gpadOs';
 import type {Scene} from '@/model/gpadOs'
+import {axisValues, EAxisEvent, EMultiplicity, GPadEvent} from '@/model/gpadOs';
 import GpadAction from "@/components/GpadAction.vue";
 import {onMounted, ref} from "vue";
+import Button from "primevue/button";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
@@ -39,6 +40,20 @@ const changedLeftAxis = (event: any) => {
 const changedRightAxis = (event: any) => {
   selectedSceneRef!.value!.rightAxisEvent = event.value;
   apiClient.put("updateScene", selectedSceneRef.value);
+}
+
+const addNewGamepadEvent = async () => {
+  const aa: GPadEvent = {
+    actions: [{}],
+    id: 0,
+    longPress: false,
+    modifiers: [],
+    multiplicity: EMultiplicity.CLICK,
+    nextScene: undefined,
+    trigger: undefined
+  }
+  aa.id = (await apiClient.post("saveGamepadEvent", {})).data;
+  selectedSceneRef.value?.gamepadEvents.unshift(aa);
 }
 
 onMounted(fetchScenes);
@@ -95,6 +110,9 @@ onMounted(fetchScenes);
             <label for="rightAxis">Right Axis</label>
           </FloatLabel>
         </div>
+      </div>
+      <div class="col-4">
+        <Button @click="addNewGamepadEvent">Add Gamepad Event</Button>
       </div>
     </div>
 
