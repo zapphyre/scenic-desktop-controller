@@ -3,7 +3,7 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import FloatLabel from 'primevue/floatlabel';
-import type {XdoAction} from "@/model/gpadOs";
+import {XdoAction} from "@/model/gpadOs";
 import {actionValues} from "@/model/gpadOs";
 import {watch} from "vue";
 import apiClient from "@/api";
@@ -12,7 +12,15 @@ const props = defineProps<{
   xdoAction: XdoAction;
 }>();
 
-watch(props.xdoAction, (q) => apiClient.put("updateXdoAction", props.xdoAction));
+const emit = defineEmits<{
+  remove: [xdoAction: XdoAction];
+}>();
+
+watch(props.xdoAction, (q) => {
+  console.log("updated qqqqqqqqqqqqq", props.xdoAction);
+
+  apiClient.put("updateXdoAction", props.xdoAction)
+});
 
 </script>
 
@@ -23,6 +31,7 @@ watch(props.xdoAction, (q) => apiClient.put("updateXdoAction", props.xdoAction))
       <div class="flex items-center">
         <div class="col">
           <Select
+              @change="() => emit('update', props.xdoAction)"
               v-model="xdoAction.keyEvt"
               :options="actionValues"
               placeholder="XdoActionType"
@@ -31,12 +40,12 @@ watch(props.xdoAction, (q) => apiClient.put("updateXdoAction", props.xdoAction))
         </div>
         <div class="col">
           <FloatLabel variant="on">
-            <InputText name="xDoKeyPress" v-model="xdoAction.keyPress"/>
+            <InputText @change="() => emit('change', props.xdoAction)" name="xDoKeyPress" v-model="xdoAction.keyPress"/>
             <label for="xDoKeyPress">xDo Press</label>
           </FloatLabel>
         </div>
         <div class="col">
-          <Button icon="pi pi-trash"/>
+          <Button @click="() => emit('update', props.xdoAction)" icon="pi pi-trash"/>
         </div>
       </div>
     </div>

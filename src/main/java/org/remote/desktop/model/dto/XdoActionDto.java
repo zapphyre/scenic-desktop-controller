@@ -1,19 +1,23 @@
 package org.remote.desktop.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EKeyEvt;
 
-@Value
+@Data
 @Builder
-@Jacksonized
+//@Jacksonized
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class XdoActionDto {
-    Long id;
+    long id;
     EKeyEvt keyEvt;
     String keyPress;
 
-//    @ToString.Exclude
-//    @EqualsAndHashCode.Exclude
-//    @JsonBackReference
-//    private GPadEventVto gPadEvent;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    GamepadEventDto gamepadEvent;
 }

@@ -96,7 +96,7 @@ public class SceneRepositoryTest {
         Assertions.assertFalse(rogan.isEmpty());
     }
 
-    Scene createScene(String wName, String sName, GamepadEvent...gpadEvents) {
+    public static Scene createScene(String wName, String sName, GamepadEvent...gpadEvents) {
         return Scene.builder()
                 .windowName(wName)
                 .name(sName)

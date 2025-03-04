@@ -12,13 +12,15 @@ import org.remote.desktop.pojo.ReplaceableSet;
 import java.util.LinkedList;
 import java.util.List;
 
-@Value
+@Data
 @Builder
-@Jacksonized
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+//@Jacksonized //commented out b/c of jackson's cyclic graph serialization/deser. check SceneCtrlTest::canSerializeCyclicGraph
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class GamepadEventDto implements Behavioral {
 
-    Long id;
+    long id;
     EButtonAxisMapping trigger;
     boolean longPress;
 
@@ -27,6 +29,8 @@ public class GamepadEventDto implements Behavioral {
     @Builder.Default
     ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     List<XdoActionDto> actions;
 
 //    @ToString.Exclude

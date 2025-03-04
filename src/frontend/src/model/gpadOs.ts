@@ -10,18 +10,19 @@ export interface Scene {
 
 export interface GPadEvent {
     id: number;
-    trigger: EButtonAxisMapping;
+    trigger: EButtonAxisMapping | undefined;
     longPress: boolean;
-    nextScene: Scene;
+    nextScene: Scene | undefined;
     modifiers: EButtonAxisMapping[];
     actions: XdoAction[];
     multiplicity: EMultiplicity;
 }
 
 export interface XdoAction {
-    id: number;
+    id: number | undefined;
     keyEvt: EKeyEvt;
     keyPress: string;
+    gamepadEvent: GPadEvent;
 }
 
 export enum EMultiplicity {
