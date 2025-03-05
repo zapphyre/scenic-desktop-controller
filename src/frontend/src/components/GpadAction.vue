@@ -30,9 +30,16 @@ const addNewAction = async () => {
   props.gpadEvent.actions.push(toSave);
 }
 
-const removeAction = (action: XdoAction): void => {
+const removeXdoAction = async (action: XdoAction) => {
+  await apiClient.delete("removeXdoAction", {data: action.id});
   _.remove(props.gpadEvent.actions, q => q === action);
 }
+
+const emit = defineEmits<{
+  remove: [gPadEvent: GPadEvent];
+}>();
+
+
 </script>
 
 <template>
@@ -45,7 +52,10 @@ const removeAction = (action: XdoAction): void => {
         <div class="col-6">
           <div class="col-12">
             <div class="grid">
-              <div class="col-4">
+              <div class="col">
+                <Button @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
+              </div>
+              <div class="col">
                 <Select
                     v-model="gpadEvent.trigger"
                     :options="buttonValues"
@@ -53,7 +63,7 @@ const removeAction = (action: XdoAction): void => {
                     class="input-item"
                 />
               </div>
-              <div class="col-4">
+              <div class="col">
                 <Select
                     v-model="gpadEvent.multiplicity"
                     :options="multiplicityValues"
@@ -82,7 +92,7 @@ const removeAction = (action: XdoAction): void => {
               <div class="col-8">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
-                      v-model="gpadEvent.nextScene"
+                      v-model="gpadEvent.nextSceneNameFk"
                       placeholder="Forced next scene"
                       class="input-item"
                   />
@@ -95,7 +105,7 @@ const removeAction = (action: XdoAction): void => {
 
         <div class="col-6">
           <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
-                            @remove="removeAction"/>
+                            @remove="removeXdoAction"/>
           <div class="flex justify-content-center align-items-center justify-center">
             <Button @click="addNewAction">Add Action</Button>
           </div>
