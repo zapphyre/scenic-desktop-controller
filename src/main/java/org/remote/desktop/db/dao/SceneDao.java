@@ -222,7 +222,7 @@ public class SceneDao {
 
     public String save(SceneVto vto) {
         return Optional.of(vto)
-                .map(sceneMapper.map(sceneRepository.findById(vto.getInheritsNameFk())))
+                .map(sceneMapper.mapToEntity(nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findById)))
                 .map(sceneRepository::save)
                 .map(Scene::getName)
                 .orElseThrow();
