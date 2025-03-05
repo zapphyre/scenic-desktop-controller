@@ -5,11 +5,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.remote.desktop.db.entity.GamepadEvent;
+import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.GamepadEventDto;
+import org.remote.desktop.model.vto.GamepadEventVto;
+import reactor.util.function.Tuples;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = XdoActionMapper.class)
 public interface GamepadEventMapper {
 
     GamepadEventDto map(GamepadEvent GamepadEvent, @Context CycleAvoidingMappingContext ctx);
@@ -24,4 +30,21 @@ public interface GamepadEventMapper {
         return q -> update(src, q, new CycleAvoidingMappingContext());
     }
 
+    @Mapping(target = "nextSceneNameFk", source = "nextScene.name")
+    @Mapping(target = "parentSceneFk", source = "scene.name")
+    GamepadEventVto map(GamepadEvent evt);
+
+    List<GamepadEventVto> map(List<GamepadEvent> events);
+
+    void update(@MappingTarget GamepadEvent tgt, GamepadEventVto src, Scene scene, Scene nextScene);
+
+    default Consumer<GamepadEvent> update(GamepadEventVto src, Scene parent, Scene next) {
+        return q -> update(q, src, parent, next);
+    }
+
+    GamepadEvent map(GamepadEventVto vto, Scene scene, Scene nextScene);
+
+    default Function<GamepadEventVto, GamepadEvent> map(Scene parent, Scene next) {
+        return q -> map(q, parent, next);
+    }
 }

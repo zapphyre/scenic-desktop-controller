@@ -4,29 +4,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.mapper.GamepadEventMapper;
+import org.remote.desktop.db.entity.XdoAction;
+import org.remote.desktop.db.repository.GamepadEventRepository;
+import org.remote.desktop.db.repository.SceneRepository;
+import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
+import org.remote.desktop.mapper.GamepadEventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
-import org.remote.desktop.db.repository.GamepadEventRepository;
-import org.remote.desktop.db.repository.SceneRepository;
-import org.remote.desktop.db.repository.XdoActionRepository;
+import org.remote.desktop.model.vto.GamepadEventVto;
+import org.remote.desktop.model.vto.SceneVto;
+import org.remote.desktop.model.vto.XdoActionVto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 @Component
-@Transactional(isolation = Isolation.SERIALIZABLE)
+@Transactional
 @RequiredArgsConstructor
 public class SceneDao {
 
@@ -40,7 +44,6 @@ public class SceneDao {
     private final XdoActionRepository xdoActionRepository;
 
     private final SceneMapper sceneMapper;
-
     private final XdoActionMapper xdoActionMapper;
     private final GamepadEventMapper gamepadEventMapper;
 
@@ -185,5 +188,85 @@ public class SceneDao {
                 .map(gamepadEventRepository::save)
                 .map(q -> gamepadEventMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
+    }
+
+    public List<SceneVto> getAllSceneVtos() {
+        return sceneRepository.findAll().stream()
+                .map(sceneMapper::map)
+                .toList();
+    }
+
+    public void update(XdoActionVto vto) {
+        Optional.of(vto)
+                .map(XdoActionVto::getId)
+                .flatMap(xdoActionRepository::findById)
+                .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)));
+    }
+
+    public void update(GamepadEventVto vto) {
+        Optional.of(vto)
+                .map(GamepadEventVto::getId)
+                .flatMap(gamepadEventRepository::findById)
+                .ifPresent(gamepadEventMapper.update(vto,
+                        nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findById),
+                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findById)
+                ));
+    }
+
+    public void update(SceneVto vto) {
+        Optional.of(vto)
+                .map(SceneVto::getName)
+                .flatMap(sceneRepository::findById)
+                .ifPresent(sceneMapper.update(vto, nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findById)));
+    }
+
+    public String save(SceneVto vto) {
+        return Optional.of(vto)
+                .map(sceneMapper.map(sceneRepository.findById(vto.getInheritsNameFk())))
+                .map(sceneRepository::save)
+                .map(Scene::getName)
+                .orElseThrow();
+    }
+
+    public Long save(GamepadEventVto vto) {
+        return Optional.of(vto)
+                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findById),
+                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findById))
+                )
+                .map(gamepadEventRepository::save)
+                .map(GamepadEvent::getId)
+                .orElseThrow();
+    }
+
+    public Long save(XdoActionVto vto) {
+        return Optional.of(vto)
+                .map(xdoActionMapper.map(gamepadEventRepository.findById(vto.getGamepadEventFk())))
+                .map(xdoActionRepository::save)
+                .map(XdoAction::getId)
+                .orElseThrow();
+    }
+
+    public void remove(XdoActionVto vto) {
+        Optional.of(vto)
+                .map(XdoActionVto::getId)
+                .ifPresent(xdoActionRepository::deleteById);
+    }
+
+    public void remove(GamepadEventVto vto) {
+        Optional.of(vto)
+                .map(GamepadEventVto::getId)
+                .ifPresent(gamepadEventRepository::deleteById);
+    }
+
+    public void remove(SceneVto vto) {
+        Optional.of(vto)
+                .map(SceneVto::getName)
+                .ifPresent(sceneRepository::deleteById);
+    }
+
+    <T, R> R nullableRepoOp(T id, Function<T, Optional<R>> function) {
+        return Optional.ofNullable(id)
+                .flatMap(function)
+                .orElse(null);
     }
 }

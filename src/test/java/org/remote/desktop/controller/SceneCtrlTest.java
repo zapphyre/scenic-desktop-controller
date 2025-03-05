@@ -27,6 +27,12 @@ public class SceneCtrlTest {
 
     @Test
     void canSerializeCyclicGraph() throws JsonProcessingException {
+        SceneDto inherits = SceneDto.builder()
+                .name("inherited")
+                .windowName("inherited")
+                .gamepadEvents(List.of())
+                .build();
+
         SceneDto nextScene = SceneDto.builder()
                 .name("next")
                 .windowName("nextScene")
@@ -34,12 +40,12 @@ public class SceneCtrlTest {
                 .build();
 
         XdoActionDto xdo = XdoActionDto.builder()
-                .id(3)
+                .id(3L)
                 .keyEvt(EKeyEvt.STROKE)
                 .build();
 
         GamepadEventDto eventDto = GamepadEventDto.builder()
-                .id(4)
+                .id(4L)
                 .trigger(EButtonAxisMapping.A)
                 .nextScene(nextScene)
                 .actions(List.of(xdo))
@@ -50,13 +56,19 @@ public class SceneCtrlTest {
         SceneDto sceneDto = SceneDto.builder()
                 .name("Base")
                 .windowName("Base")
+                .inherits(inherits)
                 .gamepadEvents(List.of(eventDto))
                 .build();
 
-        objectMapper.enable(DeserializationFeature.USE_LONG_FOR_INTS); // Treat int JSON numbers as Long
-        String s = objectMapper.writeValueAsString(sceneDto);
-        System.out.println(s);
+//        objectMapper.enable(DeserializationFeature.USE_LONG_FOR_INTS); // Treat int JSON numbers as Long
+        String scene = objectMapper.writeValueAsString(sceneDto);
+        System.out.println(scene);
 
-        SceneDto sceneDto1 = objectMapper.readValue(s, SceneDto.class);
+        XdoActionDto first = sceneDto.getGamepadEvents().getFirst().getActions().getFirst();
+        String firstStr = objectMapper.writeValueAsString(first);
+
+        XdoActionDto xdoActionDto = objectMapper.readValue(firstStr, XdoActionDto.class);
+
+        SceneDto sceneDto1 = objectMapper.readValue(scene, SceneDto.class);
     }
 }

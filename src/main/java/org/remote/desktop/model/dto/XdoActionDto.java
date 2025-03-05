@@ -9,11 +9,11 @@ import org.remote.desktop.model.EKeyEvt;
 @Data
 @Builder
 //@Jacksonized
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class XdoActionDto {
-    long id;
+    Long id;
     EKeyEvt keyEvt;
     String keyPress;
 

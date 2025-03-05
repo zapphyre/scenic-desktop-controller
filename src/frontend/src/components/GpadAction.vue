@@ -14,21 +14,22 @@ const props = defineProps<{
   gpadEvent: GPadEvent;
 }>();
 
-watch(props.gpadEvent, (q) => {
+watch(props.gpadEvent, async (q) => {
   console.log('sending update', props.gpadEvent);
-  apiClient.put("updateGamepadEvent", props.gpadEvent)
+  await apiClient.put("updateGamepadEvent", props.gpadEvent)
 });
 
 const addNewAction = async () => {
-  const toSave: XdoAction = {gamepadEvent: props.gpadEvent, id: undefined, keyEvt: EKeyEvt.STROKE, keyPress: ""};
-  toSave.id = (await apiClient.post("saveXdoAction",  toSave)).data;
+  const toSave: XdoAction = {
+    gamepadEventFk: props.gpadEvent.id,
+    id: undefined,
+    keyEvt: EKeyEvt.STROKE,
+    keyPress: undefined
+  };
+  toSave.id = (await apiClient.post("saveXdoAction", toSave)).data;
   props.gpadEvent.actions.push(toSave);
 }
-const updateAction = (action: XdoAction): void => {
-  console.log("updated qqqqqqqqqqqqq", action);
-  // apiClient.put("updateGamepadEvent", props.gpadEvent);
-  _.assign(props.gpadEvent, action);
-}
+
 const removeAction = (action: XdoAction): void => {
   _.remove(props.gpadEvent.actions, q => q === action);
 }

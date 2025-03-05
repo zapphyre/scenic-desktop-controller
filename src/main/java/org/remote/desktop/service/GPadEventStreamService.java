@@ -9,6 +9,7 @@ import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.GamepadEventContainer;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
@@ -45,7 +46,7 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return scrapeActionsRecursive(sceneDto).stream()
+        return new RecursiveScraper<GamepadEventDto>().scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
@@ -59,7 +60,7 @@ public class GPadEventStreamService {
         return q -> q == click.getTrigger();
     }
 
-//    @Cacheable(SERVICE_CACHE_BUTTON_CLICK)
+    //    @Cacheable(SERVICE_CACHE_BUTTON_CLICK)
     public boolean getActuatorForScene(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
@@ -68,7 +69,8 @@ public class GPadEventStreamService {
                 sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q -> scrapeActionsRecursive(scene).stream()
+                .filter(q ->
+                        new RecursiveScraper<GamepadEventDto>().scrapeActionsRecursive(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))
                         .anyMatch(q.getPredicate())
                 )
@@ -93,19 +95,20 @@ public class GPadEventStreamService {
         return !appliedCommands.remove(def);
     }
 
-    public static List<GamepadEventDto> scrapeActionsRecursive(SceneDto sceneDto) {
-        return sceneDto == null ? List.of() : scrapeActionsRecursive(sceneDto, new LinkedList<>());
-    }
 
-    public static List<GamepadEventDto> scrapeActionsRecursive(SceneDto sceneDto, List<GamepadEventDto> GamepadEventDtos) {
-//        if (sceneVto != null)
-//            scrapeActionsRecursive(sceneVto.getInherits(), GPadEventVtos);
 
-        Optional.ofNullable(sceneDto)
-                .map(SceneDto::getGamepadEvents )
-                .ifPresent(GamepadEventDtos::addAll);
+    public static class RecursiveScraper<T> {
+        public List<T> scrapeActionsRecursive(GamepadEventContainer<T> sceneDto) {
+            return sceneDto == null ? List.of() : scrapeActionsRecursive(sceneDto, new LinkedList<>());
+        }
 
-        return GamepadEventDtos;
+        public List<T> scrapeActionsRecursive(GamepadEventContainer<T> sceneDto, List<T> gamepadEventDtos) {
+            Optional.ofNullable(sceneDto)
+                    .map(GamepadEventContainer::getGamepadEvents)
+                    .ifPresent(gamepadEventDtos::addAll);
+
+            return gamepadEventDtos;
+        }
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,
