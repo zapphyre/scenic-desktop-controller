@@ -240,31 +240,25 @@ public class SceneDao {
 
     public Long save(XdoActionVto vto) {
         return Optional.of(vto)
-                .map(xdoActionMapper.map(gamepadEventRepository.findById(vto.getGamepadEventFk())))
+                .map(xdoActionMapper.map(nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId)
                 .orElseThrow();
     }
 
-    public void remove(XdoActionVto vto) {
-        Optional.of(vto)
-                .map(XdoActionVto::getId)
-                .ifPresent(xdoActionRepository::deleteById);
+    public void removeXdoAction(Long id) {
+        xdoActionRepository.deleteById(id);
     }
 
-    public void remove(GamepadEventVto vto) {
-        Optional.of(vto)
-                .map(GamepadEventVto::getId)
-                .ifPresent(gamepadEventRepository::deleteById);
+    public void removeGamepadEvent(Long id) {
+        gamepadEventRepository.deleteById(id);
     }
 
-    public void remove(SceneVto vto) {
-        Optional.of(vto)
-                .map(SceneVto::getName)
-                .ifPresent(sceneRepository::deleteById);
+    public void removeScene(String name) {
+        sceneRepository.deleteById(name);
     }
 
-    <T, R> R nullableRepoOp(T id, Function<T, Optional<R>> function) {
+    static <T, R> R nullableRepoOp(T id, Function<T, Optional<R>> function) {
         return Optional.ofNullable(id)
                 .flatMap(function)
                 .orElse(null);
