@@ -53,7 +53,7 @@ public interface SceneMapper {
     @Mapping(target = "rightAxisEvent", source = "vto.rightAxisEvent")
     Scene map(SceneVto vto, Scene inherits);
 
-    default Function<SceneVto, Scene> map(Optional<Scene> inherits) {
-        return q -> inherits.map(p -> map(q, p)).orElseThrow();
+    default Function<SceneVto, Scene> mapToEntity(Scene inherits) {
+        return q -> map(q, inherits);
     }
 }
