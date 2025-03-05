@@ -10,7 +10,7 @@ export interface Scene {
 }
 
 export interface GPadEvent {
-    id: number;
+    id: number | undefined;
     trigger: EButtonAxisMapping | undefined;
     longPress: boolean;
     nextSceneNameFk: string | undefined;
@@ -24,7 +24,7 @@ export interface XdoAction {
     id: number | undefined;
     keyEvt: EKeyEvt | undefined;
     keyPress: string | undefined;
-    gamepadEventFk: number;
+    gamepadEventFk: number | undefined;
 }
 
 export enum EMultiplicity {

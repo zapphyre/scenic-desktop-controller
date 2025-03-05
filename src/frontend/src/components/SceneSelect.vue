@@ -7,6 +7,7 @@ import {axisValues, EAxisEvent, EMultiplicity, GPadEvent} from '@/model/gpadOs';
 import GpadAction from "@/components/GpadAction.vue";
 import {onMounted, ref} from "vue";
 import Button from "primevue/button";
+import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
@@ -24,6 +25,8 @@ const fetchScenes = async () => {
 
 const changedScene = (event: any) => {
   selectedSceneRef.value = event.value;
+
+  selectedSceneRef.value?.gamepadEvents.sort((a: GPadEvent, b: GPadEvent) => (b.id ?? 0) - (a.id ?? 0))
 
   inheritedAvailableRef.value = scenesRef.value.filter(s => s.name !== event.value?.name);
   inheritedRef.value = inheritedAvailableRef.value.find(s => s.name == event.value.inherits?.name);
@@ -46,15 +49,21 @@ const addNewGamepadEvent = async () => {
   const gPadEvent: GPadEvent = {
     trigger: undefined,
     actions: [],
-    id: 0,
+    id: undefined,
     longPress: false,
     modifiers: [],
     multiplicity: EMultiplicity.CLICK,
     nextSceneNameFk: undefined,
     parentSceneFk: selectedSceneRef.value?.name
   }
+
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
+}
+
+const removeGpadEvent = async (gpadEvent: GPadEvent) => {
+  await apiClient.delete("removeGamepadEvent", {data: gpadEvent.id});
+  _.remove(selectedSceneRef?.value?.gamepadEvents ?? [], q => q === gpadEvent);
 }
 
 onMounted(fetchScenes);
@@ -113,14 +122,14 @@ onMounted(fetchScenes);
         </div>
       </div>
       <div class="col-4">
-        <Button @click="addNewGamepadEvent">Add Gamepad Event</Button>
+        <Button v-if="selectedSceneRef" @click="addNewGamepadEvent">Add Gamepad Event</Button>
       </div>
     </div>
 
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
         <div v-for="action in selectedSceneRef.gamepadEvents">
-          <GpadAction :gpadEvent="action"/>
+          <GpadAction :gpadEvent="action" @remove="removeGpadEvent" />
         </div>
       </div>
     </div>
