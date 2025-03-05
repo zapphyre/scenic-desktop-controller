@@ -43,17 +43,18 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const aa: GPadEvent = {
-    actions: [{}],
+  const gPadEvent: GPadEvent = {
+    trigger: undefined,
+    actions: [],
     id: 0,
     longPress: false,
     modifiers: [],
     multiplicity: EMultiplicity.CLICK,
-    nextScene: undefined,
-    trigger: undefined
+    nextSceneNameFk: undefined,
+    parentSceneFk: selectedSceneRef.value?.name
   }
-  aa.id = (await apiClient.post("saveGamepadEvent", {})).data;
-  selectedSceneRef.value?.gamepadEvents.unshift(aa);
+  gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
+  selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
 }
 
 onMounted(fetchScenes);

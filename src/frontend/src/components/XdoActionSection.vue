@@ -16,10 +16,8 @@ const emit = defineEmits<{
   remove: [xdoAction: XdoAction];
 }>();
 
-watch(props.xdoAction, (q) => {
-  console.log("updated qqqqqqqqqqqqq", props.xdoAction);
-
-  apiClient.put("updateXdoAction", props.xdoAction)
+watch(props.xdoAction, async (q) => {
+  await apiClient.put("updateXdoAction", props.xdoAction)
 });
 
 </script>
@@ -31,7 +29,6 @@ watch(props.xdoAction, (q) => {
       <div class="flex items-center">
         <div class="col">
           <Select
-              @change="() => emit('update', props.xdoAction)"
               v-model="xdoAction.keyEvt"
               :options="actionValues"
               placeholder="XdoActionType"
@@ -40,12 +37,12 @@ watch(props.xdoAction, (q) => {
         </div>
         <div class="col">
           <FloatLabel variant="on">
-            <InputText @change="() => emit('change', props.xdoAction)" name="xDoKeyPress" v-model="xdoAction.keyPress"/>
+            <InputText name="xDoKeyPress" v-model="xdoAction.keyPress"/>
             <label for="xDoKeyPress">xDo Press</label>
           </FloatLabel>
         </div>
         <div class="col">
-          <Button @click="() => emit('update', props.xdoAction)" icon="pi pi-trash"/>
+          <Button @click="() => emit('remove', props.xdoAction)" icon="pi pi-trash"/>
         </div>
       </div>
     </div>

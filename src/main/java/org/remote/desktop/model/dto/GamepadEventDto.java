@@ -15,12 +15,12 @@ import java.util.List;
 @Data
 @Builder
 //@Jacksonized //commented out b/c of jackson's cyclic graph serialization/deser. check SceneCtrlTest::canSerializeCyclicGraph
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class GamepadEventDto implements Behavioral {
 
-    long id;
+    Long id;
     EButtonAxisMapping trigger;
     boolean longPress;
 

@@ -3,6 +3,8 @@ package org.remote.desktop.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.GamepadEventContainer;
+import org.remote.desktop.model.dto.GamepadEventDto;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Scene {
+public class Scene implements GamepadEventContainer<GamepadEvent> {
 
     @Id
     @EqualsAndHashCode.Include

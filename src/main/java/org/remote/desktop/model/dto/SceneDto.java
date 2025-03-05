@@ -3,19 +3,21 @@ package org.remote.desktop.model.dto;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
-import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.GamepadEventContainer;
 
 import java.util.LinkedList;
 import java.util.List;
 
-@Value
+@Data
 @Builder
-@Jacksonized
+//@Jacksonized
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name") // Use 'name' as ID
-public class SceneDto {
+public class SceneDto implements GamepadEventContainer<GamepadEventDto> {
 
     @ToString.Include
     @EqualsAndHashCode.Include

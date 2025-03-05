@@ -4,25 +4,27 @@ export interface Scene {
     windowName: string;
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
-    inherits: Scene;
+    inheritsNameFk: string;
     gamepadEvents: GPadEvent[];
+    inheritedGamepadEvents: GPadEvent[];
 }
 
 export interface GPadEvent {
     id: number;
     trigger: EButtonAxisMapping | undefined;
     longPress: boolean;
-    nextScene: Scene | undefined;
-    modifiers: EButtonAxisMapping[];
+    nextSceneNameFk: string | undefined;
+    parentSceneFk: string | undefined;
+    modifiers: EButtonAxisMapping[] | [];
     actions: XdoAction[];
     multiplicity: EMultiplicity;
 }
 
 export interface XdoAction {
     id: number | undefined;
-    keyEvt: EKeyEvt;
-    keyPress: string;
-    gamepadEvent: GPadEvent;
+    keyEvt: EKeyEvt | undefined;
+    keyPress: string | undefined;
+    gamepadEventFk: number;
 }
 
 export enum EMultiplicity {
@@ -72,16 +74,13 @@ export enum EAxisEvent {
 }
 
 export const buttonValues = Object.values(EButtonAxisMapping)
-    .filter(key => isNaN(Number(key))) // Filter out numeric keys
+    .filter(key => isNaN(Number(key)))
     // .map(value => value.charAt(0).toUpperCase() + toLower(value.slice(1)))
     .map(key => (key));
-    // .map(key => ({name: key}));
 
 export const actionValues = Object.values(EKeyEvt)
-    .filter(key => isNaN(Number(key))) // Filter out numeric keys
-    // .map(value => value.charAt(0).toUpperCase() + toLower(value.slice(1)))
+    .filter(key => isNaN(Number(key)))
     .map(key => (key));
-    // .map(key => ({name: key}));
 
 export const multiplicityValues = Object.values(EMultiplicity)
     .filter(key => isNaN(Number(key)))
