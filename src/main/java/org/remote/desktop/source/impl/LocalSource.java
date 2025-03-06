@@ -23,11 +23,10 @@ public class LocalSource implements ConnectableSource {
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
 
-    @Override
-    public boolean connect() {
-        if (!isAvailable())
-            return false;
+    private boolean connected = false;
 
+    @Override
+    public void connect() {
         Disposable disposable = worker.getButtonStream().subscribe(buttonAdapter.getButtonConsumer());
         Disposable disposable1 = worker.getAxisStream().subscribe(buttonAdapter.getArrowConsumer());
 
@@ -39,24 +38,29 @@ public class LocalSource implements ConnectableSource {
         disposables.add(disposable2);
         disposables.add(disposable3);
 
-        return true;
+        connected = true;
     }
 
     @Override
-    public boolean disconnect() {
+    public void disconnect() {
         disposables.forEach(Disposable::dispose);
         disposables.clear();
 
-        return true;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return worker.isConnected();
+        connected = false;
     }
 
     @Override
     public String describe() {
         return "local source";
+    }
+
+    @Override
+    public boolean isConnected() {
+        return connected;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return true;
     }
 }

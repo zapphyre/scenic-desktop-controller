@@ -95,6 +95,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jmdns</groupId>
+            <artifactId>jmdns</artifactId>
+            <version>3.6.0</version>
+        </dependency>
         <!--        <dependency>-->
         <!--            <groupId>io.opentelemetry.instrumentation</groupId>-->
         <!--            <artifactId>opentelemetry-spring-boot-starter</artifactId>-->

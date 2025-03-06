@@ -7,6 +7,7 @@ import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class SceneCtrl {
 
     @PostMapping("saveXdoAction")
     @ResponseStatus(HttpStatus.CREATED)
-    public Long saveXdoAction(@RequestBody XdoActionVto xdoActionVto) {
+    public Mono<Long> saveXdoAction(@RequestBody XdoActionVto xdoActionVto) {
         return sceneDao.save(xdoActionVto);
     }
 
