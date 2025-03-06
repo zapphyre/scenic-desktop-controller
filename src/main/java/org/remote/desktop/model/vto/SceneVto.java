@@ -2,10 +2,12 @@ package org.remote.desktop.model.vto;
 
 import lombok.Builder;
 import lombok.Value;
+import lombok.With;
 import org.remote.desktop.model.EAxisEvent;
 
 import java.util.List;
 
+@With
 @Value
 @Builder
 public class SceneVto {
