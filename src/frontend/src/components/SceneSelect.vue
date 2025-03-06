@@ -11,8 +11,8 @@ import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
-const inheritedAvailableRef = ref<Scene[]>();
-const inheritedRef = ref<Scene>();
+const inheritedAvailableRef = ref<string[]>();
+const inheritedRef = ref<string>();
 
 const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
@@ -26,11 +26,13 @@ const fetchScenes = async () => {
 const changedScene = (event: any) => {
   selectedSceneRef.value = event.value;
 
-  selectedSceneRef.value?.gamepadEvents.sort((a: GPadEvent, b: GPadEvent) => (b.id ?? 0) - (a.id ?? 0))
+  selectedSceneRef.value?.gamepadEvents.sort((a: GPadEvent, b: GPadEvent) => (b.id ?? 0) - (a.id ?? 0));
 
-  inheritedAvailableRef.value = scenesRef.value.filter(s => s.name !== event.value?.name);
-  inheritedRef.value = inheritedAvailableRef.value.find(s => s.name == event.value.inherits?.name);
-
+  inheritedAvailableRef.value = scenesRef.value
+      .filter(s => s.name !== event.value?.name)
+      .map(q => (q.name));
+  inheritedRef.value = selectedSceneRef.value?.inheritsNameFk;
+Scene
   leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
 }
@@ -97,7 +99,6 @@ onMounted(fetchScenes);
             <Select name="inherited"
                     v-model="inheritedRef"
                     :options="inheritedAvailableRef"
-                    optionLabel="name"
                     class="w-full"/>
             <label for="inherited">Inherited</label>
           </FloatLabel>
@@ -133,7 +134,12 @@ onMounted(fetchScenes);
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
         <div v-for="action in selectedSceneRef.gamepadEvents">
-          <GpadAction :gpadEvent="action" @remove="removeGpadEvent" />
+          <GpadAction :gpadEvent="action" @remove="removeGpadEvent"/>
+        </div>
+      </div>
+      <div class="col" v-if="selectedSceneRef">
+        <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
+          <GpadAction :disabled="true" :gpadEvent="ihr"/>
         </div>
       </div>
     </div>
