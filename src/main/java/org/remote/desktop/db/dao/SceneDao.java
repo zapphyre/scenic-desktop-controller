@@ -18,6 +18,7 @@ import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -190,9 +191,17 @@ public class SceneDao {
                 .orElseThrow();
     }
 
+    GPadEventStreamService.RecursiveScraper<GamepadEvent> scraper = new GPadEventStreamService.RecursiveScraper<>();
+
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
+                .map(q -> Optional.ofNullable(nullableRepoOp(q.getInheritsNameFk(), sceneRepository::findById))
+                        .map(p -> scraper.scrapeActionsRecursive(p))
+                        .map(gamepadEventMapper::map)
+                        .map(q::withInheritedGamepadEvents)
+                        .orElse(q)
+                )
                 .toList();
     }
 

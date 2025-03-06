@@ -26,7 +26,7 @@ public interface SceneMapper {
         return q -> update(source, q, new CycleAvoidingMappingContext());
     }
 
-    @Mapping(target = "inheritedGamepadEvents", source = "inherits", qualifiedByName = "inheritedEvents")
+//    @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
     @Mapping(target = "inheritsNameFk", source = "inherits.name")
     SceneVto map(Scene entity);
 
