@@ -5,7 +5,7 @@ import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
 import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, XdoAction} from "@/model/gpadOs";
-import XdoActionSection from "@/components/XdoActionSection.vue";
+import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
 import {watch} from "vue";
@@ -40,7 +40,6 @@ const emit = defineEmits<{
   remove: [gPadEvent: GPadEvent];
 }>();
 
-
 </script>
 
 <template>
@@ -53,7 +52,7 @@ const emit = defineEmits<{
         <div class="col-6">
           <div class="col-12">
             <div class="grid">
-              <div class="col">
+              <div class="col-1">
                 <Button :disabled="disabled" @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
               </div>
               <div class="col">

@@ -27,6 +27,11 @@ export interface XdoAction {
     gamepadEventFk: number | undefined;
 }
 
+export interface KeyPart {
+    keyEvt: EKeyEvt;
+    keyPress: string | undefined;
+}
+
 export enum EMultiplicity {
     CLICK,
     DOUBLE,

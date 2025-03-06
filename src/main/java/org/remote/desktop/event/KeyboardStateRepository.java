@@ -3,6 +3,7 @@ package org.remote.desktop.event;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.pojo.KeyPart;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -18,8 +19,8 @@ import java.util.function.Consumer;
 public class KeyboardStateRepository implements ApplicationListener<XdoCommandEvent> {
 
     @Getter
-    private final Set<XdoCommandEvent> pressedKeys = new HashSet<>();
-    private final List<Consumer<XdoCommandEvent>> issuedCommandObservers = new LinkedList<>();
+    private final Set<KeyPart> pressedKeys = new HashSet<>();
+    private final List<Consumer<KeyPart>> issuedCommandObservers = new LinkedList<>();
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -28,18 +29,18 @@ public class KeyboardStateRepository implements ApplicationListener<XdoCommandEv
         if (event.getKeyPart().getKeyEvt().ordinal() > 1) return;
 
         switch (event.getKeyPart().getKeyEvt()) {
-            case PRESS -> pressedKeys.add(event);
-            case RELEASE -> pressedKeys.remove(event.invert());
+            case PRESS -> pressedKeys.add(event.getKeyPart());
+            case RELEASE -> pressedKeys.remove(event.getKeyPart().invert());
         }
 
-        issuedCommandObservers.forEach(q -> q.accept(event));
+        issuedCommandObservers.forEach(q -> q.accept(event.getKeyPart()));
     }
 
-    public void registerXdoCommandObserver(Consumer<XdoCommandEvent> observer) {
+    public void registerXdoCommandObserver(Consumer<KeyPart> observer) {
         issuedCommandObservers.add(observer);
     }
 
-    public void issueKeyupCommand(XdoCommandEvent event) {
-        eventPublisher.publishEvent(event.invert());
+    public void issueKeyupCommand(KeyPart keyPart) {
+        eventPublisher.publishEvent(keyPart);
     }
 }
