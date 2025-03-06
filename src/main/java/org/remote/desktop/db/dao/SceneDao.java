@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
@@ -246,12 +247,11 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    public Long save(XdoActionVto vto) {
-        return Optional.of(vto)
+    public Mono<Long> save(XdoActionVto vto) {
+        return Mono.just(vto)
                 .map(xdoActionMapper.map(nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)))
                 .map(xdoActionRepository::save)
-                .map(XdoAction::getId)
-                .orElseThrow();
+                .map(XdoAction::getId);
     }
 
     public void removeXdoAction(Long id) {

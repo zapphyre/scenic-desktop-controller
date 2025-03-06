@@ -2,11 +2,16 @@ package org.remote.desktop.source;
 
 public interface ConnectableSource {
 
-    boolean connect();
+    void connect();
 
-    boolean disconnect();
-
-    boolean isAvailable();
+    void disconnect();
 
     String describe();
+
+    boolean isConnected();
+
+    default boolean isLocal() {
+        return false;
+    };
+
 }
