@@ -200,8 +200,7 @@ public class SceneDao {
                         .map(p -> scraper.scrapeActionsRecursive(p))
                         .map(gamepadEventMapper::map)
                         .map(q::withInheritedGamepadEvents)
-                        .orElse(q)
-                )
+                        .orElse(q))
                 .toList();
     }
 

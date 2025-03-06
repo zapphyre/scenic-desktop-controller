@@ -4,7 +4,7 @@ import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
 import type {Scene} from '@/model/gpadOs'
 import {axisValues, EAxisEvent, EMultiplicity, GPadEvent} from '@/model/gpadOs';
-import GpadAction from "@/components/GpadAction.vue";
+import GpadAction from "@/components/action/GpadAction.vue";
 import {onMounted, ref} from "vue";
 import Button from "primevue/button";
 import _ from "lodash";
@@ -32,7 +32,6 @@ const changedScene = (event: any) => {
       .filter(s => s.name !== event.value?.name)
       .map(q => (q.name));
   inheritedRef.value = selectedSceneRef.value?.inheritsNameFk;
-Scene
   leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
 }
@@ -137,9 +136,11 @@ onMounted(fetchScenes);
           <GpadAction :gpadEvent="action" @remove="removeGpadEvent"/>
         </div>
       </div>
-      <div class="col" v-if="selectedSceneRef">
-        <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
-          <GpadAction :disabled="true" :gpadEvent="ihr"/>
+      <div v-if="selectedSceneRef">
+        <div class="col">
+          <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
+            <GpadAction :disabled="true" :gpadEvent="ihr"/>
+          </div>
         </div>
       </div>
     </div>

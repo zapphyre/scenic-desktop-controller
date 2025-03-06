@@ -11,4 +11,11 @@ import org.remote.desktop.model.EKeyEvt;
 public class KeyPart {
     EKeyEvt keyEvt;
     String keyPress;
+
+    public KeyPart invert() {
+        return KeyPart.builder()
+                .keyPress(keyPress)
+                .keyEvt(getKeyEvt() == EKeyEvt.PRESS ? EKeyEvt.RELEASE : EKeyEvt.PRESS)
+                .build();
+    }
 }

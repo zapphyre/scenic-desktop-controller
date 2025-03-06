@@ -20,10 +20,4 @@ public class XdoCommandEvent extends ApplicationEvent {
         this.keyPart = new KeyPart(keyEvt, keyPress);
     }
 
-    public XdoCommandEvent invert() {
-        EKeyEvt invertedEvt = keyPart.getKeyEvt() == EKeyEvt.PRESS ? EKeyEvt.RELEASE : EKeyEvt.PRESS;
-
-        return new XdoCommandEvent(getSource(), invertedEvt, keyPart.getKeyPress(), nextScene);
-    }
-
 }
