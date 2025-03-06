@@ -12,6 +12,7 @@ import {watch} from "vue";
 
 const props = defineProps<{
   gpadEvent: GPadEvent;
+  disabled?: boolean | false;
 }>();
 
 watch(props.gpadEvent, async (q) => {
@@ -53,7 +54,7 @@ const emit = defineEmits<{
           <div class="col-12">
             <div class="grid">
               <div class="col">
-                <Button @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
+                <Button :disabled="disabled" @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
               </div>
               <div class="col">
                 <Select
@@ -61,6 +62,7 @@ const emit = defineEmits<{
                     :options="buttonValues"
                     placeholder="Trigger"
                     class="input-item"
+                    :disabled="disabled"
                 />
               </div>
               <div class="col">
@@ -69,6 +71,7 @@ const emit = defineEmits<{
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="input-item"
+                    :disabled="disabled"
                 />
               </div>
               <div class="col">
@@ -77,6 +80,7 @@ const emit = defineEmits<{
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="input-item"
+                    :disabled="disabled"
                 />
               </div>
 
@@ -84,7 +88,7 @@ const emit = defineEmits<{
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
-                    <Checkbox name="longPress" v-model="gpadEvent.longPress" binary label="Long Press"/>
+                    <Checkbox :disabled="disabled" name="longPress" v-model="gpadEvent.longPress" binary label="Long Press"/>
                   </div>
                 </div>
               </div>
@@ -95,6 +99,7 @@ const emit = defineEmits<{
                       v-model="gpadEvent.nextSceneNameFk"
                       placeholder="Forced next scene"
                       class="input-item"
+                      :disabled="disabled"
                   />
                 </div>
               </div>
@@ -105,9 +110,10 @@ const emit = defineEmits<{
 
         <div class="col-6">
           <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
+                            :disabled="disabled"
                             @remove="removeXdoAction"/>
           <div class="flex justify-content-center align-items-center justify-center">
-            <Button @click="addNewAction">Add Action</Button>
+            <Button :disabled="disabled" @click="addNewAction">Add Action</Button>
           </div>
         </div>
       </div>

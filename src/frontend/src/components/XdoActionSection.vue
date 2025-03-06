@@ -10,6 +10,7 @@ import apiClient from "@/api";
 
 const props = defineProps<{
   xdoAction: XdoAction;
+  disabled?: boolean | false;
 }>();
 
 const emit = defineEmits<{
@@ -33,16 +34,17 @@ watch(props.xdoAction, async (q) => {
               :options="actionValues"
               placeholder="XdoActionType"
               class="input-item"
+              :disabled="disabled"
           />
         </div>
         <div class="col">
           <FloatLabel variant="on">
-            <InputText name="xDoKeyPress" v-model="xdoAction.keyPress"/>
+            <InputText name="xDoKeyPress" v-model="xdoAction.keyPress" :disabled="disabled"/>
             <label for="xDoKeyPress">xDo Press</label>
           </FloatLabel>
         </div>
         <div class="col">
-          <Button @click="() => emit('remove', props.xdoAction)" icon="pi pi-trash"/>
+          <Button :disabled="disabled" @click="() => emit('remove', props.xdoAction)" icon="pi pi-trash"/>
         </div>
       </div>
     </div>
