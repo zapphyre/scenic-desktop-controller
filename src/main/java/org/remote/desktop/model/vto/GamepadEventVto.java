@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EMultiplicity;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Value
 @Builder
+@Jacksonized
 public class GamepadEventVto {
 
     Long id;

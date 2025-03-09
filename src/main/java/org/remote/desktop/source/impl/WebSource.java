@@ -1,7 +1,6 @@
 package org.remote.desktop.source.impl;
 
 import lombok.Builder;
-import lombok.Value;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.AxisAdapter;
@@ -12,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Disposable;
 
-import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,34 +24,33 @@ public class WebSource implements ConnectableSource {
     private final AxisAdapter axisAdapter;
 
     private final WebClient.RequestHeadersUriSpec<?> spec;
-    private final URI baseUrl;
     private final String description;
 
     private boolean connected;
 
     @Override
     public void connect() {
-        Disposable disposable = spec.uri("gpad/button")
+        Disposable disposable = spec.uri("button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(new ParameterizedTypeReference<List<TimedValue>>() {
                 })
                 .subscribe(buttonAdapter.getButtonConsumer());
 
-        Disposable disposable1 = spec.uri("gpad/axis")
+        Disposable disposable1 = spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
                 })
                 .subscribe(buttonAdapter.getArrowConsumer());
 
-        Disposable disposable2 = spec.uri("gpad/left-stick")
+        Disposable disposable2 = spec.uri("left-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
                 .subscribe(axisAdapter::getLeftStickConsumer);
 
-        Disposable disposable3 = spec.uri("gpad/right-stick")
+        Disposable disposable3 = spec.uri("right-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
@@ -64,7 +61,7 @@ public class WebSource implements ConnectableSource {
         disposables.add(disposable2);
         disposables.add(disposable3);
 
-         connected = true;
+        connected = true;
     }
 
     @Override
