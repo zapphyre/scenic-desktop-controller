@@ -1,10 +1,12 @@
 package org.remote.desktop.source;
 
+import org.remote.desktop.model.ESourceEvent;
+
 public interface ConnectableSource {
 
-    void connect();
+    ESourceEvent connect();
 
-    void disconnect();
+    ESourceEvent disconnect();
 
     String describe();
 

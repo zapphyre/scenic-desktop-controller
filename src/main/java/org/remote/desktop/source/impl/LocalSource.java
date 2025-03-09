@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.component.AxisAdapter;
 import org.remote.desktop.component.ButtonAdapter;
+import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -26,7 +27,7 @@ public class LocalSource implements ConnectableSource {
     private boolean connected = false;
 
     @Override
-    public void connect() {
+    public ESourceEvent connect() {
         Disposable disposable = worker.getButtonStream().subscribe(buttonAdapter.getButtonConsumer());
         Disposable disposable1 = worker.getAxisStream().subscribe(buttonAdapter.getArrowConsumer());
 
@@ -39,14 +40,16 @@ public class LocalSource implements ConnectableSource {
         disposables.add(disposable3);
 
         connected = true;
+        return ESourceEvent.CONNECTED;
     }
 
     @Override
-    public void disconnect() {
+    public ESourceEvent disconnect() {
         disposables.forEach(Disposable::dispose);
         disposables.clear();
 
         connected = false;
+        return ESourceEvent.DISCONNECTED;
     }
 
     @Override

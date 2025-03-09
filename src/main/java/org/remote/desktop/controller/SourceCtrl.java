@@ -2,7 +2,7 @@ package org.remote.desktop.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.component.SourceManager;
-import org.remote.desktop.model.SourceState;
+import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,18 +16,13 @@ public class SourceCtrl {
 
     private final SourceManager sourceManager;
 
-    @GetMapping("connectedEventStream")
-    public Flux<WebSourceDef> getConnectedEventStream() {
+    @GetMapping("events")
+    public Flux<SourceEvent> getConnectedEventStream() {
         return sourceManager.getConnectedFlux();
     }
 
-    @GetMapping("disconnectedEventStream")
-    public Flux<WebSourceDef> getDisconnectedEventStream() {
-        return sourceManager.getDisconnectedFlux();
-    }
-
     @GetMapping("all")
-    public List<SourceState> getSourceStates() {
+    public List<SourceEvent> getSourceStates() {
         return sourceManager.getOverallSourceStates();
     }
 
