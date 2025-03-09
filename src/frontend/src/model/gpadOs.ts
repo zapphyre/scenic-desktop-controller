@@ -32,6 +32,17 @@ export interface KeyPart {
     keyPress: string | undefined;
 }
 
+export interface WebSourceDef {
+    baseUrl: string;
+    port: number;
+    name: string;
+}
+
+export interface SourceState {
+    connected: boolean;
+    def: WebSourceDef;
+}
+
 export enum EMultiplicity {
     CLICK,
     DOUBLE,

@@ -11,11 +11,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Schedulers;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +28,6 @@ public class SourceManager {
 
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
 
-    private final WebClient.RequestHeadersUriSpec<?> spec;
     private final LocalSource localSource;
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
@@ -34,7 +35,6 @@ public class SourceManager {
     @PostConstruct
     void init() {
         ConnectableSource local = connectableSources.computeIfAbsent(WebSourceDef.builder()
-                .baseURI(URI.create("http://localhost"))
                 .name("local")
                 .build(), q -> localSource);
 
@@ -52,10 +52,9 @@ public class SourceManager {
 
     public void sourceDiscovered(WebSourceDef def) {
         connectableSources.put(def, WebSource.builder()
-                .spec(spec)
+                .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .axisAdapter(axisAdapter)
                 .buttonAdapter(buttonAdapter)
-                .baseUrl(def.getBaseURI())
                 .description(def.getName())
                 .build());
         connectedStream.tryEmitNext(def);
@@ -78,5 +77,12 @@ public class SourceManager {
         return connectableSources.entrySet().stream()
                 .map(q -> new SourceState(q.getKey(), q.getValue().isConnected()))
                 .toList();
+    }
+
+    WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
+        return WebClient.builder()
+                .baseUrl(String.format("http://%s:%d/%s/", baseUrl, port, "event"))
+                .build()
+                .get();
     }
 }

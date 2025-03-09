@@ -2,13 +2,13 @@ package org.remote.desktop.model;
 
 import lombok.Builder;
 import lombok.Value;
-
-import java.net.URI;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
 @Builder
+@Jacksonized
 public class WebSourceDef {
-    URI baseURI;
+    String baseUrl;
     int port;
     String name;
 }

@@ -26,12 +26,12 @@ public class SourceCtrl {
         return sourceManager.getDisconnectedFlux();
     }
 
-    @GetMapping("getOverallSourceStates")
+    @GetMapping("all")
     public List<SourceState> getSourceStates() {
         return sourceManager.getOverallSourceStates();
     }
 
-    @PutMapping("toggleSource")
+    @PutMapping("toggle")
     public void toggleSourceState(@RequestBody WebSourceDef def) {
         sourceManager.toggleSourceConnection(def);
     }
