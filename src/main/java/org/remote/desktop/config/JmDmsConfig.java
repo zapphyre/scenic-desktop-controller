@@ -17,8 +17,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Configuration
@@ -34,13 +32,12 @@ public class JmDmsConfig {
     @Bean
     public JmDNS jmdns() throws IOException {
         InetAddress localHost = myAddress.equals("none") ? getLocalIpAddress() : InetAddress.getByName(myAddress);
-        log.info("Local host: {}", localHost);
+        log.info("Local host ip address: {}", localHost);
         return JmDNS.create(localHost);
     }
 
     @Bean
     public EventSourceListener eventSourceRepository(JmDNS jmdns, EventSourceMapper mapper) {
-        log.info("JmDNS eventSourceRepository");
         return new EventSourceListener(jmdns, mapper, name, sourceManager::sourceDiscovered, sourceManager::sourceLost);
     }
 

@@ -38,9 +38,16 @@ export interface WebSourceDef {
     name: string;
 }
 
-export interface SourceState {
-    connected: boolean;
+export interface SourceEvent {
+    evt: ESourceEvent;
     def: WebSourceDef;
+}
+
+export enum ESourceEvent {
+    APPEARED = "APPEARED",
+    LOST = "LOST",
+    DISCONNECTED = "DISCONNECTED",
+    CONNECTED = "CONNECTED"
 }
 
 export enum EMultiplicity {

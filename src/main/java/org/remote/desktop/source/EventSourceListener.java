@@ -1,5 +1,6 @@
 package org.remote.desktop.source;
 
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.mapper.EventSourceMapper;
@@ -20,7 +21,7 @@ public class EventSourceListener implements ServiceListener {
     private final EventSourceMapper mapper;
     private final JmDmsInstanceName name;
     private final Consumer<WebSourceDef> addObserver;
-    private final Consumer<WebSourceDef> removeObserver;
+    private final Consumer<String> removeObserver;
 
     @Override
     public void serviceAdded(ServiceEvent event) {
@@ -31,7 +32,7 @@ public class EventSourceListener implements ServiceListener {
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        removeObserver.accept(mapper.map(event));
+        removeObserver.accept(event.getName());
     }
 
     @Override

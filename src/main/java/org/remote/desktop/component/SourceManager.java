@@ -2,7 +2,9 @@ package org.remote.desktop.component;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.SourceState;
+import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
@@ -11,20 +13,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SourceManager {
 
-    private final Sinks.Many<WebSourceDef> connectedStream = Sinks.many().multicast().directBestEffort();
-    private final Sinks.Many<WebSourceDef> disconnectedStream = Sinks.many().multicast().directBestEffort();
+    private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
 
@@ -44,10 +43,10 @@ public class SourceManager {
     public void toggleSourceConnection(WebSourceDef def) {
         ConnectableSource connectableSource = connectableSources.get(def);
 
-        if (connectableSource.isConnected())
-            connectableSource.disconnect();
-        else
-            connectableSource.connect();
+        ESourceEvent event = connectableSource.isConnected() ?
+                connectableSource.disconnect() : connectableSource.connect();
+
+        sourceStateStream.tryEmitNext(new SourceEvent(def, event));
     }
 
     public void sourceDiscovered(WebSourceDef def) {
@@ -57,25 +56,30 @@ public class SourceManager {
                 .buttonAdapter(buttonAdapter)
                 .description(def.getName())
                 .build());
-        connectedStream.tryEmitNext(def);
+
+        sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
     }
 
-    public void sourceLost(WebSourceDef def) {
-        connectableSources.remove(def);
-        disconnectedStream.tryEmitNext(def);
+    public void sourceLost(String name) {
+        WebSourceDef webSourceDef = connectableSources.keySet().stream()
+                .filter(webSource -> webSource.getName().equals(name))
+                .findFirst()
+                .orElseThrow();
+
+        connectableSources.remove(webSourceDef);
+        log.info("Source lost: " + name);
+        sourceStateStream.tryEmitNext(new SourceEvent(webSourceDef, ESourceEvent.LOST));
     }
 
-    public Flux<WebSourceDef> getConnectedFlux() {
-        return connectedStream.asFlux();
+    public Flux<SourceEvent> getConnectedFlux() {
+        return sourceStateStream.asFlux();
     }
 
-    public Flux<WebSourceDef> getDisconnectedFlux() {
-        return disconnectedStream.asFlux();
-    }
-
-    public List<SourceState> getOverallSourceStates() {
+    public List<SourceEvent> getOverallSourceStates() {
         return connectableSources.entrySet().stream()
-                .map(q -> new SourceState(q.getKey(), q.getValue().isConnected()))
+                .map(q -> new SourceEvent(q.getKey(), q.getValue().isConnected() ?
+                        ESourceEvent.CONNECTED : ESourceEvent.DISCONNECTED)
+                )
                 .toList();
     }
 
