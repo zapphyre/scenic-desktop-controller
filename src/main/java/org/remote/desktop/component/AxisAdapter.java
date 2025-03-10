@@ -35,7 +35,7 @@ public class AxisAdapter {
             EAxisEvent.NOOP, e -> {}
     );
 
-//    @PostConstruct
+    @PostConstruct
     void init() {
         updateAxisConsumers("Base");
 

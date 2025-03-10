@@ -91,8 +91,12 @@ public class SceneDao {
         if (bySceneContain.size() > 1)
             log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
 
-        if (bySceneContain.isEmpty())
+        if (bySceneContain.isEmpty()) {
+            System.out.println("APPLYING BASE");
             return getScene("Base");
+        }
+
+        System.out.println("applying scene " + bySceneContain.get(0).getName());
 
         return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
     }
@@ -192,7 +196,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    GPadEventStreamService.RecursiveScraper<GamepadEvent> scraper = new GPadEventStreamService.RecursiveScraper<>();
+    GPadEventStreamService.RecursiveScraper<GamepadEvent, Scene> scraper = new GPadEventStreamService.RecursiveScraper<>();
 
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()

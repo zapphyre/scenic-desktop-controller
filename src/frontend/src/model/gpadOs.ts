@@ -4,7 +4,7 @@ export interface Scene {
     windowName: string;
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
-    inheritsNameFk: string;
+    inheritsNameFk: string | undefined;
     gamepadEvents: GPadEvent[];
     inheritedGamepadEvents: GPadEvent[];
 }
@@ -58,14 +58,14 @@ export enum EMultiplicity {
 }
 
 export enum EKeyEvt {
-    PRESS,
-    RELEASE,
-    STROKE,
-    TIMEOUT,
-    SCENE_RESET,
-    CLICK,
-    MOUSE_DOWN,
-    MOUSE_UP
+    PRESS = "PRESS",
+    RELEASE = "RELEASE",
+    STROKE = "STROKE",
+    TIMEOUT = "TIMEOUT",
+    SCENE_RESET = "SCENE_RESET",
+    CLICK = "CLICK",
+    MOUSE_DOWN = "MOUSE_DOWN",
+    MOUSE_UP = "MOUSE_UP"
 }
 
 export enum EButtonAxisMapping {
