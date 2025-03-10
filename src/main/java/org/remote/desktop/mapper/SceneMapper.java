@@ -32,11 +32,12 @@ public interface SceneMapper {
 
     @Named("inheritedEvents")
     default List<GamepadEvent> mapInherents(Scene entity) {
-        return new GPadEventStreamService.RecursiveScraper<GamepadEvent>().scrapeActionsRecursive(entity);
+        return new GPadEventStreamService.RecursiveScraper<GamepadEvent, Scene>().scrapeActionsRecursive(entity);
     }
 
     @Mapping(target = "gamepadEvents", ignore = true)
     @Mapping(target = "name", source = "source.name")
+    @Mapping(target = "inherits", source = "inherits")
     @Mapping(target = "windowName", source = "source.windowName")
     @Mapping(target = "leftAxisEvent", source = "source.leftAxisEvent")
     @Mapping(target = "rightAxisEvent", source = "source.rightAxisEvent")

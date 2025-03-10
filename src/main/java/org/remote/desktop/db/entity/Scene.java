@@ -17,7 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Scene implements GamepadEventContainer<GamepadEvent> {
+public class Scene implements GamepadEventContainer<GamepadEvent, Scene> {
 
     @Id
     @EqualsAndHashCode.Include

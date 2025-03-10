@@ -46,7 +46,7 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return new RecursiveScraper<GamepadEventDto>().scrapeActionsRecursive(sceneDto).stream()
+        return new RecursiveScraper<GamepadEventDto, SceneDto>().scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
@@ -65,17 +65,25 @@ public class GPadEventStreamService {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
 
-        SceneDto scene = sceneStateRepository.isSceneForced() ?
-                sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
+        EQualifiedSceneDict foundQualifier;
+        try {
+            SceneDto scene = sceneStateRepository.isSceneForced() ?
+                    sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
-        EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q ->
-                        new RecursiveScraper<GamepadEventDto>().scrapeActionsRecursive(scene).stream()
-                        .filter(triggerAndModifiersSameAsClick(click))
-                        .anyMatch(q.getPredicate())
-                )
-                .findFirst()
-                .orElse(EQualifiedSceneDict.FAST_CLICK);
+            foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
+                    .filter(q ->
+                            new RecursiveScraper<GamepadEventDto, SceneDto>().scrapeActionsRecursive(scene).stream()
+                                    .filter(triggerAndModifiersSameAsClick(click))
+                                    .anyMatch(q.getPredicate())
+                    )
+                    .findFirst()
+                    .orElse(EQualifiedSceneDict.FAST_CLICK);
+        } catch (Exception e) {
+            System.out.println(e);
+
+            return false;
+        }
+
 
         return foundQualifier.getQualifierType() == click.getQualified();
     }
@@ -96,14 +104,16 @@ public class GPadEventStreamService {
     }
 
 
-
-    public static class RecursiveScraper<T> {
-        public List<T> scrapeActionsRecursive(GamepadEventContainer<T> sceneDto) {
+    public static class RecursiveScraper<T, S extends GamepadEventContainer<T, S>> {
+        public List<T> scrapeActionsRecursive(GamepadEventContainer<T, S> sceneDto) {
             return sceneDto == null ? List.of() : scrapeActionsRecursive(sceneDto, new LinkedList<>());
         }
 
-        public List<T> scrapeActionsRecursive(GamepadEventContainer<T> sceneDto, List<T> gamepadEventDtos) {
-            Optional.ofNullable(sceneDto)
+        public List<T> scrapeActionsRecursive(GamepadEventContainer<T, S> sceneDto, List<T> gamepadEventDtos) {
+            if (sceneDto.getInherits() != null)
+                scrapeActionsRecursive(sceneDto.getInherits(), gamepadEventDtos);
+
+            Optional.of(sceneDto)
                     .map(GamepadEventContainer::getGamepadEvents)
                     .ifPresent(gamepadEventDtos::addAll);
 

@@ -22,6 +22,7 @@ public class StateService {
     @PostConstruct
     void init() {
         sceneStateRepository.registerForcedSceneObserver(sceneStateStream::tryEmitNext);
+        sceneStateRepository.registerRecognizedSceneObserver(sceneStateStream::tryEmitNext);
         keyboardStateRepository.registerXdoCommandObserver(keydownStateStream::tryEmitNext);
     }
 
@@ -35,5 +36,9 @@ public class StateService {
 
     public Flux<KeyPart> getKeydownStateFlux() {
         return keydownStateStream.asFlux();
+    }
+
+    public void nullifyForced() {
+        sceneStateRepository.nullifyForcedScene();
     }
 }

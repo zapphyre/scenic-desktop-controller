@@ -17,7 +17,7 @@ import java.util.List;
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name") // Use 'name' as ID
-public class SceneDto implements GamepadEventContainer<GamepadEventDto> {
+public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto> {
 
     @ToString.Include
     @EqualsAndHashCode.Include

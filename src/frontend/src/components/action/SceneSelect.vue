@@ -36,6 +36,12 @@ const changedScene = (event: any) => {
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
 }
 
+const inheritedChanged = async (event: any) => {
+  selectedSceneRef.value!.inheritsNameFk = inheritedRef.value;
+
+  await apiClient.put("updateScene", selectedSceneRef.value)
+}
+
 const changedLeftAxis = (event: any) => {
   selectedSceneRef!.value!.leftAxisEvent = event.value;
   apiClient.put("updateScene", selectedSceneRef.value);
@@ -96,6 +102,7 @@ onMounted(fetchScenes);
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
             <Select name="inherited"
+                    @change="inheritedChanged"
                     v-model="inheritedRef"
                     :options="inheritedAvailableRef"
                     class="w-full"/>

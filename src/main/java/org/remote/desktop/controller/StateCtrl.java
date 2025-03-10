@@ -27,4 +27,9 @@ public class StateCtrl {
     public void issueInvertedKeyCommand(@RequestBody KeyPart keyPart) {
         stateService.issueInvertedKeyCommand(keyPart);
     }
+
+    @PutMapping("nullify-forced")
+    public void nullifyForcedScene() {
+        stateService.nullifyForced();
+    }
 }
