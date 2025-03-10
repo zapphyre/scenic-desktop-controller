@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "aop.logging", havingValue = "true")
 public class GPadEventServiceAop {
 
-    @Pointcut("execution(public * org.remote.desktop.service.GPadEventStreamService.getActuatorForScene(..))")
-//    @Pointcut("execution(public * org.remote.desktop.service.*.*(..))")
+    @Pointcut("execution(public * org.remote.desktop.service.*.*(..))")
     void allServiceMethodsPointcut(){}
 
     @Pointcut("execution(public * org.remote.desktop.db.*.*.*(..))")

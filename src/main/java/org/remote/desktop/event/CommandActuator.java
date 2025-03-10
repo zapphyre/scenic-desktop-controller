@@ -2,9 +2,12 @@ package org.remote.desktop.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 import static jxdotool.xDoToolUtil.*;
 
@@ -18,6 +21,10 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     @SneakyThrows
     public void onApplicationEvent(XdoCommandEvent e) {
 //        System.out.println("applying: " + e.getKeyPart().getKeyEvt() + " stroke: " + e.getKeyPart().getKeyPress());
+
+        if (Objects.isNull(e.getKeyPart()) || e.getKeyPart().getKeyEvt() == EKeyEvt.STROKE &&
+                Objects.isNull(e.getKeyPart().getKeyPress())
+        ) return;
 
         switch (e.getKeyPart().getKeyEvt()) {
             case PRESS -> keydown(e.getKeyPart().getKeyPress());

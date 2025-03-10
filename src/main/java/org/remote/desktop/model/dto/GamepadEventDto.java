@@ -13,12 +13,16 @@ import java.util.List;
 
 @Value
 @Builder
+@ToString
+@EqualsAndHashCode
 public class GamepadEventDto implements Behavioral {
 
     Long id;
     EButtonAxisMapping trigger;
     boolean longPress;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     SceneDto nextScene;
 
     @Builder.Default

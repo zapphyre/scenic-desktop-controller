@@ -12,6 +12,8 @@ import java.util.List;
 
 @Value
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto> {
 
     @ToString.Include
