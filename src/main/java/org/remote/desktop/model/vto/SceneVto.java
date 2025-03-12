@@ -11,6 +11,7 @@ import java.util.List;
 @Value
 @Builder
 public class SceneVto {
+    Long id;
     String name;
     String windowName;
 

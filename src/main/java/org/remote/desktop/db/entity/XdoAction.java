@@ -14,7 +14,7 @@ import java.util.Optional;
 public class XdoAction {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Enumerated(EnumType.STRING)

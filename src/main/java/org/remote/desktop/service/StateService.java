@@ -40,5 +40,6 @@ public class StateService {
 
     public void nullifyForced() {
         sceneStateRepository.nullifyForcedScene();
+        keyboardStateRepository.releaseAllPressedKeys();
     }
 }

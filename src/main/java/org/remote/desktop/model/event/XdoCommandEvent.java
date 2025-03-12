@@ -20,8 +20,12 @@ public class XdoCommandEvent extends ApplicationEvent {
         super(source);
         this.nextScene = nextScene;
         this.keyPart = new KeyPart(keyEvt, keyPress);
-//        this.keyPart = keyEvt == null || keyPress == null ?
-//                new KeyPart(EKeyEvt.STROKE, "") : new KeyPart(keyEvt, keyPress);
+    }
+
+    public XdoCommandEvent(KeyPart keyPart, Object source) {
+        super(source);
+        this.keyPart = keyPart;
+        this.nextScene = null;
     }
 
 }

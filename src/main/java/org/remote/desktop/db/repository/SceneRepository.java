@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SceneRepository extends JpaRepository<Scene, String> {
+public interface SceneRepository extends JpaRepository<Scene, Long> {
 
     @Query("SELECT S FROM Scene S WHERE :windowname LIKE CONCAT('%', S.windowName, '%') AND S.windowName <> ''")
     List<Scene> findBySceneContain(@Param("windowname") String windowname);
 
-    List<Scene> findAllByWindowName(String windowName);
+    Optional<Scene> findByName(String name);
 }
