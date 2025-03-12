@@ -1,5 +1,6 @@
 
 export interface Scene {
+    id: number | undefined;
     name: string;
     windowName: string;
     leftAxisEvent: EAxisEvent;
@@ -16,7 +17,7 @@ export interface GPadEvent {
     nextSceneNameFk: string | undefined;
     parentSceneFk: string | undefined;
     modifiers: EButtonAxisMapping[] | [];
-    actions: XdoAction[];
+    actions: XdoAction[] | [];
     multiplicity: EMultiplicity;
 }
 

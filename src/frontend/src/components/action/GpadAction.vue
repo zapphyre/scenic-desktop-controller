@@ -49,13 +49,13 @@ const emit = defineEmits<{
     <div class="card flex flex-wrap justify-center gap-4">
       <div class="flex items-center gap-2">
 
-        <div class="col-6">
-          <div class="col-12">
+        <div class="col-6" >
+          <div class="col-12" style="width: 100%">
             <div class="grid">
               <div class="col-1">
                 <Button :disabled="disabled" @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
               </div>
-              <div class="col">
+              <div class="col-4">
                 <Select
                     v-model="gpadEvent.trigger"
                     :options="buttonValues"
@@ -64,7 +64,7 @@ const emit = defineEmits<{
                     :disabled="disabled"
                 />
               </div>
-              <div class="col">
+              <div class="col-4">
                 <Select
                     v-model="gpadEvent.multiplicity"
                     :options="multiplicityValues"
@@ -73,7 +73,7 @@ const emit = defineEmits<{
                     :disabled="disabled"
                 />
               </div>
-              <div class="col">
+              <div class="col-3">
                 <MultiSelect
                     v-model="gpadEvent.modifiers"
                     :options="buttonValues"
@@ -83,7 +83,7 @@ const emit = defineEmits<{
                 />
               </div>
 
-              <div class="col-4">
+              <div class="col-5">
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
@@ -92,7 +92,7 @@ const emit = defineEmits<{
                 </div>
               </div>
 
-              <div class="col-8">
+              <div class="col-7">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
                       v-model="gpadEvent.nextSceneNameFk"

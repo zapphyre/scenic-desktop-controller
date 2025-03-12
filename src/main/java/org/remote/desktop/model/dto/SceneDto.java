@@ -9,7 +9,7 @@ import org.remote.desktop.model.GamepadEventContainer;
 import java.util.LinkedList;
 import java.util.List;
 
-@Data
+@Value
 @Builder
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
