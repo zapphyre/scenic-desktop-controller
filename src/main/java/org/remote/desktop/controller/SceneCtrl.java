@@ -23,7 +23,7 @@ public class SceneCtrl {
     }
 
     @PostMapping("saveScene")
-    public String saveScene(@RequestBody SceneVto sceneVto) {
+    public Long saveScene(@RequestBody SceneVto sceneVto) {
         return sceneDao.save(sceneVto);
     }
 
@@ -68,7 +68,7 @@ public class SceneCtrl {
     }
 
     @DeleteMapping("removeScene")
-    public void removeScene(@RequestBody String sceneId) {
+    public void removeScene(@RequestBody Long sceneId) {
         sceneDao.removeScene(sceneId);
     }
 }

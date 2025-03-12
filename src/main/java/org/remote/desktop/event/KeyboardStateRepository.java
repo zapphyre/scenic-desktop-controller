@@ -43,4 +43,10 @@ public class KeyboardStateRepository implements ApplicationListener<XdoCommandEv
     public void issueKeyupCommand(KeyPart keyPart) {
         eventPublisher.publishEvent(new XdoCommandEvent(this, keyPart.getKeyEvt(), keyPart.getKeyPress(), null));
     }
+
+    public void releaseAllPressedKeys() {
+        pressedKeys.stream()
+                .map(q -> new XdoCommandEvent(q, this))
+                .forEach(eventPublisher::publishEvent);
+    }
 }

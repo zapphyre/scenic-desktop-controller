@@ -54,15 +54,8 @@ public class SceneDao {
 
 
     @Cacheable(SCENE_CACHE_NAME)
-    public List<SceneDto> getAllScenes() {
-        return sceneRepository.findAll().stream()
-                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
-                .toList();
-    }
-
-    @Cacheable(SCENE_CACHE_NAME)
     public SceneDto getScene(String sceneName) {
-        return sceneRepository.findById(sceneName)
+        return sceneRepository.findByName(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
     }
@@ -90,7 +83,7 @@ public class SceneDao {
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
-                .map(q -> Optional.ofNullable(nullableRepoOp(q.getInheritsNameFk(), sceneRepository::findById))
+                .map(q -> Optional.ofNullable(nullableRepoOp(q.getInheritsNameFk(), sceneRepository::findByName))
                         .map(scraper::scrapeActionsRecursive)
                         .map(gamepadEventMapper::map)
                         .map(q::withInheritedGamepadEvents)
@@ -112,33 +105,33 @@ public class SceneDao {
                 .map(GamepadEventVto::getId)
                 .flatMap(gamepadEventRepository::findById)
                 .ifPresent(gamepadEventMapper.update(vto,
-                        nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findById),
-                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findById)
+                        nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findByName),
+                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findByName)
                 ));
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public void update(SceneVto vto) {
         Optional.of(vto)
-                .map(SceneVto::getName)
+                .map(SceneVto::getId)
                 .flatMap(sceneRepository::findById)
-                .ifPresent(sceneMapper.update(vto, nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findById)));
+                .ifPresent(sceneMapper.update(vto, nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findByName)));
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
-    public String save(SceneVto vto) {
+    public Long save(SceneVto vto) {
         return Optional.of(vto)
-                .map(sceneMapper.mapToEntity(nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findById)))
+                .map(sceneMapper.mapToEntity(nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findByName)))
                 .map(sceneRepository::save)
-                .map(Scene::getName)
+                .map(Scene::getId)
                 .orElseThrow();
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
     public Long save(GamepadEventVto vto) {
         return Optional.of(vto)
-                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findById),
-                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findById))
+                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findByName),
+                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findByName))
                 )
                 .map(gamepadEventRepository::save)
                 .map(GamepadEvent::getId)
@@ -164,7 +157,7 @@ public class SceneDao {
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
-    public void removeScene(String name) {
+    public void removeScene(Long name) {
         sceneRepository.deleteById(name);
     }
 

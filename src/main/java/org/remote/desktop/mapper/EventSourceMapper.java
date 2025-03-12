@@ -10,7 +10,7 @@ import javax.jmdns.ServiceInfo;
 @Mapper(componentModel = "spring")
 public interface EventSourceMapper {
 
-    @Mapping(target = "port", source = "info")
+    @Mapping(target = "port", source = "info.port")
     @Mapping(target = "baseUrl", source = "info")
     WebSourceDef map(ServiceEvent event);
 
@@ -18,10 +18,10 @@ public interface EventSourceMapper {
         return info.getHostAddresses()[0];
     }
 
-    default int mapPort(ServiceInfo info) {
-//        return info.getPort();
-        return 8081;
-    }
+//    default int mapPort(ServiceInfo info) {
+////        return info.getPort();
+//        return 8081;
+//    }
 
     default String mapName(ServiceEvent event) {
         return event.getName();

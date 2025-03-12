@@ -40,6 +40,7 @@ public interface SceneMapper {
     }
 
     @Mapping(target = "gamepadEvents", ignore = true)
+    @Mapping(target = "id", source = "source.id")
     @Mapping(target = "name", source = "source.name")
     @Mapping(target = "inherits", source = "inherits")
     @Mapping(target = "windowName", source = "source.windowName")
@@ -52,6 +53,7 @@ public interface SceneMapper {
     }
 
     @Mapping(target = "gamepadEvents", ignore = true)
+    @Mapping(target = "id", source = "vto.id")
     @Mapping(target = "name", source = "vto.name")
     @Mapping(target = "windowName", source = "vto.windowName")
     @Mapping(target = "leftAxisEvent", source = "vto.leftAxisEvent")

@@ -18,6 +18,7 @@ public interface ButtonPressMapper {
     @Mapping(target = "trigger", source = "type")
     ButtonActionDef map(GamepadEvent gamepadEvent);
 
+    @Mapping(target = "qualified", ignore = true)
     ButtonActionDef map(GamepadEventDto vto);
 
     @Named("map")
@@ -26,6 +27,7 @@ public interface ButtonPressMapper {
     @Mapping(target = "action", source = "vto", qualifiedByName = "map")
     GPadEventStreamService.SceneBtnActions map(String windowName, GamepadEventDto vto);
 
+    @Mapping(target = "buttonTrigger", ignore = true)
     NextSceneXdoAction map(GPadEventStreamService.SceneBtnActions actions);
 
     default Function<GamepadEventDto, GPadEventStreamService.SceneBtnActions> map(String windowName) {
