@@ -21,14 +21,18 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene> {
 
     @Id
     @EqualsAndHashCode.Include
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @EqualsAndHashCode.Include
     @ToString.Include
     private String name;
     private String windowName;
 
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne
     private Scene inherits;
 
-    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true)
     private List<GamepadEvent> gamepadEvents = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)

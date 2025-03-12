@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import Select from 'primevue/select';
+import Button from 'primevue/button';
 import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
-import type {Scene} from '@/model/gpadOs'
-import {axisValues, EAxisEvent, EMultiplicity, GPadEvent} from '@/model/gpadOs';
+import {axisValues, EAxisEvent, EMultiplicity, GPadEvent, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
-import {onMounted, ref} from "vue";
-import Button from "primevue/button";
+import SelectDialog from "@/components/action/SceneDialog.vue";
+
+import {onMounted, ref, watch} from "vue";
 import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
 const inheritedAvailableRef = ref<string[]>();
 const inheritedRef = ref<string>();
+const allSceneNames = ref<string[]>([]);
+const dialogScene = ref<Scene>();
+const dialogVisible = ref(false);
 
 const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
@@ -21,6 +25,7 @@ const fetchScenes = async () => {
   const scenes = await apiClient.get("allScenes");
   console.log(scenes.data);
   scenesRef.value = scenes.data;
+  allSceneNames.value = scenes.data.map((q: Scene) => q.name);
 }
 
 const changedScene = (event: any) => {
@@ -53,16 +58,7 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const gPadEvent: GPadEvent = {
-    trigger: undefined,
-    actions: [],
-    id: undefined,
-    longPress: false,
-    modifiers: [],
-    multiplicity: EMultiplicity.CLICK,
-    nextSceneNameFk: undefined,
-    parentSceneFk: selectedSceneRef.value?.name
-  }
+  const gPadEvent = {parentSceneFk: selectedSceneRef.value?.name} as GPadEvent;
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
@@ -73,14 +69,47 @@ const removeGpadEvent = async (gpadEvent: GPadEvent) => {
   _.remove(selectedSceneRef?.value?.gamepadEvents ?? [], q => q === gpadEvent);
 }
 
+let newSceneDialog = false;
+const newScene = () => {
+  dialogScene.value = {} as Scene;
+  dialogVisible.value = true;
+  newSceneDialog = true;
+}
+const editScene = () => {
+  dialogScene.value = selectedSceneRef.value;
+  dialogVisible.value = true;
+  newSceneDialog = false;
+}
+const dialogDelete = () => apiClient.delete("removeScene", {data: dialogScene.value?.name})
+const dialogOk = async (q: Scene) => {
+
+  if (newSceneDialog)
+    scenesRef.value.push((await apiClient.post("saveScene", q)).data);
+  else {
+    await apiClient.put("updateScene", q);
+  }
+
+  selectedSceneRef.value = q;
+}
+
 onMounted(fetchScenes);
 </script>
 
 <template>
+
   <div class="card grid nested-grid grid-nogutter">
     <div class="col-12">
       <div class="grid">
         <div class="col-12"></div>
+        <div class="col-12">
+          <SelectDialog v-if="dialogScene"
+                        :is-edit="!newSceneDialog"
+                        v-model:visible="dialogVisible"
+                        @ok="dialogOk"
+                        @delete="dialogDelete"
+                        :inherits-avail="allSceneNames"
+                        :scene="dialogScene"/>
+        </div>
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
             <Select name="scene" @change="changedScene"
@@ -92,6 +121,12 @@ onMounted(fetchScenes);
             <label for="scene">Scene</label>
           </FloatLabel>
         </div>
+        <div class="col-2">
+          <Button class="mr-2" @click="editScene">Edit</Button>
+          <Button @click="newScene">Add New</Button>
+        </div>
+        <div class="col-7 card"></div>
+
         <div class="col-12 card"></div>
         <div class="col-12 card"></div>
 

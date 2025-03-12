@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Select from 'primevue/select';
+  import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';

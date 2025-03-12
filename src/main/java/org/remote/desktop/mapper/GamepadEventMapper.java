@@ -36,12 +36,14 @@ public interface GamepadEventMapper {
 
     List<GamepadEventVto> map(List<GamepadEvent> events);
 
+    @Mapping(target = "id", source = "src.id")
     void update(@MappingTarget GamepadEvent tgt, GamepadEventVto src, Scene scene, Scene nextScene);
 
     default Consumer<GamepadEvent> update(GamepadEventVto src, Scene parent, Scene next) {
         return q -> update(q, src, parent, next);
     }
 
+    @Mapping(target = "id", source = "vto.id")
     GamepadEvent map(GamepadEventVto vto, Scene scene, Scene nextScene);
 
     default Function<GamepadEventVto, GamepadEvent> map(Scene parent, Scene next) {

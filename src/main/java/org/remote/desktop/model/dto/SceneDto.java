@@ -1,20 +1,22 @@
 package org.remote.desktop.model.dto;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.*;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
 import java.util.LinkedList;
 import java.util.List;
 
-@Value
+@Data
 @Builder
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto> {
+
+    Long id;
 
     @ToString.Include
     @EqualsAndHashCode.Include

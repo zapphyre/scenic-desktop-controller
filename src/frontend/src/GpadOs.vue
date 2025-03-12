@@ -25,16 +25,12 @@ const menu = ref([{
   }
 ]);
 
-function itemSelected(item) {
-  console.log(item);
-}
-
 </script>
 
 
 <template>
   <div class="top-navigation">
-    <Menubar :model="menu" @item="itemSelected" class="fixed-top"/>
+    <Menubar :model="menu" class="fixed-top"/>
 
     <component class="content" :is="selected"></component>
   </div>
