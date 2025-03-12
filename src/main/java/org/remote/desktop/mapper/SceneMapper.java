@@ -18,7 +18,11 @@ public interface SceneMapper {
 
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
+    List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);
+
     Scene map(SceneDto sceneDto, @Context CycleAvoidingMappingContext ctx);
+
+    List<Scene> mapDtos(List<SceneDto> sceneDto, @Context CycleAvoidingMappingContext ctx);
 
     void update(SceneDto source, @MappingTarget Scene target, @Context CycleAvoidingMappingContext ctx);
 
@@ -26,7 +30,7 @@ public interface SceneMapper {
         return q -> update(source, q, new CycleAvoidingMappingContext());
     }
 
-//    @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
+    @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
     @Mapping(target = "inheritsNameFk", source = "inherits.name")
     SceneVto map(Scene entity);
 

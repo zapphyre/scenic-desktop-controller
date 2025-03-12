@@ -22,6 +22,11 @@ public class SceneCtrl {
         return sceneDao.getAllSceneVtos();
     }
 
+    @PostMapping("saveScene")
+    public String saveScene(@RequestBody SceneVto sceneVto) {
+        return sceneDao.save(sceneVto);
+    }
+
     @PutMapping("updateScene")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateScene(@RequestBody SceneVto sceneVto) {

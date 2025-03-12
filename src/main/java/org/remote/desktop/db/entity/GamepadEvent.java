@@ -18,7 +18,7 @@ import java.util.Optional;
 public class GamepadEvent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ToString.Include
     @EqualsAndHashCode.Include
     private Long id;
@@ -35,7 +35,7 @@ public class GamepadEvent {
     private EMultiplicity multiplicity;
 
     // has to me many-one otherwise hibernate creates unique constrain on this column
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToOne(cascade = {CascadeType.DETACH})
     private Scene nextScene;
 
     @ToString.Include
@@ -44,7 +44,7 @@ public class GamepadEvent {
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     private List<String> modifiers;
 
-    @OneToMany(mappedBy = "gamepadEvent", fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    @OneToMany(mappedBy = "gamepadEvent", fetch = FetchType.EAGER, orphanRemoval = true)
     private List<XdoAction> actions = new ArrayList<>();
 
     @JoinColumn
