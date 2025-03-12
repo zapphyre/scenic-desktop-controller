@@ -58,7 +58,7 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const gPadEvent = {parentSceneFk: selectedSceneRef.value?.name} as GPadEvent;
+  const gPadEvent = {parentSceneFk: selectedSceneRef.value?.name, actions: []} as GPadEvent;
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
@@ -80,11 +80,14 @@ const editScene = () => {
   dialogVisible.value = true;
   newSceneDialog = false;
 }
-const dialogDelete = () => apiClient.delete("removeScene", {data: dialogScene.value?.name})
+const dialogDelete = () => apiClient.delete("removeScene", {data: dialogScene.value?.id})
 const dialogOk = async (q: Scene) => {
 
-  if (newSceneDialog)
-    scenesRef.value.push((await apiClient.post("saveScene", q)).data);
+  if (newSceneDialog) {
+    dialogScene.value!!.id = (await apiClient.post("saveScene", q)).data;
+    console.log("adding new scene to list", dialogScene.value);
+    scenesRef.value.push(dialogScene.value!!);
+  }
   else {
     await apiClient.put("updateScene", q);
   }
