@@ -5,6 +5,7 @@ import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.AxisAdapter;
 import org.remote.desktop.component.ButtonAdapter;
+import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,6 +27,9 @@ public class WebSource implements ConnectableSource {
 
     private final WebClient.RequestHeadersUriSpec<?> spec;
     private final String description;
+
+    private final ConnectableSource localSource;
+    private final SettingsDao settingsDao;
 
     private boolean connected;
 
@@ -64,6 +68,9 @@ public class WebSource implements ConnectableSource {
 
         connected = true;
 
+        if (settingsDao.disconnectOnRemoteConnect())
+            localSource.disconnect();
+
         return ESourceEvent.CONNECTED;
     }
 
@@ -73,6 +80,7 @@ public class WebSource implements ConnectableSource {
         disposables.clear();
 
         connected = false;
+        localSource.connect();
 
         return ESourceEvent.DISCONNECTED;
     }

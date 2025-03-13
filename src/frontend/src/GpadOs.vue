@@ -3,6 +3,7 @@ import Menubar from 'primevue/menubar';
 import ActionSettings from "./components/action/SceneSelect.vue";
 import StateControl from "@/components/state/StateControl.vue";
 import SourceSelect from "@/components/source/SourceSelect.vue";
+import Settings from "@/components/setting/Settings.vue";
 
 import {ref} from "vue";
 
@@ -22,6 +23,11 @@ const menu = ref([{
     label: 'Sources Management',
     icon: 'pi pi-sitemap',
     command: () => selected.value = SourceSelect
+  },
+  {
+    label: 'Instance Settings',
+    icon: 'pi pi-hammer',
+    command: () => selected.value = Settings
   }
 ]);
 

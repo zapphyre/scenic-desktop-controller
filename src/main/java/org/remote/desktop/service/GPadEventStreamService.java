@@ -34,6 +34,14 @@ public class GPadEventStreamService {
     private final Set<ButtonActionDef> appliedCommands = new HashSet<>();
     private final RecursiveScraper<GamepadEventDto, SceneDto> scraper = new RecursiveScraper<>();
 
+    public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+        return q -> sameAsClick(click).test(q.getTrigger()) ||
+                q.getModifiers().stream().anyMatch(sameAsClick(click));
+    }
+
+    public Predicate<EButtonAxisMapping> sameAsClick(ButtonActionDef click) {
+        return q -> q == click.getTrigger();
+    }
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
@@ -45,18 +53,9 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return new RecursiveScraper<GamepadEventDto, SceneDto>().scrapeActionsRecursive(sceneDto).stream()
+        return scraper.scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
-    }
-
-    public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
-        return q -> sameAsClick(click).test(q.getTrigger()) ||
-                q.getModifiers().stream().anyMatch(sameAsClick(click));
-    }
-
-    public Predicate<EButtonAxisMapping> sameAsClick(ButtonActionDef click) {
-        return q -> q == click.getTrigger();
     }
 
     //    @Cacheable(SERVICE_CACHE_BUTTON_CLICK)
@@ -65,7 +64,8 @@ public class GPadEventStreamService {
             return true;
 
         SceneDto scene = sceneStateRepository.isSceneForced() ?
-                sceneStateRepository.getForcedScene() : sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
+                sceneStateRepository.getForcedScene() :
+                sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
