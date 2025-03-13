@@ -1,5 +1,6 @@
 package org.remote.desktop.event;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.dto.SceneDto;
@@ -22,10 +23,7 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
 
     private String lastRecognized;
 
-    public String getLastSceneNameRecorded() {
-        return lastRecognized;
-    }
-
+    @Getter
     private SceneDto forcedScene;
 
     @Override
@@ -47,10 +45,6 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
 
     public void nullifyForcedScene() {
         forcedScene = null;
-    }
-
-    public SceneDto getForcedScene() {
-        return forcedScene;
     }
 
     public boolean isSceneForced() {

@@ -6,6 +6,7 @@ import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.util.RecursiveScraper;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -13,6 +14,8 @@ import java.util.function.Function;
 
 @Mapper(componentModel = "spring", uses = GamepadEventMapper.class)
 public interface SceneMapper {
+
+    RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
 
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
@@ -34,7 +37,7 @@ public interface SceneMapper {
 
     @Named("inheritedEvents")
     default List<GamepadEvent> mapInherents(Scene entity) {
-        return new GPadEventStreamService.RecursiveScraper<GamepadEvent, Scene>().scrapeActionsRecursive(entity);
+        return scraper.scrapeActionsRecursive(entity);
     }
 
     default Consumer<Scene> update(SceneVto source, Scene inherits) {
