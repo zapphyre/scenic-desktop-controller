@@ -9,7 +9,6 @@ import lombok.Value;
 import org.remote.desktop.model.EKeyEvt;
 
 @Value
-@Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class XdoActionDto {
     Long id;

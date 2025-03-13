@@ -14,7 +14,6 @@ import org.remote.desktop.pojo.ReplaceableSet;
 import java.util.List;
 
 @Value
-@Builder
 @ToString
 @EqualsAndHashCode
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
@@ -30,7 +29,6 @@ public class GamepadEventDto implements Behavioral {
 
     SceneDto scene;
 
-    @Builder.Default
     ReplaceableSet<EButtonAxisMapping> modifiers = new ReplaceableSet<>();
 
     @ToString.Exclude
