@@ -39,6 +39,13 @@ export interface WebSourceDef {
     name: string;
 }
 
+export interface Settings {
+    instanceName: string;
+    allowNetworkDiscovery: boolean;
+    baseSceneName: string;
+    disconnectLocalOnRemoteConnection: boolean;
+}
+
 export interface SourceEvent {
     evt: ESourceEvent;
     def: WebSourceDef;

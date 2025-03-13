@@ -46,7 +46,6 @@ public class ButtonAdapter {
                 .flatMap(q -> Flux.fromIterable(q.getActions())
                         .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
                 )
-                .publishOn(Schedulers.parallel())
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 

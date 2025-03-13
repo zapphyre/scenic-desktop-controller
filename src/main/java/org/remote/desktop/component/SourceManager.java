@@ -3,6 +3,7 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
@@ -30,6 +31,7 @@ public class SourceManager {
     private final LocalSource localSource;
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
+    private final SettingsDao settingsDao;
 
     @PostConstruct
     void init() {
@@ -54,6 +56,8 @@ public class SourceManager {
                 .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .axisAdapter(axisAdapter)
                 .buttonAdapter(buttonAdapter)
+                .localSource(localSource)
+                .settingsDao(settingsDao)
                 .description(def.getName())
                 .build());
 
