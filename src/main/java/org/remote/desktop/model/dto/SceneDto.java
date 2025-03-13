@@ -24,8 +24,8 @@ public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto
 
     SceneDto inherits;
 
-    EAxisEvent leftAxisEvent = EAxisEvent.NOOP;
-    EAxisEvent rightAxisEvent = EAxisEvent.NOOP;
+    EAxisEvent leftAxisEvent;
+    EAxisEvent rightAxisEvent;
 
     List<GamepadEventDto> gamepadEvents = new LinkedList<>();
 }

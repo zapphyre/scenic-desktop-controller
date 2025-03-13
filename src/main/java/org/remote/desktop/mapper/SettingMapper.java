@@ -16,6 +16,7 @@ public interface SettingMapper {
 
     SettingVto mapVto(Setting setting);
 
+    @Mapping(target = "id", ignore = true)
     Setting map(SettingDto dto);
 
     @Mapping(target = "id", ignore = true)
