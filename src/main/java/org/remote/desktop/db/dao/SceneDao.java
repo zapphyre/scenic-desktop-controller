@@ -17,6 +17,7 @@ import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -38,8 +39,7 @@ public class SceneDao {
     public static final String SCENE_NAME_CACHE_NAME = "scene_name";
     public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
 
-    private final GPadEventStreamService.RecursiveScraper<GamepadEvent, Scene> scraper =
-            new GPadEventStreamService.RecursiveScraper<>();
+    private final RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
 
     private final SceneRepository sceneRepository;
     private final GamepadEventRepository gamepadEventRepository;
