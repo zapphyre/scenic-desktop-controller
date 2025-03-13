@@ -12,9 +12,7 @@ import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.GamepadEventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
-import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -62,19 +59,13 @@ public class SceneDao {
 
     @Cacheable(SCENE_CACHE_NAME)
     public SceneDto getSceneForWindowNameOrBase(String sceneName) {
-        System.out.println("getting scene " + sceneName);
-
         List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
 
         if (bySceneContain.size() > 1)
             log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
 
-        if (bySceneContain.isEmpty()) {
-            System.out.println("APPLYING BASE");
+        if (bySceneContain.isEmpty())
             return getScene("Base");
-        }
-
-        System.out.println("applying scene " + bySceneContain.get(0).getName());
 
         return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
     }

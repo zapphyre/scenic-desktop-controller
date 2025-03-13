@@ -28,7 +28,7 @@
         <lombok.version>1.18.36</lombok.version>
         <reactor.version>3.6.5</reactor.version>
         <junit.varsion>5.11.3</junit.varsion>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
 
         <j.xdotool.version>1.12-SNAPSHOT</j.xdotool.version>
         <vaadin.version>24.6.4</vaadin.version>
