@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Value
-@Builder
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
@@ -25,11 +24,8 @@ public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto
 
     SceneDto inherits;
 
-    @Builder.Default
     EAxisEvent leftAxisEvent = EAxisEvent.NOOP;
-    @Builder.Default
     EAxisEvent rightAxisEvent = EAxisEvent.NOOP;
 
-    @Builder.Default
     List<GamepadEventDto> gamepadEvents = new LinkedList<>();
 }
