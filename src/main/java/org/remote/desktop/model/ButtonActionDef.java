@@ -15,12 +15,8 @@ import java.util.Set;
 @EqualsAndHashCode
 public class ButtonActionDef {
 
-//    @EqualsAndHashCode.Include
     EButtonAxisMapping trigger;
-
     Set<EButtonAxisMapping> modifiers;
     boolean longPress;
-
-//    @EqualsAndHashCode.Include
     EQualificationType qualified;
 }

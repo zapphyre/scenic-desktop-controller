@@ -39,7 +39,7 @@ public class ButtonAdapter {
     void employController() {
         gamepadObserver.getButtonEventStream()
                 .map(buttonPressMapper::map)
-                .filter(gPadEventStreamService::withoutPreviousRelease)
+                .filter(gPadEventStreamService::consumedEventLeftovers)
                 .filter(gPadEventStreamService::getActuatorForScene)
                 .flatMap(this::getNextSceneButtonEvent)
                 .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
