@@ -4,12 +4,10 @@ import org.mapstruct.*;
 import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.service.GPadEventStreamService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -39,26 +37,22 @@ public interface SceneMapper {
         return new GPadEventStreamService.RecursiveScraper<GamepadEvent, Scene>().scrapeActionsRecursive(entity);
     }
 
-    @Mapping(target = "gamepadEvents", ignore = true)
-    @Mapping(target = "id", source = "source.id")
-    @Mapping(target = "name", source = "source.name")
-    @Mapping(target = "inherits", source = "inherits")
-    @Mapping(target = "windowName", source = "source.windowName")
-    @Mapping(target = "leftAxisEvent", source = "source.leftAxisEvent")
-    @Mapping(target = "rightAxisEvent", source = "source.rightAxisEvent")
-    void update(@MappingTarget Scene target, SceneVto source, Scene inherits);
-
     default Consumer<Scene> update(SceneVto source, Scene inherits) {
         return q -> update(q, source, inherits);
     }
 
+    @Mapping(target = "inherits", ignore = true)
     @Mapping(target = "gamepadEvents", ignore = true)
-    @Mapping(target = "id", source = "vto.id")
-    @Mapping(target = "name", source = "vto.name")
-    @Mapping(target = "windowName", source = "vto.windowName")
-    @Mapping(target = "leftAxisEvent", source = "vto.leftAxisEvent")
-    @Mapping(target = "rightAxisEvent", source = "vto.rightAxisEvent")
-    Scene map(SceneVto vto, Scene inherits);
+    void update(@MappingTarget Scene target, SceneVto source, @Context Scene inherits);
+
+    @Mapping(target = "inherits", ignore = true)
+    @Mapping(target = "gamepadEvents", ignore = true)
+    Scene map(SceneVto vto, @Context Scene inherits);
+
+    @AfterMapping
+    default void afterUpdate(@MappingTarget Scene target, @Context Scene inherits) {
+        target.setInherits(inherits);
+    }
 
     default Function<SceneVto, Scene> mapToEntity(Scene inherits) {
         return q -> map(q, inherits);
