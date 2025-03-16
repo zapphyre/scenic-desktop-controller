@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("state")
+@RequestMapping("api/state")
 @RequiredArgsConstructor
 public class StateCtrl {
 

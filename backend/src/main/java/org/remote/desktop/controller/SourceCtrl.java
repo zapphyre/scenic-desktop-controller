@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 @RestController
-@RequestMapping("source")
+@RequestMapping("api/source")
 @RequiredArgsConstructor
 public class SourceCtrl {
 

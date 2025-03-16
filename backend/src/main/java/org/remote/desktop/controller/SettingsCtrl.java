@@ -6,7 +6,7 @@ import org.remote.desktop.model.dto.SettingDto;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("settings")
+@RequestMapping("api/settings")
 @RequiredArgsConstructor
 public class SettingsCtrl {
 
