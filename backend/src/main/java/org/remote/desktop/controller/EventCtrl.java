@@ -16,7 +16,7 @@ import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @RestController
-@RequestMapping("event")
+@RequestMapping("api/event")
 @RequiredArgsConstructor
 public class EventCtrl {
 
