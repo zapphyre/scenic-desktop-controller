@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toMap;
+import static jxdotool.xDoToolUtil.runIdentityScript;
 
 @Slf4j
 @Service
@@ -58,8 +59,7 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
 
-    //    @Cacheable(SERVICE_CACHE_BUTTON_CLICK)
-    public boolean getActuatorForScene(ButtonActionDef click) {
+    public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.ARROW)
             return true;
 
@@ -67,6 +67,10 @@ public class GPadEventStreamService {
                 sceneStateRepository.getForcedScene() :
                 sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
 
+        return sceneClickQualificationRelevant(click, scene);
+    }
+
+    public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
         EQualifiedSceneDict foundQualifier = Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))

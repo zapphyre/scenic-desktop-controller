@@ -12,4 +12,6 @@ public class SettingsProperties {
     private Boolean allowNetworkDiscovery;
     private String baseSceneName;
     private Boolean disconnectLocalOnRemoteConnection;
+    private String ipAddress;
+    private Integer port;
 }

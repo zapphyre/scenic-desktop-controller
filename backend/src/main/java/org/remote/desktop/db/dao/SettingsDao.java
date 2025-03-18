@@ -2,6 +2,7 @@ package org.remote.desktop.db.dao;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.db.entity.Setting;
 import org.remote.desktop.db.repository.SettingsRepository;
 import org.remote.desktop.mapper.SettingMapper;
 import org.remote.desktop.model.dto.SettingDto;
@@ -9,6 +10,7 @@ import org.remote.desktop.property.SettingsProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,8 +40,17 @@ public class SettingsDao {
     }
 
     public SettingDto getSettings() {
-        return Optional.ofNullable(settingsRepository.findAll().getFirst())
+        return Optional.of(settingsRepository.findAll())
+                .map(q -> q.isEmpty() ? null : q.getFirst())
                 .map(settingMapper::map)
                 .orElseGet(() -> settingMapper.mapProps(settingsProperties));
+    }
+
+    public Integer getPort() {
+        return getSettings().getPort();
+    }
+
+    public String getIpAddress() {
+        return getSettings().getIpAddress();
     }
 }

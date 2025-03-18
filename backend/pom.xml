@@ -21,7 +21,7 @@
         <reactor.version>3.6.5</reactor.version>
         <junit.version>5.11.3</junit.version> <!-- Fixed typo: varsion → version -->
         <mapstruct.version>1.6.3</mapstruct.version>
-        <j.xdotool.version>1.12-SNAPSHOT</j.xdotool.version>
+        <j.xdotool.version>1.16-SNAPSHOT</j.xdotool.version>
         <vaadin.version>24.6.4</vaadin.version>
         <node.version>v18.19.0</node.version>
         <npm.version>10.2.3</npm.version>

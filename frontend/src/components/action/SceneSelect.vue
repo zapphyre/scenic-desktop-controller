@@ -7,7 +7,7 @@ import {axisValues, EAxisEvent, GPadEvent, Scene} from '../../model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
@@ -62,6 +62,11 @@ const addNewGamepadEvent = async () => {
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
+
+  watch(gPadEvent, async (q) => {
+    console.log('sending update', gPadEvent);
+    await apiClient.put("updateGamepadEvent", gPadEvent);
+  });
 }
 
 const removeGpadEvent = async (gpadEvent: GPadEvent) => {

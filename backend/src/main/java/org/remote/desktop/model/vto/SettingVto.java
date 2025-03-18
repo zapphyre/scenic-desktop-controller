@@ -8,4 +8,7 @@ public class SettingVto {
     String instanceName;
     Boolean allowNetworkDiscovery;
     String baseSceneName;
+    boolean disconnectLocalOnRemoteConnection;
+    String ipAddress;
+    Integer port;
 }

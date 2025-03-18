@@ -38,6 +38,7 @@ public class SceneDao {
     public static final String WINDOW_SCENE_CACHE_NAME = "mapped_scenes";
     public static final String SCENE_NAME_CACHE_NAME = "scene_name";
     public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
+    public static final String SCENE_CLICK_RELEVANCE = "scene_click_relevance";
 
     private final RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
 
@@ -82,7 +83,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void update(XdoActionVto vto) {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
@@ -90,7 +91,7 @@ public class SceneDao {
                 .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)));
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void update(GamepadEventVto vto) {
         Optional.of(vto)
                 .map(GamepadEventVto::getId)
@@ -101,7 +102,7 @@ public class SceneDao {
                 ));
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void update(SceneVto vto) {
         Optional.of(vto)
                 .map(SceneVto::getId)
@@ -109,7 +110,7 @@ public class SceneDao {
                 .ifPresent(sceneMapper.update(vto, nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findByName)));
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public Long save(SceneVto vto) {
         return Optional.of(vto)
                 .map(sceneMapper.mapToEntity(nullableRepoOp(vto.getInheritsNameFk(), sceneRepository::findByName)))
@@ -118,7 +119,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public Long save(GamepadEventVto vto) {
         return Optional.of(vto)
                 .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findByName),
@@ -129,7 +130,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public Mono<Long> save(XdoActionVto vto) {
         return Mono.just(vto)
                 .map(xdoActionMapper.map(nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)))
@@ -137,17 +138,17 @@ public class SceneDao {
                 .map(XdoAction::getId);
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void removeXdoAction(Long id) {
         xdoActionRepository.deleteById(id);
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void removeGamepadEvent(Long id) {
         gamepadEventRepository.deleteById(id);
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public void removeScene(Long name) {
         sceneRepository.deleteById(name);
     }

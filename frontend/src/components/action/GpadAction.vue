@@ -8,17 +8,12 @@ import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, XdoAction} from "@
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {watch} from "vue";
+  import {onMounted, watch} from "vue";
 
 const props = defineProps<{
   gpadEvent: GPadEvent;
   disabled?: boolean | false;
 }>();
-
-watch(props.gpadEvent, async (q) => {
-  console.log('sending update', props.gpadEvent);
-  await apiClient.put("updateGamepadEvent", props.gpadEvent)
-});
 
 const addNewAction = async () => {
   const toSave: XdoAction = {
@@ -40,6 +35,18 @@ const emit = defineEmits<{
   remove: [gPadEvent: GPadEvent];
 }>();
 
+  onMounted(() => {
+    console.log("will watch", props.gpadEvent);
+    // Watch the prop using a getter function
+    watch(
+        () => props.gpadEvent, // Getter that tracks changes to the prop
+        async (newGpadEvent, oldGpadEvent) => {
+          console.log('sending update', newGpadEvent);
+          await apiClient.put("updateGamepadEvent", newGpadEvent);
+        },
+        { deep: true } // Optional: if GPadEvent's internal properties change
+    );
+  });
 </script>
 
 <template>
@@ -107,7 +114,7 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <div class="col-6">
+        <div class="col-6" style="min-width: 552px">
           <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
                             :disabled="disabled"
                             @remove="removeXdoAction"/>
