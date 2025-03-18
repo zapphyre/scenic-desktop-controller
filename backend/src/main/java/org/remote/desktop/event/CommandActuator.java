@@ -20,7 +20,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     @Override
     @SneakyThrows
     public void onApplicationEvent(XdoCommandEvent e) {
-//        System.out.println("applying: " + e.getKeyPart().getKeyEvt() + " stroke: " + e.getKeyPart().getKeyPress());
+        System.out.println("applying: " + e.getKeyPart().getKeyEvt() + " stroke: " + e.getKeyPart().getKeyPress());
 
         if (Objects.isNull(e.getKeyPart()) || e.getKeyPart().getKeyEvt() == EKeyEvt.STROKE &&
                 Objects.isNull(e.getKeyPart().getKeyPress())

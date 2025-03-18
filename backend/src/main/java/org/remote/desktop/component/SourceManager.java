@@ -10,6 +10,8 @@ import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.remote.desktop.source.impl.WebSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -32,11 +34,14 @@ public class SourceManager {
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
     private final SettingsDao settingsDao;
+    private final ReactiveWebServerApplicationContext serverContext;
 
     @PostConstruct
     void init() {
         ConnectableSource local = connectableSources.computeIfAbsent(WebSourceDef.builder()
-                .name("local")
+                .name(localSource.describe())
+                .baseUrl("127.0.0.1")
+                .port(serverContext.getWebServer().getPort())
                 .build(), q -> localSource);
 
         local.connect();
@@ -89,7 +94,7 @@ public class SourceManager {
 
     WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
         return WebClient.builder()
-                .baseUrl(String.format("http://%s:%d/%s/", baseUrl, port, "event"))
+                .baseUrl(String.format("http://%s:%d/api/%s/", baseUrl, port, "event"))
                 .build()
                 .get();
     }

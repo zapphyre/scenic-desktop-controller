@@ -13,4 +13,8 @@ public class SettingDto {
     boolean allowNetworkDiscovery;
     String baseSceneName;
     boolean disconnectLocalOnRemoteConnection;
+    Integer port;
+    String ipAddress;
+    boolean ipSetManually;
+    String hintedIpAddress;
 }

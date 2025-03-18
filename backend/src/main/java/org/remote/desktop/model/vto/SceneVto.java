@@ -3,6 +3,7 @@ package org.remote.desktop.model.vto;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
+import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EAxisEvent;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @With
 @Value
 @Builder
+@Jacksonized
 public class SceneVto {
     Long id;
     String name;

@@ -15,7 +15,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class ButtonAdapter {
         gamepadObserver.getButtonEventStream()
                 .map(buttonPressMapper::map)
                 .filter(gPadEventStreamService::consumedEventLeftovers)
-                .filter(gPadEventStreamService::getActuatorForScene)
+                .filter(gPadEventStreamService::isCurrentClickQualificationSceneRelevant)
                 .flatMap(this::getNextSceneButtonEvent)
                 .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
                 .flatMap(q -> Flux.fromIterable(q.getActions())

@@ -1,22 +1,16 @@
 package org.remote.desktop.config;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.component.SourceManager;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.EventSourceMapper;
 import org.remote.desktop.source.EventSourceListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.jmdns.JmDNS;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 
 @Slf4j
 @Configuration
@@ -26,35 +20,14 @@ public class JmDmsConfig {
     private final SourceManager sourceManager;
     private final SettingsDao settingsDao;
 
-    @Value("${inet.address:none}")
-    private String  myAddress;
-
     @Bean
     public JmDNS jmdns() throws IOException {
-        InetAddress localHost = myAddress.equals("none") ? getLocalIpAddress() : InetAddress.getByName(myAddress);
-        log.info("Local host ip address: {}", localHost);
-        return JmDNS.create(localHost);
+        log.info("Local host ip address: {}", settingsDao.getIpAddress());
+        return JmDNS.create(settingsDao.getIpAddress());
     }
 
     @Bean
     public EventSourceListener eventSourceRepository(JmDNS jmdns, EventSourceMapper mapper) {
         return new EventSourceListener(jmdns, mapper, settingsDao.getInstanceName(), sourceManager::sourceDiscovered, sourceManager::sourceLost);
-    }
-
-    @SneakyThrows
-    public static InetAddress getLocalIpAddress() {
-        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements()) {
-            NetworkInterface ni = interfaces.nextElement();
-            if (ni.isLoopback() || !ni.isUp() || ni.isVirtual()) continue;
-            Enumeration<InetAddress> addrs = ni.getInetAddresses();
-            while (addrs.hasMoreElements()) {
-                InetAddress addr = addrs.nextElement();
-                if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                    return addr;
-                }
-            }
-        }
-        return InetAddress.getLocalHost();
     }
 }

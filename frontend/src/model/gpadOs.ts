@@ -43,6 +43,10 @@ export interface Settings {
     allowNetworkDiscovery: boolean;
     baseSceneName: string;
     disconnectLocalOnRemoteConnection: boolean;
+    ipAddress: string | undefined;
+    ipSetManually: boolean;
+    port: string | undefined;
+    hintedIpAddress: string | undefined;
 }
 
 export interface SourceEvent {

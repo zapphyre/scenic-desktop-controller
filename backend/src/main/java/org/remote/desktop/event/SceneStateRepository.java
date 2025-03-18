@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static jxdotool.xDoToolUtil.getCurrentWindowTitle;
+import static jxdotool.xDoToolUtil.runIdentityScript;
 
 @Component
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
     }
 
     public String tryGetCurrentName() {
-        return Optional.ofNullable(getCurrentWindowTitle())
+        return Optional.ofNullable(runIdentityScript())
                 .map(q -> {
                     recognizedSceneObservers.forEach(p -> p.accept(q));
                     return lastRecognized = q;

@@ -35,8 +35,7 @@ public class EventSourceListener implements ServiceListener {
 
     @Override
     public void serviceResolved(ServiceEvent event) {
-        String randomPart = event.getName().split("_")[1];
-        if (randomPart.equals(name)) return;
+        if (event.getName().equals(name)) return;
 
         Optional.of(event)
                 .map(mapper::map)
