@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.component.AxisAdapter;
 import org.remote.desktop.component.ButtonAdapter;
+import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -23,6 +25,7 @@ public class LocalSource implements ConnectableSource {
     private final JoyWorker worker;
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
+    private final SettingsDao settingsDao;
 
     private boolean connected = false;
 
@@ -65,5 +68,13 @@ public class LocalSource implements ConnectableSource {
     @Override
     public boolean isLocal() {
         return true;
+    }
+
+    public WebSourceDef getDef() {
+        return WebSourceDef.builder()
+                .name(describe())
+                .baseUrl("127.0.0.1")
+                .port(settingsDao.getPort())
+                .build();
     }
 }
