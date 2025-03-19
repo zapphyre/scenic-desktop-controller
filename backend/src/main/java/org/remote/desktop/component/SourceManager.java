@@ -10,7 +10,6 @@ import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.remote.desktop.source.impl.WebSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,11 +37,7 @@ public class SourceManager {
 
     @PostConstruct
     void init() {
-        ConnectableSource local = connectableSources.computeIfAbsent(WebSourceDef.builder()
-                .name(localSource.describe())
-                .baseUrl("127.0.0.1")
-                .port(serverContext.getWebServer().getPort())
-                .build(), q -> localSource);
+        ConnectableSource local = connectableSources.computeIfAbsent(localSource.getDef(), q -> localSource);
 
         local.connect();
     }
@@ -52,6 +47,12 @@ public class SourceManager {
 
         ESourceEvent event = connectableSource.isConnected() ?
                 connectableSource.disconnect() : connectableSource.connect();
+
+        if (!def.equals(localSource.getDef()))
+            if (event == ESourceEvent.CONNECTED)
+                localSource.disconnect();
+            else
+                localSource.connect();
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, event));
     }

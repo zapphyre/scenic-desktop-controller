@@ -1,16 +1,14 @@
 package org.remote.desktop.db.dao;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.entity.Setting;
 import org.remote.desktop.db.repository.SettingsRepository;
 import org.remote.desktop.mapper.SettingMapper;
 import org.remote.desktop.model.dto.SettingDto;
 import org.remote.desktop.property.SettingsProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +19,9 @@ public class SettingsDao {
     private final SettingsRepository settingsRepository;
     private final SettingsProperties settingsProperties;
     private final SettingMapper settingMapper;
+
+    @Value("${server.port:8081}")
+    private int port;
 
     public void update(SettingDto dto) {
         settingsRepository.deleteAll();
@@ -47,7 +48,8 @@ public class SettingsDao {
     }
 
     public Integer getPort() {
-        return getSettings().getPort();
+        return Optional.ofNullable(getSettings().getPort())
+                .orElse(port);
     }
 
     public String getIpAddress() {
