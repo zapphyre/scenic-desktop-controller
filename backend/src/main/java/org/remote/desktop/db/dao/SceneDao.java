@@ -24,9 +24,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -157,5 +159,13 @@ public class SceneDao {
         return Optional.ofNullable(id)
                 .flatMap(function)
                 .orElse(null);
+    }
+
+    public List<String> getAllCurrentXdoStrokes() {
+        return xdoActionRepository.findAll().stream()
+                .map(XdoAction::getKeyStrokes)
+                .flatMap(Collection::stream)
+                .distinct()
+                .toList();
     }
 }

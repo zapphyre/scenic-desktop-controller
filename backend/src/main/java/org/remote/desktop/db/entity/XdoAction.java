@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.remote.desktop.model.EKeyEvt;
 
+import java.util.List;
 import java.util.Optional;
 
 @Data
@@ -20,13 +21,16 @@ public class XdoAction {
     @Enumerated(EnumType.STRING)
     private EKeyEvt keyEvt;
 
-    private String keyPress;
-
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private GamepadEvent gamepadEvent;
+
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "key_stroked", joinColumns = @JoinColumn(name = "xdo_action_id"))
+    @Column(name = "key_stroke", nullable = false)
+    private List<String> keyStrokes;
 
     @PreUpdate
     @PrePersist

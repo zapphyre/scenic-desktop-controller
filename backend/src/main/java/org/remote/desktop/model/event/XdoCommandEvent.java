@@ -7,6 +7,7 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.pojo.KeyPart;
 import org.springframework.context.ApplicationEvent;
 
+import java.util.List;
 import java.util.Objects;
 
 @Value
@@ -16,10 +17,10 @@ public class XdoCommandEvent extends ApplicationEvent {
     @EqualsAndHashCode.Exclude
     SceneDto nextScene;
 
-    public XdoCommandEvent(Object source, EKeyEvt keyEvt, String keyPress, SceneDto nextScene) {
+    public XdoCommandEvent(Object source, EKeyEvt keyEvt, List<String> keyStrokes, SceneDto nextScene) {
         super(source);
         this.nextScene = nextScene;
-        this.keyPart = new KeyPart(keyEvt, keyPress);
+        this.keyPart = new KeyPart(keyEvt, keyStrokes);
     }
 
     public XdoCommandEvent(KeyPart keyPart, Object source) {

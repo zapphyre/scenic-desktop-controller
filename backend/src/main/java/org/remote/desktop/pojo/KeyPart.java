@@ -6,17 +6,19 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EKeyEvt;
 
+import java.util.List;
+
 @Value
 @Builder
 @Jacksonized
 @RequiredArgsConstructor
 public class KeyPart {
     EKeyEvt keyEvt;
-    String keyPress;
+    List<String> keyStrokes;
 
     public KeyPart invert() {
         return KeyPart.builder()
-                .keyPress(keyPress)
+                .keyStrokes(keyStrokes)
                 .keyEvt(getKeyEvt() == EKeyEvt.PRESS ? EKeyEvt.RELEASE : EKeyEvt.PRESS)
                 .build();
     }
