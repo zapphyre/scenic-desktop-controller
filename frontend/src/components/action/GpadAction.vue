@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import Select from 'primevue/select';
+import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
@@ -8,7 +8,10 @@ import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, XdoAction} from "@
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-  import {onMounted, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
+
+const xdoStrokes = ref([]);
+
 
 const props = defineProps<{
   gpadEvent: GPadEvent;
@@ -20,7 +23,7 @@ const addNewAction = async () => {
     gamepadEventFk: props.gpadEvent.id,
     id: undefined,
     keyEvt: EKeyEvt.STROKE,
-    keyPress: undefined
+    keyStrokes: []
   };
   toSave.id = (await apiClient.post("saveXdoAction", toSave)).data;
   props.gpadEvent.actions.push(toSave);
@@ -35,18 +38,17 @@ const emit = defineEmits<{
   remove: [gPadEvent: GPadEvent];
 }>();
 
-  onMounted(() => {
-    console.log("will watch", props.gpadEvent);
-    // Watch the prop using a getter function
-    watch(
-        () => props.gpadEvent, // Getter that tracks changes to the prop
-        async (newGpadEvent, oldGpadEvent) => {
-          console.log('sending update', newGpadEvent);
-          await apiClient.put("updateGamepadEvent", newGpadEvent);
-        },
-        { deep: true } // Optional: if GPadEvent's internal properties change
-    );
-  });
+onMounted(async () => {
+
+  watch(
+      () => props.gpadEvent, // Getter that tracks changes to the prop
+      async (newGpadEvent, oldGpadEvent) => {
+        console.log('sending update', newGpadEvent);
+        await apiClient.put("updateGamepadEvent", newGpadEvent);
+      },
+      {deep: true} // Optional: if GPadEvent's internal properties change
+  );
+});
 </script>
 
 <template>
@@ -56,7 +58,7 @@ const emit = defineEmits<{
     <div class="card flex flex-wrap justify-center gap-4">
       <div class="flex items-center gap-2">
 
-        <div class="col-6" >
+        <div class="col-6">
           <div class="col-12" style="width: 100%">
             <div class="grid">
               <div class="col-1">
@@ -94,7 +96,8 @@ const emit = defineEmits<{
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
-                    <Checkbox :disabled="disabled" name="longPress" v-model="gpadEvent.longPress" binary label="Long Press"/>
+                    <Checkbox :disabled="disabled" name="longPress" v-model="gpadEvent.longPress" binary
+                              label="Long Press"/>
                   </div>
                 </div>
               </div>
@@ -117,6 +120,7 @@ const emit = defineEmits<{
         <div class="col-6" style="min-width: 552px">
           <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
                             :disabled="disabled"
+                            @addKeyStroke="q => act?.keyStrokes?.push(q)"
                             @remove="removeXdoAction"/>
           <div class="flex justify-content-center align-items-center justify-center">
             <Button :disabled="disabled" @click="addNewAction">Add Action</Button>

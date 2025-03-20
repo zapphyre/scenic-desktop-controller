@@ -3,7 +3,7 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import FloatLabel from 'primevue/floatlabel';
 import apiClient from '@/api';
-import {axisValues, EAxisEvent, GPadEvent, Scene} from '../../model/gpadOs'
+import {axisValues, EAxisEvent, GPadEvent, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 

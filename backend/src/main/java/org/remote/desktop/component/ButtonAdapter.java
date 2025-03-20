@@ -43,7 +43,7 @@ public class ButtonAdapter {
                 .flatMap(this::getNextSceneButtonEvent)
                 .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
                 .flatMap(q -> Flux.fromIterable(q.getActions())
-                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyPress(), q.getNextScene()))
+                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene()))
                 )
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }

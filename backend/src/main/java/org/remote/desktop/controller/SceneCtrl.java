@@ -58,6 +58,11 @@ public class SceneCtrl {
         return sceneDao.save(gamepadEventVto);
     }
 
+    @GetMapping("xdoStrokes")
+    public List<String> getAllCurrentXdoStrokes() {
+        return sceneDao.getAllCurrentXdoStrokes();
+    }
+
     @DeleteMapping("removeXdoAction")
     public void removeXdoAction(@RequestBody Long xdoActionId) {
         sceneDao.removeXdoAction(xdoActionId);

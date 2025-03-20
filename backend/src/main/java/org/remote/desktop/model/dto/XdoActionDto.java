@@ -8,12 +8,15 @@ import lombok.ToString;
 import lombok.Value;
 import org.remote.desktop.model.EKeyEvt;
 
+import java.util.List;
+
 @Value
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class XdoActionDto {
     Long id;
     EKeyEvt keyEvt;
-    String keyPress;
+
+    List<String> keyStrokes;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

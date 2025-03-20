@@ -23,7 +23,7 @@ export interface GPadEvent {
 export interface XdoAction {
     id: number | undefined;
     keyEvt: EKeyEvt | undefined;
-    keyPress: string | undefined;
+    keyStrokes: string[];
     gamepadEventFk: number | undefined;
 }
 
