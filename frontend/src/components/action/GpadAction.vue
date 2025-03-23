@@ -10,9 +10,6 @@ import _ from "lodash";
 import apiClient from "@/api";
 import {onMounted, ref, watch} from "vue";
 
-const xdoStrokes = ref([]);
-
-
 const props = defineProps<{
   gpadEvent: GPadEvent;
   disabled?: boolean | false;
@@ -40,13 +37,17 @@ const emit = defineEmits<{
 
 onMounted(async () => {
 
-  watch(
-      () => props.gpadEvent, // Getter that tracks changes to the prop
-      async (newGpadEvent, oldGpadEvent) => {
-        console.log('sending update', newGpadEvent);
-        await apiClient.put("updateGamepadEvent", newGpadEvent);
+  // console.log("props.gpadEvent", props.gpadEvent);
+  watch(() => props.gpadEvent, async (newGpadEvent, oldValue) => {
+        // console.log("trying update gpadEvent");
+
+        if (_.isEqual(props.gpadEvent, newGpadEvent)) return;
+
+        // console.log('sending update', newGpadEvent);
+        // console.log("oldValue", oldValue);
+        await apiClient.put("updateGamepadEvent", props.gpadEvent);
       },
-      {deep: true} // Optional: if GPadEvent's internal properties change
+      {immediate: false} // Optional: if GPadEvent's internal properties change
   );
 });
 </script>
@@ -66,7 +67,7 @@ onMounted(async () => {
               </div>
               <div class="col-4">
                 <Select
-                    v-model="gpadEvent.trigger"
+                    v-model="props.gpadEvent.trigger"
                     :options="buttonValues"
                     placeholder="Trigger"
                     class="input-item"
@@ -75,7 +76,7 @@ onMounted(async () => {
               </div>
               <div class="col-4">
                 <Select
-                    v-model="gpadEvent.multiplicity"
+                    v-model="props.gpadEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="input-item"
@@ -84,7 +85,7 @@ onMounted(async () => {
               </div>
               <div class="col-3">
                 <MultiSelect
-                    v-model="gpadEvent.modifiers"
+                    v-model="props.gpadEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="input-item"
@@ -96,7 +97,7 @@ onMounted(async () => {
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
-                    <Checkbox :disabled="disabled" name="longPress" v-model="gpadEvent.longPress" binary
+                    <Checkbox :disabled="disabled" name="longPress" v-model="props.gpadEvent.longPress" binary
                               label="Long Press"/>
                   </div>
                 </div>
@@ -105,7 +106,7 @@ onMounted(async () => {
               <div class="col-7">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
-                      v-model="gpadEvent.nextSceneNameFk"
+                      v-model="props.gpadEvent.nextSceneNameFk"
                       placeholder="Forced next scene"
                       class="input-item"
                       :disabled="disabled"
@@ -118,7 +119,8 @@ onMounted(async () => {
         </div>
 
         <div class="col-6" style="min-width: 552px">
-          <XdoActionSection v-for="act in gpadEvent.actions" :xdo-action="act"
+          <XdoActionSection v-for="act in props.gpadEvent.actions"
+                            :xdo-action="act"
                             :disabled="disabled"
                             @addKeyStroke="q => act?.keyStrokes?.push(q)"
                             @remove="removeXdoAction"/>

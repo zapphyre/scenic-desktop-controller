@@ -1,8 +1,10 @@
 import apiClient from "@/api";
+// import Scene from "@/GpadOs.vue";
 import { ref } from "vue";
 
 // Singleton state
 const strokes = ref([]); // Initialize as empty array
+const scenes = ref([]);
 let isInitialized = false; // Track if data has been fetched
 
 // Fetch strokes from API (called only once)
@@ -19,8 +21,22 @@ const fetchStrokes = async () => {
     }
 };
 
+
+const fetchScenes = async () => {
+    // if (!scenes.value) return; // Skip if already fetched
+
+    try {
+        // console.log("_______________getting scenes");
+        scenes.value = (await apiClient.get("allScenes")).data;
+        // console.log("fater fetch scenes", scenes.value);
+    } catch (error) {
+        console.error("Failed to fetch scenes:", error);
+    }
+};
+
 // Initialize the data immediately when the module is imported
-fetchStrokes();
+await fetchStrokes();
+await fetchScenes();
 
 // Export a function to access the strokes
 export const useStrokesStore = () => {
@@ -33,3 +49,5 @@ export const useStrokesStore = () => {
 
 // Optional: Export strokes directly if you just want the array
 export const getStrokes = () => strokes.value;
+export const getScenes = () => scenes.value;
+export const getSceneNameIdList = () => scenes.value.map((s) => ({name: s.name, id: s.id}));

@@ -6,6 +6,7 @@ import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 import org.remote.desktop.model.dto.GamepadEventDto;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +16,9 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
-public class Scene implements GamepadEventContainer<GamepadEvent, Scene> {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serializable {
 
     @Id
     @EqualsAndHashCode.Include
@@ -29,25 +30,22 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene> {
     private String name;
     private String windowName;
 
-    @ManyToOne
-    private Scene inherits;
+    @ManyToMany
+    @JoinTable(
+            name = "scene_inherits_from",
+            joinColumns = @JoinColumn(name = "scene_id"),
+            inverseJoinColumns = @JoinColumn(name = "parent_scene_id")
+    )
+    private List<Scene> inheritsFrom;
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true)
     private List<GamepadEvent> gamepadEvents = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent leftAxisEvent = EAxisEvent.MOUSE;
+    private EAxisEvent leftAxisEvent;
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent rightAxisEvent = EAxisEvent.SCROLL;
-
-    public EAxisEvent getLeftAxisEvent() {
-        return Optional.ofNullable(leftAxisEvent).orElse(EAxisEvent.MOUSE);
-    }
-
-    public EAxisEvent getRightAxisEvent() {
-        return Optional.ofNullable(rightAxisEvent).orElse(EAxisEvent.SCROLL);
-    }
+    private EAxisEvent rightAxisEvent;
 
     @PreUpdate
     @PrePersist

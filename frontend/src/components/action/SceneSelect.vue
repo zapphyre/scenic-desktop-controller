@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import Select from 'primevue/select';
+import Select, {SelectChangeEvent} from 'primevue/select';
 import Button from 'primevue/button';
 import FloatLabel from 'primevue/floatlabel';
+import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
-import {axisValues, EAxisEvent, GPadEvent, Scene} from '@/model/gpadOs'
+import {getSceneNameIdList, getScenes} from "@/api/store";
+import {axisValues, EAxisEvent, GPadEvent, NameId, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
@@ -12,8 +14,8 @@ import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
 const selectedSceneRef = ref<Scene>();
-const inheritedAvailableRef = ref<string[]>();
-const inheritedRef = ref<string>();
+const inheritedAvailableRef = ref<NameId[]>();
+const inheritedRef = ref<NameId[]>();
 const allSceneNames = ref<string[]>([]);
 const dialogScene = ref<Scene>();
 const dialogVisible = ref(false);
@@ -22,29 +24,25 @@ const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
 
 const fetchScenes = async () => {
-  const scenes = await apiClient.get("allScenes");
-  console.log(scenes.data);
-  scenesRef.value = scenes.data;
-  allSceneNames.value = scenes.data.map((q: Scene) => q.name);
+  scenesRef.value = getScenes();
+  allSceneNames.value = getScenes().map((q: Scene) => q.name);
 }
 
-const changedScene = (event: any) => {
+const changedScene = (event: SelectChangeEvent) => {
   selectedSceneRef.value = event.value;
 
   selectedSceneRef.value?.gamepadEvents.sort((a: GPadEvent, b: GPadEvent) => (b.id ?? 0) - (a.id ?? 0));
 
-  inheritedAvailableRef.value = scenesRef.value
-      .filter(s => s.name !== event.value?.name)
-      .map(q => (q.name));
-  inheritedRef.value = selectedSceneRef.value?.inheritsNameFk;
+  inheritedAvailableRef.value = getSceneNameIdList()
+      .filter(s => s.id !== event.value?.id)
+
+  inheritedRef.value = getSceneNameIdList().filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id));
+
+  console.log("inheritedAvailableRef.value", inheritedAvailableRef.value);
+  console.log("inheritedRef.value", inheritedRef.value);
+
   leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
-}
-
-const inheritedChanged = async (event: any) => {
-  selectedSceneRef.value!.inheritsNameFk = inheritedRef.value;
-
-  await apiClient.put("updateScene", selectedSceneRef.value)
 }
 
 const changedLeftAxis = (event: any) => {
@@ -65,13 +63,26 @@ const addNewGamepadEvent = async () => {
 
   watch(gPadEvent, async (q) => {
     console.log('sending update', gPadEvent);
-    await apiClient.put("updateGamepadEvent", gPadEvent);
+    // await apiClient.put("updateGamepadEvent", gPadEvent);
   });
 }
 
 const removeGpadEvent = async (gpadEvent: GPadEvent) => {
   await apiClient.delete("removeGamepadEvent", {data: gpadEvent.id});
   _.remove(selectedSceneRef?.value?.gamepadEvents ?? [], q => q === gpadEvent);
+}
+
+const changedInherents = async (q: any) => {
+  selectedSceneRef.value!.inheritsIdFk = q.value.map((p: NameId) => p.id);
+  // console.log("selectedSceneRef.value!.inheritsIdFk", selectedSceneRef.value!.inheritsIdFk);
+  await apiClient.put("updateScene", selectedSceneRef.value);
+
+  apiClient.get(`inherents/${selectedSceneRef.value?.id}`)
+      .then((res) => res.data)
+      .then(q => {
+        console.log('inheritedGamepadEvents', q);
+        selectedSceneRef.value!.inheritedGamepadEvents = q
+      })
 }
 
 let newSceneDialog = false;
@@ -92,8 +103,7 @@ const dialogOk = async (q: Scene) => {
     dialogScene.value!!.id = (await apiClient.post("saveScene", q)).data;
     console.log("adding new scene to list", dialogScene.value);
     scenesRef.value.push(dialogScene.value!!);
-  }
-  else {
+  } else {
     await apiClient.put("updateScene", q);
   }
 
@@ -144,12 +154,20 @@ onMounted(fetchScenes);
       <div class="grid">
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
-            <Select name="inherited"
-                    @change="inheritedChanged"
-                    v-model="inheritedRef"
-                    :options="inheritedAvailableRef"
-                    class="w-full"/>
-            <label for="inherited">Inherited</label>
+            <MultiSelect
+                v-model="inheritedRef"
+                :options="inheritedAvailableRef"
+                placeholder="Inherits From"
+                optionLabel="name"
+                class="w-full"
+                @change="changedInherents"
+            />
+            <!--            <Select name="inherited"-->
+            <!--                    @change="inheritedChanged"-->
+            <!--                    v-model="inheritedRef"-->
+            <!--                    :options="inheritedAvailableRef"-->
+            <!--                    class="w-full"/>-->
+            <!--            <label for="inherited">Inherited</label>-->
           </FloatLabel>
         </div>
 

@@ -22,7 +22,7 @@ public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto
     String name;
     String windowName;
 
-    SceneDto inherits;
+    List<SceneDto> inheritsFrom;
 
     EAxisEvent leftAxisEvent;
     EAxisEvent rightAxisEvent;

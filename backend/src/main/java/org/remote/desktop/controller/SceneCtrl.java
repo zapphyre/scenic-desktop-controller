@@ -23,6 +23,11 @@ public class SceneCtrl {
         return sceneDao.getAllSceneVtos();
     }
 
+    @GetMapping("inherents/{sceneId}")
+    public List<GamepadEventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
+        return sceneDao.getInherentsRecurcivelyFor(sceneId);
+    }
+
     @PostMapping("saveScene")
     public Long saveScene(@RequestBody SceneVto sceneVto) {
         return sceneDao.save(sceneVto);

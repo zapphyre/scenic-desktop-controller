@@ -5,7 +5,6 @@ import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.SceneVto;
-import org.remote.desktop.service.GPadEventStreamService;
 import org.remote.desktop.util.RecursiveScraper;
 
 import java.util.List;
@@ -32,32 +31,39 @@ public interface SceneMapper {
     }
 
     @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
-    @Mapping(target = "inheritsNameFk", source = "inherits.name")
+    @Mapping(target = "inheritsIdFk", source = "inheritsFrom", qualifiedByName = "mapInheritNames")
     SceneVto map(Scene entity);
+
+    @Named("mapInheritNames")
+    default List<Long> mapInheritNames(List<Scene> inherits) {
+        return inherits.stream()
+                .map(Scene::getId)
+                .toList();
+    }
 
     @Named("inheritedEvents")
     default List<GamepadEvent> mapInherents(Scene entity) {
         return scraper.scrapeActionsRecursive(entity);
     }
 
-    default Consumer<Scene> update(SceneVto source, Scene inherits) {
+    default Consumer<Scene> update(SceneVto source, List<Scene> inherits) {
         return q -> update(q, source, inherits);
     }
 
-    @Mapping(target = "inherits", ignore = true)
+    @Mapping(target = "inheritsFrom", ignore = true)
     @Mapping(target = "gamepadEvents", ignore = true)
-    void update(@MappingTarget Scene target, SceneVto source, @Context Scene inherits);
+    void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits);
 
-    @Mapping(target = "inherits", ignore = true)
+    @Mapping(target = "inheritsFrom", ignore = true)
     @Mapping(target = "gamepadEvents", ignore = true)
-    Scene map(SceneVto vto, @Context Scene inherits);
+    Scene map(SceneVto vto, @Context List<Scene> inherits);
 
     @AfterMapping
-    default void afterUpdate(@MappingTarget Scene target, @Context Scene inherits) {
-        target.setInherits(inherits);
+    default void afterUpdate(@MappingTarget Scene target, @Context List<Scene> inherits) {
+        target.setInheritsFrom(inherits);
     }
 
-    default Function<SceneVto, Scene> mapToEntity(Scene inherits) {
+    default Function<SceneVto, Scene> mapWithInherents(List<Scene> inherits) {
         return q -> map(q, inherits);
     }
 }

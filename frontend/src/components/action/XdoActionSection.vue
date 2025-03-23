@@ -5,16 +5,17 @@ import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
 import {actionValues, XdoAction} from "@/model/gpadOs";
 import {onMounted, ref, watch} from "vue";
-import {getStrokes} from "@/api/store";
+import {getStrokes, useStrokesStore} from "@/api/store";
 import apiClient from '@/api';
+import _ from "lodash";
 
-const filteredStrokes = ref();
-const strokes = ref();
-const filtered = ref();
+const filteredStrokes = ref<string[]>();
+const strokes = ref<string[]>([]);
+const filtered = ref<string>();
 
 const props = defineProps<{
   xdoAction: XdoAction;
-  disabled?: boolean | false;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -22,87 +23,131 @@ const emit = defineEmits<{
   addKeyStroke: [stroke: string];
 }>();
 
-const add = (q: any) => {
-  getStrokes().push(filtered.value);
-  filteredStrokes.value = getStrokes();
-  strokes.value.push(filtered.value);
+// Access the store's reactive ref for all strokes
+const {strokesRef} = useStrokesStore();
 
-  filtered.value = undefined;
+const add = async () => {
+  console.log("add invoked");
+  if (filtered.value && !strokesRef.value.includes(filtered.value)) {
+    // Add to all available strokes (store)
+    strokesRef.value.push(filtered.value);
+  }
+  if (filtered.value && !strokes.value.includes(filtered.value)) {
+    // Add to selected strokes
+    strokes.value.push(filtered.value);
+    // emit('addKeyStroke', filtered.value); // Notify parent
+  }
+  filtered.value = undefined; // Clear filter
+  filterChange(); // Update filtered options
+  await apiClient.put("updateXdoAction", props.xdoAction);
+
+  // changed();
+};
+
+const filterChange = () => {
+  // filteredStrokes.value = getStrokes().filter((p: string) =>
+  //     filtered.value ? p.includes(filtered.value) : true
+  // );
+  filteredStrokes.value = getStrokes().filter((p: string) => p.includes(filtered.value || ""));
+
+  if (filtered.value)
+    filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);
+
+  console.log("strokes.value", strokes.value);
+  console.log("filteredStrokes.value", filteredStrokes.value);
+};
+
+const changed = async (e: any) => {
+  props.xdoAction.keyStrokes = e.value;
+  await apiClient.put("updateXdoAction", props.xdoAction);
 }
 
-const filterChange = (q: any) => {
-  filteredStrokes.value = getStrokes().filter((p: string) => p.includes(filtered.value));
+const evtTypeChanged = async (e: any) => {
+  await apiClient.put("updateXdoAction", props.xdoAction);
 }
 
 onMounted(() => {
-  filteredStrokes.value = getStrokes();
-  strokes.value = props.xdoAction.keyStrokes || [];
+  strokes.value = [...props.xdoAction.keyStrokes]; // Sync initial strokes
+  filterChange();
+  // console.log("Initial strokes:", strokes.value);
 
-  watch(() => strokes.value, async (q) => {
-    props.xdoAction.keyStrokes = strokes.value;
-    console.log("filtered.value", strokes.value);
-    await apiClient.put("updateXdoAction", props.xdoAction)
-  }, {deep: true});
-})
+  // Sync strokes with props.xdoAction.keyStrokes
+  // watch(
+  //     () => props.xdoAction.keyStrokes,
+  //     (newKeyStrokes) => {
+  //       strokes.value = [...newKeyStrokes];
+  //       console.log("Props keyStrokes updated:", newKeyStrokes);
+  //     },
+  //     { deep: true, immediate: false }
+  // );
 
-const handleFilter = (event: any) => {
-  filtered.value = event.value;
-}
+// Update parent and API when strokes change
+//   watch(
+//       strokes,
+//       async (newStrokes, oldValue) => {
+//         if (_.isEqual(newStrokes, strokes.value)) return;
+//
+//         console.log("strokes.value", strokes.value);
+//         console.log("newStrokes", newStrokes);
+//         console.log("oldValue", oldValue);
+//
+//         console.log('not equa$$$$$$$$$$$$$$$$l');
+//         props.xdoAction.keyStrokes = newStrokes;
+//         await apiClient.put("updateXdoAction", { ...props.xdoAction, keyStrokes: newStrokes });
+//       },
+//       { deep: true, immediate: false }
+//   );
+});
 
-</script>target
+// const handleFilter = (event: any) => {
+//   filtered.value = event.value;
+//   filterChange();
+// };
+</script>
 
 <template>
-
   <div class="grid grid-nogutter">
-    <div class=" flex flex-wrap justify-center">
+    <div class="flex flex-wrap justify-center">
       <div class="flex items-center">
         <div class="col">
           <Select
-              v-model="xdoAction.keyEvt"
+              v-model="props.xdoAction.keyEvt"
               :options="actionValues"
               placeholder="XdoActionType"
               class="input-item"
               :disabled="disabled"
+              @change="evtTypeChanged"
           />
         </div>
         <div class="col">
           <MultiSelect
-              ref="multipleSelect"
+              :disabled="disabled"
               v-model="strokes"
               :options="filteredStrokes"
               placeholder="Select key strokes"
-              @filter="handleFilter"
               class="w-full"
+              @change="changed"
           >
-            <!-- Header Template -->
             <template #header>
               <div class="header">Available Key Strokes</div>
               <div>
                 <InputText
                     name="keystrokesSearch"
                     v-model="filtered"
-                    @value-change="filterChange"
+                    @input="filterChange"
                     @keyup.enter="add"
                     placeholder="Search or Create"
                 />
               </div>
             </template>
-
-            <!-- Footer Template with Add New Button -->
-            <template #footer>
-              <div class="footer">
-                <button
-                    @click="add"
-                    class="add-button"
-                >
-                  Add New
-                </button>
-              </div>
-            </template>
           </MultiSelect>
         </div>
         <div class="col">
-          <Button :disabled="disabled" @click="() => emit('remove', props.xdoAction)" icon="pi pi-trash"/>
+          <Button
+              :disabled="disabled"
+              @click="() => emit('remove', props.xdoAction)"
+              icon="pi pi-trash"
+          />
         </div>
       </div>
     </div>
@@ -112,5 +157,22 @@ const handleFilter = (event: any) => {
 <style scoped>
 .input-item {
   min-width: 11rem;
+}
+
+.header {
+  padding: 10px;
+}
+
+.footer {
+  padding: 10px;
+}
+
+.add-button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>

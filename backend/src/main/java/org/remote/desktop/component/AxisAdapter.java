@@ -46,8 +46,8 @@ public class AxisAdapter {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            leftStickConsumer = findCoordsConsumer(windowName, SceneDto::getLeftAxisEvent);
-            rightStickConsumer = findCoordsConsumer(windowName, SceneDto::getRightAxisEvent);
+            leftStickConsumer = axisEventMap.get(sceneDao.getSceneForWindowNameOrBase(windowName).getLeftAxisEvent());
+            rightStickConsumer = axisEventMap.get(sceneDao.getSceneForWindowNameOrBase(windowName).getRightAxisEvent());
 
             cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
                     .put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));
@@ -55,23 +55,6 @@ public class AxisAdapter {
             leftStickConsumer = consumers.leftStickConsumer;
             rightStickConsumer = consumers.rightStickConsumer;
         }
-    }
-
-    Consumer<PolarCoords> findCoordsConsumer(String windowName, Function<SceneDto, EAxisEvent> getter) {
-        return Optional.of(windowName)
-                .map(sceneDao::getSceneForWindowNameOrBase)
-                .map(axisEventCurrentOrInherited(getter))
-                .map(axisEventMap::get)
-                .orElse(q -> {});
-    }
-
-    Function<SceneDto, EAxisEvent> axisEventCurrentOrInherited(Function<SceneDto, EAxisEvent> getter) {
-        return q -> getter.apply(q) == EAxisEvent.INHERITED ?
-                getAxisEventOrNoop(q.getInherits(), getter) : getAxisEventOrNoop(q, getter);
-    }
-
-    EAxisEvent getAxisEventOrNoop(SceneDto current, Function<SceneDto, EAxisEvent> getter) {
-        return Optional.ofNullable(current).map(getter).orElse(EAxisEvent.NOOP);
     }
 
     public void getRightStickConsumer(PolarCoords pos) {
