@@ -4,9 +4,14 @@ export interface Scene {
     windowName: string;
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
-    inheritsNameFk: string | undefined;
+    inheritsIdFk: number[] | undefined;
     gamepadEvents: GPadEvent[];
     inheritedGamepadEvents: GPadEvent[];
+}
+
+export interface NameId {
+    name: string;
+    id: number;
 }
 
 export interface GPadEvent {
