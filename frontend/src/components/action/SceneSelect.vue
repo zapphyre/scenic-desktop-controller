@@ -56,15 +56,15 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const gPadEvent = {parentSceneFk: selectedSceneRef.value?.name, actions: []} as GPadEvent;
+  const gPadEvent = {parentFk: selectedSceneRef.value?.name} as GPadEvent;
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
 
-  watch(gPadEvent, async (q) => {
-    console.log('sending update', gPadEvent);
-    // await apiClient.put("updateGamepadEvent", gPadEvent);
-  });
+  // watch(gPadEvent, async (q) => {
+  //   console.log('sending update', gPadEvent);
+  //   // await apiClient.put("updateGamepadEvent", gPadEvent);
+  // });
 }
 
 const removeGpadEvent = async (gpadEvent: GPadEvent) => {
@@ -108,6 +108,8 @@ const dialogOk = async (q: Scene) => {
   }
 
   selectedSceneRef.value = q;
+  leftAxisRef.value = selectedSceneRef.value.leftAxisEvent;
+  rightAxisRef.value = selectedSceneRef.value.rightAxisEvent;
 }
 
 onMounted(fetchScenes);
@@ -201,13 +203,13 @@ onMounted(fetchScenes);
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
         <div v-for="action in selectedSceneRef.gamepadEvents">
-          <GpadAction :gpadEvent="action" @remove="removeGpadEvent"/>
+          <GpadAction :selected-scene-id="selectedSceneRef.id!" :gpadEvent="action" @remove="removeGpadEvent"/>
         </div>
       </div>
       <div v-if="selectedSceneRef">
         <div class="col">
           <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
-            <GpadAction :disabled="true" :gpadEvent="ihr"/>
+            <GpadAction :selected-scene-id="selectedSceneRef.id!" :disabled="true" :gpadEvent="ihr"/>
           </div>
         </div>
       </div>

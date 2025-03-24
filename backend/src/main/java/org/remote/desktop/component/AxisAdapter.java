@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.dto.SceneDto;
@@ -13,15 +14,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
 public class AxisAdapter {
 
     private final SceneDao sceneDao;
+    private final SettingsDao settingsDao;
     private final SceneStateRepository sceneStateRepository;
     private final CacheManager cacheManager;
 
@@ -37,7 +37,7 @@ public class AxisAdapter {
 
     @PostConstruct
     void init() {
-        updateAxisConsumers("Base");
+        updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
 
         sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
     }
@@ -46,8 +46,16 @@ public class AxisAdapter {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            leftStickConsumer = axisEventMap.get(sceneDao.getSceneForWindowNameOrBase(windowName).getLeftAxisEvent());
-            rightStickConsumer = axisEventMap.get(sceneDao.getSceneForWindowNameOrBase(windowName).getRightAxisEvent());
+            EAxisEvent leftAxisEvent = sceneDao.getSceneForWindowNameOrBase(windowName).getLeftAxisEvent();
+            EAxisEvent rightAxisEvent = sceneDao.getSceneForWindowNameOrBase(windowName).getRightAxisEvent();
+
+            SceneDto base = sceneDao.getScene(settingsDao.getSettings().getBaseSceneName());
+
+            leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
+            rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
+
+            leftStickConsumer = axisEventMap.get(leftAxisEvent);
+            rightStickConsumer = axisEventMap.get(rightAxisEvent);
 
             cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
                     .put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));

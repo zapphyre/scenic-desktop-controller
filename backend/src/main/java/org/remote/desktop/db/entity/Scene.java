@@ -30,7 +30,7 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
     private String name;
     private String windowName;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "scene_inherits_from",
             joinColumns = @JoinColumn(name = "scene_id"),
@@ -38,19 +38,24 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
     )
     private List<Scene> inheritsFrom;
 
-    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<GamepadEvent> gamepadEvents = new LinkedList<>();
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent leftAxisEvent;
+    private EAxisEvent leftAxisEvent = EAxisEvent.DEFAULT;
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent rightAxisEvent;
+    private EAxisEvent rightAxisEvent = EAxisEvent.DEFAULT;
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
         Optional.ofNullable(gamepadEvents)
                 .ifPresent(q -> q.forEach(p -> p.setScene(this)));
+    }
+
+    @PreRemove
+    public void preremove() {
+        gamepadEvents.forEach(p -> p.setScene(null));
     }
 }

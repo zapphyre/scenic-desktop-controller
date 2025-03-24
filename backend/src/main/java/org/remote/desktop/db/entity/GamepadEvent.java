@@ -44,7 +44,7 @@ public class GamepadEvent {
     @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
     private List<String> modifiers;
 
-    @OneToMany(mappedBy = "gamepadEvent", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "gamepadEvent", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.DETACH, CascadeType.REMOVE})
     private List<XdoAction> actions = new ArrayList<>();
 
     @JoinColumn

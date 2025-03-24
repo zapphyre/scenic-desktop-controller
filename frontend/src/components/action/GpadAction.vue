@@ -4,15 +4,19 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, XdoAction} from "@/model/gpadOs";
+import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, NameId, XdoAction} from "@/model/gpadOs";
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {onMounted, ref, watch} from "vue";
+import {getSceneNameIdList, getScenes} from "@/api/store";
+import {onMounted, ref} from "vue";
+
+const forcedAvailableRef = ref<NameId[]>();
 
 const props = defineProps<{
   gpadEvent: GPadEvent;
   disabled?: boolean | false;
+  selectedSceneId: number
 }>();
 
 const addNewAction = async () => {
@@ -31,25 +35,23 @@ const removeXdoAction = async (action: XdoAction) => {
   _.remove(props.gpadEvent.actions, q => q === action);
 }
 
+const change = async () => {
+  console.log("changed");
+  await apiClient.put("updateGamepadEvent", props.gpadEvent);
+}
+
+const forcedChanged = async () => {
+  forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
+  await apiClient.put("updateGamepadEvent", props.gpadEvent);
+}
+
 const emit = defineEmits<{
   remove: [gPadEvent: GPadEvent];
 }>();
 
-onMounted(async () => {
-
-  // console.log("props.gpadEvent", props.gpadEvent);
-  watch(() => props.gpadEvent, async (newGpadEvent, oldValue) => {
-        // console.log("trying update gpadEvent");
-
-        if (_.isEqual(props.gpadEvent, newGpadEvent)) return;
-
-        // console.log('sending update', newGpadEvent);
-        // console.log("oldValue", oldValue);
-        await apiClient.put("updateGamepadEvent", props.gpadEvent);
-      },
-      {immediate: false} // Optional: if GPadEvent's internal properties change
-  );
-});
+onMounted(() => {
+  forcedChanged();
+})
 </script>
 
 <template>
@@ -71,6 +73,7 @@ onMounted(async () => {
                     :options="buttonValues"
                     placeholder="Trigger"
                     class="input-item"
+                    @change="change"
                     :disabled="disabled"
                 />
               </div>
@@ -80,6 +83,7 @@ onMounted(async () => {
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="input-item"
+                    @change="change"
                     :disabled="disabled"
                 />
               </div>
@@ -89,6 +93,7 @@ onMounted(async () => {
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="input-item"
+                    @change="change"
                     :disabled="disabled"
                 />
               </div>
@@ -98,6 +103,7 @@ onMounted(async () => {
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
                     <Checkbox :disabled="disabled" name="longPress" v-model="props.gpadEvent.longPress" binary
+                              @change="change"
                               label="Long Press"/>
                   </div>
                 </div>
@@ -106,9 +112,13 @@ onMounted(async () => {
               <div class="col-7">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
-                      v-model="props.gpadEvent.nextSceneNameFk"
+                      v-model="props.gpadEvent.nextSceneFk"
+                      :options="forcedAvailableRef"
+                      option-value="id"
+                      option-label="name"
                       placeholder="Forced next scene"
                       class="input-item"
+                      @change="forcedChanged"
                       :disabled="disabled"
                   />
                 </div>

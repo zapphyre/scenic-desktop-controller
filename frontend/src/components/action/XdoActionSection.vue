@@ -53,8 +53,8 @@ const filterChange = () => {
   if (filtered.value)
     filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);
 
-  console.log("strokes.value", strokes.value);
-  console.log("filteredStrokes.value", filteredStrokes.value);
+  // console.log("strokes.value", strokes.value);
+  // console.log("filteredStrokes.value", filteredStrokes.value);
 };
 
 const changed = async (e: any) => {
@@ -72,14 +72,14 @@ onMounted(() => {
   // console.log("Initial strokes:", strokes.value);
 
   // Sync strokes with props.xdoAction.keyStrokes
-  // watch(
-  //     () => props.xdoAction.keyStrokes,
-  //     (newKeyStrokes) => {
-  //       strokes.value = [...newKeyStrokes];
-  //       console.log("Props keyStrokes updated:", newKeyStrokes);
-  //     },
-  //     { deep: true, immediate: false }
-  // );
+  watch(
+      () => props.xdoAction.keyStrokes,
+      (newKeyStrokes) => {
+        strokes.value = [...newKeyStrokes];
+        // console.log("Props keyStrokes updated:", newKeyStrokes);
+      },
+      { deep: true, immediate: false }
+  );
 
 // Update parent and API when strokes change
 //   watch(
@@ -125,7 +125,7 @@ onMounted(() => {
               v-model="strokes"
               :options="filteredStrokes"
               placeholder="Select key strokes"
-              class="w-full"
+              class="w-full input-item"
               @change="changed"
           >
             <template #header>

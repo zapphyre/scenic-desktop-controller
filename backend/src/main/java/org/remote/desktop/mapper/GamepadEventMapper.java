@@ -30,8 +30,8 @@ public interface GamepadEventMapper {
         return q -> update(src, q, new CycleAvoidingMappingContext());
     }
 
-    @Mapping(target = "nextSceneNameFk", source = "nextScene.name")
-    @Mapping(target = "parentSceneFk", source = "scene.name")
+    @Mapping(target = "nextSceneFk", source = "nextScene.id")
+    @Mapping(target = "parentFk", source = "scene.id")
     GamepadEventVto map(GamepadEvent evt);
 
     List<GamepadEventVto> map(List<GamepadEvent> events);
