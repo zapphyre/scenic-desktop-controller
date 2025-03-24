@@ -20,8 +20,8 @@ public class GamepadEventVto {
     EButtonAxisMapping trigger;
     boolean longPress;
 
-    String parentSceneFk;
-    String nextSceneNameFk;
+    Long parentFk;
+    Long nextSceneFk;
 
     Set<EButtonAxisMapping> modifiers;
 

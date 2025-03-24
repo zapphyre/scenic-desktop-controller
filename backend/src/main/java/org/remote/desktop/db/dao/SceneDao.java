@@ -12,6 +12,7 @@ import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.GamepadEventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
+import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
@@ -71,6 +72,12 @@ public class SceneDao {
         return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
     }
 
+    public List<SceneDto> getAllMatchingScenes(String sceneName) {
+        return sceneRepository.findBySceneContain(sceneName).stream()
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .toList();
+    }
+
     @Cacheable(SCENE_CACHE_NAME)
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()
@@ -101,8 +108,8 @@ public class SceneDao {
                 .map(GamepadEventVto::getId)
                 .flatMap(gamepadEventRepository::findById)
                 .ifPresent(gamepadEventMapper.update(vto,
-                        nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findByName),
-                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findByName)
+                        nullableRepoOp(vto.getParentFk(), sceneRepository::findById),
+                        nullableRepoOp(vto.getNextSceneFk(), sceneRepository::findById)
                 ));
     }
 
@@ -117,7 +124,6 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public Long save(SceneVto vto) {
         return Optional.of(vto)
-//                .map(sceneMapper.mapToEntity(sceneRepository.findAllById(vto.getInheritsIdFk())))
                 .map(sceneMapper.mapWithInherents(safeRepo(sceneRepository::findAllById, vto.getInheritsIdFk())))
                 .map(sceneRepository::save)
                 .map(Scene::getId)
@@ -127,8 +133,8 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, WINDOW_SCENE_CACHE_NAME, SCENE_NAME_CACHE_NAME, SCENE_AXIS_CACHE_NAME, SCENE_CLICK_RELEVANCE}, allEntries = true)
     public Long save(GamepadEventVto vto) {
         return Optional.of(vto)
-                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentSceneFk(), sceneRepository::findByName),
-                        nullableRepoOp(vto.getNextSceneNameFk(), sceneRepository::findByName))
+                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentFk(), sceneRepository::findById),
+                        nullableRepoOp(vto.getNextSceneFk(), sceneRepository::findById))
                 )
                 .map(gamepadEventRepository::save)
                 .map(GamepadEvent::getId)

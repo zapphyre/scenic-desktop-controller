@@ -18,10 +18,10 @@ export interface GPadEvent {
     id: number | undefined;
     trigger: EButtonAxisMapping | undefined;
     longPress: boolean;
-    nextSceneNameFk: string | undefined;
-    parentSceneFk: string | undefined;
+    nextSceneFk: number | undefined;
+    parentFk: number | undefined;
     modifiers: EButtonAxisMapping[] | [];
-    actions: XdoAction[] | [];
+    actions: XdoAction[];
     multiplicity: EMultiplicity;
 }
 
@@ -109,7 +109,7 @@ export enum EButtonAxisMapping {
 }
 
 export enum EAxisEvent {
-    MOUSE, SCROLL, VOL, INHERITED, NOOP
+    MOUSE, SCROLL, VOL, NOOP, DEFAULT
 }
 
 export const buttonValues = Object.values(EButtonAxisMapping)
