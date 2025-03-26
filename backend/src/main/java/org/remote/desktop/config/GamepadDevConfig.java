@@ -2,6 +2,7 @@ package org.remote.desktop.config;
 
 import jakarta.annotation.PreDestroy;
 import org.asmus.builder.EventProducer;
+import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,11 @@ public class GamepadDevConfig {
     @Bean
     public JoyWorker createTimedButtonGamepadFactory() {
         return eventProducer.getWorker();
+    }
+
+    @Bean
+    public IntrospectedEventFactory introspectedEventFactory() {
+        return new IntrospectedEventFactory();
     }
 
     @PreDestroy

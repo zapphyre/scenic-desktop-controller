@@ -164,12 +164,6 @@ onMounted(fetchScenes);
                 class="w-full"
                 @change="changedInherents"
             />
-            <!--            <Select name="inherited"-->
-            <!--                    @change="inheritedChanged"-->
-            <!--                    v-model="inheritedRef"-->
-            <!--                    :options="inheritedAvailableRef"-->
-            <!--                    class="w-full"/>-->
-            <!--            <label for="inherited">Inherited</label>-->
           </FloatLabel>
         </div>
 

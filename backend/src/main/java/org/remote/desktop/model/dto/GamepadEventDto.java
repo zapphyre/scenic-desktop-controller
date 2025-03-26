@@ -20,7 +20,7 @@ import java.util.List;
 public class GamepadEventDto implements Behavioral {
 
     Long id;
-    EButtonAxisMapping trigger;
+    String trigger;
     boolean longPress;
 
     @ToString.Exclude

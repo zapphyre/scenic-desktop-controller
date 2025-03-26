@@ -10,7 +10,7 @@ import java.util.Set;
 @Value
 @Builder
 public class ActionMatch {
-    EButtonAxisMapping trigger;
+    String trigger;
     @Builder.Default
     Set<EButtonAxisMapping> modifiers = new HashSet<>();
     boolean longPress;
