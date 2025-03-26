@@ -29,10 +29,8 @@ public class ButtonAdapter {
     private final ButtonPressMapper buttonPressMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final GPadEventStreamService gPadEventStreamService;
-    private final SceneStateRepository actuatedStateRepository;
-    private final SceneStateRepository sceneStateRepository;
-
-    private final IntrospectedEventFactory gamepadObserver = new IntrospectedEventFactory();
+    private final IntrospectedEventFactory gamepadObserver;
+    private final TriggerActionMatcher triggerActionMatcher;
 
     @PostConstruct
     void employController() {
@@ -40,11 +38,8 @@ public class ButtonAdapter {
                 .map(buttonPressMapper::map)
                 .filter(gPadEventStreamService::consumedEventLeftovers)
                 .filter(gPadEventStreamService::isCurrentClickQualificationSceneRelevant)
-                .flatMap(this::getNextSceneButtonEvent)
-                .filter(q -> gPadEventStreamService.addAppliedCommand(q.getButtonTrigger()))
-                .flatMap(q -> Flux.fromIterable(q.getActions())
-                        .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene()))
-                )
+                .filter(gPadEventStreamService::addAppliedCommand)
+                .flatMap(triggerActionMatcher.actionPickPipeline)
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
@@ -54,23 +49,5 @@ public class ButtonAdapter {
 
     public Consumer<Map<String, Integer>> getArrowConsumer() {
         return gamepadObserver.getArrowsStream()::processArrowEvents;
-    }
-
-    Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
-        return actuatedStateRepository.isSceneForced() ?
-                getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q) :
-                getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q);
-    }
-
-    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ActionMatch, NextSceneXdoAction>> paramGetter,
-                                              P param,
-                                              ButtonActionDef buttons) {
-        return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
-                .mapNotNull(getActionsForButtons(buttonPressMapper.map(buttons)))
-                .map(q -> q.withButtonTrigger(buttons));
-    }
-
-    Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
-        return q -> q.get(def);
     }
 }

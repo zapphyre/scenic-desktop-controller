@@ -17,7 +17,7 @@ import java.util.Set;
 public class GamepadEventVto {
 
     Long id;
-    EButtonAxisMapping trigger;
+    String trigger;
     boolean longPress;
 
     Long parentFk;

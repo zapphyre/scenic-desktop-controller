@@ -37,11 +37,13 @@ public class GPadEventStreamService {
 
     public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
         return q -> sameAsClick(click).test(q.getTrigger()) ||
-                q.getModifiers().stream().anyMatch(sameAsClick(click));
+                q.getModifiers().stream()
+                        .map(Enum::name)
+                        .anyMatch(sameAsClick(click));
     }
 
-    public Predicate<EButtonAxisMapping> sameAsClick(ButtonActionDef click) {
-        return q -> q == click.getTrigger();
+    public Predicate<String> sameAsClick(ButtonActionDef click) {
+        return click.getTrigger()::equals;
     }
 
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
