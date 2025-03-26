@@ -25,10 +25,11 @@ public class TriggerAdapter {
                 .subscribe(System.out::println);
     }
 
-    public Consumer<Map<String, Integer>> getTriggerProcessor() {
-        return q -> {
-            gamepadObserver.leftTriggerStream().processArrowEvents(q);
-            gamepadObserver.rightTriggerStream().processArrowEvents(q);
-        };
+    public Consumer<Map<String, Integer>> getLeftTriggerProcessor() {
+        return gamepadObserver.leftTriggerStream()::processArrowEvents;
+    }
+
+    public Consumer<Map<String, Integer>> getRightTriggerProcessor() {
+        return gamepadObserver.rightTriggerStream()::processArrowEvents;
     }
 }
