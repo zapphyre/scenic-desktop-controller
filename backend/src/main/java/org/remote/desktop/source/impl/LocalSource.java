@@ -29,13 +29,14 @@ public class LocalSource implements ConnectableSource {
     private final AxisAdapter axisAdapter;
     private final SettingsDao settingsDao;
 
-    private boolean connected = false;
+    private ESourceEvent state;
 
     @Override
     public ESourceEvent connect() {
         Disposable disposable = worker.getButtonStream().subscribe(buttonAdapter.getButtonConsumer());
         Disposable disposable1 = worker.getAxisStream().subscribe(buttonAdapter.getArrowConsumer());
-        worker.getAxisStream().subscribe(triggerAdapter.getTriggerProcessor());
+        worker.getAxisStream().subscribe(triggerAdapter.getLeftTriggerProcessor());
+        worker.getAxisStream().subscribe(triggerAdapter.getRightTriggerProcessor());
 
         Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
         Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
@@ -45,8 +46,7 @@ public class LocalSource implements ConnectableSource {
         disposables.add(disposable2);
         disposables.add(disposable3);
 
-        connected = true;
-        return ESourceEvent.CONNECTED;
+        return state = ESourceEvent.CONNECTED;
     }
 
     @Override
@@ -54,8 +54,7 @@ public class LocalSource implements ConnectableSource {
         disposables.forEach(Disposable::dispose);
         disposables.clear();
 
-        connected = false;
-        return ESourceEvent.DISCONNECTED;
+        return state = ESourceEvent.DISCONNECTED;
     }
 
     @Override
@@ -65,7 +64,7 @@ public class LocalSource implements ConnectableSource {
 
     @Override
     public boolean isConnected() {
-        return connected;
+        return state == ESourceEvent.CONNECTED;
     }
 
     @Override
