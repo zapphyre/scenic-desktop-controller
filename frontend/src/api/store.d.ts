@@ -9,4 +9,5 @@ declare module '@/api/store' {
     export function getStrokes(): string[];
     export function getScenes(): Scene[];
     export function getSceneNameIdList(): NameId[];
+    export function getTriggers(): string[];
 }

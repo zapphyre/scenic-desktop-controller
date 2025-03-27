@@ -5,6 +5,8 @@ import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.TriggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -17,6 +19,7 @@ import java.util.List;
 public class SceneCtrl {
 
     private final SceneDao sceneDao;
+    private final TriggerService triggerService;
 
     @GetMapping("allScenes")
     public List<SceneVto> getAllScenes() {
@@ -66,6 +69,11 @@ public class SceneCtrl {
     @GetMapping("xdoStrokes")
     public List<String> getAllCurrentXdoStrokes() {
         return sceneDao.getAllCurrentXdoStrokes();
+    }
+
+    @GetMapping("getTriggers")
+    public List<String> getAllTriggers() {
+        return triggerService.getAllLogicalTriggerNames();
     }
 
     @DeleteMapping("removeXdoAction")

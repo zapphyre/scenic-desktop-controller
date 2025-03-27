@@ -4,7 +4,7 @@ import Button from 'primevue/button';
 import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
-import {getSceneNameIdList, getScenes} from "@/api/store";
+import {getSceneNameIdList, getScenes, getTriggers} from "@/api/store";
 import {axisValues, EAxisEvent, GPadEvent, NameId, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
@@ -26,6 +26,9 @@ const rightAxisRef = ref<EAxisEvent>();
 const fetchScenes = async () => {
   scenesRef.value = getScenes();
   allSceneNames.value = getScenes().map((q: Scene) => q.name);
+
+  const triggers = getTriggers();
+  console.log("triggers", triggers);
 }
 
 const changedScene = (event: SelectChangeEvent) => {
