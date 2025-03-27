@@ -21,6 +21,7 @@ public class TriggerAdapter {
     void init() {
         gamepadObserver.getButtonEventStream()
                 .map(buttonPressMapper::map)
+                .log()
                 .flatMap(triggerActionMatcher.actionPickPipeline)
                 .subscribe(System.out::println);
     }

@@ -5,6 +5,7 @@ import { ref } from "vue";
 // Singleton state
 const strokes = ref([]); // Initialize as empty array
 const scenes = ref([]);
+const triggers = ref([]);
 let isInitialized = false; // Track if data has been fetched
 
 // Fetch strokes from API (called only once)
@@ -23,20 +24,25 @@ const fetchStrokes = async () => {
 
 
 const fetchScenes = async () => {
-    // if (!scenes.value) return; // Skip if already fetched
-
     try {
-        // console.log("_______________getting scenes");
         scenes.value = (await apiClient.get("allScenes")).data;
-        // console.log("fater fetch scenes", scenes.value);
     } catch (error) {
         console.error("Failed to fetch scenes:", error);
     }
 };
 
+const fetchTriggers = async () => {
+    try {
+        triggers.value = (await apiClient.get("getTriggers")).data;
+    } catch (error) {
+        console.error("Failed to fetch triggers:", error);
+    }
+}
+
 // Initialize the data immediately when the module is imported
 await fetchStrokes();
 await fetchScenes();
+await fetchTriggers();
 
 // Export a function to access the strokes
 export const useStrokesStore = () => {
@@ -51,3 +57,4 @@ export const useStrokesStore = () => {
 export const getStrokes = () => strokes.value;
 export const getScenes = () => scenes.value;
 export const getSceneNameIdList = () => scenes.value.map((s) => ({name: s.name, id: s.id}));
+export const getTriggers = () => triggers.value;
