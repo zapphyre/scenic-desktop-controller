@@ -18,8 +18,8 @@ public class LogicalNamingConfig {
     @Bean
     public List<String> allLogicalTriggerNames() {
         return Stream.of(new NamedEnum(EButtonAxisMapping.class),
-                        new ExpandedLogicalNaming(ELogicalEventType.class, EButtonAxisMapping.TRIGGER_LEFT.getInternal()),
-                        new ExpandedLogicalNaming(ELogicalEventType.class, EButtonAxisMapping.TRIGGER_RIGHT.getInternal()))
+                        new ExpandedLogicalNaming(ELogicalEventType.class, EButtonAxisMapping.TRIGGER_LEFT.getMapping()),
+                        new ExpandedLogicalNaming(ELogicalEventType.class, EButtonAxisMapping.TRIGGER_RIGHT.getMapping()))
                 .map(LogicalName::names)
                 .flatMap(Collection::stream)
                 .toList();

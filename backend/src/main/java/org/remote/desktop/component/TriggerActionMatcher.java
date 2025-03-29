@@ -6,6 +6,7 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.stereotype.Component;

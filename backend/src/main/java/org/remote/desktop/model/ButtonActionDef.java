@@ -16,6 +16,8 @@ import java.util.Set;
 public class ButtonActionDef {
 
     String trigger;
+    ELogicalTrigger logicalTrigger;
+
     Set<EButtonAxisMapping> modifiers;
     boolean longPress;
     EQualificationType qualified;

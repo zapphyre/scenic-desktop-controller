@@ -2,10 +2,7 @@ package org.remote.desktop.mapper;
 
 import org.asmus.model.GamepadEvent;
 import org.mapstruct.*;
-import org.remote.desktop.model.ActionMatch;
-import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.ExpandedLogicalNaming;
-import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.*;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.service.GPadEventStreamService;
 
@@ -18,11 +15,24 @@ public interface ButtonPressMapper {
     @Mapping(target = "trigger", source = ".", qualifiedByName = "logicalTriggerName")
     ButtonActionDef map(GamepadEvent gamepadEvent);
 
+    @AfterMapping
+    default ButtonActionDef map(@MappingTarget ButtonActionDef.ButtonActionDefBuilder buttonActionDef, GamepadEvent gamepadEvent) {
+        ButtonActionDef def = buttonActionDef.build();
+
+        try {
+            def = def.withLogicalTrigger(ELogicalTrigger.valueOf(def.getTrigger()));
+        } catch (IllegalArgumentException e) {
+
+        }
+
+        return def;
+    }
+
     @Named("logicalTriggerName")
     default String logicalTriggerName(GamepadEvent gamepadEvent) {
         return Optional.ofNullable(gamepadEvent.getLogicalEventType())
                 .map(Enum::name)
-                .map(ExpandedLogicalNaming.withPrefix(gamepadEvent.getType().getInternal()))
+                .map(ExpandedLogicalNaming.withPrefix(gamepadEvent.getType().getMapping()))
                 .orElseGet(() -> gamepadEvent.getType().name());
     }
 
