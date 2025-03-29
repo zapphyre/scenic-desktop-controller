@@ -11,6 +11,7 @@ import org.remote.desktop.model.EKeyEvt;
 import java.util.List;
 
 @Value
+@Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class XdoActionDto {
     Long id;

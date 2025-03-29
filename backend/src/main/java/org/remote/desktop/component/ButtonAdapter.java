@@ -35,6 +35,7 @@ public class ButtonAdapter {
     @PostConstruct
     void employController() {
         gamepadObserver.getButtonEventStream()
+                .filter(q -> q.getType().ordinal() < 15)
                 .map(buttonPressMapper::map)
                 .filter(gPadEventStreamService::consumedEventLeftovers)
                 .filter(gPadEventStreamService::isCurrentClickQualificationSceneRelevant)

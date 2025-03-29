@@ -38,6 +38,8 @@ public class LocalSource implements ConnectableSource {
         worker.getAxisStream().subscribe(triggerAdapter.getLeftTriggerProcessor());
         worker.getAxisStream().subscribe(triggerAdapter.getRightTriggerProcessor());
 
+        worker.getAxisStream().subscribe(axisAdapter.getLeftStickProcessor()::processArrowEvents);
+
         Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
         Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
 
