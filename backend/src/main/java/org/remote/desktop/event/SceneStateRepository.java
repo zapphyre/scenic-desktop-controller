@@ -50,7 +50,6 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
                 .orElse(lastRecognized);
     }
 
-    @SneakyThrows
     String safeIdentityGet() {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(xDoToolUtil::runIdentityScript)
                 .completeOnTimeout(lastRecognized, 21, TimeUnit.MILLISECONDS);
