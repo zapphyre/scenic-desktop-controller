@@ -8,5 +8,6 @@ public enum ELogicalTrigger {
     LEFTX_DOWN,
 
     RIGHTX_RIGHT,
+    RIGHTX_LEFT,
     ;
 }

@@ -19,10 +19,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -63,35 +60,54 @@ public class AxisAdapter {
                             .keyStrokes(List.of("back"))
                             .build()))
                     .build(),
-//            Gesture.builder()
-//                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.LEFTX_CENTER, ELogicalTrigger.LEFTX_RIGHT))
-//                    .actions(List.of(XdoActionDto.builder()
-//                            .keyStrokes(List.of("forward"))
-//                            .build()))
-//                    .build(),
             Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.RIGHTX_RIGHT))
+                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.LEFTX_CENTER, ELogicalTrigger.LEFTX_RIGHT))
+                    .actions(List.of(XdoActionDto.builder()
+                            .keyStrokes(List.of("forward"))
+                            .build()))
+                    .build(),
+            Gesture.builder()
+                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.RIGHTX_LEFT))
                     .actions(List.of(XdoActionDto.builder()
                             .keyStrokes(List.of("simulation crash"))
+                            .build()))
+                    .build(),
+            Gesture.builder()
+                    .triggers(List.of(ELogicalTrigger.LEFTX_LEFT, ELogicalTrigger.RIGHTX_RIGHT))
+                    .actions(List.of(XdoActionDto.builder()
+                            .keyStrokes(List.of("counter"))
                             .build()))
                     .build()
     );
 
-    public static Node buildGraph(List<ELogicalTrigger> triggers, List<XdoActionDto> actions) {
-        Iterator<ELogicalTrigger> iterator = triggers.iterator();
-        Node root, current = root = new Node(iterator.next());
+    public static Map<ELogicalTrigger, Node> buildNodeMap(List<Gesture> gestures) {
+        Map<ELogicalTrigger, Node> n = new HashMap<>();
 
-        while (iterator.hasNext()) {
-            Node next = new Node(iterator.next());
-            current.addConnection(next.getTrigger(), next);
-            current = next;
+        for (Gesture gesture : gestures) {
+            List<ELogicalTrigger> triggers = gesture.getTriggers();
+            if (triggers.isEmpty()) continue; // Handle empty case if needed
+
+            Iterator<ELogicalTrigger> iterator = triggers.iterator();
+            ELogicalTrigger firstTrigger = iterator.next();
+
+            // Root node: reuse if exists, create with firstTrigger if not
+            Node root = n.computeIfAbsent(firstTrigger, k -> new Node(firstTrigger));
+            Node current = root;
+
+            // Build the chain
+            while (iterator.hasNext()) {
+                ELogicalTrigger trigger = iterator.next();
+                // Reuse or create next node
+                Node next = current.getConnections().computeIfAbsent(trigger, k -> new Node(trigger));
+                current = next;
+            }
+
+            // Set actions on the last node
+            current.setActions(gesture.getActions());
         }
 
-        current.setActions(actions);
-
-        return root;
+        return n;
     }
-
 
     private final Map<EAxisEvent, Consumer<PolarCoords>> axisEventMap = Map.of(
             EAxisEvent.MOUSE, MouseCtrl::moveMouse,
@@ -108,9 +124,7 @@ public class AxisAdapter {
 //        updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
 //        sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
 
-        nodeMap = original = gestures.stream()
-                .map(q -> buildGraph(q.getTriggers(), q.getActions()))
-                .collect(toMap(Node::getTrigger, Function.identity()));
+        nodeMap = original = buildNodeMap(gestures);
 
         Flux<GamepadEvent> digitized = gamepadObserver.getButtonEventStream()
                 .filter(q -> q.getType().ordinal() > 14)

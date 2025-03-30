@@ -17,7 +17,7 @@ public class TriggerAdapter {
     private final IntrospectedEventFactory gamepadObserver;
     private final TriggerActionMatcher triggerActionMatcher;
 
-//    @PostConstruct
+    @PostConstruct
     void init() {
         gamepadObserver.getButtonEventStream()
                 .map(buttonPressMapper::map)

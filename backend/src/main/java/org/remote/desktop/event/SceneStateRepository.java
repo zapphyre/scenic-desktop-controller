@@ -55,18 +55,9 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
                 .completeOnTimeout(lastRecognized, 21, TimeUnit.MILLISECONDS);
 
         try {
-            // Block for at most 12ms total
             return future.get(21, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Interrupted");
-            return lastRecognized;
-        } catch (ExecutionException e) {
-            System.err.println("Script failed: " + e.getCause());
-            return lastRecognized;
-        } catch (TimeoutException e) {
-            // Rare case: future didn't complete even with completeOnTimeout
-            System.out.println("Script timed out: " + e.getCause());
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.out.println("script timed out");
             return lastRecognized;
         }
     }
