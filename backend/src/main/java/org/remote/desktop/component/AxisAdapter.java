@@ -45,7 +45,9 @@ public class AxisAdapter {
     //    private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
     private Consumer<PolarCoords> leftStickConsumer = (q) -> {
     };
-    private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
+    //    private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
+    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
+    };
 
     private List<Gesture> gestures = List.of(
             Gesture.builder()
@@ -60,6 +62,18 @@ public class AxisAdapter {
                     .actions(List.of(XdoActionDto.builder()
                             .keyStrokes(List.of("back"))
                             .build()))
+                    .build(),
+//            Gesture.builder()
+//                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.LEFTX_CENTER, ELogicalTrigger.LEFTX_RIGHT))
+//                    .actions(List.of(XdoActionDto.builder()
+//                            .keyStrokes(List.of("forward"))
+//                            .build()))
+//                    .build(),
+            Gesture.builder()
+                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.RIGHTX_RIGHT))
+                    .actions(List.of(XdoActionDto.builder()
+                            .keyStrokes(List.of("simulation crash"))
+                            .build()))
                     .build()
     );
 
@@ -67,8 +81,11 @@ public class AxisAdapter {
         Iterator<ELogicalTrigger> iterator = triggers.iterator();
         Node root, current = root = new Node(iterator.next());
 
-        for (ELogicalTrigger tri = iterator.next(); iterator.hasNext(); )
-            current.addConnection(tri, current = new Node(iterator.next()));
+        while (iterator.hasNext()) {
+            Node next = new Node(iterator.next());
+            current.addConnection(next.getTrigger(), next);
+            current = next;
+        }
 
         current.setActions(actions);
 
@@ -116,6 +133,10 @@ public class AxisAdapter {
 
     public RawArrowSource getLeftStickProcessor() {
         return gamepadObserver.leftStickStream();
+    }
+
+    public RawArrowSource getRightStickProcessor() {
+        return gamepadObserver.rightStickStream();
     }
 
     void updateAxisConsumers(String windowName) {

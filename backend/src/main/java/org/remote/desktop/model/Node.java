@@ -18,6 +18,10 @@ public class Node {
     Map<ELogicalTrigger, Node> connections = new HashMap<>(); // Connections keyed by ELogicalTrigger
 
     public void addConnection(ELogicalTrigger nextTrigger, Node nextNode) {
+        if (connections.containsKey(nextTrigger)) {
+            Node node = connections.get(nextTrigger);
+            node.addConnection(nextTrigger, nextNode);
+        }
         connections.put(nextTrigger, nextNode); // Key is the next node's trigger
     }
 
