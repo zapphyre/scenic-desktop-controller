@@ -26,7 +26,7 @@ public class TriggerActionMatcher {
     private final SceneStateRepository sceneStateRepository;
     private final ButtonPressMapper buttonPressMapper;
 
-    Function<ButtonActionDef, Flux<XdoCommandEvent>> actionPickPipeline = p -> Flux.just(p)
+    public Function<ButtonActionDef, Flux<XdoCommandEvent>> actionPickPipeline = p -> Flux.just(p)
             .flatMap(this::getNextSceneButtonEvent)
             .flatMap(q -> Flux.fromIterable(q.getActions())
                     .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene()))
