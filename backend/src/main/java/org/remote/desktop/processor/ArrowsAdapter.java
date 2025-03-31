@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.function.Predicate;
 
+import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
+import static org.asmus.model.EButtonAxisMapping.UP;
 import static org.remote.desktop.util.EtriggerFilter.triggerBetween;
 
 @Component
@@ -23,6 +25,6 @@ public class ArrowsAdapter extends ButtonProcessorBase {
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
-        return triggerBetween(11, 15);
+        return triggerBetween(UP, LEFT_STICK_X);
     }
 }

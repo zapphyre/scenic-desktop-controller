@@ -2,9 +2,9 @@ package org.remote.desktop.source.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
-import org.remote.desktop.component.AxisAdapter;
+import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.component.TriggerAdapter;
+import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.WebSourceDef;

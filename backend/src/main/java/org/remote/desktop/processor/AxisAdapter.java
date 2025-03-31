@@ -1,4 +1,4 @@
-package org.remote.desktop.component;
+package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -7,24 +7,31 @@ import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseCtrl;
+import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.model.*;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.ELogicalTrigger;
+import org.remote.desktop.model.Node;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.dto.XdoActionDto;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import static java.util.stream.Collectors.toMap;
+import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
+import static org.asmus.model.EButtonAxisMapping.TRIGGER_LEFT;
 import static org.remote.desktop.util.EtriggerFilter.triggerBetween;
+import static org.remote.desktop.util.GestureUtil.buildNodeMap;
+import static org.remote.desktop.util.GestureUtil.gestures;
 
 @Component
 @RequiredArgsConstructor
@@ -47,68 +54,6 @@ public class AxisAdapter {
 //    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
 //    };
 
-    private List<Gesture> gestures = List.of(
-            Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_DOWN, ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.LEFTX_UP, ELogicalTrigger.LEFTX_LEFT))
-                    .actions(List.of(XdoActionDto.builder()
-                            .keyEvt(EKeyEvt.STROKE)
-                            .keyStrokes(List.of("qwer"))
-                            .build()))
-                    .build(),
-            Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_LEFT, ELogicalTrigger.LEFTX_CENTER, ELogicalTrigger.LEFTX_LEFT))
-                    .actions(List.of(XdoActionDto.builder()
-                            .keyStrokes(List.of("back"))
-                            .build()))
-                    .build(),
-            Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.LEFTX_CENTER, ELogicalTrigger.LEFTX_RIGHT))
-                    .actions(List.of(XdoActionDto.builder()
-                            .keyStrokes(List.of("forward"))
-                            .build()))
-                    .build(),
-            Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_RIGHT, ELogicalTrigger.RIGHTX_LEFT))
-                    .actions(List.of(XdoActionDto.builder()
-                            .keyStrokes(List.of("simulation crash"))
-                            .build()))
-                    .build(),
-            Gesture.builder()
-                    .triggers(List.of(ELogicalTrigger.LEFTX_LEFT, ELogicalTrigger.RIGHTX_RIGHT))
-                    .actions(List.of(XdoActionDto.builder()
-                            .keyStrokes(List.of("counter"))
-                            .build()))
-                    .build()
-    );
-
-    public static Map<ELogicalTrigger, Node> buildNodeMap(List<Gesture> gestures) {
-        Map<ELogicalTrigger, Node> n = new HashMap<>();
-
-        for (Gesture gesture : gestures) {
-            List<ELogicalTrigger> triggers = gesture.getTriggers();
-            if (triggers.isEmpty()) continue; // Handle empty case if needed
-
-            Iterator<ELogicalTrigger> iterator = triggers.iterator();
-            ELogicalTrigger firstTrigger = iterator.next();
-
-            // Root node: reuse if exists, create with firstTrigger if not
-            Node root = n.computeIfAbsent(firstTrigger, k -> new Node(firstTrigger));
-            Node current = root;
-
-            // Build the chain
-            while (iterator.hasNext()) {
-                ELogicalTrigger trigger = iterator.next();
-                // Reuse or create next node
-                Node next = current.getConnections().computeIfAbsent(trigger, k -> new Node(trigger));
-                current = next;
-            }
-
-            // Set actions on the last node
-            current.setActions(gesture.getActions());
-        }
-
-        return n;
-    }
 
     private final Map<EAxisEvent, Consumer<PolarCoords>> axisEventMap = Map.of(
             EAxisEvent.MOUSE, MouseCtrl::moveMouse,
@@ -122,13 +67,13 @@ public class AxisAdapter {
 
     @PostConstruct
     void init() {
-//        updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
-//        sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
+        updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
+        sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
 
         nodeMap = original = buildNodeMap(gestures);
 
         Flux<GamepadEvent> digitized = gamepadObserver.getButtonEventStream()
-                .filter(triggerBetween(15, 19))
+                .filter(triggerBetween(LEFT_STICK_X, TRIGGER_LEFT))
                 .distinctUntilChanged();
 
         digitized
