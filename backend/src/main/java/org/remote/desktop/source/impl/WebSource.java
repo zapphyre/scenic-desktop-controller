@@ -4,7 +4,7 @@ import lombok.Builder;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.AxisAdapter;
-import org.remote.desktop.component.ButtonAdapter;
+import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.source.ConnectableSource;

@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toMap;
+import static org.remote.desktop.util.EtriggerFilter.triggerBetween;
 
 @Component
 @RequiredArgsConstructor
@@ -127,7 +128,7 @@ public class AxisAdapter {
         nodeMap = original = buildNodeMap(gestures);
 
         Flux<GamepadEvent> digitized = gamepadObserver.getButtonEventStream()
-                .filter(q -> q.getType().ordinal() > 14)
+                .filter(triggerBetween(15, 19))
                 .distinctUntilChanged();
 
         digitized

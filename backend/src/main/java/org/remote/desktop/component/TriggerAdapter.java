@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.remote.desktop.util.EtriggerFilter.triggerByOf;
+
 @Component
 @RequiredArgsConstructor
 public class TriggerAdapter {
@@ -20,6 +22,7 @@ public class TriggerAdapter {
     @PostConstruct
     void init() {
         gamepadObserver.getButtonEventStream()
+                .filter(triggerByOf(19))
                 .map(buttonPressMapper::map)
                 .flatMap(triggerActionMatcher.actionPickPipeline)
                 .subscribe(System.out::println);
