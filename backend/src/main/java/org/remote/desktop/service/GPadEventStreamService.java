@@ -2,7 +2,6 @@ package org.remote.desktop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.event.SceneStateRepository;
@@ -22,7 +21,6 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toMap;
-import static jxdotool.xDoToolUtil.runIdentityScript;
 
 @Slf4j
 @Service
@@ -83,40 +81,15 @@ public class GPadEventStreamService {
     public boolean addAppliedCommand(ButtonActionDef click) {
         List<ButtonActionDef> defs = Arrays.stream(EQualificationType.values())
                 .filter(q -> q.ordinal() > click.getQualified().ordinal())
-                .filter(q -> q != EQualificationType.ARROW)
-//                .filter(q -> q != EQualificationType.MULTIPLE)
                 .map(click::withQualified)
                 .toList();
 
-        for (ButtonActionDef def : defs) {
-            if (def.getQualified() == EQualificationType.MULTIPLE) {
-                System.out.println("Mutiple added");
-            }
 
-        }
-
-
-        boolean b = appliedCommands.addAll(defs);
-        System.out.println("should be adding: " + defs + " for click q: " + click.getQualified());
-        System.out.println("appliedCommands: " + appliedCommands);
-        System.out.println("result: " + b);
-
-        return b;
-//
-//        return true; //forced b/c of arrows
+        return appliedCommands.addAll(defs);
     }
 
     public boolean consumedEventLeftovers(ButtonActionDef def) {
-        System.out.println("trying to remove: " + def);
-        System.out.println("from: " + appliedCommands);
-
-        boolean b = !appliedCommands.remove(def);
-
-        System.out.println("result: " + b);
-        System.out.println("appliedCommands left: " + appliedCommands);
-
-        System.out.println("=======================================");
-        return b;
+        return !appliedCommands.remove(def);
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,
