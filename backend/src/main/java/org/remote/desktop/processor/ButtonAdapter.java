@@ -1,6 +1,7 @@
 package org.remote.desktop.processor;
 
 import org.asmus.builder.IntrospectedEventFactory;
+import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.TriggerActionMatcher;
@@ -38,12 +39,11 @@ public class ButtonAdapter extends ButtonProcessorBase {
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
-        return triggerUpTo(10);
+        return triggerUpTo(EButtonAxisMapping.OTHER);
     }
 
     @Override
     public Predicate<ButtonActionDef> stateFiler() {
-//        return q -> true;
         return consumeLeftovers.and(relevantQualification).and(appliedCommand);
     }
 }
