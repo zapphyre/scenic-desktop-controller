@@ -7,6 +7,7 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
+import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.remote.desktop.source.impl.WebSource;

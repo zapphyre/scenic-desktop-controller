@@ -62,9 +62,6 @@ public class GPadEventStreamService {
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        if (click.getQualified() == EQualificationType.ARROW)
-            return true;
-
         SceneDto scene = sceneStateRepository.isSceneForced() ?
                 sceneStateRepository.getForcedScene() :
                 sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
@@ -86,16 +83,40 @@ public class GPadEventStreamService {
     public boolean addAppliedCommand(ButtonActionDef click) {
         List<ButtonActionDef> defs = Arrays.stream(EQualificationType.values())
                 .filter(q -> q.ordinal() > click.getQualified().ordinal())
+                .filter(q -> q != EQualificationType.ARROW)
+//                .filter(q -> q != EQualificationType.MULTIPLE)
                 .map(click::withQualified)
                 .toList();
 
-        boolean b = appliedCommands.addAll(defs);
+        for (ButtonActionDef def : defs) {
+            if (def.getQualified() == EQualificationType.MULTIPLE) {
+                System.out.println("Mutiple added");
+            }
 
-        return true; //forced b/c of arrows
+        }
+
+
+        boolean b = appliedCommands.addAll(defs);
+        System.out.println("should be adding: " + defs + " for click q: " + click.getQualified());
+        System.out.println("appliedCommands: " + appliedCommands);
+        System.out.println("result: " + b);
+
+        return b;
+//
+//        return true; //forced b/c of arrows
     }
 
     public boolean consumedEventLeftovers(ButtonActionDef def) {
-        return !appliedCommands.remove(def);
+        System.out.println("trying to remove: " + def);
+        System.out.println("from: " + appliedCommands);
+
+        boolean b = !appliedCommands.remove(def);
+
+        System.out.println("result: " + b);
+        System.out.println("appliedCommands left: " + appliedCommands);
+
+        System.out.println("=======================================");
+        return b;
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,
