@@ -84,7 +84,6 @@ public class GPadEventStreamService {
                 .map(click::withQualified)
                 .toList();
 
-
         return appliedCommands.addAll(defs);
     }
 
