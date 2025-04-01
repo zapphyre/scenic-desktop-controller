@@ -41,7 +41,6 @@ const change = async () => {
 }
 
 const forcedChanged = async () => {
-  forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
   await apiClient.put("updateGamepadEvent", props.gpadEvent);
 }
 
@@ -50,7 +49,7 @@ const emit = defineEmits<{
 }>();
 
 onMounted(() => {
-  forcedChanged();
+  forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
 })
 </script>
 
