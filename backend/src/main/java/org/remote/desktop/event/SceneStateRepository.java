@@ -42,12 +42,16 @@ public class SceneStateRepository implements ApplicationListener<XdoCommandEvent
     }
 
     public String tryGetCurrentName() {
-        return Optional.ofNullable(safeIdentityGet())
+        String s = Optional.ofNullable(safeIdentityGet())
                 .map(q -> {
                     recognizedSceneObservers.forEach(p -> p.accept(q));
                     return lastRecognized = q;
                 })
                 .orElse(lastRecognized);
+
+        System.out.println("scene: " + s);
+
+        return s;
     }
 
     String safeIdentityGet() {

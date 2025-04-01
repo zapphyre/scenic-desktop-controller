@@ -65,6 +65,7 @@ public class GamepadEvent {
 
     @PreRemove
     public void detachEntity() {
+        scene.getGamepadEvents().remove(this);
         actions.forEach(q -> q.setGamepadEvent(null));
     }
 }

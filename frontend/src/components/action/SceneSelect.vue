@@ -59,9 +59,10 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const gPadEvent = {parentFk: selectedSceneRef.value?.name} as GPadEvent;
+  const gPadEvent = {parentFk: selectedSceneRef.value?.id} as GPadEvent;
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
+  console.log("gPadEvent.id", gPadEvent.id);
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
 
   // watch(gPadEvent, async (q) => {

@@ -23,11 +23,13 @@ public class GamepadEventVto {
     Long parentFk;
     Long nextSceneFk;
 
-    Set<EButtonAxisMapping> modifiers;
+    @Builder.Default
+    Set<EButtonAxisMapping> modifiers = Set.of();
 
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    List<XdoActionVto> actions;
+    List<XdoActionVto> actions = List.of();
 
     EMultiplicity multiplicity;
 }
