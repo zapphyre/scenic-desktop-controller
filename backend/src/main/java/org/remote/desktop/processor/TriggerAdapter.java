@@ -1,5 +1,6 @@
 package org.remote.desktop.processor;
 
+import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
@@ -10,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -18,9 +20,8 @@ import static org.remote.desktop.util.EtriggerFilter.triggerByOf;
 @Component
 public class TriggerAdapter extends ButtonProcessorBase {
 
-
-    public TriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher);
+    public TriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor);
     }
 
     public Consumer<Map<String, Integer>> getLeftTriggerProcessor() {

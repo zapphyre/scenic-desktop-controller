@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -21,12 +21,14 @@ import static org.remote.desktop.util.EtriggerFilter.triggerUpTo;
 @Component
 public class ButtonAdapter extends ButtonProcessorBase {
 
-    Predicate<ButtonActionDef> consumeLeftovers = gPadEventStreamService::consumedEventLeftovers;
-//    Predicate<ButtonActionDef> relevantQualification = gPadEventStreamService::isCurrentClickQualificationSceneRelevant;
-    Predicate<ButtonActionDef> appliedCommand = gPadEventStreamService::addAppliedCommand;
+    Predicate<ButtonActionDef> consumeLeftovers = gPadEventStreamService::consumeEventLeftovers;
+    Predicate<ButtonActionDef> relevantQualification = gPadEventStreamService::isCurrentClickQualificationSceneRelevant;
+    Consumer<ButtonActionDef> appliedCommand = gPadEventStreamService::computeRemainderFilter;
 
-    public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher);
+    public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
+                         GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
+                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor);
     }
 
     public Consumer<List<TimedValue>> getButtonConsumer() {
@@ -40,11 +42,11 @@ public class ButtonAdapter extends ButtonProcessorBase {
 
     @Override
     public Predicate<ButtonActionDef> purgingFilter() {
-        return consumeLeftovers;
+        return consumeLeftovers.and(relevantQualification);
     }
 
     @Override
-    public Predicate<ButtonActionDef> notingFilter() {
-        return appliedCommand;
+    public void qualificationExamine(ButtonActionDef click) {
+        appliedCommand.accept(click);
     }
 }
