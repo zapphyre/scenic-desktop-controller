@@ -31,7 +31,6 @@ public abstract class ButtonProcessorBase {
         gamepadObserver.getButtonEventStream()
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
-                .log("FIRST")
                 .filter(purgingFilter())
                 .doOnNext(this::qualificationExamine)
                 .flatMap(triggerActionMatcher.actionPickPipeline)

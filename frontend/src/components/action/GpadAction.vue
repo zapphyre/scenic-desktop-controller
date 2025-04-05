@@ -4,11 +4,11 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import {buttonValues, EKeyEvt, GPadEvent, multiplicityValues, NameId, XdoAction} from "@/model/gpadOs";
+import {EKeyEvt, GPadEvent, multiplicityValues, NameId, XdoAction} from "@/model/gpadOs";
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {getSceneNameIdList, getScenes} from "@/api/store";
+import {getSceneNameIdList, getScenes, getTriggers} from "@/api/store";
 import {onMounted, ref} from "vue";
 
 const forcedAvailableRef = ref<NameId[]>();
@@ -72,7 +72,7 @@ onMounted(() => {
               <div class="col-4">
                 <Select
                     v-model="props.gpadEvent.trigger"
-                    :options="buttonValues"
+                    :options="getTriggers()"
                     placeholder="Trigger"
                     class="input-item"
                     @change="change"
