@@ -35,5 +35,5 @@ public class GamepadEventDto implements Behavioral {
     @EqualsAndHashCode.Exclude
     List<XdoActionDto> actions;
 
-    EMultiplicity multiplicity = EMultiplicity.CLICK;
+    EMultiplicity multiplicity;
 }

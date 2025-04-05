@@ -63,6 +63,8 @@ const addNewGamepadEvent = async () => {
 
   gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
   console.log("gPadEvent.id", gPadEvent.id);
+  if (!selectedSceneRef.value?.gamepadEvents) selectedSceneRef.value!.gamepadEvents = [];
+
   selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
 
   // watch(gPadEvent, async (q) => {

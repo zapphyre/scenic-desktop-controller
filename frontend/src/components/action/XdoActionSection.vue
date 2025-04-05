@@ -53,8 +53,7 @@ const filterChange = () => {
   if (filtered.value)
     filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);
 
-  // console.log("strokes.value", strokes.value);
-  // console.log("filteredStrokes.value", filteredStrokes.value);
+  props.xdoAction.keyStrokes = strokes.value;
 };
 
 const changed = async (e: any) => {

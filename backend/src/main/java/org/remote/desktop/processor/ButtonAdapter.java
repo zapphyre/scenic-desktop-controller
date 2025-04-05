@@ -22,7 +22,7 @@ import static org.remote.desktop.util.EtriggerFilter.triggerUpTo;
 public class ButtonAdapter extends ButtonProcessorBase {
 
     Predicate<ButtonActionDef> consumeLeftovers = gPadEventStreamService::consumedEventLeftovers;
-    Predicate<ButtonActionDef> relevantQualification = gPadEventStreamService::isCurrentClickQualificationSceneRelevant;
+//    Predicate<ButtonActionDef> relevantQualification = gPadEventStreamService::isCurrentClickQualificationSceneRelevant;
     Predicate<ButtonActionDef> appliedCommand = gPadEventStreamService::addAppliedCommand;
 
     public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher) {
@@ -33,17 +33,18 @@ public class ButtonAdapter extends ButtonProcessorBase {
         return gamepadObserver.getButtonStream()::processButtonEvents;
     }
 
-    public Consumer<Map<String, Integer>> getArrowConsumer() {
-        return gamepadObserver.getArrowsStream()::processArrowEvents;
-    }
-
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
         return triggerUpTo(EButtonAxisMapping.OTHER);
     }
 
     @Override
-    public Predicate<ButtonActionDef> stateFiler() {
-        return consumeLeftovers.and(relevantQualification).and(appliedCommand);
+    public Predicate<ButtonActionDef> purgingFilter() {
+        return consumeLeftovers;
+    }
+
+    @Override
+    public Predicate<ButtonActionDef> notingFilter() {
+        return appliedCommand;
     }
 }

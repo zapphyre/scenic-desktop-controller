@@ -47,6 +47,9 @@ public class TriggerActionMatcher {
     }
 
     Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
-        return q -> q.get(def);
+        return q -> {
+            System.out.println("picking for longpress: " + def.isLongPress());
+            return q.get(def);
+        };
     }
 }

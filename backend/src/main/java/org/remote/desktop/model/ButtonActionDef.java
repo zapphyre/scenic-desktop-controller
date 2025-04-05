@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
 import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EMultiplicity;
 import org.asmus.model.EQualificationType;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Value
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class ButtonActionDef {
+public class    ButtonActionDef {
 
     @EqualsAndHashCode.Include
     String trigger;
@@ -29,4 +30,12 @@ public class ButtonActionDef {
 
     @EqualsAndHashCode.Include
     EQualificationType qualified;
+
+//    @EqualsAndHashCode.Include
+    EMultiplicity multiplicity;
+
+    EQualificationType longestSceneQualification;
+
+    String createdForScene;
+    String recognizedScene;
 }

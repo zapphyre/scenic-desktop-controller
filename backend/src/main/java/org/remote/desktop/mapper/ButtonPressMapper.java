@@ -40,6 +40,7 @@ public interface ButtonPressMapper {
     ButtonActionDef map(GamepadEventDto vto);
 
     @Named("map")
+    @Mapping(target = "multiplicity", defaultValue = "CLICK")
     ActionMatch map(ButtonActionDef defs);
 
     @Mapping(target = "action", source = "vto", qualifiedByName = "map")
@@ -49,6 +50,6 @@ public interface ButtonPressMapper {
     NextSceneXdoAction map(GPadEventStreamService.SceneBtnActions actions);
 
     default Function<GamepadEventDto, GPadEventStreamService.SceneBtnActions> map(String windowName) {
-        return vto -> map(windowName, vto);
+        return dto ->   map(windowName, dto);
     }
 }
