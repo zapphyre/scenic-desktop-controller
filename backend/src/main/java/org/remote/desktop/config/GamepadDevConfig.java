@@ -1,6 +1,8 @@
 package org.remote.desktop.config;
 
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.asmus.builder.EventProducer;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
@@ -9,7 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class GamepadDevConfig {
 
     private final EventProducer eventProducer = new EventProducer();

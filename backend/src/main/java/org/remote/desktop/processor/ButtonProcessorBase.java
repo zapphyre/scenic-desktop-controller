@@ -11,6 +11,7 @@ import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor
@@ -21,20 +22,20 @@ public abstract class ButtonProcessorBase {
     protected final GPadEventStreamService gPadEventStreamService;
     protected final IntrospectedEventFactory gamepadObserver;
     protected final TriggerActionMatcher triggerActionMatcher;
+    private final ScheduledExecutorService executorService;
 
     protected abstract Predicate<GamepadEvent> triggerFilter();
 
     @PostConstruct
     void process() {
         gamepadObserver.getButtonEventStream()
-                .log("FIRST")
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
+                .log("FIRST")
                 .filter(purgingFilter())
-                .filter(gPadEventStreamService::isCurrentClickQualificationSceneRelevant)
-                .filter(notingFilter())
+                .doOnNext(this::qualificationExamine)
                 .flatMap(triggerActionMatcher.actionPickPipeline)
-//                .publishOn(Schedulers.parallel())
+                .publishOn(Schedulers.fromExecutorService(executorService))
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
@@ -42,7 +43,6 @@ public abstract class ButtonProcessorBase {
         return q -> true;
     }
 
-    public Predicate<ButtonActionDef> notingFilter() {
-        return q -> true;
+    public void qualificationExamine(ButtonActionDef click) {
     }
 }
