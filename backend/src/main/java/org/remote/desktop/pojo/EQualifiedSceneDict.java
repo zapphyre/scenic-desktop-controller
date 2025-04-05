@@ -2,13 +2,10 @@ package org.remote.desktop.pojo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.asmus.behaviour.ActuationBehaviour;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.model.Behavioral;
 
 import java.util.function.Predicate;
-
-import static org.asmus.builder.IntrospectedEventFactory.*;
 
 
 @Getter
@@ -16,9 +13,9 @@ import static org.asmus.builder.IntrospectedEventFactory.*;
 public enum EQualifiedSceneDict {
 
     //order matters!
-    MODIFIED(EQualificationType.RELEASE, Behavioral::hasModifiersAssigned),
     MULTI_CLICK(EQualificationType.MULTIPLE, Behavioral::hasClickMultiplicity),
-    LONG_CLICK(EQualificationType.LONG, Behavioral::isLongPress),
+    MODIFIED(EQualificationType.RELEASE, Behavioral::hasModifiersAssigned),
+    LONG_CLICK(EQualificationType.LONG, Behavioral::isLongPress),  // b/c when i'm modifying press, it can come later than simple long
     FAST_CLICK(EQualificationType.PUSH, q -> true),
 
     ;

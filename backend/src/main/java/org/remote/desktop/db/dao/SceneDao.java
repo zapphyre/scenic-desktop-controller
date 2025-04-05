@@ -63,8 +63,8 @@ public class SceneDao {
     public SceneDto getSceneForWindowNameOrBase(String sceneName) {
         List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
 
-        if (bySceneContain.size() > 1)
-            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
+//        if (bySceneContain.size() > 1)
+//            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
 
         if (bySceneContain.isEmpty())
             return getScene("Base");

@@ -2,6 +2,7 @@ package org.remote.desktop.source.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
@@ -26,6 +27,7 @@ public class LocalSource implements ConnectableSource {
     private final JoyWorker worker;
     private final ButtonAdapter buttonAdapter;
     private final TriggerAdapter triggerAdapter;
+    private final ArrowsAdapter arrowsAdapter;
     private final AxisAdapter axisAdapter;
     private final SettingsDao settingsDao;
 
@@ -34,7 +36,8 @@ public class LocalSource implements ConnectableSource {
     @Override
     public ESourceEvent connect() {
         Disposable disposable = worker.getButtonStream().subscribe(buttonAdapter.getButtonConsumer());
-        Disposable disposable1 = worker.getAxisStream().subscribe(buttonAdapter.getArrowConsumer());
+        Disposable disposable1 = worker.getAxisStream().subscribe(arrowsAdapter.getArrowConsumer());
+
         worker.getAxisStream().subscribe(triggerAdapter.getLeftTriggerProcessor());
         worker.getAxisStream().subscribe(triggerAdapter.getRightTriggerProcessor());
 

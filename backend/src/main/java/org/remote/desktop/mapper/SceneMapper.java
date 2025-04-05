@@ -4,10 +4,12 @@ import org.mapstruct.*;
 import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.util.RecursiveScraper;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -30,6 +32,11 @@ public interface SceneMapper {
         return q -> update(source, q, new CycleAvoidingMappingContext());
     }
 
+    @Named("inheritedEvents")
+    default Set<GamepadEvent> inheritedEvents(Scene entity) {
+        return scraper.scrapeActionsRecursive(entity);
+    }
+
     @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
     @Mapping(target = "inheritsIdFk", source = "inheritsFrom", qualifiedByName = "mapInheritNames")
     SceneVto map(Scene entity);
@@ -41,10 +48,6 @@ public interface SceneMapper {
                 .toList();
     }
 
-    @Named("inheritedEvents")
-    default List<GamepadEvent> mapInherents(Scene entity) {
-        return scraper.scrapeActionsRecursive(entity);
-    }
 
     default Consumer<Scene> update(SceneVto source, List<Scene> inherits) {
         return q -> update(q, source, inherits);

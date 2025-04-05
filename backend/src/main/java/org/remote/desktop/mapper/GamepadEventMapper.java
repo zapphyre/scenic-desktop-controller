@@ -8,16 +8,16 @@ import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.vto.GamepadEventVto;
-import reactor.util.function.Tuples;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Mapper(componentModel = "spring", uses = XdoActionMapper.class)
 public interface GamepadEventMapper {
 
+    @Mapping(target = "multiplicity", defaultValue = "CLICK")
     GamepadEventDto map(GamepadEvent GamepadEvent, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "scene", ignore = true)
@@ -34,7 +34,7 @@ public interface GamepadEventMapper {
     @Mapping(target = "parentFk", source = "scene.id")
     GamepadEventVto map(GamepadEvent evt);
 
-    List<GamepadEventVto> map(List<GamepadEvent> events);
+    List<GamepadEventVto> map(Iterable<GamepadEvent> events);
 
     @Mapping(target = "id", source = "src.id")
     void update(@MappingTarget GamepadEvent tgt, GamepadEventVto src, Scene scene, Scene nextScene);
