@@ -14,7 +14,7 @@ import java.util.Set;
 @Value
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class    ButtonActionDef {
+public class ButtonActionDef {
 
     @EqualsAndHashCode.Include
     String trigger;
@@ -31,11 +31,5 @@ public class    ButtonActionDef {
     @EqualsAndHashCode.Include
     EQualificationType qualified;
 
-//    @EqualsAndHashCode.Include
     EMultiplicity multiplicity;
-
-    EQualificationType longestSceneQualification;
-
-    String createdForScene;
-    String recognizedScene;
 }
