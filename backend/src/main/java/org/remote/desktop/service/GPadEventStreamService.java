@@ -54,16 +54,12 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
                 .orElse(Map.of());
     }
 
-    SceneDto workingOn;
-
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return scraper.scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto.getWindowName()))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
-
-    Set<EQualificationType> qualificationReceived = new HashSet<>();
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         SceneDto scene = sceneStateRepository.isSceneForced() ?
@@ -86,6 +82,7 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
                 .orElse(false);
     }
 
+    private final Set<EQualificationType> qualificationReceived = new HashSet<>();
     public void computeRemainderFilter(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.PUSH)
             qualificationReceived.addAll(Arrays.asList(
@@ -94,12 +91,10 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
                     EQualificationType.MULTIPLE
             ));
 
-        if (click.getQualified() == EQualificationType.LONG &&
-                !qualificationReceived.contains(EQualificationType.RELEASE))
+        if (click.getQualified() == EQualificationType.LONG)
             qualificationReceived.add(EQualificationType.RELEASE);
 
-        if (click.getQualified() == EQualificationType.RELEASE &&
-                !qualificationReceived.contains(EQualificationType.LONG))
+        if (click.getQualified() == EQualificationType.RELEASE)
             qualificationReceived.add(EQualificationType.LONG);
 
         if (click.getQualified() != EQualificationType.MULTIPLE)
