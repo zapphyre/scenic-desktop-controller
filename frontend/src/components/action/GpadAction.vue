@@ -27,6 +27,9 @@ const addNewAction = async () => {
     keyStrokes: []
   };
   toSave.id = (await apiClient.post("saveXdoAction", toSave)).data;
+
+  if (!props.gpadEvent.actions) props.gpadEvent.actions = [];
+
   props.gpadEvent.actions.push(toSave);
 }
 

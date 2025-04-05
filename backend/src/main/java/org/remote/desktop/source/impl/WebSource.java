@@ -42,12 +42,12 @@ public class WebSource implements ConnectableSource {
                 })
                 .subscribe(buttonAdapter.getButtonConsumer());
 
-        Disposable disposable1 = spec.uri("axis")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
-                })
-                .subscribe(buttonAdapter.getArrowConsumer());
+//        Disposable disposable1 = spec.uri("axis")
+//                .accept(MediaType.TEXT_EVENT_STREAM)
+//                .retrieve()
+//                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
+//                })
+//                .subscribe(buttonAdapter.getArrowConsumer());
 
         Disposable disposable2 = spec.uri("left-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
@@ -62,7 +62,7 @@ public class WebSource implements ConnectableSource {
                 .subscribe(axisAdapter::getRightStickConsumer);
 
         disposables.add(disposable);
-        disposables.add(disposable1);
+//        disposables.add(disposable1);
         disposables.add(disposable2);
         disposables.add(disposable3);
 
