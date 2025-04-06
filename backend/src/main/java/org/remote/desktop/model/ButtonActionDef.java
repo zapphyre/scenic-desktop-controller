@@ -20,12 +20,9 @@ public class ButtonActionDef {
     String trigger;
     ELogicalTrigger logicalTrigger;
 
-
     // both modifiers and longPress has to be excluded from equality, b/c filtering of leftover qualified events need NOT
     // to account for them; it only need to account about button's itself identity
-//    @EqualsAndHashCode.Include
     Set<EButtonAxisMapping> modifiers;
-//    @EqualsAndHashCode.Include
     boolean longPress;
 
     @EqualsAndHashCode.Include

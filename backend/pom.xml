@@ -12,12 +12,20 @@
     <artifactId>backend</artifactId>
     <packaging>jar</packaging> <!-- Changed from pom to jar -->
 
+    <repositories>
+        <repository>
+            <id>projectlombok.org</id>
+            <url>https://projectlombok.org/edge-releases</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jpad.remote.version>1.4-SNAPSHOT</jpad.remote.version>
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.16</logback.version>
         <lombok.version>1.18.36</lombok.version>
+        <maven.compiler.proc>full</maven.compiler.proc>
         <reactor.version>3.6.5</reactor.version>
         <junit.version>5.11.3</junit.version> <!-- Fixed typo: varsion → version -->
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -58,11 +66,24 @@
             <artifactId>j-xDoTool</artifactId>
             <version>${j.xdotool.version}</version>
         </dependency>
+
+        <!-- JavaFX Dependencies -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>24</version> <!-- Use the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>24</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
-            <scope>provided</scope>
+<!--            <scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -141,6 +162,20 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>edge-SNAPSHOT</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
 
             <!-- Compiler plugin from parent is inherited -->

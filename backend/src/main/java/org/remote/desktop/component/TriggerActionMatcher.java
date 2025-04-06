@@ -6,7 +6,6 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.stereotype.Component;
@@ -47,9 +46,6 @@ public class TriggerActionMatcher {
     }
 
     Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
-        return q -> {
-            System.out.println("picking for longpress: " + def.isLongPress());
-            return q.get(def);
-        };
+        return q -> q.get(def);
     }
 }
