@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -19,43 +20,62 @@ public class JavaFxApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        circleWidgetLeft = new CircleWidget();
-        circleWidgetRight = new CircleWidget();
+        circleWidgetLeft = new CircleWidget(3, Color.BURLYWOOD, 0.4, Color.ORANGE, Color.BLACK);
+        circleWidgetRight = new CircleWidget(3, Color.BURLYWOOD, .1, Color.ORANGE, Color.WHITE);
 
-        String[] groups = getLetterGroups(6);
+        String[] initialGroups = getLetterGroups(6);
 
-        // Parameters for both circles
+        // Parameters
         double scaleFactor = 2;
         int highlightSection = 4;
         double innerRadius = 40;
         double outerRadius = 90;
         double rotationAngle = 120;
 
-        // Create a root pane to hold both circles
         Pane root = new Pane();
 
         // Left circle
-        Scene leftScene = circleWidgetLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, groups, rotationAngle);
+        Scene leftScene = circleWidgetLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, initialGroups, rotationAngle);
         Pane leftPane = (Pane) leftScene.getRoot();
         root.getChildren().add(leftPane);
 
-        // Right circle (shifted to the right)
-        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, groups, rotationAngle);
+        // Right circle
+        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, initialGroups, rotationAngle);
         Pane rightPane = (Pane) rightScene.getRoot();
-        double offsetX = 2 * outerRadius * scaleFactor + 50 * scaleFactor; // Outer diameter + padding
-        rightPane.setTranslateX(offsetX); // Shift right by the diameter of the left circle plus padding
+        double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
+        rightPane.setTranslateX(offsetX);
         root.getChildren().add(rightPane);
 
-        // Create a combined scene with enough width for both circles
-        Scene combinedScene = new Scene(root, 2 * (2 * outerRadius * scaleFactor + 80 * scaleFactor), 200 * scaleFactor);
-        combinedScene.setFill(null); // Transparent background
+        Scene combinedScene = new Scene(root, 2 * (2 * outerRadius * scaleFactor + 50 * scaleFactor), 200 * scaleFactor);
+        combinedScene.setFill(null);
 
-        primaryStage.initStyle(StageStyle.TRANSPARENT); // Bezel-less
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(combinedScene);
         primaryStage.show();
 
-        // Start the highlight cycling
-        cycleHighlights(groups.length);
+        // Start cycling groups
+        cycleGroups();
+    }
+
+    // Method to cycle through different group counts
+    private void cycleGroups() {
+        new Thread(() -> {
+            try {
+                int[] groupCounts = {8, 6, 3}; // Cycle through 8, 6, 3 groups
+                while (true) {
+                    for (int count : groupCounts) {
+                        String[] newGroups = getLetterGroups(count);
+                        Platform.runLater(() -> {
+                            circleWidgetLeft.updateSlicesAndLabels(newGroups, 2);
+                            circleWidgetRight.updateSlicesAndLabels(newGroups, 3);
+                        });
+                        Thread.sleep(2000); // 2-second delay between group changes
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 
     @Override
@@ -66,26 +86,6 @@ public class JavaFxApplication extends Application {
     public static void main(String[] args) {
         // Launch JavaFX app
         launch(args);
-    }
-
-    // Method to cycle through highlights with a delay
-    private void cycleHighlights(int numberOfGroups) {
-        new Thread(() -> {
-            try {
-                while (true) { // Infinite loop; stop with application close
-                    for (int i = 0; i < numberOfGroups; i++) {
-                        final int highlight = i;
-                        Platform.runLater(() -> {
-                            circleWidgetLeft.setHighlightedSection(highlight);
-                            circleWidgetRight.setHighlightedSection(highlight);
-                        });
-                        Thread.sleep(1000); // 1-second delay between highlights
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
     }
 
     public static String[] getLetterGroups(int numberOfGroups) {
