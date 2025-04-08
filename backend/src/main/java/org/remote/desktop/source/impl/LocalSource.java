@@ -44,13 +44,13 @@ public class LocalSource implements ConnectableSource {
         worker.getAxisStream().subscribe(axisAdapter.getLeftStickProcessor()::processArrowEvents);
         worker.getAxisStream().subscribe(axisAdapter.getRightStickProcessor()::processArrowEvents);
 
-        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
-        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
+//        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
+//        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
 
         disposables.add(disposable);
         disposables.add(disposable1);
-        disposables.add(disposable2);
-        disposables.add(disposable3);
+//        disposables.add(disposable2);
+//        disposables.add(disposable3);
 
         return state = ESourceEvent.CONNECTED;
     }

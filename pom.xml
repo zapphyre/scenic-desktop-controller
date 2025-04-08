@@ -22,7 +22,7 @@
         <project.version>1</project.version>
         <liquibase.version>4.17.0</liquibase.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <build>

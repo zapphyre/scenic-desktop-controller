@@ -1,59 +1,55 @@
 package org.remote.desktop.ui;
-
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
-import org.remote.desktop.ui.model.WidgetSettings;
-
 import java.util.LinkedList;
 import java.util.List;
 
-public class CircleWidget extends Scene {
+public class CircleWidgetOld {
     private final List<Path> slices = new LinkedList<>();
     private final List<Group> labelGroups = new LinkedList<>();
-    private final double scaleFactor;
-    private final double innerRadius;
-    private final double outerRadius;
-    private final double rotationAngle;
-    private final double centerX;
-    private final double centerY;
-    private final Pane root;
-    private final Group slicesGroup;
+    private double scaleFactor;
+    private double innerRadius;
+    private double outerRadius;
+    private double rotationAngle;
+    private double centerX;
+    private double centerY;
+    private Pane root;
+    private Group slicesGroup;
     private final double letterSize;
     private final Color arcDefaultFillColor;
     private final double arcDefaultAlpha;
     private final Color highlightedColor;
     private final Color textColor;
 
-    public CircleWidget(WidgetSettings settings) {
-        super(new Pane(), 2 * (2 * settings.outerRadius() * settings.scaleFactor() + 50 * settings.scaleFactor()), 200 * settings.scaleFactor());
-        this.root = (Pane) getRoot();
-        this.root.setStyle("-fx-background-color: null;"); // Transparent background
+    public CircleWidgetOld(double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor) {
+        this.letterSize = letterSize;
+        this.arcDefaultFillColor = arcDefaultFillColor;
+        this.arcDefaultAlpha = Math.max(0.0, Math.min(1.0, arcDefaultAlpha)); // Clamp alpha between 0 and 1
+        this.highlightedColor = highlightedColor;
+        this.textColor = textColor;
+    }
 
-        // Assign settings to fields
-        this.letterSize = settings.letterSize();
-        this.arcDefaultFillColor = settings.arcDefaultFillColor();
-        this.arcDefaultAlpha = settings.arcDefaultAlpha();
-        this.highlightedColor = settings.highlightedColor();
-        this.textColor = settings.textColor();
-        this.scaleFactor = settings.scaleFactor();
-        this.innerRadius = settings.innerRadius();
-        this.outerRadius = settings.outerRadius();
-        this.rotationAngle = settings.rotationAngle();
+    public Scene createScene(double scaleFactor, int highlightSection, double innerRadius, double outerRadius, String[] letterGroups, double rotationAngle) {
+        this.scaleFactor = scaleFactor;
+        this.innerRadius = innerRadius;
+        this.outerRadius = outerRadius;
+        this.rotationAngle = rotationAngle;
         this.centerX = 150 * scaleFactor;
         this.centerY = 100 * scaleFactor;
 
-        // Initialize UI
+        root = new Pane();
+        root.getChildren().addAll(createCircle(centerX, centerY, outerRadius), createCircle(centerX, centerY, innerRadius));
         slicesGroup = new Group();
-        root.getChildren().addAll(
-                createCircle(centerX, centerY, outerRadius),
-                createCircle(centerX, centerY, innerRadius),
-                slicesGroup
-        );
-        updateSlicesAndLabels(settings.letterGroups(), -1); // No initial highlight
+        updateSlicesAndLabels(letterGroups, highlightSection);
+
+        root.getChildren().add(slicesGroup);
+        Scene scene = new Scene(root, 2 * (2 * outerRadius * scaleFactor + 50 * scaleFactor), 200 * scaleFactor);
+        scene.setFill(null);
+        return scene;
     }
 
     public void setHighlightedSection(int highlightSection) {

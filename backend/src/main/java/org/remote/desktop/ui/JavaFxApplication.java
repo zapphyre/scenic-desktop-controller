@@ -2,11 +2,7 @@ package org.remote.desktop.ui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class JavaFxApplication extends Application {
 
@@ -15,47 +11,12 @@ public class JavaFxApplication extends Application {
         // Start Spring context during JavaFX initialization
     }
 
-    CircleWidget circleWidgetLeft;
-    CircleWidget circleWidgetRight;
+    CircleWidgetOld circleWidgetLeft;
+    CircleWidgetOld circleWidgetRight;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        circleWidgetLeft = new CircleWidget(3, Color.BURLYWOOD, 0.4, Color.ORANGE, Color.BLACK);
-        circleWidgetRight = new CircleWidget(3, Color.BURLYWOOD, .1, Color.ORANGE, Color.WHITE);
-
-        String[] initialGroups = getLetterGroups(6);
-
-        // Parameters
-        double scaleFactor = 2;
-        int highlightSection = 4;
-        double innerRadius = 40;
-        double outerRadius = 90;
-        double rotationAngle = 120;
-
-        Pane root = new Pane();
-
-        // Left circle
-        Scene leftScene = circleWidgetLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, initialGroups, rotationAngle);
-        Pane leftPane = (Pane) leftScene.getRoot();
-        root.getChildren().add(leftPane);
-
-        // Right circle
-        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, initialGroups, rotationAngle);
-        Pane rightPane = (Pane) rightScene.getRoot();
-        double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
-        rightPane.setTranslateX(offsetX);
-        root.getChildren().add(rightPane);
-
-        Scene combinedScene = new Scene(root, 2 * (2 * outerRadius * scaleFactor + 50 * scaleFactor), 200 * scaleFactor);
-        combinedScene.setFill(null);
-
-        primaryStage.initStyle(StageStyle.TRANSPARENT);
-        primaryStage.setScene(combinedScene);
-        primaryStage.show();
-
-        // Start cycling groups
-        cycleGroups();
-    }
+     }
 
     // Method to cycle through different group counts
     private void cycleGroups() {
