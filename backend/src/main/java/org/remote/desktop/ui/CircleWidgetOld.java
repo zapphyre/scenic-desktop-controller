@@ -1,8 +1,12 @@
 package org.remote.desktop.ui;
+
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import java.util.LinkedList;
@@ -24,13 +28,15 @@ public class CircleWidgetOld {
     private final double arcDefaultAlpha;
     private final Color highlightedColor;
     private final Color textColor;
+    private final double bezelScale;
 
-    public CircleWidgetOld(double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor) {
+    public CircleWidgetOld(double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, double bezelScale) {
         this.letterSize = letterSize;
         this.arcDefaultFillColor = arcDefaultFillColor;
-        this.arcDefaultAlpha = Math.max(0.0, Math.min(1.0, arcDefaultAlpha)); // Clamp alpha between 0 and 1
+        this.arcDefaultAlpha = Math.max(0.0, Math.min(1.0, arcDefaultAlpha));
         this.highlightedColor = highlightedColor;
         this.textColor = textColor;
+        this.bezelScale = Math.max(0.0, Math.min(1.0, bezelScale));
     }
 
     public Scene createScene(double scaleFactor, int highlightSection, double innerRadius, double outerRadius, String[] letterGroups, double rotationAngle) {
@@ -54,12 +60,13 @@ public class CircleWidgetOld {
 
     public void setHighlightedSection(int highlightSection) {
         for (int i = 0; i < slices.size(); i++) {
-            slices.get(i).setFill(i == highlightSection ? highlightedColor : Color.color(
+            Path slice = slices.get(i);
+            slice.setFill(i == highlightSection ? createMainGradient(highlightedColor, true) : createMainGradient(Color.color(
                     arcDefaultFillColor.getRed(),
                     arcDefaultFillColor.getGreen(),
                     arcDefaultFillColor.getBlue(),
                     arcDefaultAlpha
-            ));
+            ), false));
         }
     }
 
@@ -78,15 +85,9 @@ public class CircleWidgetOld {
             double startAngle = baseStartAngle + rotationAngle;
             double endAngle = baseStartAngle - angleStep + rotationAngle;
 
-            Path slice = createSlice(startAngle, endAngle);
-            slice.setFill(i == highlightSection ? highlightedColor : Color.color(
-                    arcDefaultFillColor.getRed(),
-                    arcDefaultFillColor.getGreen(),
-                    arcDefaultFillColor.getBlue(),
-                    arcDefaultAlpha
-            ));
-            slicesGroup.getChildren().add(slice);
-            slices.add(slice);
+            Group sliceGroup = createSliceWith3D(startAngle, endAngle, i == highlightSection);
+            slicesGroup.getChildren().add(sliceGroup);
+            slices.add((Path) sliceGroup.getChildren().get(1));
 
             Group labelGroup = createCurvedLabel(letterGroups[i], baseStartAngle, angleStep);
             slicesGroup.getChildren().add(labelGroup);
@@ -101,37 +102,118 @@ public class CircleWidgetOld {
         return circle;
     }
 
-    private Path createSlice(double startAngle, double endAngle) {
+    private Group createSliceWith3D(double startAngle, double endAngle, boolean isHighlighted) {
         double startTheta = Math.toRadians(startAngle);
         double endTheta = Math.toRadians(endAngle);
-
         double[] points = calculateSlicePoints(startTheta, endTheta);
+
         double innerStartX = points[0], innerStartY = points[1];
         double outerStartX = points[2], outerStartY = points[3];
         double outerEndX = points[4], outerEndY = points[5];
         double innerEndX = points[6], innerEndY = points[7];
 
-        Path slice = new Path();
-        slice.getElements().add(new MoveTo(innerStartX, innerStartY));
-        slice.getElements().add(new LineTo(outerStartX, outerStartY));
+        Path mainSlice = new Path();
+        mainSlice.getElements().add(new MoveTo(innerStartX, innerStartY));
+        mainSlice.getElements().add(new LineTo(outerStartX, outerStartY));
         ArcTo outerArc = new ArcTo();
         outerArc.setX(outerEndX);
         outerArc.setY(outerEndY);
         outerArc.setRadiusX(outerRadius * scaleFactor);
         outerArc.setRadiusY(outerRadius * scaleFactor);
         outerArc.setSweepFlag(true);
-        slice.getElements().add(outerArc);
-        slice.getElements().add(new LineTo(innerEndX, innerEndY));
+        mainSlice.getElements().add(outerArc);
+        mainSlice.getElements().add(new LineTo(innerEndX, innerEndY));
         ArcTo innerArc = new ArcTo();
         innerArc.setX(innerStartX);
         innerArc.setY(innerStartY);
         innerArc.setRadiusX(innerRadius * scaleFactor);
         innerArc.setRadiusY(innerRadius * scaleFactor);
         innerArc.setSweepFlag(false);
-        slice.getElements().add(innerArc);
+        mainSlice.getElements().add(innerArc);
+        mainSlice.setFill(isHighlighted ? createMainGradient(highlightedColor, true) : createMainGradient(Color.color(
+                arcDefaultFillColor.getRed(),
+                arcDefaultFillColor.getGreen(),
+                arcDefaultFillColor.getBlue(),
+                arcDefaultAlpha
+        ), false));
+        mainSlice.setStroke(Color.GRAY);
 
-        slice.setStroke(Color.GRAY);
-        return slice;
+        double bezelDepth = 5 * scaleFactor * bezelScale;
+        Path innerBezel = createShadowPath(startTheta, endTheta, innerRadius * scaleFactor + bezelDepth, outerRadius * scaleFactor - bezelDepth);
+        innerBezel.setFill(createBezelGradient(Color.color(0, 0, 0, 0.3), true));
+        innerBezel.setStroke(null);
+
+        Path outerBezel = createShadowPath(startTheta, endTheta, innerRadius * scaleFactor - bezelDepth, outerRadius * scaleFactor + bezelDepth);
+        outerBezel.setFill(createBezelGradient(Color.color(0, 0, 0, 0.2), false));
+        outerBezel.setStroke(null);
+
+        Group sliceGroup = new Group(innerBezel, mainSlice, outerBezel);
+        return sliceGroup;
+    }
+
+    private Path createShadowPath(double startTheta, double endTheta, double shadowInnerRadius, double shadowOuterRadius) {
+        double[] shadowPoints = calculateShadowPoints(startTheta, endTheta, shadowInnerRadius, shadowOuterRadius);
+        double innerStartX = shadowPoints[0], innerStartY = shadowPoints[1];
+        double outerStartX = shadowPoints[2], outerStartY = shadowPoints[3];
+        double outerEndX = shadowPoints[4], outerEndY = shadowPoints[5];
+        double innerEndX = shadowPoints[6], innerEndY = shadowPoints[7];
+
+        Path shadow = new Path();
+        shadow.getElements().add(new MoveTo(innerStartX, innerStartY));
+        shadow.getElements().add(new LineTo(outerStartX, outerStartY));
+        ArcTo outerArc = new ArcTo();
+        outerArc.setX(outerEndX);
+        outerArc.setY(outerEndY);
+        outerArc.setRadiusX(shadowOuterRadius);
+        outerArc.setRadiusY(shadowOuterRadius);
+        outerArc.setSweepFlag(true);
+        shadow.getElements().add(outerArc);
+        shadow.getElements().add(new LineTo(innerEndX, innerEndY));
+        ArcTo innerArc = new ArcTo();
+        innerArc.setX(innerStartX);
+        innerArc.setY(innerStartY);
+        innerArc.setRadiusX(shadowInnerRadius);
+        innerArc.setRadiusY(shadowInnerRadius);
+        innerArc.setSweepFlag(false);
+        shadow.getElements().add(innerArc);
+
+        return shadow;
+    }
+
+    private RadialGradient createMainGradient(Color baseColor, boolean isHighlighted) {
+        Stop[] stops = new Stop[]{
+                new Stop(0.0, baseColor),
+                new Stop(0.7, baseColor),
+                new Stop(1.0, isHighlighted ? baseColor.darker().darker() : baseColor.darker())
+        };
+        return new RadialGradient(
+                0, 0, centerX, centerY, outerRadius * scaleFactor, false, CycleMethod.NO_CYCLE, stops
+        );
+    }
+
+    private RadialGradient createBezelGradient(Color baseColor, boolean isInner) {
+        Stop[] stops = isInner ? new Stop[]{
+                new Stop(0.0, baseColor.darker()),
+                new Stop(1.0, baseColor.brighter())
+        } : new Stop[]{
+                new Stop(0.0, baseColor.brighter()),
+                new Stop(1.0, baseColor.darker())
+        };
+        return new RadialGradient(
+                0, 0, centerX, centerY, outerRadius * scaleFactor, false, CycleMethod.NO_CYCLE, stops
+        );
+    }
+
+    private double[] calculateShadowPoints(double startTheta, double endTheta, double shadowInnerRadius, double shadowOuterRadius) {
+        double innerStartX = shadowInnerRadius * Math.cos(startTheta) + centerX;
+        double innerStartY = -shadowInnerRadius * Math.sin(startTheta) + centerY;
+        double outerStartX = shadowOuterRadius * Math.cos(startTheta) + centerX;
+        double outerStartY = -shadowOuterRadius * Math.sin(startTheta) + centerY;
+        double outerEndX = shadowOuterRadius * Math.cos(endTheta) + centerX;
+        double outerEndY = -shadowOuterRadius * Math.sin(endTheta) + centerY;
+        double innerEndX = shadowInnerRadius * Math.cos(endTheta) + centerX;
+        double innerEndY = -shadowInnerRadius * Math.sin(endTheta) + centerY;
+        return new double[]{innerStartX, innerStartY, outerStartX, outerStartY, outerEndX, outerEndY, innerEndX, innerEndY};
     }
 
     private double[] calculateSlicePoints(double startTheta, double endTheta) {
@@ -148,14 +230,14 @@ public class CircleWidgetOld {
 
     private Group createCurvedLabel(String labelText, double baseStartAngle, double angleStep) {
         double labelR = (innerRadius + outerRadius) / 2 * scaleFactor;
-        double midAngle = baseStartAngle - angleStep / 2 + rotationAngle;
+        double midAngle = baseStartAngle - angleStep / 2 + rotationAngle; // Center of the arc
         Group labelGroup = new Group();
-        double totalCharAngle = Math.min(angleStep * 0.8, labelText.length() * 10);
+        double totalCharAngle = Math.min(angleStep * 0.8, labelText.length() * 10); // Total angle span for text
         double charAngleStep = labelText.length() > 1 ? totalCharAngle / (labelText.length() - 1) : 0;
-        double startCharAngle = midAngle - totalCharAngle / 2;
+        double startCharAngle = midAngle + totalCharAngle / 2; // Start from the left (clockwise)
 
         for (int j = 0; j < labelText.length(); j++) {
-            double charAngle = startCharAngle + j * charAngleStep;
+            double charAngle = startCharAngle - j * charAngleStep; // Decrease angle clockwise for left-to-right
             double charTheta = Math.toRadians(charAngle);
             double charX = labelR * Math.cos(charTheta) + centerX;
             double charY = -labelR * Math.sin(charTheta) + centerY;
@@ -163,7 +245,7 @@ public class CircleWidgetOld {
             charText.setFill(textColor);
             charText.setScaleX(letterSize);
             charText.setScaleY(letterSize);
-            charText.setRotate(-charAngle + 90);
+            charText.setRotate(-charAngle - 90); // Adjust rotation for readability (clockwise)
             labelGroup.getChildren().add(charText);
         }
         return labelGroup;

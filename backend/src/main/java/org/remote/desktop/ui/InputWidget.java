@@ -10,6 +10,9 @@ import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import java.util.Objects;
+import java.util.stream.IntStream;
+
 @RequiredArgsConstructor
 public class InputWidget extends Application {
 
@@ -27,6 +30,12 @@ public class InputWidget extends Application {
     private CircleWidgetOld circleWidgetRight;
     private String[] letterGroups;
 
+    public static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public boolean isReady() {
+        return Objects.nonNull(letterGroups);
+    }
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -34,24 +43,26 @@ public class InputWidget extends Application {
         int highlightSection = 4;
         double innerRadius = 40;
         double outerRadius = 90;
-        double rotationAngle = 120;
+        double rotationAngle = 130;
 
         Pane root = new Pane();
 
-        circleWidgetOldLeft = new CircleWidgetOld(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor);
-        circleWidgetRight = new CircleWidgetOld(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor);
+        circleWidgetOldLeft = new CircleWidgetOld(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1);
+        circleWidgetRight = new CircleWidgetOld(letterSize + 1, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, .2);
 
-        letterGroups = getLetterGroups(letterGroupCount);
+//        letterGroups = getLetterGroups(letterGroupCount);
+        letterGroups = splitIntoGroups(alphabet, 4);
+
 
         // Left circle
-        Scene leftScene = circleWidgetOldLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letterGroups, rotationAngle);
+        Scene leftScene = circleWidgetOldLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letterGroups, 116);
         Pane leftPane = (Pane) leftScene.getRoot();
         root.getChildren().add(leftPane);
 
         String[] letters = arraize(letterGroups[0]);
 
         // Right circle
-        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letters, rotationAngle);
+        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letters, 135);
         Pane rightPane = (Pane) rightScene.getRoot();
         double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
         rightPane.setTranslateX(offsetX);
@@ -72,27 +83,6 @@ public class InputWidget extends Application {
         return input.chars().mapToObj(ch -> String.valueOf((char) ch)).toArray(String[]::new);
     }
 
-//    private void cycleGroups() {
-//        new Thread(() -> {
-//            try {
-//                int[] groupCounts = {8, 6, 3}; // Cycle through 8, 6, 3 groups
-//                while (true) {
-//                    for (int count : groupCounts) {
-//                        String[] newGroups = JavaFxApplication.getLetterGroups(count);
-//                        Platform.runLater(() -> {
-
-    /// /                            circleWidgetOldLeft.updateSlicesAndLabels(newGroups, 2);
-//                            circleWidgetRight.updateSlicesAndLabels(newGroups, 3);
-//                        });
-//                        Thread.sleep(2000); // 2-second delay between group changes
-//                    }
-//                }
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//            }
-//        }).start();
-//    }
-
     public int highlightSegmentReturnSize(int i) {
         newLetters = arraize(letterGroups[i]);
         Platform.runLater(() -> {
@@ -109,6 +99,11 @@ public class InputWidget extends Application {
         Platform.runLater(() -> {
             circleWidgetRight.setHighlightedSection(i);
         });
+
+        if (newLetters == null) {
+            System.out.println("newLetters is null");
+            return currentLetter;
+        }
 
         return currentLetter = newLetters[i];
     }
@@ -147,7 +142,6 @@ public class InputWidget extends Application {
             throw new IllegalArgumentException("Number of groups must be between 1 and 26");
         }
 
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int lettersPerGroup = alphabet.length() / numberOfGroups;
         int remainder = alphabet.length() % numberOfGroups; // Extra letters to distribute
 
@@ -164,6 +158,23 @@ public class InputWidget extends Application {
         }
 
         return groups;
+    }
+
+    public static String[] splitIntoGroups(String input, int size) {
+        if (input == null) {
+            throw new IllegalArgumentException("Input string cannot be null");
+        }
+        if (size < 1) {
+            throw new IllegalArgumentException("Group size must be at least 1");
+        }
+
+        return IntStream.range(0, (input.length() + size - 1) / size)
+                .mapToObj(i -> {
+                    int start = i * size;
+                    int end = Math.min(start + size, input.length());
+                    return input.substring(start, end);
+                })
+                .toArray(String[]::new);
     }
 
     @Override
