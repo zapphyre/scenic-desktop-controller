@@ -68,16 +68,21 @@ public class StickTextAdapter {
         AxisEventFactory.leftStickStream().polarProducer(worker)
                 .map(groupsTranslator::translate)
                 .distinctUntilChanged()
-                .doOnNext(widget::groupCircleHighlight)
-                .subscribe(q -> System.out.println(q));
-//                .subscribe(q -> AxisEventFactory.leftStickStream().polarProducer(worker)
+                .map(widget::highlightSegmentReturnSize)
+//                .subscribe(q -> System.out.println(q));
+                .subscribe(q -> AxisEventFactory.rightStickStream().polarProducer(worker)
+                        .map(createTranslator(new PolarSettings(250, q))::translate)
+                        .distinctUntilChanged()
+                        .map(widget::pickLetterAndHighlight)
+                        .subscribe(p -> System.out.println("letter: " + p))
+                );
+
+//        AxisEventFactory.leftStickStream().polarProducer(worker)
 //                        .map(createTranslator(new PolarSettings(250, q))::translate)
 //                        .distinctUntilChanged()
 //                        .map(p -> new GroupPos(arraize(letterGroups[q]), p))
 //                        .subscribe(p -> circleWidgetRight.updateSlicesAndLabels(p.group, p.pos))
-//                );
 
     }
 
-    record GroupPos(String[] group, int pos) {}
 }
