@@ -93,12 +93,14 @@ public class InputWidget extends Application {
 //        }).start();
 //    }
 
-    public void groupCircleHighlight(int i) {
+    public int highlightSegmentReturnSize(int i) {
         newLetters = arraize(letterGroups[i]);
         Platform.runLater(() -> {
             circleWidgetOldLeft.setHighlightedSection(i);
             circleWidgetRight.setLetterGroups(newLetters);
         });
+
+        return newLetters.length;
     }
 
     private String[] newLetters;
