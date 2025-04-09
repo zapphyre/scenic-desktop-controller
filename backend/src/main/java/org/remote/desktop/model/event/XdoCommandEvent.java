@@ -8,7 +8,6 @@ import org.remote.desktop.pojo.KeyPart;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.List;
-import java.util.Objects;
 
 @Value
 public class XdoCommandEvent extends ApplicationEvent {

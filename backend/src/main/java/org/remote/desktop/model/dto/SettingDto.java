@@ -17,4 +17,5 @@ public class SettingDto {
     String ipAddress;
     boolean ipSetManually;
     String hintedIpAddress;
+    String textInputSceneName;
 }

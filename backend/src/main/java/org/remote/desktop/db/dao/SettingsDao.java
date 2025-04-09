@@ -1,5 +1,6 @@
 package org.remote.desktop.db.dao;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.repository.SettingsRepository;
 import org.remote.desktop.mapper.SettingMapper;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static org.remote.desktop.db.entity.Setting.INST_NAME;
 
 @Service
 @Transactional
@@ -22,6 +25,11 @@ public class SettingsDao {
 
     @Value("${server.port:8081}")
     private int port;
+
+    @PostConstruct
+    void deleteAll() {
+        settingsRepository.deleteAll();
+    }
 
     public void update(SettingDto dto) {
         settingsRepository.deleteAll();
@@ -41,8 +49,7 @@ public class SettingsDao {
     }
 
     public SettingDto getSettings() {
-        return Optional.of(settingsRepository.findAll())
-                .map(q -> q.isEmpty() ? null : q.getFirst())
+        return settingsRepository.findBySettingsInstance(INST_NAME)
                 .map(settingMapper::map)
                 .orElseGet(() -> settingMapper.mapProps(settingsProperties));
     }

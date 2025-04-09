@@ -14,4 +14,5 @@ public class SettingsProperties {
     private Boolean disconnectLocalOnRemoteConnection;
     private String ipAddress;
     private Integer port;
+    private String textInputSceneName;
 }
