@@ -9,5 +9,6 @@ public enum EKeyEvt {
     CLICK,
     MOUSE_DOWN,
     MOUSE_UP,
+    BUTTON
     ;
 }

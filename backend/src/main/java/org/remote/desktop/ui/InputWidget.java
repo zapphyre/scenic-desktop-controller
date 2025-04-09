@@ -34,6 +34,7 @@ public class InputWidget extends Application {
     private Rectangle textBackground;
 
     public static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private Stage primaryStage;
 
     public boolean isReady() {
         return Objects.nonNull(letterGroups);
@@ -41,6 +42,7 @@ public class InputWidget extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         double scaleFactor = 2;
         int highlightSection = 4;
         double innerRadius = 40;
@@ -108,7 +110,24 @@ public class InputWidget extends Application {
 
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(combinedScene);
-        primaryStage.show();
+//        primaryStage.show();
+        primaryStage.setOnCloseRequest(event -> {
+            // Prevent the application from exiting when the stage is closed
+            event.consume();
+            primaryStage.hide();
+        });
+        primaryStage.setAlwaysOnTop(true);
+        Platform.setImplicitExit(false);
+    }
+
+    public void close() {
+        Platform.runLater(() -> primaryStage.hide());
+    }
+
+    public void render() {
+        Platform.runLater(() -> {
+            primaryStage.show();
+        });
     }
 
     // Refactored scene width computation
@@ -152,6 +171,11 @@ public class InputWidget extends Application {
 
     public String getLetterPicked() {
         return currentLetter;
+    }
+
+    public void addSelectedLetter() {
+        middleText.append(currentLetter);
+        updateMiddleText();
     }
 
     // Add a letter to the middle text

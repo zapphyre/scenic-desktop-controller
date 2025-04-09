@@ -81,7 +81,8 @@ export enum EKeyEvt {
     SCENE_RESET = "SCENE_RESET",
     CLICK = "CLICK",
     MOUSE_DOWN = "MOUSE_DOWN",
-    MOUSE_UP = "MOUSE_UP"
+    MOUSE_UP = "MOUSE_UP",
+    BUTTON = "BUTTON",
 }
 
 export enum EButtonAxisMapping {

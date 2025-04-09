@@ -13,15 +13,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Setting {
 
+    public static final String INST_NAME = "default";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private String settingsInstance = INST_NAME;
 
     private String instanceName;
 
     private Boolean allowNetworkDiscovery;
 
     private String baseSceneName;
+
+    private String textInputSceneName;
 
     private Boolean disconnectLocalOnRemoteConnection;
 

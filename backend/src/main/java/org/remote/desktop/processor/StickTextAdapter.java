@@ -6,8 +6,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.AxisEventFactory;
+import org.asmus.builder.IntrospectedEventFactory;
+import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EQualificationType;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.mapper.ButtonPressMapper;
+import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidget;
@@ -24,13 +29,15 @@ import static org.remote.desktop.text.translator.PolarSectionTranslatorFactory.c
 public class StickTextAdapter {
 
     private final JoyWorker worker;
+    private final IntrospectedEventFactory gamepadObserver;
+    protected final ButtonPressMapper buttonPressMapper;
+
+    private final InputWidget widget;
+
     PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
     @PostConstruct
     void init() {
-        InputWidget widget = new InputWidget(2, Color.BURLYWOOD, 0.4, Color.ORANGE, Color.BLACK, 6);
-
-
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
 
         PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, 7));
@@ -48,7 +55,22 @@ public class StickTextAdapter {
                 .map(q -> letterSegmentTranslator.translate(q))
                 .distinctUntilChanged()
                 .mapNotNull(widget::pickLetterAndHighlight)
-                .subscribe(widget::addLetter, q -> System.out.println(q.getMessage()));
+                .subscribe();
+
+        gamepadObserver.getButtonEventStream()
+                .filter(q -> q.getQualified() == EQualificationType.PUSH)
+                .map(buttonPressMapper::map)
+                .subscribe(this::processButtonPress);
+    }
+
+    private void processButtonPress(ButtonActionDef def) {
+        System.out.println(def);
+//        switch (EButtonAxisMapping.getByEnumName(def.getTrigger())) {
+//            case Y: widget.clearText(); break;
+//            case X: widget.close(); break;
+//            case B: widget.render(); break;
+//            case BUMPER_RIGHT: widget.addSelectedLetter(); break;
+//        }
     }
 
 }
