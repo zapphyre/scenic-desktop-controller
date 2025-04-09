@@ -2,11 +2,9 @@ package org.remote.desktop.ui;
 
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
+import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import java.util.LinkedList;
@@ -44,16 +42,22 @@ public class CircleWidgetOld {
         this.innerRadius = innerRadius;
         this.outerRadius = outerRadius;
         this.rotationAngle = rotationAngle;
-        this.centerX = 150 * scaleFactor;
-        this.centerY = 100 * scaleFactor;
+
+        // Compute the size including the outer bezel
+        double bezelDepth = 5 * scaleFactor * bezelScale;
+        double totalRadius = outerRadius * scaleFactor + bezelDepth; // Total radius including bezel
+        double paneSize = 2 * totalRadius; // Width and height of the pane to fit the circle + bezel
+        this.centerX = totalRadius; // Center within the pane
+        this.centerY = totalRadius;
 
         root = new Pane();
+        root.setPrefSize(paneSize, paneSize); // Set the pane size to fit the circle + bezel
         root.getChildren().addAll(createCircle(centerX, centerY, outerRadius), createCircle(centerX, centerY, innerRadius));
         slicesGroup = new Group();
         updateSlicesAndLabels(letterGroups, highlightSection);
 
         root.getChildren().add(slicesGroup);
-        Scene scene = new Scene(root, 2 * (2 * outerRadius * scaleFactor + 50 * scaleFactor), 200 * scaleFactor);
+        Scene scene = new Scene(root, paneSize, paneSize); // Scene matches the pane size
         scene.setFill(null);
         return scene;
     }

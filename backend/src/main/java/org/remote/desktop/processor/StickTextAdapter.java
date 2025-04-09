@@ -14,6 +14,9 @@ import org.remote.desktop.ui.InputWidget;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static org.remote.desktop.text.translator.PolarSectionTranslatorFactory.createTranslator;
 
 @Component
@@ -27,9 +30,8 @@ public class StickTextAdapter {
     void init() {
         InputWidget widget = new InputWidget(2, Color.BURLYWOOD, 0.4, Color.ORANGE, Color.BLACK, 6);
 
-        new Thread(() -> {
-            Platform.startup(() -> widget.start(new Stage()));
-        }).start();
+
+        Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
 
         PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, 7));
 
@@ -46,7 +48,7 @@ public class StickTextAdapter {
                 .map(q -> letterSegmentTranslator.translate(q))
                 .distinctUntilChanged()
                 .mapNotNull(widget::pickLetterAndHighlight)
-                .subscribe(System.out::println, q -> System.out.println(q.getMessage()));
+                .subscribe(widget::addLetter, q -> System.out.println(q.getMessage()));
     }
 
 }
