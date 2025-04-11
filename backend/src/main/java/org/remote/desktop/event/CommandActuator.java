@@ -3,13 +3,11 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.remote.desktop.model.EKeyEvt;
+import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.ui.InputWidget;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static jxdotool.xDoToolUtil.*;
 
@@ -19,19 +17,12 @@ import static jxdotool.xDoToolUtil.*;
 public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
     private final SceneStateRepository actuatedStateRepository;
+    private final InputWidget inputWidget;
 
     @Override
     @SneakyThrows
     public void onApplicationEvent(XdoCommandEvent e) {
-        if (e.getKeyPart().getKeyEvt() == EKeyEvt.STROKE &&
-                Objects.isNull(e.getKeyPart().getKeyStrokes())
-        ) {
-            log.error("!!!! event: {} is null !!!!!", e.getKeyPart().getKeyEvt());
-            return;
-        }
-
         String xdoKeyPart = String.join("+", e.getKeyPart().getKeyStrokes());
-        System.out.println("applying: " + e.getKeyPart().getKeyEvt() + " stroke: " + xdoKeyPart);
 
         switch (e.getKeyPart().getKeyEvt()) {
             case PRESS -> keydown(xdoKeyPart);
@@ -42,6 +33,27 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case MOUSE_UP -> xDo("mouseup", xdoKeyPart);
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
+            case KEYBOARD_ON -> inputWidget.render();
+            case KEYBOARD_OFF -> inputWidget.clearText();
+            case BUTTON -> buttonMapped(e.getSourceSceneWindowName(), e.getTrigger());
         }
+    }
+
+    @SneakyThrows
+    private void buttonMapped(String sourceSceneWindowName, String trigger) {
+        System.out.println("buttonMapped: " + sourceSceneWindowName + " " + trigger);
+
+        if (trigger.equalsIgnoreCase(EButtonAxisMapping.X.name()))
+            inputWidget.addCharacter(" ");
+
+        if (trigger.equalsIgnoreCase(EButtonAxisMapping.A.name()))
+            xDo("type", inputWidget.getFullContentClearClose());
+
+        if (trigger.equalsIgnoreCase(EButtonAxisMapping.Y.name()))
+            inputWidget.deleteLast();
+
+        if (trigger.equalsIgnoreCase(EButtonAxisMapping.BUMPER_RIGHT.name()))
+            inputWidget.addSelectedLetter();
+
     }
 }

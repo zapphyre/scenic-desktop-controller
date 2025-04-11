@@ -57,7 +57,7 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
     @Cacheable(SceneDao.WINDOW_SCENE_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return scraper.scrapeActionsRecursive(sceneDto).stream()
-                .map(buttonPressMapper.map(sceneDto.getWindowName()))
+                .map(buttonPressMapper.map(sceneDto))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
     }
 
@@ -102,9 +102,6 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
     }
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {
-        if (def.getQualified() == EQualificationType.MULTIPLE)
-            qualificationReceived.clear();
-
         return !qualificationReceived.remove(def.getQualified());
     }
 
@@ -119,6 +116,6 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,
-                                  SceneDto nextScene) {
+                                  SceneDto nextScene, SceneDto currentScene, SceneDto eventSourceScene) {
     }
 }

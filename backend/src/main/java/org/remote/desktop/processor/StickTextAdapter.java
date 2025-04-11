@@ -2,14 +2,11 @@ package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.AxisEventFactory;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
-import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
@@ -17,7 +14,6 @@ import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidget;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;

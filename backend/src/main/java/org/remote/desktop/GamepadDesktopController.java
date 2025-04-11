@@ -22,12 +22,6 @@ public class GamepadDesktopController {
 
     public static void main(String[] args) {
         SpringApplication.run(GamepadDesktopController.class, args);
-
-        // Ensure JavaFX toolkit is initialized
-//        Platform.setImplicitExit(true); // Close JavaFX when the last window closes
-//        JavaFxApplication.launch(JavaFxApplication.class, args);
-//        Stage stage = new Stage();
-//        Pane pane = new Pane();
     }
 }
 
