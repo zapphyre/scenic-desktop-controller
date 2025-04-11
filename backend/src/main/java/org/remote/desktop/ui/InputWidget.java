@@ -23,6 +23,7 @@ public class InputWidget extends Application {
     private final Color highlightedColor;
     private final Color textColor;
     private final int letterGroupCount;
+    private final String title;
 
     private Pane root;
     private double rotationAngle;
@@ -110,12 +111,12 @@ public class InputWidget extends Application {
 
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(combinedScene);
-//        primaryStage.show();
         primaryStage.setOnCloseRequest(event -> {
             // Prevent the application from exiting when the stage is closed
             event.consume();
             primaryStage.hide();
         });
+        primaryStage.setTitle("keyboard");
         primaryStage.setAlwaysOnTop(true);
         Platform.setImplicitExit(false);
     }
@@ -171,6 +172,24 @@ public class InputWidget extends Application {
 
     public String getLetterPicked() {
         return currentLetter;
+    }
+
+    public void addCharacter(String input) {
+        middleText.append(input);
+        updateMiddleText();
+    }
+
+    public String getFullContentClearClose() {
+        close();
+        String word = middleText.toString();
+        clearText();
+
+        return word;
+    }
+
+    public void deleteLast() {
+        middleText.setLength(middleText.length() - 1);
+        updateMiddleText();
     }
 
     public void addSelectedLetter() {

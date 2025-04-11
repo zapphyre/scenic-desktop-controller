@@ -83,6 +83,8 @@ export enum EKeyEvt {
     MOUSE_DOWN = "MOUSE_DOWN",
     MOUSE_UP = "MOUSE_UP",
     BUTTON = "BUTTON",
+    KEYBOARD_ON = "KEYBOARD_ON",
+    KEYBOARD_OFF = "KEYBOARD_OFF",
 }
 
 export enum EButtonAxisMapping {

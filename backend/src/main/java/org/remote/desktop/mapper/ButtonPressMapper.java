@@ -4,6 +4,7 @@ import org.asmus.model.GamepadEvent;
 import org.mapstruct.*;
 import org.remote.desktop.model.*;
 import org.remote.desktop.model.dto.GamepadEventDto;
+import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.GPadEventStreamService;
 
 import java.util.Optional;
@@ -43,13 +44,15 @@ public interface ButtonPressMapper {
     @Mapping(target = "multiplicity", defaultValue = "CLICK")
     ActionMatch map(ButtonActionDef defs);
 
-    @Mapping(target = "action", source = "vto", qualifiedByName = "map")
-    GPadEventStreamService.SceneBtnActions map(String windowName, GamepadEventDto vto);
+    @Mapping(target = "action", source = "dto", qualifiedByName = "map")
+    @Mapping(target = "windowName", source = "currentScene.windowName")
+    @Mapping(target = "eventSourceScene", source = "dto.scene")
+    GPadEventStreamService.SceneBtnActions map(SceneDto currentScene, GamepadEventDto dto);
 
     @Mapping(target = "buttonTrigger", ignore = true)
     NextSceneXdoAction map(GPadEventStreamService.SceneBtnActions actions);
 
-    default Function<GamepadEventDto, GPadEventStreamService.SceneBtnActions> map(String windowName) {
-        return dto ->   map(windowName, dto);
+    default Function<GamepadEventDto, GPadEventStreamService.SceneBtnActions> map(SceneDto currentScene) {
+        return dto -> map(currentScene, dto);
     }
 }

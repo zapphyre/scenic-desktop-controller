@@ -7,8 +7,6 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.event.TextInputEvent;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
@@ -16,9 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -33,18 +29,10 @@ public class TriggerActionMatcher {
 
     private final SettingsDao settingsDao;
 
-    boolean isTextInputScene(SceneDto sceneDto) {
-        return Objects.isNull(sceneDto) ?
-                false : sceneDto.getWindowName().equalsIgnoreCase(settingsDao.getSettings().getTextInputSceneName());
-    }
-
     public Function<ButtonActionDef, Flux<ApplicationEvent>> actionPickPipeline = p -> Flux.just(p)
             .flatMap(this::getNextSceneButtonEvent)
             .flatMap(q -> Flux.fromIterable(q.getActions())
-                    .map(x -> isTextInputScene(q.getNextScene()) ?
-                            new TextInputEvent(this, x.getKeyEvt(), List.of(p.getTrigger()))
-                            :
-                            new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene()))
+                    .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene(), p.getTrigger(), q.getEventSourceScene().getWindowName()))
             );
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
