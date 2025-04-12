@@ -39,18 +39,27 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
         }
     }
 
+    int idx = 0;
     @SneakyThrows
     private void buttonMapped(String sourceSceneWindowName, String trigger) {
         System.out.println("buttonMapped: " + sourceSceneWindowName + " " + trigger);
 
+//        inputWidget.setSecondaryText(List.of("foku", "meke", "ukulele", "ukulele"));
+
+        if (trigger.equalsIgnoreCase(EButtonAxisMapping.B.name()))
+            inputWidget.setFrameOn(idx++);
+
+
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.X.name()))
-            inputWidget.addCharacter(" ");
+            inputWidget.setFrameOn(idx--);
+//            inputWidget.addCharacter(" ");
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.A.name()))
             xDo("type", inputWidget.getFullContentClearClose());
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.Y.name()))
-            inputWidget.deleteLast();
+            inputWidget.addSecondaryText(inputWidget.getFullLettersContent());
+//            inputWidget.deleteLast();
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.BUMPER_RIGHT.name()))
             inputWidget.addSelectedLetter();

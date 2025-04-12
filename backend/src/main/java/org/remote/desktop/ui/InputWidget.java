@@ -2,16 +2,20 @@ package org.remote.desktop.ui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
@@ -26,16 +30,108 @@ public class InputWidget extends Application {
     private final String title;
 
     private Pane root;
-    private double rotationAngle;
     private CircleWidgetOld circleWidgetOldLeft;
     private CircleWidgetOld circleWidgetRight;
     private String[] letterGroups;
+    private Stage primaryStage;
+
+    // Scene dimensions
+    private double sceneWidth;
+    private double middleX;
+    private double widgetWidth;
+
+    // Top row (middleText)
     private StringBuilder middleText;
-    private Text middleTextNode;
-    private Rectangle textBackground;
+//    private Rectangle textBackground;
+    private final double middleTextScale = 4;
+    private final double middleShiftCoefficient = 0.2;
+    private HBox lettersLayout;
+
+    // Bottom row (secondaryText)
+    private HBox wordsLayout;
+    private final double secondaryTextScale = 2;
+    private final double secondaryShiftCoefficient = 0.15;
 
     public static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private Stage primaryStage;
+
+    TextContainer wordsContainer = new TextContainer();
+    TextContainer lettersContainer = new TextContainer();
+
+    public class TextItem extends StackPane {
+        private final Text textNode;
+
+        public TextItem(String text) {
+            textNode = new Text(text);
+            textNode.setFont(Font.font(32));
+//            TextFlow flow = new TextFlow(textNode);
+//            this.getChildren().add(flow);
+            this.getChildren().add(textNode);
+
+            setBorderVisible(false);
+        }
+
+        public void setText(String text) {
+            textNode.setText(text);
+        }
+
+        public String getText() {
+            return textNode.getText();
+        }
+
+        public void setTextColor(Color color) {
+            textNode.setFill(color);
+        }
+
+        public void setFont(javafx.scene.text.Font font) {
+            textNode.setFont(font);
+        }
+
+        public void setBorderVisible(boolean visible) {
+            if (visible) {
+                this.setBorder(new Border(new BorderStroke(
+                        Color.BURLYWOOD,
+                        BorderStrokeStyle.SOLID,
+                        new CornerRadii(5),
+                        new BorderWidths(4)
+                )));
+            } else {
+                this.setBorder(Border.EMPTY);
+            }
+        }
+    }
+
+    public class TextContainer extends HBox {
+        private final List<TextItem> items = new ArrayList<>();
+
+        public TextContainer() {
+            setSpacing(10);
+            setPadding(new javafx.geometry.Insets(10));
+        }
+
+        public void addText(String text) {
+            TextItem item = new TextItem(text);
+            items.add(item);
+            this.getChildren().add(item);
+        }
+
+        public String getTextContent() {
+            return this.items.stream().map(TextItem::getText).collect(Collectors.joining(""));
+        }
+
+        public void setTextBorderVisible(int index, boolean visible) {
+            if (index >= 0 && index < items.size()) {
+                items.get(index).setBorderVisible(visible);
+            }
+        }
+
+        public void setContainerBackground(Color color) {
+            this.setBackground(new Background(new BackgroundFill(
+                    color,
+                    CornerRadii.EMPTY,
+                    javafx.geometry.Insets.EMPTY
+            )));
+        }
+    }
 
     public boolean isReady() {
         return Objects.nonNull(letterGroups);
@@ -48,8 +144,8 @@ public class InputWidget extends Application {
         int highlightSection = 4;
         double innerRadius = 40;
         double outerRadius = 90;
-        double rotationAngle = 130;
         double paddingBelowCircles = 20 * scaleFactor;
+        double paddingBetweenTextFields = 10 * scaleFactor;
 
         root = new Pane();
         middleText = new StringBuilder();
@@ -59,60 +155,47 @@ public class InputWidget extends Application {
 
         letterGroups = splitIntoGroups(alphabet, 4);
 
-        // Compute widget width (left circle + gap + right circle)
-        double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor; // Gap between circles
-        double widgetWidth = (2 * outerRadius * scaleFactor) + offsetX; // Full widget width
-        double sceneWidth = computeSceneWidth(scaleFactor, outerRadius); // Scene width
-        double margin = (sceneWidth - widgetWidth) / 2; // Equal margin on both sides
+        double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
+        widgetWidth = (2 * outerRadius * scaleFactor) + offsetX;
+        sceneWidth = computeSceneWidth(scaleFactor, outerRadius);
+        middleX = sceneWidth / 2;
+        double margin = (sceneWidth - widgetWidth) / 2;
 
-        // Left circle: Shift right by margin
         Scene leftScene = circleWidgetOldLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letterGroups, 116);
         Pane leftPane = (Pane) leftScene.getRoot();
-        leftPane.setTranslateX(margin); // Center the widget
+        leftPane.setTranslateX(margin);
         root.getChildren().add(leftPane);
 
         String[] letters = arraize(letterGroups[0]);
 
-        // Right circle: Shift right by margin + offsetX
         Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letters, 135);
         Pane rightPane = (Pane) rightScene.getRoot();
         rightPane.setTranslateX(margin + offsetX);
         root.getChildren().add(rightPane);
 
-        // Middle text UI component
-        middleTextNode = new Text();
-        middleTextNode.setFill(textColor);
-        middleTextNode.setScaleX(4 * scaleFactor);
-        middleTextNode.setScaleY(4 * scaleFactor);
-        middleTextNode.setText(middleText.toString());
+        int textHeight = 32;
 
-        // Rectangle background: Span from left circle's outer frame to right circle's outer frame
-        textBackground = new Rectangle();
-        textBackground.setFill(Color.color(1, 1, 1, 0.5)); // White with alpha 0.5
-        textBackground.setWidth(widgetWidth);
-        double textHeight = middleTextNode.getBoundsInLocal().getHeight() * 4; // Scaled text height
-        textBackground.setHeight(textHeight + 10 * scaleFactor); // Height fits text + padding
+        // Initialize bottom row (secondaryText) with HBox
+        double secondaryTextHeight = new Text("Sample").getBoundsInLocal().getHeight() * secondaryTextScale;
+//        double secondaryY = middleY + (middleTextHeight / 2) + (secondaryTextHeight / 2) + paddingBetweenTextFields;
 
-        // Position: Below circles with padding, centered across full widget
-        double middleX = sceneWidth / 2; // Midpoint of the scene's x-axis
-        double middleY = 200 * scaleFactor + paddingBelowCircles + textHeight / 2;
-        middleTextNode.setX(middleX - middleTextNode.getBoundsInLocal().getWidth() / 2); // Center text
-        middleTextNode.setY(middleY);
-        textBackground.setX(middleX - widgetWidth / 2); // Center rectangle, starting from left circle's outer frame
-        textBackground.setY(middleY - textBackground.getHeight() / 2);
+        wordsLayout = createContentLayout(widgetWidth, secondaryTextHeight, leftPane.getHeight(), scaleFactor);
+        lettersLayout = createContentLayout(widgetWidth, secondaryTextHeight, wordsLayout.getLayoutY() + wordsLayout.getPrefHeight() + 3, scaleFactor);
 
-        root.getChildren().add(textBackground);
-        root.getChildren().add(middleTextNode);
+        wordsLayout.getChildren().addAll(wordsContainer);
+        lettersLayout.getChildren().addAll(lettersContainer);
 
-        // Scene with refactored dimensions
+
+        root.getChildren().add(lettersLayout);
+        root.getChildren().add(wordsLayout);
+
         Scene combinedScene = new Scene(root, sceneWidth,
-                computeSceneHeight(scaleFactor, outerRadius, paddingBelowCircles, textHeight));
+                computeSceneHeight(scaleFactor, outerRadius, paddingBelowCircles, textHeight, secondaryTextHeight, paddingBetweenTextFields));
         combinedScene.setFill(null);
 
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(combinedScene);
         primaryStage.setOnCloseRequest(event -> {
-            // Prevent the application from exiting when the stage is closed
             event.consume();
             primaryStage.hide();
         });
@@ -121,24 +204,33 @@ public class InputWidget extends Application {
         Platform.setImplicitExit(false);
     }
 
+    HBox createContentLayout(double width, double height, double yOffset, double scaleFactor) {
+        HBox layout = new HBox(10 * scaleFactor);
+        layout.setAlignment(Pos.CENTER);
+        layout.setLayoutX(middleX - widgetWidth / 2);
+        layout.setLayoutY(yOffset);
+        layout.setPrefWidth(widgetWidth);
+        layout.setPrefHeight(height + 20 * scaleFactor);
+        layout.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 0.5), null, null)));
+
+        return layout;
+    }
+
     public void close() {
         Platform.runLater(() -> primaryStage.hide());
     }
 
     public void render() {
-        Platform.runLater(() -> {
-            primaryStage.show();
-        });
+        Platform.runLater(() -> primaryStage.show());
     }
 
-    // Refactored scene width computation
     private double computeSceneWidth(double scaleFactor, double outerRadius) {
         return 2 * (2 * outerRadius * scaleFactor + 50 * scaleFactor);
     }
 
-    // Refactored scene height computation
-    private double computeSceneHeight(double scaleFactor, double outerRadius, double padding, double textHeight) {
-        return 200 * scaleFactor + padding + textHeight + 10 * scaleFactor; // Extra padding for rectangle
+    private double computeSceneHeight(double scaleFactor, double outerRadius, double paddingBelowCircles,
+                                      double middleTextHeight, double secondaryTextHeight, double paddingBetweenTextFields) {
+        return 200 * scaleFactor + paddingBelowCircles + middleTextHeight + paddingBetweenTextFields + secondaryTextHeight + 10 * scaleFactor;
     }
 
     String[] arraize(String input) {
@@ -158,78 +250,61 @@ public class InputWidget extends Application {
     private String currentLetter;
 
     public String pickLetterAndHighlight(int i) {
-        Platform.runLater(() -> {
-            circleWidgetRight.setHighlightedSection(i);
-        });
-
-        if (newLetters == null) {
-            System.out.println("newLetters is null");
-            return currentLetter;
-        }
-
-        return currentLetter = newLetters[i];
+        Platform.runLater(() -> circleWidgetRight.setHighlightedSection(i));
+        return newLetters != null ? (currentLetter = newLetters[i]) : currentLetter;
     }
 
     public String getLetterPicked() {
         return currentLetter;
     }
 
-    public void addCharacter(String input) {
-        middleText.append(input);
-        updateMiddleText();
-    }
-
     public String getFullContentClearClose() {
         close();
         String word = middleText.toString();
         clearText();
-
         return word;
     }
 
+    public String getFullLettersContent() {
+        return lettersContainer.getTextContent();
+    }
+
     public void deleteLast() {
-        middleText.setLength(middleText.length() - 1);
-        updateMiddleText();
+        if (middleText.length() > 0) {
+            middleText.setLength(middleText.length() - 1);
+        }
     }
 
     public void addSelectedLetter() {
-        middleText.append(currentLetter);
-        updateMiddleText();
+        Platform.runLater(() -> lettersContainer.addText(currentLetter));
     }
 
-    // Add a letter to the middle text
-    public void addLetter(String letter) {
-        if (letter == null || letter.isEmpty()) {
-            return;
-        }
-        middleText.append(letter);
-        updateMiddleText();
-    }
-
-    // Clear the middle text
     public void clearText() {
-        middleText.setLength(0);
-        updateMiddleText();
+
     }
 
-    // Update the middle text UI component and background
-    private void updateMiddleText() {
+    public void setSecondaryText(List<String> lines) {
         Platform.runLater(() -> {
-            middleTextNode.setText(middleText.toString());
-            double textWidth = middleTextNode.getBoundsInLocal().getWidth() * 4; // Scaled width
-            double textHeight = middleTextNode.getBoundsInLocal().getHeight() * 4; // Scaled height
-            textBackground.setHeight(textHeight + 10 * 2); // Height fits text + padding, scaleFactor = 2
+            wordsLayout.getChildren().clear();
 
-            // Recenter horizontally across full widget
-            double sceneWidth = computeSceneWidth(2, 90); // Hardcoded scaleFactor = 2, outerRadius = 90
-            double middleX = sceneWidth / 2;
-            middleTextNode.setX(middleX - textWidth / 2);
-            double widgetWidth = (2 * 90 * 2) + (2 * 90 * 2 + 30 * 2); // Full widget width
-            textBackground.setX(middleX - widgetWidth / 2);
+            double scaleFactor = 2;
+            for (String word : lines) {
+
+            }
         });
     }
 
-    // Instance methods for runtime updates
+    public void addSecondaryText(String line) {
+        System.out.println("addind: " + line);
+        Platform.runLater(() -> wordsContainer.addText(line));
+    }
+
+    int prevOn = 0;
+    public void setFrameOn(int index) {
+        wordsContainer.setTextBorderVisible(prevOn, false);
+        wordsContainer.setTextBorderVisible(prevOn = index, true);
+    }
+
     public void updateGroups(String[] newGroups) {
         Platform.runLater(() -> {
             circleWidgetOldLeft.updateSlicesAndLabels(newGroups, -1);
@@ -245,7 +320,6 @@ public class InputWidget extends Application {
     }
 
     public void updateRotation(double rotationAngle) {
-        this.rotationAngle = rotationAngle;
         Platform.runLater(() -> {
             String[] currentGroups = letterGroups;
             circleWidgetOldLeft.updateSlicesAndLabels(currentGroups, -1);
