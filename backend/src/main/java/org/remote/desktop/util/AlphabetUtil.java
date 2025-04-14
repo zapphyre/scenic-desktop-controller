@@ -2,13 +2,18 @@ package org.remote.desktop.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @UtilityClass
 public class AlphabetUtil {
 
     public static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    List<String> alphabetList = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+            "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y", "Z");
 
     public static String[] getLetterGroups(int numberOfGroups) {
         if (numberOfGroups <= 0 || numberOfGroups > 26) {
@@ -33,23 +38,13 @@ public class AlphabetUtil {
         return groups;
     }
 
-    public static String[] defaultAlphabetGroups(int groupSize) {
-        return splitIntoGroups(groupSize).apply(alphabet);
+    public static List<List<String>> defaultAlphabetGroups(int groupSize) {
+        return splitIntoGroups(alphabetList).apply(groupSize);
     }
 
-    public static Function<String, String[]> splitIntoGroups(int size) {
-        return alphabet -> {
-            if (size < 1) {
-                throw new IllegalArgumentException("Group size must be at least 1");
-            }
-
-            return IntStream.range(0, (alphabet.length() + size - 1) / size)
-                    .mapToObj(i -> {
-                        int start = i * size;
-                        int end = Math.min(start + size, alphabet.length());
-                        return alphabet.substring(start, end);
-                    })
-                    .toArray(String[]::new);
-        };
+    public static <T> Function<Integer, List<List<T>>> splitIntoGroups(List<T> elements) {
+        return groupSize -> IntStream.range(0, (elements.size() + groupSize - 1) / groupSize)
+                .mapToObj(i -> elements.subList(i * groupSize, Math.min((i + 1) * groupSize, elements.size())))
+                .collect(Collectors.toList());
     }
 }
