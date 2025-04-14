@@ -3,6 +3,7 @@ package org.remote.desktop.ui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import org.remote.desktop.ui.component.LetterCircle;
 
 public class JavaFxApplication extends Application {
 
@@ -11,8 +12,8 @@ public class JavaFxApplication extends Application {
         // Start Spring context during JavaFX initialization
     }
 
-    CircleWidgetOld circleWidgetLeft;
-    CircleWidgetOld circleWidgetRight;
+    LetterCircle circleWidgetLeft;
+    LetterCircle circleWidgetRight;
 
     @Override
     public void start(Stage primaryStage) throws Exception {

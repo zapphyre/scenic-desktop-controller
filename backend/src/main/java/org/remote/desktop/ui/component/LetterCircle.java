@@ -1,8 +1,7 @@
-package org.remote.desktop.ui;
+package org.remote.desktop.ui.component;
 
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
@@ -10,7 +9,7 @@ import javafx.scene.text.Text;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CircleWidgetOld {
+public class LetterCircle {
     private final List<Path> slices = new LinkedList<>();
     private final List<Group> labelGroups = new LinkedList<>();
     private double scaleFactor;
@@ -28,7 +27,7 @@ public class CircleWidgetOld {
     private final Color textColor;
     private final double bezelScale;
 
-    public CircleWidgetOld(double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, double bezelScale) {
+    public LetterCircle(double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, double bezelScale) {
         this.letterSize = letterSize;
         this.arcDefaultFillColor = arcDefaultFillColor;
         this.arcDefaultAlpha = Math.max(0.0, Math.min(1.0, arcDefaultAlpha));

@@ -76,6 +76,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.arun.trie</groupId>
+            <artifactId>trie</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.nd4j</groupId>
 <!--            <artifactId>nd4j-native</artifactId>-->
             <artifactId>nd4j-native-platform</artifactId>
