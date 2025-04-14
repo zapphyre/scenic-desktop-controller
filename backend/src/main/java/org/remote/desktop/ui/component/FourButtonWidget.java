@@ -3,6 +3,7 @@ package org.remote.desktop.ui.component;
 import javafx.scene.Group;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.remote.desktop.ui.model.ButtonsSettings;
@@ -34,39 +35,46 @@ public class FourButtonWidget extends Group {
 
     private void createButton(String key, ButtonsSettings settings, double x, double y, double textSize) {
         // Outer bezel (darker ring)
-        Circle bezel = new Circle(x, y, radius + 3); // Slightly bigger
+        Circle bezel = new Circle(x, y, radius + 3); // Slightly larger for depth
         bezel.setFill(settings.getBaseColor().darker().darker());
 
-        // Main button
+        // Main button circle with 3D gradient
         Circle circle = new Circle(x, y, radius);
         circle.setFill(create3DGradient(settings.getBaseColor(), false));
         circle.setOpacity(settings.getAlpha());
 
-// Light reflection (shine) — soft & subtle
+        // Soft shine reflection (initially top-left)
         Circle shine = new Circle(x - radius * 0.37, y - radius * 0.3, radius * 0.28);
         shine.setFill(new RadialGradient(
                 0, 0,
                 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
                 new Stop(0, Color.rgb(255, 255, 255, 0.4)),  // Soft white center
-                new Stop(1, Color.rgb(255, 255, 255, 0.001))   // Transparent edge
+                new Stop(1, Color.rgb(255, 255, 255, 0.001))  // Transparent edges
         ));
-        shine.setMouseTransparent(true); // Don't block mouse
+        shine.setMouseTransparent(true);
 
+        // Stroke (outline) text for better readability
+        Text strokeText = new Text(settings.getLetters());
+        strokeText.setFont(Font.font(textSize));
+        strokeText.setFill(Color.TRANSPARENT);
+        strokeText.setStroke(Color.BLACK);
+        strokeText.setStrokeWidth(2);
+        strokeText.setStrokeType(StrokeType.OUTSIDE);
 
-        // Text label
-        Text text = new Text(settings.getLetters());
-        text.setFont(Font.font(textSize));
-        text.setFill(settings.getTextColor());
+        // Main fill text
+        Text fillText = new Text(settings.getLetters());
+        fillText.setFont(Font.font(textSize));
+        fillText.setFill(settings.getTextColor());
 
-        // Center the text
-        text.setX(x - text.getLayoutBounds().getWidth() / 2);
-        text.setY(y + text.getLayoutBounds().getHeight() / 4);
+        // Center both text layers in a group
+        Group labelGroup = new Group(strokeText, fillText);
+        labelGroup.setLayoutX(x - fillText.getLayoutBounds().getWidth() / 2);
+        labelGroup.setLayoutY(y + fillText.getLayoutBounds().getHeight() / 4);
 
-        getChildren().addAll(bezel, circle, shine, text);
+        getChildren().addAll(bezel, circle, shine, labelGroup);
 
-        buttons.put(key.toUpperCase(), new ButtonNode(bezel, circle, shine, text, settings));
+        buttons.put(key.toUpperCase(), new ButtonNode(bezel, circle, shine, labelGroup, strokeText, fillText, settings));
     }
-
 
     private Paint create3DGradient(Color baseColor, boolean flipped) {
         return new RadialGradient(
@@ -115,18 +123,21 @@ public class FourButtonWidget extends Group {
         }
     }
 
-    /**
-     * Sets the label (text) on a specific button
-     */
     public void setButtonLabel(String buttonKey, String label) {
         ButtonNode btn = buttons.get(buttonKey.toUpperCase());
         if (btn != null) {
+            btn.strokeText.setText(label);
             btn.text.setText(label);
-            // Re-center
+
+            // Use text to measure width & height for centering
+            double width = btn.text.getLayoutBounds().getWidth();
+            double height = btn.text.getLayoutBounds().getHeight();
+
             double x = btn.circle.getCenterX();
             double y = btn.circle.getCenterY();
-            btn.text.setX(x - btn.text.getLayoutBounds().getWidth() / 2);
-            btn.text.setY(y + btn.text.getLayoutBounds().getHeight() / 4);
+
+            btn.labelGroup.setLayoutX(x - width / 2);
+            btn.labelGroup.setLayoutY(y + height / 4);
         }
     }
 
@@ -134,16 +145,21 @@ public class FourButtonWidget extends Group {
         Circle bezel;
         Circle circle;
         Circle shine;
+        Group labelGroup;
+        Text strokeText;
         Text text;
         ButtonsSettings settings;
 
-        ButtonNode(Circle bezel, Circle circle, Circle shine, Text text, ButtonsSettings settings) {
+        ButtonNode(Circle bezel, Circle circle, Circle shine, Group labelGroup, Text strokeText, Text text, ButtonsSettings settings) {
             this.bezel = bezel;
             this.circle = circle;
             this.shine = shine;
+            this.labelGroup = labelGroup;
+            this.strokeText = strokeText;
             this.text = text;
             this.settings = settings;
         }
     }
+
 
 }
