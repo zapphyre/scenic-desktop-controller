@@ -14,6 +14,7 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -35,10 +36,10 @@ public class NextWordTrainer {
             }
 
             // Preprocess text
-            int maxVocabSize = 5000;
-            int sequenceLength = 10;
+            int maxVocabSize = 20000;
+            int sequenceLength = 6;
             TextPreprocessor preprocessor = new TextPreprocessor(text, maxVocabSize);
-            preprocessor.saveVocabulary("vocab.dat"); // Save vocab for prediction
+            preprocessor.saveVocabulary("vocab2.dat"); // Save vocab for prediction
             List<int[]> sequences = preprocessor.createSequences(sequenceLength);
             if (sequences.isEmpty()) {
                 System.err.println("Error: No sequences generated.");
@@ -81,7 +82,12 @@ public class NextWordTrainer {
             }
 
             // Save model
-            model.save(new File("next_word_model.zip"));
+            model.save(new File("next_word_model2.zip"));
         }
+    }
+
+    static void saveVocabulary(String filename) throws IOException {
+
+
     }
 }

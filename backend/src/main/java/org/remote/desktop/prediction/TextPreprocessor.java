@@ -1,5 +1,9 @@
 package org.remote.desktop.prediction;
 
+import com.arun.trie.MapTrie;
+import com.arun.trie.base.Trie;
+import com.arun.trie.io.TrieIO;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +94,14 @@ public class TextPreprocessor {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
             Map<String, Integer> wordToIndex = (Map<String, Integer>) ois.readObject();
             Map<Integer, String> indexToWord = (Map<Integer, String>) ois.readObject();
+
+//            MapTrie<String> trie = new MapTrie<>();
+
+//            wordToIndex.forEach((q, _) -> trie.insert(q, q));
+
+//            TrieIO.saveTrie(trie, "slovak.trie");
+//            Trie<?> trie = TrieIO.loadTrie("slovak.trie");
+
             int vocabSize = ois.readInt();
             TextPreprocessor preprocessor = new TextPreprocessor("", 0);
             preprocessor.wordToIndex = wordToIndex;

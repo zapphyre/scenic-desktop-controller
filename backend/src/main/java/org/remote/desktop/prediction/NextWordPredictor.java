@@ -13,15 +13,15 @@ public class NextWordPredictor {
 
     public static void main(String[] args) throws Exception {
         // Load model
-        MultiLayerNetwork model = MultiLayerNetwork.load(new File("next_word_model.zip"), true);
+        MultiLayerNetwork model = MultiLayerNetwork.load(new File("next_word_model2.zip"), true);
 
         // Load vocabulary
-        TextPreprocessor preprocessor = TextPreprocessor.loadVocabulary("vocab.dat");
+        TextPreprocessor preprocessor = TextPreprocessor.loadVocabulary("vocab2.dat");
         int sequenceLength = 4;
         int vocabSize = preprocessor.getVocabSize();
 
         // Prepare input
-        String inputText = "0 1 0 1 1";
+        String inputText = "projekt";
         List<String> inputTokens = Arrays.asList(inputText.toLowerCase().split("\\s+"));
         INDArray input = Nd4j.zeros(1, vocabSize, sequenceLength);
         for (int i = 0; i < Math.min(inputTokens.size(), sequenceLength); i++) {

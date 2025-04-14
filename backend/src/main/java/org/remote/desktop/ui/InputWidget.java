@@ -4,19 +4,26 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.remote.desktop.ui.component.FourButtonWidget;
+import org.remote.desktop.ui.component.LetterCircle;
+import org.remote.desktop.ui.component.TextContainer;
+import org.remote.desktop.ui.model.ButtonsSettings;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.function.Function;
+
+import static org.remote.desktop.util.AlphabetUtil.defaultAlphabetGroups;
 
 @RequiredArgsConstructor
 public class InputWidget extends Application {
@@ -29,109 +36,28 @@ public class InputWidget extends Application {
     private final int letterGroupCount;
     private final String title;
 
+    @Setter
+    private Function<String, List<String>> predictor = List::of;
+
     private Pane root;
-    private CircleWidgetOld circleWidgetOldLeft;
-    private CircleWidgetOld circleWidgetRight;
+    private LetterCircle letterCircleLeft;
+    private LetterCircle circleWidgetRight;
     private String[] letterGroups;
     private Stage primaryStage;
 
-    // Scene dimensions
     private double sceneWidth;
     private double middleX;
     private double widgetWidth;
 
-    // Top row (middleText)
     private StringBuilder middleText;
-//    private Rectangle textBackground;
-    private final double middleTextScale = 4;
-    private final double middleShiftCoefficient = 0.2;
     private HBox lettersLayout;
 
     // Bottom row (secondaryText)
     private HBox wordsLayout;
     private final double secondaryTextScale = 2;
-    private final double secondaryShiftCoefficient = 0.15;
-
-    public static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     TextContainer wordsContainer = new TextContainer();
     TextContainer lettersContainer = new TextContainer();
-
-    public class TextItem extends StackPane {
-        private final Text textNode;
-
-        public TextItem(String text) {
-            textNode = new Text(text);
-            textNode.setFont(Font.font(32));
-//            TextFlow flow = new TextFlow(textNode);
-//            this.getChildren().add(flow);
-            this.getChildren().add(textNode);
-
-            setBorderVisible(false);
-        }
-
-        public void setText(String text) {
-            textNode.setText(text);
-        }
-
-        public String getText() {
-            return textNode.getText();
-        }
-
-        public void setTextColor(Color color) {
-            textNode.setFill(color);
-        }
-
-        public void setFont(javafx.scene.text.Font font) {
-            textNode.setFont(font);
-        }
-
-        public void setBorderVisible(boolean visible) {
-            if (visible) {
-                this.setBorder(new Border(new BorderStroke(
-                        Color.BURLYWOOD,
-                        BorderStrokeStyle.SOLID,
-                        new CornerRadii(5),
-                        new BorderWidths(4)
-                )));
-            } else {
-                this.setBorder(Border.EMPTY);
-            }
-        }
-    }
-
-    public class TextContainer extends HBox {
-        private final List<TextItem> items = new ArrayList<>();
-
-        public TextContainer() {
-            setSpacing(10);
-            setPadding(new javafx.geometry.Insets(10));
-        }
-
-        public void addText(String text) {
-            TextItem item = new TextItem(text);
-            items.add(item);
-            this.getChildren().add(item);
-        }
-
-        public String getTextContent() {
-            return this.items.stream().map(TextItem::getText).collect(Collectors.joining(""));
-        }
-
-        public void setTextBorderVisible(int index, boolean visible) {
-            if (index >= 0 && index < items.size()) {
-                items.get(index).setBorderVisible(visible);
-            }
-        }
-
-        public void setContainerBackground(Color color) {
-            this.setBackground(new Background(new BackgroundFill(
-                    color,
-                    CornerRadii.EMPTY,
-                    javafx.geometry.Insets.EMPTY
-            )));
-        }
-    }
 
     public boolean isReady() {
         return Objects.nonNull(letterGroups);
@@ -150,10 +76,10 @@ public class InputWidget extends Application {
         root = new Pane();
         middleText = new StringBuilder();
 
-        circleWidgetOldLeft = new CircleWidgetOld(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1);
-        circleWidgetRight = new CircleWidgetOld(letterSize + 1, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 0.2);
+        letterCircleLeft = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1);
+        circleWidgetRight = new LetterCircle(letterSize + 1, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 0.2);
 
-        letterGroups = splitIntoGroups(alphabet, 4);
+        letterGroups = defaultAlphabetGroups(4);
 
         double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
         widgetWidth = (2 * outerRadius * scaleFactor) + offsetX;
@@ -161,23 +87,32 @@ public class InputWidget extends Application {
         middleX = sceneWidth / 2;
         double margin = (sceneWidth - widgetWidth) / 2;
 
-        Scene leftScene = circleWidgetOldLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letterGroups, 116);
+        Scene leftScene = letterCircleLeft.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letterGroups, 116);
         Pane leftPane = (Pane) leftScene.getRoot();
         leftPane.setTranslateX(margin);
         root.getChildren().add(leftPane);
 
         String[] letters = arraize(letterGroups[0]);
 
-        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letters, 135);
-        Pane rightPane = (Pane) rightScene.getRoot();
-        rightPane.setTranslateX(margin + offsetX);
+//        Scene rightScene = circleWidgetRight.createScene(scaleFactor, highlightSection, innerRadius, outerRadius, letters, 135);
+
+        ButtonsSettings bs = ButtonsSettings.builder()
+                .baseColor(Color.BURLYWOOD)
+                .alpha(.8)
+                .textColor(Color.DARKGOLDENROD)
+                .letters("A B C D")
+                .build();
+
+        FourButtonWidget rightPane = new FourButtonWidget(bs, bs, bs, bs, 300, 24);
+//        Pane rightPane = (Pane) rightScene.getRoot();
+        rightPane.setTranslateX(margin + offsetX+ 100);
+        rightPane.setTranslateY(200);
         root.getChildren().add(rightPane);
 
         int textHeight = 32;
 
         // Initialize bottom row (secondaryText) with HBox
         double secondaryTextHeight = new Text("Sample").getBoundsInLocal().getHeight() * secondaryTextScale;
-//        double secondaryY = middleY + (middleTextHeight / 2) + (secondaryTextHeight / 2) + paddingBetweenTextFields;
 
         wordsLayout = createContentLayout(widgetWidth, secondaryTextHeight, leftPane.getHeight(), scaleFactor);
         lettersLayout = createContentLayout(widgetWidth, secondaryTextHeight, wordsLayout.getLayoutY() + wordsLayout.getPrefHeight() + 3, scaleFactor);
@@ -240,7 +175,7 @@ public class InputWidget extends Application {
     public int highlightSegmentReturnSize(int i) {
         newLetters = arraize(letterGroups[i]);
         Platform.runLater(() -> {
-            circleWidgetOldLeft.setHighlightedSection(i);
+            letterCircleLeft.setHighlightedSection(i);
             circleWidgetRight.setLetterGroups(newLetters);
         });
         return newLetters.length;
@@ -266,7 +201,9 @@ public class InputWidget extends Application {
     }
 
     public String getFullLettersContent() {
-        return lettersContainer.getTextContent();
+        String textContent = lettersContainer.getTextContent();
+        System.out.println("textContent: " + textContent);
+        return textContent;
     }
 
     public void deleteLast() {
@@ -276,7 +213,13 @@ public class InputWidget extends Application {
     }
 
     public void addSelectedLetter() {
-        Platform.runLater(() -> lettersContainer.addText(currentLetter));
+        Platform.runLater(() -> {
+            lettersContainer.addText(currentLetter);
+            wordsContainer.clear();
+            predictor.apply(getFullLettersContent()).stream()
+                    .limit(5)
+                    .forEach(this::addSecondaryText);
+        });
     }
 
     public void clearText() {
@@ -307,14 +250,14 @@ public class InputWidget extends Application {
 
     public void updateGroups(String[] newGroups) {
         Platform.runLater(() -> {
-            circleWidgetOldLeft.updateSlicesAndLabels(newGroups, -1);
+            letterCircleLeft.updateSlicesAndLabels(newGroups, -1);
             circleWidgetRight.updateSlicesAndLabels(newGroups, -1);
         });
     }
 
     public void updateHighlight(int section) {
         Platform.runLater(() -> {
-            circleWidgetOldLeft.setHighlightedSection(section);
+            letterCircleLeft.setHighlightedSection(section);
             circleWidgetRight.setHighlightedSection(section);
         });
     }
@@ -322,49 +265,9 @@ public class InputWidget extends Application {
     public void updateRotation(double rotationAngle) {
         Platform.runLater(() -> {
             String[] currentGroups = letterGroups;
-            circleWidgetOldLeft.updateSlicesAndLabels(currentGroups, -1);
+            letterCircleLeft.updateSlicesAndLabels(currentGroups, -1);
             circleWidgetRight.updateSlicesAndLabels(currentGroups, -1);
         });
-    }
-
-    static String[] getLetterGroups(int numberOfGroups) {
-        if (numberOfGroups <= 0 || numberOfGroups > 26) {
-            throw new IllegalArgumentException("Number of groups must be between 1 and 26");
-        }
-
-        int lettersPerGroup = alphabet.length() / numberOfGroups;
-        int remainder = alphabet.length() % numberOfGroups;
-
-        String[] groups = new String[numberOfGroups];
-        int letterIndex = 0;
-
-        for (int i = 0; i < numberOfGroups; i++) {
-            int groupSize = lettersPerGroup + (i < remainder ? 1 : 0);
-            StringBuilder group = new StringBuilder();
-            for (int j = 0; j < groupSize && letterIndex < alphabet.length(); j++) {
-                group.append(alphabet.charAt(letterIndex++));
-            }
-            groups[i] = group.toString();
-        }
-
-        return groups;
-    }
-
-    public static String[] splitIntoGroups(String input, int size) {
-        if (input == null) {
-            throw new IllegalArgumentException("Input string cannot be null");
-        }
-        if (size < 1) {
-            throw new IllegalArgumentException("Group size must be at least 1");
-        }
-
-        return IntStream.range(0, (input.length() + size - 1) / size)
-                .mapToObj(i -> {
-                    int start = i * size;
-                    int end = Math.min(start + size, input.length());
-                    return input.substring(start, end);
-                })
-                .toArray(String[]::new);
     }
 
     @Override
