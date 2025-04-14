@@ -9,11 +9,14 @@ import org.remote.desktop.ui.InputWidget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 public class TextInputWidgetConfig {
 
     private final SettingsDao settingsDao;
+    private final List<String> buttons = List.of("Y", "B", "A", "X");
 
     @Bean
     public InputWidget inputWidget() {

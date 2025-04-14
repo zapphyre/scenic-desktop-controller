@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.component.LetterCircle;
 import org.remote.desktop.ui.component.TextContainer;
@@ -21,9 +22,10 @@ import org.remote.desktop.ui.model.ButtonsSettings;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-
-import static org.remote.desktop.util.AlphabetUtil.defaultAlphabetGroups;
 
 @RequiredArgsConstructor
 public class InputWidget extends Application {
@@ -63,6 +65,7 @@ public class InputWidget extends Application {
         return Objects.nonNull(letterGroups);
     }
 
+    @SneakyThrows
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -79,7 +82,7 @@ public class InputWidget extends Application {
         letterCircleLeft = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1);
         circleWidgetRight = new LetterCircle(letterSize + 1, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 0.2);
 
-        letterGroups = defaultAlphabetGroups(4);
+        letterGroups = new String[]{"ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "WXYZ"};
 
         double offsetX = 2 * outerRadius * scaleFactor + 30 * scaleFactor;
         widgetWidth = (2 * outerRadius * scaleFactor) + offsetX;
@@ -103,10 +106,23 @@ public class InputWidget extends Application {
                 .letters("A B C D")
                 .build();
 
-        FourButtonWidget rightPane = new FourButtonWidget(bs, bs, bs, bs, 300, 24);
+        FourButtonWidget rightPane = new FourButtonWidget(bs, bs, bs, bs, (outerRadius * 2) * scaleFactor, 24);
+
+        AtomicBoolean push = new AtomicBoolean();
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            rightPane.activate("Y", push.get());
+
+            if (push.get())
+                rightPane.setButtonLabel("Y", "A B C");
+            else
+                rightPane.setButtonLabel("Y", "W X Y Z");
+
+
+            push.set(!push.get());
+        }, 1, 1, TimeUnit.SECONDS);
+
 //        Pane rightPane = (Pane) rightScene.getRoot();
-        rightPane.setTranslateX(margin + offsetX+ 100);
-        rightPane.setTranslateY(200);
+        rightPane.setTranslateX(margin + offsetX);
         root.getChildren().add(rightPane);
 
         int textHeight = 32;
@@ -119,7 +135,6 @@ public class InputWidget extends Application {
 
         wordsLayout.getChildren().addAll(wordsContainer);
         lettersLayout.getChildren().addAll(lettersContainer);
-
 
         root.getChildren().add(lettersLayout);
         root.getChildren().add(wordsLayout);
@@ -243,6 +258,7 @@ public class InputWidget extends Application {
     }
 
     int prevOn = 0;
+
     public void setFrameOn(int index) {
         wordsContainer.setTextBorderVisible(prevOn, false);
         wordsContainer.setTextBorderVisible(prevOn = index, true);
