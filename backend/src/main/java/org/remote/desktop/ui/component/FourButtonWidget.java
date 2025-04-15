@@ -8,9 +8,12 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.remote.desktop.ui.model.ButtonsSettings;
+import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.remote.desktop.ui.model.EActionButton.*;
 
 public class FourButtonWidget extends Pane {
 
@@ -18,8 +21,7 @@ public class FourButtonWidget extends Pane {
     private final double shift;
     private final Map<Integer, ButtonNode> buttons = new HashMap<>();
 
-    public FourButtonWidget(ButtonsSettings y, ButtonsSettings b, ButtonsSettings a, ButtonsSettings x,
-                            double widgetSize, double textSize) {
+    public FourButtonWidget(Map<EActionButton, ButtonsSettings> defs, double widgetSize, double textSize) {
 
         this.radius = widgetSize / 6;
         double centerOffset = widgetSize / 2;
@@ -27,10 +29,10 @@ public class FourButtonWidget extends Pane {
         this.shift = circleOffset + radius;
 
         // Create buttons with shading
-        createButton(0, y, 0 + shift, -circleOffset + shift, textSize);
-        createButton(1, b, -circleOffset + shift, 0 + shift, textSize);
-        createButton(2, a, circleOffset + shift, 0 + shift, textSize);
-        createButton(3, x, 0 + shift, circleOffset + shift, textSize);
+        createButton(0, defs.get(Y), 0 + shift, -circleOffset + shift, textSize);
+        createButton(1, defs.get(B), -circleOffset + shift, 0 + shift, textSize);
+        createButton(2, defs.get(A), circleOffset + shift, 0 + shift, textSize);
+        createButton(3, defs.get(X), 0 + shift, circleOffset + shift, textSize);
 
         setTranslateY(5);
     }
