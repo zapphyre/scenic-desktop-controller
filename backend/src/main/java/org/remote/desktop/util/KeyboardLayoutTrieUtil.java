@@ -56,7 +56,6 @@ public class KeyboardLayoutTrieUtil {
                                 }
                         )
                 ));
-        System.out.println();
     }
 
 }

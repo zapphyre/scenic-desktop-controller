@@ -8,9 +8,12 @@ import org.asmus.builder.AxisEventFactory;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
+import org.remote.desktop.model.event.ButtonEvent;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
+import org.remote.desktop.ui.InputWidgetBase;
 import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -26,7 +29,7 @@ public class StickTextAdapter {
     private final IntrospectedEventFactory gamepadObserver;
     protected final ButtonPressMapper buttonPressMapper;
 
-    private final VariableGroupingInputWidgetBase widget;
+    private final InputWidgetBase widget;
 
     PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
@@ -34,23 +37,24 @@ public class StickTextAdapter {
     void init() {
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
 
-        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, 7));
+        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, 2));
 
         AxisEventFactory.leftStickStream().polarProducer(worker)
                 .map(groupsTranslator::translate)
                 .distinctUntilChanged()
-                .filter(_ -> widget.isReady())
-                .map(widget::highlightSegmentReturnSize)
+//                .filter(_ -> widget.isReady())
+                .map(widget::setGroupActive)
                 .distinctUntilChanged()
                 .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
 
         AxisEventFactory.rightStickStream().polarProducer(worker)
-                .filter(_ -> widget.isReady())
+//                .filter(_ -> widget.isReady())
                 .map(q -> letterSegmentTranslator.translate(q))
                 .distinctUntilChanged()
-                .mapNotNull(widget::pickLetterAndHighlight)
+                .mapNotNull(widget::setElementActive)
                 .subscribe();
 
     }
+
 
 }

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import lombok.Getter;
 import lombok.Setter;
 import org.remote.desktop.ui.component.LetterCircle;
 
@@ -16,9 +17,11 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     @Setter
     private Function<String, List<String>> predictor = List::of;
 
+    @Getter
     private LetterCircle letterCircleLeft;
-    private LetterCircle circleWidgetRight;
-    private String[] letterGroups = new String[]{"ABC", "DEF", "GHI", "JKL", "MNO", "PQR", "STU", "WXYZ"};
+    @Getter
+    private LetterCircle groupWidget;
+    private String[] letterGroups = new String[]{"A", "B"};
 
     private StringBuilder middleText = new StringBuilder();
     private HBox lettersLayout;
@@ -36,14 +39,14 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
-    Pane getLeftWidget() {
-        return new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
+    Pane createLeftWidget() {
+        return groupWidget = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
                 2, -1, 40, widgetSize, letterGroups, 116);
     }
 
     @Override
-    Pane getRightWidget() {
-        return new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
+    Pane createRightWidget() {
+        return letterCircleLeft = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
                 2, -1, 40, widgetSize, letterGroups, 135);
     }
 
@@ -55,7 +58,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
         newLetters = arraize(letterGroups[i]);
         Platform.runLater(() -> {
             letterCircleLeft.selectSegment(i);
-            circleWidgetRight.setLetterGroups(newLetters);
+            groupWidget.setLetterGroups(newLetters);
         });
         return newLetters.length;
     }
@@ -64,7 +67,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     private String currentLetter;
 
     public String pickLetterAndHighlight(int i) {
-        Platform.runLater(() -> circleWidgetRight.selectSegment(i));
+        Platform.runLater(() -> groupWidget.selectSegment(i));
         return newLetters != null ? (currentLetter = newLetters[i]) : currentLetter;
     }
 
@@ -132,7 +135,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     public void updateHighlight(int section) {
         Platform.runLater(() -> {
             letterCircleLeft.selectSegment(section);
-            circleWidgetRight.selectSegment(section);
+            groupWidget.selectSegment(section);
         });
     }
 
