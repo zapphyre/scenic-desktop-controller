@@ -1,7 +1,6 @@
 package org.remote.desktop.model;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.List;
@@ -11,7 +10,8 @@ import java.util.Objects;
 @Builder
 public class TrieGroupDef {
     int group;
-    String code;
+    String button;
+    char trieCode;
     List<String> elements;
 
     @Override
@@ -19,7 +19,7 @@ public class TrieGroupDef {
         if (o == null || getClass() != o.getClass()) return false;
         TrieGroupDef that = (TrieGroupDef) o;
 
-        return elements.contains(that.getCode());
+        return elements.contains(that.getTrieCode());
     }
 
     @Override

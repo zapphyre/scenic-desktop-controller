@@ -15,11 +15,10 @@ public class FourButtonWidget extends Group {
 
     private final double radius;
     private final double shift;
-    private final Map<String, ButtonNode> buttons = new HashMap<>();
+    private final Map<Integer, ButtonNode> buttons = new HashMap<>();
 
-    public FourButtonWidget(
-            ButtonsSettings y, ButtonsSettings b, ButtonsSettings a, ButtonsSettings x,
-            double widgetSize, double textSize) {
+    public FourButtonWidget(ButtonsSettings y, ButtonsSettings b, ButtonsSettings a, ButtonsSettings x,
+                            double widgetSize, double textSize) {
 
         this.radius = widgetSize / 6;
         double centerOffset = widgetSize / 2;
@@ -27,13 +26,13 @@ public class FourButtonWidget extends Group {
         this.shift = circleOffset + radius;
 
         // Create buttons with shading
-        createButton("Y", y, 0 + shift, -circleOffset + shift, textSize);
-        createButton("B", b, -circleOffset + shift, 0 + shift, textSize);
-        createButton("A", a, circleOffset + shift, 0 + shift, textSize);
-        createButton("X", x, 0 + shift, circleOffset + shift, textSize);
+        createButton(0, y, 0 + shift, -circleOffset + shift, textSize);
+        createButton(1, b, -circleOffset + shift, 0 + shift, textSize);
+        createButton(2, a, circleOffset + shift, 0 + shift, textSize);
+        createButton(3, x, 0 + shift, circleOffset + shift, textSize);
     }
 
-    private void createButton(String key, ButtonsSettings settings, double x, double y, double textSize) {
+    private void createButton(int key, ButtonsSettings settings, double x, double y, double textSize) {
         // Outer bezel (darker ring)
         Circle bezel = new Circle(x, y, radius + 3); // Slightly larger for depth
         bezel.setFill(settings.getBaseColor().darker().darker());
@@ -73,7 +72,7 @@ public class FourButtonWidget extends Group {
 
         getChildren().addAll(bezel, circle, shine, labelGroup);
 
-        buttons.put(key.toUpperCase(), new ButtonNode(bezel, circle, shine, labelGroup, strokeText, fillText, settings));
+        buttons.put(key, new ButtonNode(bezel, circle, shine, labelGroup, strokeText, fillText, settings));
     }
 
     private Paint create3DGradient(Color baseColor, boolean flipped) {
@@ -94,10 +93,11 @@ public class FourButtonWidget extends Group {
     /**
      * Simulates pressing a button: flips the 3D shading
      */
-    public void activate(String buttonKey, boolean flipped) {
-        ButtonNode btn = buttons.get(buttonKey.toUpperCase());
+    public void activate(int buttonKey) {
+        ButtonNode btn = buttons.get(buttonKey);
+        boolean act = btn.active = !btn.active;
         if (btn != null) {
-            btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), flipped));
+            btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), act));
 
             // Flip shine to the other side
             double x = btn.circle.getCenterX();
@@ -105,26 +105,25 @@ public class FourButtonWidget extends Group {
             double offsetX = radius * 0.37;
             double offsetY = radius * 0.3;
 
-            btn.shine.setCenterX(flipped ? x + offsetX : x - offsetX);
-            btn.shine.setCenterY(flipped ? y + offsetY : y - offsetY);
+            btn.shine.setCenterX(act ? x + offsetX : x - offsetX);
+            btn.shine.setCenterY(act ? y + offsetY : y - offsetY);
 
-            btn.shine.setOpacity(flipped ? 0.3 : 0.5);
+            btn.shine.setOpacity(act ? 0.3 : 0.5);
         }
     }
-
 
     /**
      * Resets button shading back to unpressed
      */
-    public void deactivate(String buttonKey) {
-        ButtonNode btn = buttons.get(buttonKey.toUpperCase());
+    public void deactivate(int buttonKey) {
+        ButtonNode btn = buttons.get(buttonKey);
         if (btn != null) {
             btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), false));
         }
     }
 
-    public void setButtonLabel(String buttonKey, String label) {
-        ButtonNode btn = buttons.get(buttonKey.toUpperCase());
+    public void setButtonLabel(int button, String label) {
+        ButtonNode btn = buttons.get(button);
         if (btn != null) {
             btn.strokeText.setText(label);
             btn.text.setText(label);
@@ -142,6 +141,7 @@ public class FourButtonWidget extends Group {
     }
 
     private static class ButtonNode {
+        boolean active;
         Circle bezel;
         Circle circle;
         Circle shine;

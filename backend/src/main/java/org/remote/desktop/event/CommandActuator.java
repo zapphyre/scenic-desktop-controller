@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.XdoCommandEvent;
-import org.remote.desktop.ui.InputWidget;
+import org.remote.desktop.ui.VariableGroupingInputWidget;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import static jxdotool.xDoToolUtil.*;
 public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
     private final SceneStateRepository actuatedStateRepository;
-    private final InputWidget inputWidget;
+    private final VariableGroupingInputWidget variableGroupingInputWidget;
 
     @Override
     @SneakyThrows
@@ -33,8 +33,8 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case MOUSE_UP -> xDo("mouseup", xdoKeyPart);
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
-            case KEYBOARD_ON -> inputWidget.render();
-            case KEYBOARD_OFF -> inputWidget.clearText();
+            case KEYBOARD_ON -> variableGroupingInputWidget.render();
+            case KEYBOARD_OFF -> variableGroupingInputWidget.clearText();
             case BUTTON -> buttonMapped(e.getSourceSceneWindowName(), e.getTrigger());
         }
     }
@@ -47,22 +47,22 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 //        inputWidget.setSecondaryText(List.of("foku", "meke", "ukulele", "ukulele"));
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.B.name()))
-            inputWidget.setFrameOn(idx++);
+            variableGroupingInputWidget.setFrameOn(idx++);
 
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.X.name()))
-            inputWidget.setFrameOn(idx--);
+            variableGroupingInputWidget.setFrameOn(idx--);
 //            inputWidget.addCharacter(" ");
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.A.name()))
-            xDo("type", inputWidget.getFullContentClearClose());
+            xDo("type", variableGroupingInputWidget.getFullContentClearClose());
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.Y.name()))
-            inputWidget.addSecondaryText(inputWidget.getFullLettersContent());
+            variableGroupingInputWidget.addSecondaryText(variableGroupingInputWidget.getFullLettersContent());
 //            inputWidget.deleteLast();
 
         if (trigger.equalsIgnoreCase(EButtonAxisMapping.BUMPER_RIGHT.name()))
-            inputWidget.addSelectedLetter();
+            variableGroupingInputWidget.addSelectedLetter();
 
     }
 }

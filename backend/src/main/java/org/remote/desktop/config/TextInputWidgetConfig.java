@@ -5,7 +5,7 @@ import com.arun.trie.io.TrieIO;
 import javafx.scene.paint.Color;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
-import org.remote.desktop.ui.InputWidget;
+import org.remote.desktop.ui.VariableGroupingInputWidget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,15 +19,15 @@ public class TextInputWidgetConfig {
     private final List<String> buttons = List.of("Y", "B", "A", "X");
 
     @Bean
-    public InputWidget inputWidget() {
+    public VariableGroupingInputWidget inputWidget() {
         Trie<String> trie = TrieIO.loadTrie("slovak.trie");
 
-        InputWidget inputWidget = new InputWidget(2, Color.BURLYWOOD,
+        VariableGroupingInputWidget variableGroupingInputWidget = new VariableGroupingInputWidget(2, Color.BURLYWOOD,
                 0.4, Color.ORANGE, Color.BLACK,
                 6, settingsDao.getSettings().getTextInputSceneName());
 
-        inputWidget.setPredictor(trie::getValueSuggestions);
+//        inputWidget.setPredictor(trie::getValueSuggestions);
 
-        return inputWidget;
+        return variableGroupingInputWidget;
     }
 }
