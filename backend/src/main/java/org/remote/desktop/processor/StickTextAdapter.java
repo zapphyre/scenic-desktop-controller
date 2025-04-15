@@ -10,7 +10,7 @@ import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
-import org.remote.desktop.ui.VariableGroupingInputWidget;
+import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -26,7 +26,7 @@ public class StickTextAdapter {
     private final IntrospectedEventFactory gamepadObserver;
     protected final ButtonPressMapper buttonPressMapper;
 
-    private final VariableGroupingInputWidget widget;
+    private final VariableGroupingInputWidgetBase widget;
 
     PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 

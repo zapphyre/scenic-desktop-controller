@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 
 public class JavaFxApplication extends Application {
 
-    VariableGroupingInputWidget widget = new VariableGroupingInputWidget(2, Color.BURLYWOOD,
+    InputWidgetBase widget = new CircleButtonsInputWidget(90, 2, Color.BURLYWOOD,
             0.4, Color.ORANGE, Color.BLACK,
             6, "title");
 
