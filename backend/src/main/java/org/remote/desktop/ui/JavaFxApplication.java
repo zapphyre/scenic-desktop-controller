@@ -3,6 +3,7 @@ package org.remote.desktop.ui;
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import lombok.SneakyThrows;
 
 public class JavaFxApplication extends Application {
 
@@ -25,6 +26,7 @@ public class JavaFxApplication extends Application {
     public void stop() throws Exception {
     }
 
+    @SneakyThrows
     public static void main(String[] args) {
         launch(args);
     }

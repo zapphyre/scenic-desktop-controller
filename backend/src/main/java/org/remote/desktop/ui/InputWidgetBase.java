@@ -6,11 +6,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.Node;
 import org.remote.desktop.ui.component.TextContainer;
 
 @RequiredArgsConstructor
@@ -32,9 +30,9 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     TextContainer wordsContainer = new TextContainer();
     TextContainer lettersContainer = new TextContainer();
 
-    abstract Pane getLeftWidget();
+    abstract Pane createLeftWidget();
 
-    abstract Pane getRightWidget();
+    abstract Pane createRightWidget();
 
     @Override
     public void start(Stage primaryStage) {
@@ -43,8 +41,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         HBox horiz = new HBox();
         VBox vert = new VBox(horiz);
 
-        Pane leftWidget = getLeftWidget();
-        Pane rightWidget = getRightWidget();
+        Pane leftWidget = createLeftWidget();
+        Pane rightWidget = createRightWidget();
 
         horiz.getChildren().addAll(leftWidget, rightWidget);
 

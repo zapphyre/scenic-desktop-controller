@@ -19,25 +19,24 @@ public class FourButtonWidget extends Pane {
 
     private final double radius;
     private final double shift;
-    private final Map<Integer, ButtonNode> buttons = new HashMap<>();
+    private final Map<EActionButton, ButtonNode> buttons = new HashMap<>();
 
     public FourButtonWidget(Map<EActionButton, ButtonsSettings> defs, double widgetSize, double textSize) {
-
         this.radius = widgetSize / 6;
         double centerOffset = widgetSize / 2;
         double circleOffset = centerOffset - radius;
         this.shift = circleOffset + radius;
 
         // Create buttons with shading
-        createButton(0, defs.get(Y), 0 + shift, -circleOffset + shift, textSize);
-        createButton(1, defs.get(B), -circleOffset + shift, 0 + shift, textSize);
-        createButton(2, defs.get(A), circleOffset + shift, 0 + shift, textSize);
-        createButton(3, defs.get(X), 0 + shift, circleOffset + shift, textSize);
+        createButton(Y, defs.get(Y), 0 + shift, -circleOffset + shift, textSize);
+        createButton(X, defs.get(X), -circleOffset + shift, 0 + shift, textSize);
+        createButton(B, defs.get(B), circleOffset + shift, 0 + shift, textSize);
+        createButton(A, defs.get(A), 0 + shift, circleOffset + shift, textSize);
 
         setTranslateY(5);
     }
 
-    private void createButton(int key, ButtonsSettings settings, double x, double y, double textSize) {
+    private void createButton(EActionButton key, ButtonsSettings settings, double x, double y, double textSize) {
         // Outer bezel (darker ring)
         Circle bezel = new Circle(x, y, radius + 3); // Slightly larger for depth
         bezel.setFill(settings.getBaseColor().darker().darker());
@@ -98,29 +97,29 @@ public class FourButtonWidget extends Pane {
     /**
      * Simulates pressing a button: flips the 3D shading
      */
-    public void activate(int buttonKey) {
+    public char activate(EActionButton buttonKey) {
         ButtonNode btn = buttons.get(buttonKey);
         boolean act = btn.active = !btn.active;
-        if (btn != null) {
-            btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), act));
+        btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), act));
 
-            // Flip shine to the other side
-            double x = btn.circle.getCenterX();
-            double y = btn.circle.getCenterY();
-            double offsetX = radius * 0.37;
-            double offsetY = radius * 0.3;
+        // Flip shine to the other side
+        double x = btn.circle.getCenterX();
+        double y = btn.circle.getCenterY();
+        double offsetX = radius * 0.37;
+        double offsetY = radius * 0.3;
 
-            btn.shine.setCenterX(act ? x + offsetX : x - offsetX);
-            btn.shine.setCenterY(act ? y + offsetY : y - offsetY);
+        btn.shine.setCenterX(act ? x + offsetX : x - offsetX);
+        btn.shine.setCenterY(act ? y + offsetY : y - offsetY);
 
-            btn.shine.setOpacity(act ? 0.3 : 0.5);
-        }
+        btn.shine.setOpacity(act ? 0.3 : 0.5);
+
+        return btn.settings.getTrieKey();
     }
 
     /**
      * Resets button shading back to unpressed
      */
-    public void deactivate(int buttonKey) {
+    public void deactivate(EActionButton buttonKey) {
         ButtonNode btn = buttons.get(buttonKey);
         if (btn != null) {
             btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), false));

@@ -27,12 +27,11 @@ import static java.util.stream.Collectors.toMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GPadEventStreamService implements ApplicationListener<XdoCommandEvent> {
+public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
     private final ButtonPressMapper buttonPressMapper;
     private final SceneStateRepository sceneStateRepository;
-    private final Set<ButtonActionDef> appliedCommands = new HashSet<>();
     private final RecursiveScraper<GamepadEventDto, SceneDto> scraper = new RecursiveScraper<>();
 
     public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
@@ -103,16 +102,6 @@ public class GPadEventStreamService implements ApplicationListener<XdoCommandEve
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {
         return !qualificationReceived.remove(def.getQualified());
-    }
-
-    @Override
-    public void onApplicationEvent(XdoCommandEvent event) {
-
-    }
-
-    @Override
-    public boolean supportsAsyncExecution() {
-        return true;
     }
 
     public record SceneBtnActions(String windowName, ActionMatch action, List<XdoActionDto> actions,

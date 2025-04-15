@@ -1,5 +1,6 @@
 package org.remote.desktop.ui;
 
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.remote.desktop.model.TrieGroupDef;
@@ -17,17 +18,18 @@ import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
+    private final Map<Integer, FourButtonWidget> groupWidgetMap;
+
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, letterGroupCount, title);
+        ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
+                .textColor(Color.DARKGOLDENROD)
+                .baseColor(Color.BURLYWOOD)
+                .alpha(.8);
 
-        buttonDict.keySet().stream()
+        groupWidgetMap = buttonDict.keySet().stream()
                 .collect(Collectors.toMap(Function.identity(), q -> {
-                    ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
-                            .textColor(Color.DARKGOLDENROD)
-                            .baseColor(Color.BURLYWOOD)
-                            .alpha(.8);
                     Map<EActionButton, TrieGroupDef> groupDefs = buttonDict.get(q);
-
                     Map<EActionButton, ButtonsSettings> settingsMap = Arrays.stream(EActionButton.values())
                             .map(groupDefs::get)
                             .collect(Collectors.toMap(TrieGroupDef::getButton,
@@ -38,31 +40,35 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
                     return new FourButtonWidget(settingsMap, (widgetSize * 2) * scaleFactor, 24);
                 }, (p, q) -> q));
+
+        rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(0));
     }
 
     String str(List<String> lst) {
         return String.join(" ", lst);
     }
 
+    Pane rightPane = new Pane();
     @Override
-    Pane getRightWidget() {
-        ButtonsSettings bs = ButtonsSettings.builder()
-                .baseColor(Color.BURLYWOOD)
-                .alpha(.8)
-                .textColor(Color.DARKGOLDENROD)
-                .letters("A B C D")
-                .build();
-
-        return new FourButtonWidget(null, (widgetSize * 2) * scaleFactor, 24);
+    Pane createRightWidget() {
+        return rightPane;
     }
 
+    FourButtonWidget activeButtonGroup;
     @Override
     public int setGroupActive(int index) {
-        return 0;
+        Platform.runLater(() -> {
+            rightPane.getChildren().clear();
+            rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(index));
+        });
+
+        getGroupWidget().selectSegment(index);
+
+        return index + 1;
     }
 
     @Override
     public char setElementActive(int index) {
-        return 0;
+        return activeButtonGroup.activate(EActionButton.values()[index]);
     }
 }
