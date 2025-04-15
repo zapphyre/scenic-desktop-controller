@@ -1,6 +1,7 @@
 package org.remote.desktop.ui.component;
 
 import javafx.scene.Group;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
@@ -11,7 +12,7 @@ import org.remote.desktop.ui.model.ButtonsSettings;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FourButtonWidget extends Group {
+public class FourButtonWidget extends Pane {
 
     private final double radius;
     private final double shift;
@@ -30,6 +31,8 @@ public class FourButtonWidget extends Group {
         createButton(1, b, -circleOffset + shift, 0 + shift, textSize);
         createButton(2, a, circleOffset + shift, 0 + shift, textSize);
         createButton(3, x, 0 + shift, circleOffset + shift, textSize);
+
+        setTranslateY(5);
     }
 
     private void createButton(int key, ButtonsSettings settings, double x, double y, double textSize) {

@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.XdoCommandEvent;
-import org.remote.desktop.ui.VariableGroupingInputWidget;
+import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import static jxdotool.xDoToolUtil.*;
 public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
     private final SceneStateRepository actuatedStateRepository;
-    private final VariableGroupingInputWidget variableGroupingInputWidget;
+    private final VariableGroupingInputWidgetBase variableGroupingInputWidget;
 
     @Override
     @SneakyThrows
