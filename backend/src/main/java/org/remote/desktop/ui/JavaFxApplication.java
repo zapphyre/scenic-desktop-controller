@@ -1,17 +1,12 @@
 package org.remote.desktop.ui;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.remote.desktop.ui.component.LetterCircle;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class JavaFxApplication extends Application {
 
-    InputWidget widget = new InputWidget(2, Color.BURLYWOOD,
+    VariableGroupingInputWidget widget = new VariableGroupingInputWidget(2, Color.BURLYWOOD,
             0.4, Color.ORANGE, Color.BLACK,
             6, "title");
 

@@ -6,10 +6,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
+import org.remote.desktop.ui.SegmentSelectable;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class LetterCircle {
+public class LetterCircle implements SegmentSelectable {
     private final List<Path> slices = new LinkedList<>();
     private final List<Group> labelGroups = new LinkedList<>();
     private double scaleFactor;
@@ -61,10 +63,11 @@ public class LetterCircle {
         return scene;
     }
 
-    public void setHighlightedSection(int highlightSection) {
+    //activate
+    public void selectSegment(int segment) {
         for (int i = 0; i < slices.size(); i++) {
             Path slice = slices.get(i);
-            slice.setFill(i == highlightSection ? createMainGradient(highlightedColor, true) : createMainGradient(Color.color(
+            slice.setFill(i == segment ? createMainGradient(highlightedColor, true) : createMainGradient(Color.color(
                     arcDefaultFillColor.getRed(),
                     arcDefaultFillColor.getGreen(),
                     arcDefaultFillColor.getBlue(),

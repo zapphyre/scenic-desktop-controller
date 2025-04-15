@@ -5,7 +5,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import org.remote.desktop.ui.InputWidget;
 
 import java.util.ArrayList;
 import java.util.List;
