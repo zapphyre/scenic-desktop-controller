@@ -5,9 +5,13 @@ import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.TriggerActionMatcher;
+import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +27,17 @@ public class ButtonAdapter extends ButtonProcessorBase {
 
     Predicate<ButtonActionDef> consumeLeftovers = gPadEventStreamService::consumeEventLeftovers;
     Predicate<ButtonActionDef> relevantQualification = gPadEventStreamService::isCurrentClickQualificationSceneRelevant;
-    Consumer<ButtonActionDef> appliedCommand = gPadEventStreamService::computeRemainderFilter;
+
 
     public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
-                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor);
+                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
+    }
+
+    @Override
+    public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
+        return super.mapEvent(def, sceneXdoAction, xdoAction);
     }
 
     public Consumer<List<TimedValue>> getButtonConsumer() {
@@ -41,12 +50,12 @@ public class ButtonAdapter extends ButtonProcessorBase {
     }
 
     @Override
-    public Predicate<ButtonActionDef> purgingFilter() {
+    protected Predicate<ButtonActionDef> purgingFilter() {
         return consumeLeftovers.and(relevantQualification);
     }
 
     @Override
-    public void qualificationExamine(ButtonActionDef click) {
-        appliedCommand.accept(click);
+    protected void qualificationExamine(ButtonActionDef click) {
+        gPadEventStreamService.computeRemainderFilter(click);
     }
 }

@@ -39,34 +39,8 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
             case KEYBOARD_OFF -> inputWidgetBase.close();
-            case BUTTON -> eventPublisher.publishEvent(new ButtonEvent(this, EActionButton.valueOf(e.getTrigger())));
+//            case BUTTON -> eventPublisher.publishEvent(new ButtonEvent(this, EActionButton.valueOf(e.getTrigger())));
         }
     }
 
-//    int idx = 0;
-//    @SneakyThrows
-//    private void buttonMapped(String sourceSceneWindowName, String trigger) {
-//        System.out.println("buttonMapped: " + sourceSceneWindowName + " " + trigger);
-//
-////        inputWidget.setSecondaryText(List.of("foku", "meke", "ukulele", "ukulele"));
-//
-//        if (trigger.equalsIgnoreCase(EButtonAxisMapping.B.name()))
-//            inputWidgetBase.setFrameOn(idx++);
-//
-//
-//        if (trigger.equalsIgnoreCase(EButtonAxisMapping.X.name()))
-//            inputWidgetBase.setFrameOn(idx--);
-////            inputWidget.addCharacter(" ");
-//
-//        if (trigger.equalsIgnoreCase(EButtonAxisMapping.A.name()))
-//            xDo("type", inputWidgetBase.getFullContentClearClose());
-//
-//        if (trigger.equalsIgnoreCase(EButtonAxisMapping.Y.name()))
-//            inputWidgetBase.addSecondaryText(inputWidgetBase.getFullLettersContent());
-////            inputWidget.deleteLast();
-//
-//        if (trigger.equalsIgnoreCase(EButtonAxisMapping.BUMPER_RIGHT.name()))
-//            inputWidgetBase.addSelectedLetter();
-//
-//    }
 }

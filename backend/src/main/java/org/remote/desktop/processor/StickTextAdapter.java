@@ -8,12 +8,9 @@ import org.asmus.builder.AxisEventFactory;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.model.event.ButtonEvent;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidgetBase;
-import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
