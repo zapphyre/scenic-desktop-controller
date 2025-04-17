@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.model.ActionMatch;
-import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.*;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
@@ -29,10 +27,11 @@ public class TriggerActionMatcher {
 
     private final SettingsDao settingsDao;
 
-    public Function<ButtonActionDef, Flux<ApplicationEvent>> actionPickPipeline = p -> Flux.just(p)
+    public Function<AppEventMapper,Function<ButtonActionDef, Flux<ApplicationEvent>>> actionPickPipeline = r -> p -> Flux.just(p)
             .flatMap(this::getNextSceneButtonEvent)
             .flatMap(q -> Flux.fromIterable(q.getActions())
-                    .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene(), p.getTrigger(), q.getEventSourceScene().getWindowName()))
+//                    .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene(), p.getTrigger(), q.getEventSourceScene().getWindowName()))
+                    .map(x -> r.mapEvent(p, q, x))
             );
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {

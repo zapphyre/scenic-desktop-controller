@@ -41,13 +41,13 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     @Override
     Pane createLeftWidget() {
         return groupWidget = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
-                2, -1, 40, widgetSize, letterGroups, 116);
+                1.5, -1, 40, widgetSize, letterGroups, 116);
     }
 
     @Override
     Pane createRightWidget() {
         return letterCircleLeft = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
-                2, -1, 40, widgetSize, letterGroups, 135);
+                1.5, -1, 40, widgetSize, letterGroups, 135);
     }
 
     String[] arraize(String input) {

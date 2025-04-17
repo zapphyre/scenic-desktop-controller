@@ -11,6 +11,8 @@ import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.ui.component.TextContainer;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 public abstract class InputWidgetBase extends Application implements TwoGroupInputWidget {
 
@@ -23,7 +25,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final int letterGroupCount;
     protected final String title;
 
-    double scaleFactor = 2;
+    double scaleFactor = 1.5;
 
     private Stage primaryStage;
 
@@ -80,6 +82,14 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         layout.setBackground(new Background(new BackgroundFill(Color.color(1, 1, 1, 0.5), null, null)));
 
         return layout;
+    }
+
+    @Override
+    public void setWordsAvailable(List<String> wordsAvailable) {
+        Platform.runLater(() -> {
+            wordsContainer.clear();
+            wordsAvailable.forEach(wordsContainer::addText);
+        });
     }
 
     public void close() {
