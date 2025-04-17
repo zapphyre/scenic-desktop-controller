@@ -1,6 +1,8 @@
 package org.remote.desktop.ui.component;
 
+import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
@@ -38,7 +40,8 @@ public class FourButtonWidget extends Pane {
 
     private void createButton(EActionButton key, ButtonsSettings settings, double x, double y, double textSize) {
         // Outer bezel (darker ring)
-        Circle bezel = new Circle(x, y, radius + 3); // Slightly larger for depth
+        int bezelWidth = 3;
+        Circle bezel = new Circle(x, y, radius + bezelWidth); // Slightly larger for depth
         bezel.setFill(settings.getBaseColor().darker().darker());
 
         // Main button circle with 3D gradient
@@ -56,27 +59,43 @@ public class FourButtonWidget extends Pane {
         ));
         shine.setMouseTransparent(true);
 
-        // Stroke (outline) text for better readability
-        Text strokeText = new Text(settings.getLetters());
-        strokeText.setFont(Font.font(textSize));
-        strokeText.setFill(Color.TRANSPARENT);
-        strokeText.setStroke(Color.BLACK);
-        strokeText.setStrokeWidth(2);
-        strokeText.setStrokeType(StrokeType.OUTSIDE);
+        TextContainer textContainer = new TextContainer();
+        for (char c : settings.getLetters().toCharArray()) {
+            textContainer.addText(String.valueOf(c));
+        }
 
-        // Main fill text
-        Text fillText = new Text(settings.getLetters());
-        fillText.setFont(Font.font(textSize));
-        fillText.setFill(settings.getTextColor());
+        HBox labelGroup = new HBox();
+        labelGroup.setAlignment(Pos.BOTTOM_CENTER);
+        for (char c : settings.getLetters().toCharArray()) {
+            // Stroke (outline) text for better readability
+            Text strokeText = new Text(String.valueOf(c));
+            if (String.valueOf(c).equals("A"))
+                strokeText.setFont(Font.font(42));
+            else
+                strokeText.setFont(Font.font(textSize));
+            strokeText.setFill(Color.TRANSPARENT);
+            strokeText.setStroke(Color.BLACK);
+            strokeText.setStrokeWidth(2);
+            strokeText.setStrokeType(StrokeType.OUTSIDE);
 
-        // Center both text layers in a group
-        Group labelGroup = new Group(strokeText, fillText);
-        labelGroup.setLayoutX(x - fillText.getLayoutBounds().getWidth() / 2);
-        labelGroup.setLayoutY(y + fillText.getLayoutBounds().getHeight() / 4);
+            // Main fill text
+            Text fillText = new Text(String.valueOf(c));
+            if (String.valueOf(c).equals("A"))
+                fillText.setFont(Font.font(42));
+            else
+                fillText.setFont(Font.font(textSize));
+            fillText.setFill(settings.getTextColor());
+
+            Group group = new Group(strokeText, fillText);
+            labelGroup.getChildren().add(group);
+        }
+
+        labelGroup.setLayoutX(x - labelGroup.getLayoutBounds().getWidth() / 2);
+        labelGroup.setLayoutY(y - labelGroup.getLayoutBounds().getHeight() / 2);
 
         getChildren().addAll(bezel, circle, shine, labelGroup);
 
-        buttons.put(key, new ButtonNode(bezel, circle, shine, labelGroup, strokeText, fillText, settings));
+        buttons.put(key, new ButtonNode(bezel, circle, shine, null, settings));
     }
 
     private Paint create3DGradient(Color baseColor, boolean flipped) {
@@ -154,13 +173,13 @@ public class FourButtonWidget extends Pane {
         Text text;
         ButtonsSettings settings;
 
-        ButtonNode(Circle bezel, Circle circle, Circle shine, Group labelGroup, Text strokeText, Text text, ButtonsSettings settings) {
+        ButtonNode(Circle bezel, Circle circle, Circle shine, Group labelGroup, ButtonsSettings settings) {
             this.bezel = bezel;
             this.circle = circle;
             this.shine = shine;
             this.labelGroup = labelGroup;
-            this.strokeText = strokeText;
-            this.text = text;
+//            this.strokeText = strokeText;
+//            this.text = text;
             this.settings = settings;
         }
     }
