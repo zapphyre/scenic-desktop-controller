@@ -1,10 +1,8 @@
 package org.remote.desktop.ui.component;
 
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +12,9 @@ public class TextContainer extends HBox {
     private final List<TextItem> items = new ArrayList<>();
 
     public TextContainer() {
-        setSpacing(10);
-        setPadding(new javafx.geometry.Insets(10));
+        setBorder(Border.stroke(Paint.valueOf(Color.BLACK.toString())));
+//        setSpacing(10);
+//        setPadding(new javafx.geometry.Insets(10));
     }
 
     public void addText(String text) {
