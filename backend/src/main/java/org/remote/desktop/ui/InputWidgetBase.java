@@ -6,6 +6,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
+import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
 
 @RequiredArgsConstructor
 public abstract class InputWidgetBase extends Application implements TwoGroupInputWidget {
@@ -32,6 +36,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     double scaleFactor = 1.5;
 
     private Stage primaryStage;
+    protected int fittingCharacters;
 
     @Setter
     protected Function<String, List<String>> predictor = List::of;
@@ -68,7 +73,11 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         horiz.setSpacing(7);
 
         Scene scene = new Scene(vert);
-        scene.setFill(Color.TRANSPARENT);
+        scene.setFill(Color.grayRgb(23, .6));
+
+//        fittingCharacters = calculateTextItemsInHBox(horiz);
+//        fittingCharacters = calculateTextItemsEmpirically(new HBox(horiz), "q", Font.font(32));
+        fittingCharacters = 19;
 
 //        vert.setPrefWidth(widgetSize + 12);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
@@ -100,29 +109,36 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         });
     }
 
-    public String getWordAndReset() {
-        System.out.println("gettin from index: " + wordIdx);
-        String word = wordsContainer.getWord(wordIdx.get());
-
-        clearAllLetters();
+    public void resetStateClean() {
         clearAllWords();
+        resetPredictionStack();
         wordIdx.set(0);
+    }
 
-        return word;
+    protected void resetPredictionStack() {
+
+    }
+
+    @Override
+    public void addWordToSentence() {
+        Platform.runLater(() -> {
+            lettersContainer.addText(wordsContainer.getWord(wordIdx.get()));
+            resetStateClean();
+        });
     }
 
     AtomicInteger wordIdx = new AtomicInteger(0);
+
     public void frameNextPredictedWord() {
         Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
-        wordIdx.incrementAndGet();
+        if (wordIdx.get() < wordsContainer.getWordsCount() - 1)
+            wordIdx.incrementAndGet();
     }
 
     protected List<String> predictions = new LinkedList<>();
 
     public void nextPredictionsFrame() {
-        List<String> limitedPredictions = predictions.stream()
-                .limit(5)
-                .toList();
+        List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
 
         predictions.removeAll(limitedPredictions);
 
@@ -130,9 +146,69 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         setWordsAvailable(limitedPredictions);
     }
 
+    private int calculateTextItemsEmpirically(HBox hbox, String textContent, Font font) {
+        int count = 0;
+        double availableWidth = hbox.getBoundsInLocal().getWidth();
+
+        // Temporarily add Text nodes to check for overflow
+        while (true) {
+            Text text = new Text(textContent);
+            text.setFont(font);
+            hbox.getChildren().add(text);
+
+            // Force layout update to ensure accurate bounds
+            hbox.layout();
+
+            // Calculate total width of children (including spacing)
+            double totalWidth = hbox.getChildren().stream()
+                    .mapToDouble(node -> node.getLayoutBounds().getWidth())
+                    .sum() + hbox.getSpacing() * (hbox.getChildren().size() - 1);
+
+            if (totalWidth > availableWidth) {
+                // Overflow detected, remove the last item
+                hbox.getChildren().remove(hbox.getChildren().size() - 1);
+                break;
+            }
+
+            count++;
+        }
+
+        return count;
+    }
+
+    protected int calculateTextItemsInHBox(HBox hbox) {
+        // Create a sample Text node to measure its width
+        Text sampleText = new Text("q");
+        sampleText.setFont(Font.font(32));
+        hbox.getChildren().add(sampleText);
+
+        // Get the width of the Text node
+        double textWidth = sampleText.getLayoutBounds().getWidth();
+
+        // Get the HBox's usable width (subtract padding if any)
+        double hboxWidth = hbox.getBoundsInParent().getWidth();
+
+        // Account for spacing between Text items
+        double spacing = 0; //hbox.getSpacing();
+
+        // Calculate how many Text items fit
+        // Formula: (HBox width) / (Text width + spacing)
+        // Use floor to get whole items, and adjust for spacing
+        return (int) Math.floor(hboxWidth / (textWidth + spacing));
+    }
+
+    @Override
+    public String getSentenceAndReset() {
+        close();
+        clearAllWords();
+        clearAllLetters();
+        return lettersContainer.getTextContent();
+    }
+
     public void framePreviousPredictedWord() {
         Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
-        wordIdx.decrementAndGet();
+        if (wordIdx.get() > 0)
+            wordIdx.decrementAndGet();
     }
 
     public void clearAllWords() {

@@ -76,13 +76,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
         clearText();
         return word;
     }
-
-    public String getFullLettersContent() {
-        String textContent = lettersContainer.getTextContent();
-        System.out.println("textContent: " + textContent);
-        return textContent;
-    }
-
+    
     public void clearText() {
 
     }
@@ -148,7 +142,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
-    public char setActiveAndType(int index) {
-        return 0;
+    public void setActiveAndType(int index) {
     }
 }

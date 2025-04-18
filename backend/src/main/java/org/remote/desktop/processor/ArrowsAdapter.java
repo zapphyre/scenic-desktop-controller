@@ -4,6 +4,7 @@ import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,8 +23,11 @@ import static org.remote.desktop.util.EtriggerFilter.triggerBetween;
 public class ArrowsAdapter extends ButtonProcessorBase {
 
 
-    public ArrowsAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService, SettingsDao settingsDao){
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
+    public ArrowsAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
+                         GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
+                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
+                         SettingsDao settingsDao, VirtualInputStateRepository repository){
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao, repository);
     }
 
     public Consumer<Map<String, Integer>> getArrowConsumer() {

@@ -36,13 +36,17 @@ public class TextContainer extends HBox {
     }
 
     public String getTextContent() {
-        return this.items.stream().map(TextItem::getText).collect(Collectors.joining(""));
+        return this.items.stream().map(TextItem::getText).collect(Collectors.joining(" "));
     }
 
     public String getWord(int index) {
         if (index >= 0 && index < items.size())
             return items.get(index).getText();
         return "";
+    }
+
+    public int getWordsCount() {
+        return items.size();
     }
 
     public void setTextBorderVisible(int index) {

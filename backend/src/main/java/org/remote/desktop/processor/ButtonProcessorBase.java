@@ -6,6 +6,7 @@ import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
@@ -30,12 +31,14 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     protected final TriggerActionMatcher triggerActionMatcher;
     protected final ScheduledExecutorService executorService;
     protected final SettingsDao settingsDao;
+    private final VirtualInputStateRepository virtualInputStateRepository;
 
     protected abstract Predicate<GamepadEvent> triggerFilter();
 
     @PostConstruct
     protected void process() {
         gamepadObserver.getButtonEventStream()
+                .filter(_ -> !virtualInputStateRepository.isActive())
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())

@@ -2,10 +2,12 @@ package org.remote.desktop.processor.keyboard;
 
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EQualificationType;
 import org.asmus.model.GamepadEvent;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
@@ -26,10 +28,13 @@ import static org.asmus.model.EButtonAxisMapping.*;
 public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
 
     private final JoyWorker worker;
-    private final List<EButtonAxisMapping> allowedButtons = List.of(LEFT, RIGHT, TRIGGER_RIGHT, BUMPER_LEFT);
+    private final List<EButtonAxisMapping> allowedButtons = List.of(LEFT, RIGHT, TRIGGER_RIGHT, TRIGGER_LEFT, BUMPER_LEFT, BUMPER_RIGHT);
 
-    public PredictionControlAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService, SettingsDao settingsDao, JoyWorker worker) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
+    public PredictionControlAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
+                                    GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
+                                    TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
+                                    SettingsDao settingsDao, JoyWorker worker, VirtualInputStateRepository repository) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao, repository);
         this.worker = worker;
     }
 
@@ -41,7 +46,8 @@ public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
-        return q -> allowedButtons.contains(q.getType());
+        return q -> allowedButtons.contains(q.getType())
+                && q.getQualified() == EQualificationType.PUSH;
     }
 
     @Override

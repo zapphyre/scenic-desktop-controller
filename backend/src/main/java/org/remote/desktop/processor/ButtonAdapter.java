@@ -6,6 +6,7 @@ import org.asmus.model.GamepadEvent;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
@@ -31,8 +32,9 @@ public class ButtonAdapter extends ButtonProcessorBase {
 
     public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
-                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
+                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao,
+                         VirtualInputStateRepository repository) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao, repository);
     }
 
     @Override
