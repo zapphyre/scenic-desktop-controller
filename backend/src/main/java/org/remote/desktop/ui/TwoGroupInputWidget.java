@@ -6,7 +6,9 @@ public interface TwoGroupInputWidget {
 
     char setActive(int index);
     int setGroupActive(int index);
-    char setActiveAndType(int index);
+    void setActiveAndType(int index);
 
     void setWordsAvailable(List<String> wordsAvailable);
+    void addWordToSentence();
+    String getSentenceAndReset();
 }

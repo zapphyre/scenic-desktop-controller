@@ -22,7 +22,7 @@ public class TrieConfig {
     private static final String TRIE_SAVE_FILENAME = "slovak.trie";
 
     @Bean
-    public Trie<String> init() throws Exception {
+    public Trie init() throws Exception {
         if (Files.exists(Paths.get(TRIE_SAVE_FILENAME))) {
             Trie<String> stringTrie = TrieIO.loadTrie(TRIE_SAVE_FILENAME);
             return stringTrie;

@@ -6,6 +6,7 @@ import org.asmus.model.EQualificationType;
 import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
@@ -31,8 +32,11 @@ public class CharacterInputAdapter extends KeyboardActionsBaseAdapter {
     private final List<EQualificationType> allowedQualifs = List.of(PUSH, RELEASE);
 
 
-    public CharacterInputAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService, SettingsDao settingsDao) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
+    public CharacterInputAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
+                                 GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
+                                 TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
+                                 SettingsDao settingsDao, VirtualInputStateRepository repository) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao, repository);
     }
 
     @Override
