@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.event.KeyboardStateRepository;
 import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
@@ -13,11 +12,9 @@ import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
-import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -70,6 +67,7 @@ public class GPadEventStreamService {
     }
 
     public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
+        System.out.println("sceneClickQualificationRelevant: " + click);
         return Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))
@@ -82,6 +80,7 @@ public class GPadEventStreamService {
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
     public void computeRemainderFilter(ButtonActionDef click) {
+        System.out.println("computeRemainderFilter: " + click);
         if (click.getQualified() == EQualificationType.PUSH)
             qualificationReceived.addAll(Arrays.asList(
                     EQualificationType.RELEASE,
@@ -97,9 +96,13 @@ public class GPadEventStreamService {
 
         if (click.getQualified() != EQualificationType.MULTIPLE)
             qualificationReceived.add(EQualificationType.MULTIPLE);
+
+        System.out.println("conputed remainders: " + qualificationReceived);
     }
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {
+        System.out.println("consumeEventLeftovers " + def.getQualified());
+        System.out.println("qualificationReceived: " + qualificationReceived);
         return !qualificationReceived.remove(def.getQualified());
     }
 

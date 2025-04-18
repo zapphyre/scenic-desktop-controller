@@ -30,7 +30,6 @@ public class TriggerActionMatcher {
     public Function<AppEventMapper,Function<ButtonActionDef, Flux<ApplicationEvent>>> actionPickPipeline = r -> p -> Flux.just(p)
             .flatMap(this::getNextSceneButtonEvent)
             .flatMap(q -> Flux.fromIterable(q.getActions())
-//                    .map(x -> new XdoCommandEvent(this, x.getKeyEvt(), x.getKeyStrokes(), q.getNextScene(), p.getTrigger(), q.getEventSourceScene().getWindowName()))
                     .map(x -> r.mapEvent(p, q, x))
             );
 

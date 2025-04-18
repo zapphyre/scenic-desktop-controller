@@ -24,6 +24,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     @SneakyThrows
     public void onApplicationEvent(XdoCommandEvent e) {
         String xdoKeyPart = String.join("+", e.getKeyPart().getKeyStrokes());
+        System.out.println("xdoKeyPart: " + e);
 
         switch (e.getKeyPart().getKeyEvt()) {
             case PRESS -> keydown(xdoKeyPart);
