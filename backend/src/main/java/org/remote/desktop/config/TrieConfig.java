@@ -1,42 +1,60 @@
 package org.remote.desktop.config;
 
 import com.arun.trie.base.Trie;
+import com.arun.trie.base.ValueFrequency;
 import com.arun.trie.io.TrieIO;
+import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.prediction.G4Trie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.List;
 
 import static org.remote.desktop.util.KeyboardLayoutTrieUtil.trieDict;
 
+@Slf4j
 @Configuration
 public class TrieConfig {
 
-    private final String vocabulary = "vocab2.dat";
+    private final String vocabulary = "words.lajf";
     private static final String TRIE_SAVE_FILENAME = "slovak.trie";
 
     @Bean
-    public Trie<String> init() throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(vocabulary))) {
-            Map<String, Integer> wordToIndex = (Map<String, Integer>) ois.readObject();
+    public Trie<String> init() throws Exception {
+        if (Files.exists(Paths.get(TRIE_SAVE_FILENAME))) {
+            Trie<String> stringTrie = TrieIO.loadTrie(TRIE_SAVE_FILENAME);
+            return stringTrie;
+        }
 
-            if (Files.exists(Paths.get(TRIE_SAVE_FILENAME))) {
-                Trie<String> stringTrie = TrieIO.loadTrie(TRIE_SAVE_FILENAME);
-                return stringTrie;
+        G4Trie trie = new G4Trie(trieDict);
+        readWordsFromFile(vocabulary).forEach((q) -> trie.insert(q, q));
+
+//            trie.purgeBranchOfKeyQtty(1);
+//        List<ValueFrequency<String>> q = trie.getValueFreqSuggestions("q");
+        TrieIO.saveTrie(trie, TRIE_SAVE_FILENAME);
+
+        return trie;
+    }
+
+    public static List<String> readWordsFromFile(String filePath) throws Exception {
+        try {
+            log.info("Reading words from file: {}", filePath);
+            List<String> words = Files.readAllLines(Paths.get(filePath))
+                    .stream()
+                    .filter(line -> !line.trim().isEmpty()) // Skip empty lines
+                    .toList();
+
+            if (words.isEmpty()) {
+                log.warn("No words found in file: {}", filePath);
+            } else {
+                log.info("Successfully read {} words from file: {}", words.size(), filePath);
             }
-
-            G4Trie trie = new G4Trie(trieDict);
-            wordToIndex.forEach((q, _) -> trie.insert(q, q));
-
-            TrieIO.saveTrie(trie, TRIE_SAVE_FILENAME);
-
-            return trie;
+            return List.copyOf(words); // Return immutable list
+        } catch (Exception e) {
+            log.error("Error reading words from file {}: {}", filePath, e.getMessage(), e);
+            throw new Exception("Failed to read words from file: " + filePath, e);
         }
     }
 }

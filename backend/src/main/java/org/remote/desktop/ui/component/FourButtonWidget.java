@@ -89,7 +89,7 @@ public class FourButtonWidget extends Pane {
             Group group = new Group(strokeText, fillText);
             labelGroup.getChildren().add(group);
         }
-
+        labelGroup.autosize();
         labelGroup.setLayoutX(x - labelGroup.getLayoutBounds().getWidth() / 2);
         labelGroup.setLayoutY(y - labelGroup.getLayoutBounds().getHeight() / 2);
 

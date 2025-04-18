@@ -9,9 +9,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.remote.desktop.ui.component.TextContainer;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 @RequiredArgsConstructor
 public abstract class InputWidgetBase extends Application implements TwoGroupInputWidget {
@@ -28,6 +32,9 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     double scaleFactor = 1.5;
 
     private Stage primaryStage;
+
+    @Setter
+    protected Function<String, List<String>> predictor = List::of;
 
     TextContainer wordsContainer = new TextContainer();
     TextContainer lettersContainer = new TextContainer();
@@ -87,9 +94,53 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     @Override
     public void setWordsAvailable(List<String> wordsAvailable) {
         Platform.runLater(() -> {
-            wordsContainer.clear();
-            wordsAvailable.forEach(wordsContainer::addText);
+            wordsAvailable.forEach(text -> {
+                wordsContainer.addText(text);
+            });
         });
+    }
+
+    public String getWordAndReset() {
+        System.out.println("gettin from index: " + wordIdx);
+        String word = wordsContainer.getWord(wordIdx.get());
+
+        clearAllLetters();
+        clearAllWords();
+        wordIdx.set(0);
+
+        return word;
+    }
+
+    AtomicInteger wordIdx = new AtomicInteger(0);
+    public void frameNextPredictedWord() {
+        Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
+        wordIdx.incrementAndGet();
+    }
+
+    protected List<String> predictions = new LinkedList<>();
+
+    public void nextPredictionsFrame() {
+        List<String> limitedPredictions = predictions.stream()
+                .limit(5)
+                .toList();
+
+        predictions.removeAll(limitedPredictions);
+
+        System.out.println("Predictions: " + limitedPredictions);
+        setWordsAvailable(limitedPredictions);
+    }
+
+    public void framePreviousPredictedWord() {
+        Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
+        wordIdx.decrementAndGet();
+    }
+
+    public void clearAllWords() {
+        Platform.runLater(() -> wordsContainer.clear());
+    }
+
+    public void clearAllLetters() {
+        Platform.runLater(() -> lettersContainer.clear());
     }
 
     public void close() {
