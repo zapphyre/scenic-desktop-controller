@@ -20,8 +20,6 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
 
     @Override
     public void onApplicationEvent(PredictionControlEvent event) {
-        System.out.println("got: " + event);
-
         if (event.getType().equalsIgnoreCase("LEFT"))
             widget.framePreviousPredictedWord();
 
@@ -37,14 +35,10 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
         if (event.getType().equals("RIGHTTRIGGER_ENGAGE"))
             widget.nextPredictionsFrame();
 
-        if (event.getType().equals("LEFTTRIGGER_ENGAGE")){
-            xDo("type", widget.getSentenceAndReset());
-            virtualInputStateRepository.setActive(false);
-        }
     }
 
     @Override
     public boolean supportsAsyncExecution() {
-        return true;
+        return false;
     }
 }

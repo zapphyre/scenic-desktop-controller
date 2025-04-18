@@ -2,6 +2,7 @@ package org.remote.desktop.processor.keyboard;
 
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EMultiplicity;
 import org.asmus.model.EQualificationType;
 import org.asmus.model.GamepadEvent;
 import org.asmus.service.JoyWorker;
@@ -46,8 +47,8 @@ public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
-        return q -> allowedButtons.contains(q.getType())
-                && q.getQualified() == EQualificationType.PUSH;
+        return q ->
+                (allowedButtons.contains(q.getType()) && q.getQualified() == EQualificationType.PUSH);
     }
 
     @Override

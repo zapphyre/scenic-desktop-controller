@@ -2,6 +2,7 @@ package org.remote.desktop.processor.keyboard;
 
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EMultiplicity;
 import org.asmus.model.EQualificationType;
 import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
