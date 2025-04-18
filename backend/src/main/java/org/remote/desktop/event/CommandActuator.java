@@ -35,7 +35,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
-            case KEYBOARD_OFF -> inputWidgetBase.close();
+            case KEYBOARD_OFF -> xDo("type", inputWidgetBase.getSentenceAndReset());
 //            case BUTTON -> eventPublisher.publishEvent(new ButtonEvent(this, EActionButton.valueOf(e.getTrigger())));
         }
     }
