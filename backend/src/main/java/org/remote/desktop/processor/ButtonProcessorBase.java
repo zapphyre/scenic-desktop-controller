@@ -11,7 +11,6 @@ import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
-import org.remote.desktop.model.event.ButtonEvent;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
@@ -35,7 +34,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     protected abstract Predicate<GamepadEvent> triggerFilter();
 
     @PostConstruct
-    void process() {
+    protected void process() {
         gamepadObserver.getButtonEventStream()
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)

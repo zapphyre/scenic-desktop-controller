@@ -9,6 +9,7 @@ import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -68,7 +69,26 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     }
 
     @Override
-    public char setElementActive(int index) {
+    public char setActive(int index) {
         return activeButtonGroup.activate(EActionButton.values()[index]);
+    }
+
+    @Override
+    public char setActiveAndType(int index) {
+        char key = setActive(index);
+
+        Platform.runLater(() -> wordsContainer.clear());
+        Platform.runLater(() -> lettersContainer.addText(String.valueOf(key)));
+        predictions = new LinkedList<>(predictor.apply(lettersContainer.getTextContent()));
+
+        List<String> limitedPredictions = predictions.stream()
+                .limit(5)
+                .toList();
+
+        predictions.removeAll(limitedPredictions);
+
+        System.out.println("Predictions: " + limitedPredictions);
+        setWordsAvailable(limitedPredictions);
+        return key;
     }
 }

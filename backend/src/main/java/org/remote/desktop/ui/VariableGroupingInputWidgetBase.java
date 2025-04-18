@@ -5,17 +5,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.Setter;
 import org.remote.desktop.ui.component.LetterCircle;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class VariableGroupingInputWidgetBase extends InputWidgetBase {
-
-    @Setter
-    private Function<String, List<String>> predictor = List::of;
 
     @Getter
     private LetterCircle letterCircleLeft;
@@ -88,16 +83,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
         return textContent;
     }
 
-    public void addSelectedLetter() {
-        Platform.runLater(() -> {
-            lettersContainer.addText(currentLetter);
-            wordsContainer.clear();
-            predictor.apply(getFullLettersContent()).stream()
-                    .limit(5)
-                    .forEach(this::addSecondaryText);
-        });
-    }
-
     public void clearText() {
 
     }
@@ -121,8 +106,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     int prevOn = 0;
 
     public void setFrameOn(int index) {
-        wordsContainer.setTextBorderVisible(prevOn, false);
-        wordsContainer.setTextBorderVisible(prevOn = index, true);
+        wordsContainer.setTextBorderVisible(prevOn = index);
     }
 
     public void updateGroups(String[] newGroups) {
@@ -154,12 +138,17 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
+    public char setActive(int index) {
+        return 0;
+    }
+
+    @Override
     public int setGroupActive(int index) {
         return 0;
     }
 
     @Override
-    public char setElementActive(int index) {
+    public char setActiveAndType(int index) {
         return 0;
     }
 }

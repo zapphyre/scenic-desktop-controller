@@ -1,5 +1,6 @@
 package org.remote.desktop.config;
 
+import com.arun.trie.base.Trie;
 import javafx.scene.paint.Color;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -12,16 +13,15 @@ import org.springframework.context.annotation.Configuration;
 public class TextInputWidgetConfig {
 
     private final SettingsDao settingsDao;
+    private final Trie<String> trie;
 
     @Bean
     public CircleButtonsInputWidget inputWidget() {
-//        Trie<String> trie = TrieIO.loadTrie("slovak.trie");
-
         CircleButtonsInputWidget variableGroupingInputWidget = new CircleButtonsInputWidget(90,2, Color.BURLYWOOD,
                 0.4, Color.ORANGE, Color.BLACK,
                 6, settingsDao.getSettings().getTextInputSceneName());
 
-//        inputWidget.setPredictor(trie::getValueSuggestions);
+        variableGroupingInputWidget.setPredictor(trie::getValueSuggestions);
 
         return variableGroupingInputWidget;
     }
