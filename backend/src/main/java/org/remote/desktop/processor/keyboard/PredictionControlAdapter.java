@@ -42,7 +42,7 @@ public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
     @Override
     protected void process() {
         super.process();
-        worker.getAxisStream().subscribe(gamepadObserver.leftTriggerStream()::processArrowEvents);
+//        worker.getAxisStream().subscribe(gamepadObserver.leftTriggerStream()::processArrowEvents);
     }
 
     @Override
