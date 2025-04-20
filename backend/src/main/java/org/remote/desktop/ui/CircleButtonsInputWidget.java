@@ -141,11 +141,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     private EActionButton precisionInitiatior;
     public void activatePrecisionMode(EActionButton eActionButton) {
         System.out.println("activatePrecisionMode");
-        char charAt = getCurrentButtonCharacter(precisionInitiatior = eActionButton);
-        currentChar = activeButtonGroup.getAssignedTrieKey(eActionButton);
+        currentChar = getCurrentButtonCharacter(precisionInitiatior = eActionButton);
+//        currentChar = activeButtonGroup.getAssignedTrieKey(eActionButton);
 
         Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
-                .get(charAt);
+                .get(currentChar);
         scheduleSizeResetOn.apply(fontSizeSetter);
 
         System.out.println("setting font size to " + fontSizeSetter);
@@ -159,7 +159,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     public void setActiveAndType(EActionButton index) {
         this.toggleVisual(index);
 
-        if (index != precisionInitiatior) {
+        if (index != precisionInitiatior && pendingResetTask != null) {
             precisionInitiatior = index;
             letterIndex.set(0);
             char prevChar = currentChar;
