@@ -62,6 +62,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                 p.accept(q);
             };
 
+    char currentChar;
     Future<?> pendingReset;
     Runnable pendingResetTask;
     Function<Consumer<Double>, Future<?>> scheduleSizeResetOn;
@@ -86,6 +87,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                     pendingResetTask.run();
                     letterIndex.set(0);
                     pendingResetTask = null;
+                    Platform.runLater(() -> lettersContainer.addText(String.valueOf(currentChar)));
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
@@ -136,9 +138,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         activeButtonGroup.toggleButtonVisual(index);
     }
 
+    private EActionButton precisionInitiatior;
     public void activatePrecisionMode(EActionButton eActionButton) {
         System.out.println("activatePrecisionMode");
-        char charAt = getCurrentButtonCharacter(eActionButton);
+        char charAt = getCurrentButtonCharacter(precisionInitiatior = eActionButton);
+        currentChar = activeButtonGroup.getAssignedTrieKey(eActionButton);
 
         Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
                 .get(charAt);
@@ -147,7 +151,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         System.out.println("setting font size to " + fontSizeSetter);
         fontSizeSetter.accept(42D);
 
-        Platform.runLater(() -> lettersContainer.addText(String.valueOf(charAt)));
     }
 
     StringBuilder key = new StringBuilder();
@@ -156,9 +159,13 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     public void setActiveAndType(EActionButton index) {
         this.toggleVisual(index);
 
-        System.out.println("initiated next letter pick");
+        if (index != precisionInitiatior) {
+            precisionInitiatior = index;
+            letterIndex.set(0);
+            char prevChar = currentChar;
+            Platform.runLater(() -> lettersContainer.addText(String.valueOf(prevChar)));
+        }
 
-        char currentChar;
         if (pendingResetTask == null) {
             System.out.println("letter index 0");
             currentChar = activeButtonGroup.getAssignedTrieKey(index);
@@ -184,7 +191,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
             scheduleSizeResetOn.apply(fontSetter);
             fontSetter.accept(42D);
 
-            Platform.runLater(() -> lettersContainer.addText(String.valueOf(currentChar)));
         }
 
         key.append(currentChar);
