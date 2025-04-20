@@ -26,9 +26,9 @@ public class ButtonInputWidgetAdapter implements ApplicationListener<ButtonEvent
     @Override
     public void onApplicationEvent(ButtonEvent event) {
         if (event.getQualification() == EQualificationType.PUSH)
-            widget.setActiveAndType(event.getButton().ordinal());
+            widget.setActiveAndType(event.getButton());
         else
-            widget.setActive(event.getButton().ordinal());
+            widget.toggleVisual(event.getButton());
     }
 
     @Override

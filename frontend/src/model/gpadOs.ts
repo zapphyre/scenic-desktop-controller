@@ -85,6 +85,7 @@ export enum EKeyEvt {
     BUTTON = "BUTTON",
     KEYBOARD_ON = "KEYBOARD_ON",
     KEYBOARD_OFF = "KEYBOARD_OFF",
+    KEYBOARD_LONG = "KEYBOARD_LONG",
 }
 
 export enum EButtonAxisMapping {

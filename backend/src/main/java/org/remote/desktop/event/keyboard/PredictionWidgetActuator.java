@@ -1,14 +1,14 @@
 package org.remote.desktop.event.keyboard;
 
 import com.arun.trie.base.Trie;
+import javafx.scene.text.Font;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
+import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import static jxdotool.xDoToolUtil.xDo;
 
 @Component
 @RequiredArgsConstructor
@@ -16,7 +16,10 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
 
     private final CircleButtonsInputWidget widget;
     private final Trie<String> trie;
-    private final VirtualInputStateRepository virtualInputStateRepository;
+
+    public void longClick(String trigger) {
+        widget.activatePrecisionMode(EActionButton.valueOf(trigger));
+    }
 
     @Override
     public void onApplicationEvent(PredictionControlEvent event) {

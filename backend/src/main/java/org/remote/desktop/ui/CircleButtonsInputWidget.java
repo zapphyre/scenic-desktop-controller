@@ -3,6 +3,7 @@ package org.remote.desktop.ui;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import lombok.Getter;
 import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonsSettings;
@@ -12,6 +13,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,7 +25,12 @@ import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
+    @Getter
     private final Map<Integer, FourButtonWidget> groupWidgetMap;
+
+    @Getter
+    private int groupActiveIndex;
+    AtomicInteger letterIndex = new AtomicInteger(0);
 
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, letterGroupCount, title);
@@ -42,20 +53,72 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                     return new FourButtonWidget(settingsMap, (widgetSize * 2) * scaleFactor, 24);
                 }, (p, q) -> q));
 
-        rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(0));
+        rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(groupActiveIndex = 0));
+        scheduleSizeResetOn = sizeReset.apply(activeButtonGroup.getTextSize());
+    }
+
+    private final Function<Double, Function<Consumer<Double>, Runnable>> resetTask =
+            q -> p -> () -> {
+                p.accept(q);
+            };
+
+    Future<?> pendingReset;
+    Runnable pendingResetTask;
+    Function<Consumer<Double>, Future<?>> scheduleSizeResetOn;
+    Function<Double, Function<Consumer<Double>, Future<?>>> sizeReset = q -> p -> {
+        if (pendingResetTask != null)
+            pendingResetTask.run();
+
+        pendingResetTask = resetTask.apply(q).apply(p);
+        if (pendingReset != null && !pendingReset.isDone()) {
+            try {
+                System.out.println("cancelling size reset sooner");
+                pendingReset.cancel(true);
+                pendingResetTask.run();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+
+        System.out.println("will schedule size reset");
+        return pendingReset = Executors.newSingleThreadScheduledExecutor()
+                .schedule(() -> {
+                    pendingResetTask.run();
+                    letterIndex.set(0);
+                    pendingResetTask = null;
+                }, 2100, TimeUnit.MILLISECONDS);
+    };
+
+    char getCurrentButtonCharacter(EActionButton eActionButton) {
+        System.out.println("getCurrentButtonCharacter: " + letterIndex);
+        String label = activeButtonGroup.getLetterForButton(eActionButton);
+        System.out.println("label: " + label);
+        int i = 0;
+        if (letterIndex.get() == 3)
+            letterIndex.set(1);
+        else
+            i = letterIndex.getAndIncrement();
+        System.out.println("index: " + i);
+        char charAt = label.charAt(i);
+
+        System.out.println("got character: " + String.valueOf(charAt));
+
+        return charAt;
     }
 
     String str(List<String> lst) {
-        return String.join(" ", lst);
+        return String.join("", lst);
     }
 
     Pane rightPane = new Pane();
+
     @Override
     Pane createRightWidget() {
         return rightPane;
     }
 
     FourButtonWidget activeButtonGroup;
+
     @Override
     public int setGroupActive(int index) {
         Platform.runLater(() -> {
@@ -63,34 +126,68 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
             rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(index));
         });
 
-        getGroupWidget().selectSegment(index);
+        getGroupWidget().selectSegment(groupActiveIndex = index);
 
         return index + 1;
     }
 
     @Override
-    public char setActive(int index) {
-        return activeButtonGroup.activate(EActionButton.values()[index]);
+    public void toggleVisual(EActionButton index) {
+        activeButtonGroup.toggleButtonVisual(index);
+    }
+
+    public void activatePrecisionMode(EActionButton eActionButton) {
+        System.out.println("activatePrecisionMode");
+        char charAt = getCurrentButtonCharacter(eActionButton);
+
+        Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
+                .get(charAt);
+        scheduleSizeResetOn.apply(fontSizeSetter);
+
+        System.out.println("setting font size to " + fontSizeSetter);
+        fontSizeSetter.accept(42D);
+
+        Platform.runLater(() -> lettersContainer.addText(String.valueOf(charAt)));
     }
 
     StringBuilder key = new StringBuilder();
+
     @Override
-    public void setActiveAndType(int index) {
-        key.append(setActive(index));
+    public void setActiveAndType(EActionButton index) {
+        this.toggleVisual(index);
 
-        Platform.runLater(() -> wordsContainer.clear());
-        Platform.runLater(() -> {
-            predictions = new LinkedList<>(predictor.apply(key.toString()));
+        System.out.println("initiated next letter pick");
 
-            List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
-            long count = limitedPredictions.stream().mapToInt(String::length).sum();
-            System.out.println("letter count: " + count);
+        char currentChar;
+        if (pendingResetTask == null) {
+            System.out.println("letter index 0");
+            currentChar = activeButtonGroup.getAssignedTrieKey(index);
 
-            predictions.removeAll(limitedPredictions);
+            Platform.runLater(() -> {
+                wordsContainer.clear();
+                predictions = new LinkedList<>(predictor.apply(key.toString()));
 
-            System.out.println("Predictions: " + limitedPredictions);
-            setWordsAvailable(limitedPredictions);
-        });
+                List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
+                long count = limitedPredictions.stream().mapToInt(String::length).sum();
+                System.out.println("letter count: " + count);
+
+                predictions.removeAll(limitedPredictions);
+
+                System.out.println("Predictions: " + limitedPredictions);
+                setWordsAvailable(limitedPredictions);
+            });
+        } else {
+            System.out.println("precision mode");
+            currentChar = getCurrentButtonCharacter(index);
+            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(index)
+                    .get(currentChar);
+            scheduleSizeResetOn.apply(fontSetter);
+            fontSetter.accept(42D);
+
+            Platform.runLater(() -> lettersContainer.addText(String.valueOf(currentChar)));
+        }
+
+        key.append(currentChar);
     }
 
     @Override

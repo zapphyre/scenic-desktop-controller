@@ -73,7 +73,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         horiz.setSpacing(7);
 
         Scene scene = new Scene(vert);
-        scene.setFill(Color.grayRgb(23, .6));
+        scene.setFill(Color.grayRgb(23, .0));
 
 //        fittingCharacters = calculateTextItemsInHBox(horiz);
 //        fittingCharacters = calculateTextItemsEmpirically(new HBox(horiz), "q", Font.font(32));
@@ -102,11 +102,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     @Override
     public void setWordsAvailable(List<String> wordsAvailable) {
-        Platform.runLater(() -> {
-            wordsAvailable.forEach(text -> {
-                wordsContainer.addText(text);
-            });
-        });
+        Platform.runLater(() -> wordsAvailable.forEach(text -> wordsContainer.addText(text)));
     }
 
     public void resetStateClean() {

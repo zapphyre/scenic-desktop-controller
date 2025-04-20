@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.remote.desktop.ui.component.LetterCircle;
+import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.List;
 import java.util.Objects;
@@ -132,8 +133,8 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
-    public char setActive(int index) {
-        return 0;
+    public void toggleVisual(EActionButton index) {
+
     }
 
     @Override
@@ -142,6 +143,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
-    public void setActiveAndType(int index) {
+    public void setActiveAndType(EActionButton index) {
     }
 }
