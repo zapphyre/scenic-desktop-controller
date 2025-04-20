@@ -67,7 +67,6 @@ public class GPadEventStreamService {
     }
 
     public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
-        System.out.println("sceneClickQualificationRelevant: " + click);
         return Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
                         .filter(triggerAndModifiersSameAsClick(click))
@@ -80,7 +79,6 @@ public class GPadEventStreamService {
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
     public void computeRemainderFilter(ButtonActionDef click) {
-        System.out.println("computeRemainderFilter: " + click);
         if (click.getQualified() == EQualificationType.PUSH)
             qualificationReceived.addAll(Arrays.asList(
                     EQualificationType.RELEASE,
@@ -96,13 +94,9 @@ public class GPadEventStreamService {
 
         if (click.getQualified() != EQualificationType.MULTIPLE)
             qualificationReceived.add(EQualificationType.MULTIPLE);
-
-        System.out.println("conputed remainders: " + qualificationReceived);
     }
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {
-        System.out.println("consumeEventLeftovers " + def.getQualified());
-        System.out.println("qualificationReceived: " + qualificationReceived);
         return !qualificationReceived.remove(def.getQualified());
     }
 

@@ -2,10 +2,8 @@ package org.remote.desktop.processor.keyboard;
 
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
-import org.asmus.model.EMultiplicity;
 import org.asmus.model.EQualificationType;
 import org.asmus.model.GamepadEvent;
-import org.asmus.service.JoyWorker;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.event.VirtualInputStateRepository;
@@ -28,27 +26,25 @@ import static org.asmus.model.EButtonAxisMapping.*;
 @Component
 public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
 
-    private final JoyWorker worker;
-    private final List<EButtonAxisMapping> allowedButtons = List.of(LEFT, RIGHT, TRIGGER_RIGHT, TRIGGER_LEFT, BUMPER_LEFT, BUMPER_RIGHT);
+    private final List<EButtonAxisMapping> allowedButtons =
+            List.of(LEFT, RIGHT, TRIGGER_RIGHT, TRIGGER_LEFT, BUMPER_LEFT, BUMPER_RIGHT);
 
     public PredictionControlAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                                     GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
                                     TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
-                                    SettingsDao settingsDao, JoyWorker worker, VirtualInputStateRepository repository) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao, repository);
-        this.worker = worker;
+                                    SettingsDao settingsDao, VirtualInputStateRepository repository) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver,
+                triggerActionMatcher, executorService, settingsDao, repository);
     }
 
     @Override
     protected void process() {
         super.process();
-//        worker.getAxisStream().subscribe(gamepadObserver.leftTriggerStream()::processArrowEvents);
     }
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
-        return q ->
-                (allowedButtons.contains(q.getType()) && q.getQualified() == EQualificationType.PUSH);
+        return q -> allowedButtons.contains(q.getType()) && q.getQualified() == EQualificationType.PUSH;
     }
 
     @Override

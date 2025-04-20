@@ -3,6 +3,7 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,6 +20,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final SceneStateRepository actuatedStateRepository;
     private final InputWidgetBase inputWidgetBase;
     protected final ApplicationEventPublisher eventPublisher;
+    private final PredictionWidgetActuator widgetActuator;
 
     @Override
     @SneakyThrows
@@ -37,6 +39,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
             case KEYBOARD_OFF -> xDo("type", inputWidgetBase.getSentenceAndReset());
+            case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
 //            case BUTTON -> eventPublisher.publishEvent(new ButtonEvent(this, EActionButton.valueOf(e.getTrigger())));
         }
     }
