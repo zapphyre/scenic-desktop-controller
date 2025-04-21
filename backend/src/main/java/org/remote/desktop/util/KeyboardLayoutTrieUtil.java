@@ -19,6 +19,7 @@ public class KeyboardLayoutTrieUtil {
 
     // internal trie dictionary
     public static final Map<Character, Character> trieDict;
+    public static int FUNCTION_GROUP_IDX = 2;
 
     //set labels
     public static final Map<Integer, Map<EActionButton, TrieGroupDef>> buttonDict;
@@ -39,7 +40,7 @@ public class KeyboardLayoutTrieUtil {
 
         LinkedList<TrieGroupDef> behavioralDefins = new LinkedList<>(definitions);
         behavioralDefins
-                .add(TrieGroupDef.builder().button(X).group(2).elements(List.of("Del")).transform(stripLast).build());
+                .add(TrieGroupDef.builder().button(X).group(FUNCTION_GROUP_IDX).elements(List.of("Del")).transform(stripLast).build());
 
         trieDict = definitions.stream()
                 .flatMap(def -> def.getElements().stream()

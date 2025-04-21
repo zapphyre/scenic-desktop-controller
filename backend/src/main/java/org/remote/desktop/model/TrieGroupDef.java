@@ -25,7 +25,7 @@ public class TrieGroupDef {
 //    @Builder.Default
     LetterIdxGetter letterIdxGetter = q -> getElements().get(q);
 
-    @Builder.Default
+//    @Builder.Default
     IdxWordTx transform; //= idx ->word -> word + getElements().get(idx);
 
     public IdxWordTx getTransfFx() {
