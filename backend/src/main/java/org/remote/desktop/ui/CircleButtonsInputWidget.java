@@ -8,11 +8,10 @@ import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.util.IdxWordTx;
+import org.remote.desktop.util.WordGenFun;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -43,10 +42,14 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                 .collect(Collectors.toMap(Function.identity(), q -> {
                     Map<EActionButton, TrieGroupDef> groupDefs = buttonDict.get(q);
                     Map<EActionButton, ButtonsSettings> settingsMap = Arrays.stream(EActionButton.values())
-                            .map(groupDefs::get)
+                            .map(b -> groupDefs.getOrDefault(b, null))
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toMap(TrieGroupDef::getButton,
-                                    a -> bs.trieKey(a.getTrieCode())
-                                            .letters(str(a.getElements()))
+                                    a -> bs
+                                            .trieKey(a.getTrieCode())
+                                            .charCount(a.getElements().size())
+                                            .idxTxFun(a.getTransfFx())
+                                            .letterIdxGetter(a.getLetterIdxGetter())
                                             .build()
                             ));
 
@@ -58,11 +61,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     }
 
     private final Function<Double, Function<Consumer<Double>, Runnable>> resetTask =
-            q -> p -> () -> {
-                p.accept(q);
-            };
+            q -> p -> () -> p.accept(q);
 
-    char currentChar;
+    IdxWordTx groupTxFun;
     Future<?> pendingReset;
     Runnable pendingResetTask;
     Function<Consumer<Double>, Future<?>> scheduleSizeResetOn;
@@ -85,27 +86,16 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         return pendingReset = Executors.newSingleThreadScheduledExecutor()
                 .schedule(() -> {
                     pendingResetTask.run();
-                    letterIndex.set(0);
                     pendingResetTask = null;
-                    Platform.runLater(() -> lettersContainer.addText(String.valueOf(currentChar)));
+                    WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
+                    Platform.runLater(() -> lettersContainer.transformLast(wordGenFun));
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
-    char getCurrentButtonCharacter(EActionButton eActionButton) {
+    IdxWordTx getCurrentButtonWordTransformationFun(EActionButton eActionButton) {
         System.out.println("getCurrentButtonCharacter: " + letterIndex);
-        String label = activeButtonGroup.getLetterForButton(eActionButton);
-        System.out.println("label: " + label);
-        int i = 0;
-        if (letterIndex.get() == 3)
-            letterIndex.set(1);
-        else
-            i = letterIndex.getAndIncrement();
-        System.out.println("index: " + i);
-        char charAt = label.charAt(i);
 
-        System.out.println("got character: " + String.valueOf(charAt));
-
-        return charAt;
+        return activeButtonGroup.getCurrentWordTransformationFunction(eActionButton);
     }
 
     String str(List<String> lst) {
@@ -139,13 +129,14 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     }
 
     private EActionButton precisionInitiatior;
+
     public void activatePrecisionMode(EActionButton eActionButton) {
         System.out.println("activatePrecisionMode");
-        currentChar = getCurrentButtonCharacter(precisionInitiatior = eActionButton);
-//        currentChar = activeButtonGroup.getAssignedTrieKey(eActionButton);
+        groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = eActionButton);
 
+        letterIndex.set(0);
         Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
-                .get(currentChar);
+                .get(letterIndex.getAndIncrement());
         scheduleSizeResetOn.apply(fontSizeSetter);
 
         System.out.println("setting font size to " + fontSizeSetter);
@@ -160,15 +151,14 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         this.toggleVisual(index);
 
         if (index != precisionInitiatior && pendingResetTask != null) {
-            precisionInitiatior = index;
-            letterIndex.set(0);
-            char prevChar = currentChar;
-            Platform.runLater(() -> lettersContainer.addText(String.valueOf(prevChar)));
+            WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
+
+            Platform.runLater(() -> lettersContainer.transformLast(wordGenFun));
         }
 
         if (pendingResetTask == null) {
-            System.out.println("letter index 0");
-            currentChar = activeButtonGroup.getAssignedTrieKey(index);
+            char assignedTrieKey = activeButtonGroup.getAssignedTrieKey(index);
+            key.append(assignedTrieKey);
 
             Platform.runLater(() -> {
                 wordsContainer.clear();
@@ -185,15 +175,18 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
             });
         } else {
             System.out.println("precision mode");
-            currentChar = getCurrentButtonCharacter(index);
+
+            groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = index);
+
+            if (letterIndex.get() == activeButtonGroup.sizeOfActionsAssignedToButton(index))
+                letterIndex.set(0);
+
             Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(index)
-                    .get(currentChar);
+                    .get(letterIndex.getAndIncrement()); //increment has to be here
             scheduleSizeResetOn.apply(fontSetter);
+
             fontSetter.accept(42D);
-
         }
-
-        key.append(currentChar);
     }
 
     @Override

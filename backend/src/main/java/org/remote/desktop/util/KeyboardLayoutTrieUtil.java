@@ -5,8 +5,10 @@ import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,8 @@ public class KeyboardLayoutTrieUtil {
     //set labels
     public static final Map<Integer, Map<EActionButton, TrieGroupDef>> buttonDict;
 
+    static IdxWordTx stripLast = q ->p -> p.substring(0, p.length() - 1);
+
     static {
         List<TrieGroupDef> definitions = List.of(
                 TrieGroupDef.builder().button(Y).trieCode('q').group(0).elements(List.of("A", "B", "C")).build(),
@@ -32,6 +36,10 @@ public class KeyboardLayoutTrieUtil {
                 TrieGroupDef.builder().button(A).trieCode('u').group(1).elements(List.of("T", "U", "V")).build(),
                 TrieGroupDef.builder().button(X).trieCode('i').group(1).elements(List.of("W", "X", "Y", "Z")).build()
         );
+
+        LinkedList<TrieGroupDef> behavioralDefins = new LinkedList<>(definitions);
+        behavioralDefins
+                .add(TrieGroupDef.builder().button(X).group(2).elements(List.of("Del")).transform(stripLast).build());
 
         trieDict = definitions.stream()
                 .flatMap(def -> def.getElements().stream()
@@ -45,7 +53,7 @@ public class KeyboardLayoutTrieUtil {
                         HashMap::new
                 ));
 
-        buttonDict = definitions.stream()
+        buttonDict = behavioralDefins.stream()
                 .collect(Collectors.groupingBy(
                         TrieGroupDef::getGroup,
                         Collectors.toMap(
