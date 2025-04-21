@@ -17,21 +17,13 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     private LetterCircle letterCircleLeft;
     @Getter
     private LetterCircle groupWidget;
-    private String[] letterGroups = new String[]{"A", "B"};
+    public static String[] letterGroups = new String[]{"A", "B", "Util"};
 
     private StringBuilder middleText = new StringBuilder();
     private HBox lettersLayout;
 
-    // Bottom row (secondaryText)
-    private HBox wordsLayout;
-    private final double secondaryTextScale = 2;
-
     public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, letterGroupCount, title);
-    }
-
-    public boolean isReady() {
-        return Objects.nonNull(letterGroups);
     }
 
     @Override
@@ -80,17 +72,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     
     public void clearText() {
 
-    }
-
-    public void setSecondaryText(List<String> lines) {
-        Platform.runLater(() -> {
-            wordsLayout.getChildren().clear();
-
-            double scaleFactor = 2;
-            for (String word : lines) {
-
-            }
-        });
     }
 
     public void addSecondaryText(String line) {

@@ -11,6 +11,7 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidgetBase;
+import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -34,7 +35,7 @@ public class StickTextAdapter {
     void init() {
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
 
-        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, 2));
+        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, VariableGroupingInputWidgetBase.letterGroups.length));
 
         AxisEventFactory.leftStickStream().polarProducer(worker)
                 .map(groupsTranslator::translate)

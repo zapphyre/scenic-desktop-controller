@@ -4,10 +4,13 @@ import javafx.application.Platform;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import org.remote.desktop.util.WordGenFun;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.aspectj.bridge.Version.getText;
 
 public class TextContainer extends HBox {
     private final List<TextItem> items = new ArrayList<>();
@@ -27,6 +30,18 @@ public class TextContainer extends HBox {
         TextItem item = new TextItem(text);
         items.add(item);
         this.getChildren().add(item);
+    }
+
+    public void transformLast(WordGenFun txFun) {
+        String toModify = "";
+        if (!items.isEmpty()) {
+            TextItem last = items.getLast();
+            toModify = last.getText();
+            this.getChildren().remove(last);
+        }
+
+        String transformed = txFun.transform(toModify);
+        addText(transformed);
     }
 
     public void clear() {

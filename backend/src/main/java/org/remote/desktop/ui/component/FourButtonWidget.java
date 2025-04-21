@@ -13,6 +13,9 @@ import javafx.scene.text.Text;
 import lombok.Getter;
 import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.util.IdxWordTx;
+import org.remote.desktop.util.LetterIdxGetter;
+import org.remote.desktop.util.WordGenFun;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +32,7 @@ public class FourButtonWidget extends Pane {
     private final double shift;
     private final Map<EActionButton, ButtonNode> buttons = new HashMap<>();
     @Getter
-    private final Map<EActionButton, Map<Character, Consumer<Double>>> lettersMap = new HashMap<>();
+    private final Map<EActionButton, Map<Integer, Consumer<Double>>> lettersMap = new HashMap<>();
 
     public FourButtonWidget(Map<EActionButton, ButtonsSettings> defs, double widgetSize, double textSize) {
         this.defs = defs;
@@ -52,6 +55,8 @@ public class FourButtonWidget extends Pane {
         // Outer bezel (darker ring)
         int bezelWidth = 3;
         ButtonsSettings settings = defs.get(key);
+        if (settings == null) return;
+
         Circle bezel = new Circle(x, y, radius + bezelWidth); // Slightly larger for depth
         bezel.setFill(settings.getBaseColor().darker().darker());
 
@@ -70,17 +75,20 @@ public class FourButtonWidget extends Pane {
         ));
         shine.setMouseTransparent(true);
 
-        TextContainer textContainer = new TextContainer();
-        for (char c : settings.getLetters().toCharArray()) {
-            textContainer.addText(String.valueOf(c));
-        }
+//        TextContainer textContainer = new TextContainer();
+//        for (char c : settings.getLetters().toCharArray()) {
+//            textContainer.addText(String.valueOf(c));
+//        }
 
         HBox labelGroup = new HBox();
         labelGroup.setAlignment(Pos.BOTTOM_CENTER);
-        Map<Character, Consumer<Double>> letterText = new HashMap<>();
-        for (char c : settings.getLetters().toCharArray()) {
+        Map<Integer, Consumer<Double>> letterText = new HashMap<>();
+//        for (char c : settings.getLetters().toCharArray()) {
+        for (int i = 0; i < settings.getCharCount(); i++) {
+
             // Stroke (outline) text for better readability
-            Text strokeText = new Text(String.valueOf(c));
+            String letterOpLabel = settings.getLetterIdxGetter().getLetterIdx(i);
+            Text strokeText = new Text(letterOpLabel);
             strokeText.setFont(Font.font(textSize));
             strokeText.setFill(Color.TRANSPARENT);
             strokeText.setStroke(Color.BLACK);
@@ -88,14 +96,14 @@ public class FourButtonWidget extends Pane {
             strokeText.setStrokeType(StrokeType.OUTSIDE);
 
             // Main fill text
-            Text fillText = new Text(String.valueOf(c));
+            Text fillText = new Text(letterOpLabel);
             fillText.setFont(Font.font(textSize));
             fillText.setFill(settings.getTextColor());
 
             Group letterGroup = new Group(strokeText, fillText);
 
-            letterText.put(c, q -> Platform.runLater(() -> {
-                System.out.println("setting size to: " + q + " for letter " + c);
+            letterText.put(i, q -> Platform.runLater(() -> {
+                System.out.println("setting size to: " + q + " for letterIdx ");
                 strokeText.setFont(Font.font(q));
                 fillText.setFont(Font.font(q));
             }));
@@ -176,8 +184,16 @@ public class FourButtonWidget extends Pane {
         }
     }
 
-    public String getLetterForButton(EActionButton buttonKey) {
-        return buttons.get(buttonKey).settings.getLetters();
+    public IdxWordTx getCurrentWordTransformationFunction(EActionButton buttonKey) {
+        return buttons.get(buttonKey).settings.getIdxTxFun();
+    }
+
+    public LetterIdxGetter getLetterForButton(EActionButton buttonKey) {
+        return buttons.get(buttonKey).settings.getLetterIdxGetter();
+    }
+
+    public int sizeOfActionsAssignedToButton(EActionButton buttonKey) {
+        return buttons.get(buttonKey).settings.getCharCount();
     }
 
     public char getAssignedTrieKey(EActionButton buttonKey) {
