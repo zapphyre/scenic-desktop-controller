@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.remote.desktop.util.KeyboardLayoutTrieUtil.FUNCTION_GROUP_IDX;
 import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
@@ -38,8 +39,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                 .baseColor(Color.BURLYWOOD)
                 .alpha(.8);
 
-        groupWidgetMap = buttonDict.keySet().stream()
-                .collect(Collectors.toMap(Function.identity(), q -> {
+        groupWidgetMap = buttonDict.keySet().stream() // key is 'group' from 'TrieGroupDef'
+                .collect(Collectors.toMap(Function.identity(), q -> { // group too
                     Map<EActionButton, TrieGroupDef> groupDefs = buttonDict.get(q);
                     Map<EActionButton, ButtonsSettings> settingsMap = Arrays.stream(EActionButton.values())
                             .map(b -> groupDefs.getOrDefault(b, null))
@@ -147,17 +148,22 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     StringBuilder key = new StringBuilder();
 
     @Override
-    public void setActiveAndType(EActionButton index) {
-        this.toggleVisual(index);
+    public void setActiveAndType(EActionButton buttonActivated) {
+        this.toggleVisual(buttonActivated);
 
-        if (index != precisionInitiatior && pendingResetTask != null) {
+        if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
             WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
 
             Platform.runLater(() -> lettersContainer.transformLast(wordGenFun));
         }
 
-        if (pendingResetTask == null) {
-            char assignedTrieKey = activeButtonGroup.getAssignedTrieKey(index);
+        if (groupActiveIndex == FUNCTION_GROUP_IDX) {
+            WordGenFun tranFx = getCurrentButtonWordTransformationFun(buttonActivated)
+                    .transforIdxWord(-1);
+
+            Platform.runLater(() -> lettersContainer.transformLast(tranFx));
+        } else if (pendingResetTask == null) {
+            char assignedTrieKey = activeButtonGroup.getAssignedTrieKey(buttonActivated);
             key.append(assignedTrieKey);
 
             Platform.runLater(() -> {
@@ -176,12 +182,12 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         } else {
             System.out.println("precision mode");
 
-            groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = index);
+            groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = buttonActivated);
 
-            if (letterIndex.get() == activeButtonGroup.sizeOfActionsAssignedToButton(index))
+            if (letterIndex.get() == activeButtonGroup.sizeOfActionsAssignedToButton(buttonActivated))
                 letterIndex.set(0);
 
-            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(index)
+            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
                     .get(letterIndex.getAndIncrement()); //increment has to be here
             scheduleSizeResetOn.apply(fontSetter);
 
