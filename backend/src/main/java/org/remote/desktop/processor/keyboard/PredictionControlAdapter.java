@@ -27,7 +27,7 @@ import static org.asmus.model.EButtonAxisMapping.*;
 public class PredictionControlAdapter extends KeyboardActionsBaseAdapter {
 
     private final List<EButtonAxisMapping> allowedButtons =
-            List.of(LEFT, RIGHT, TRIGGER_RIGHT, TRIGGER_LEFT, BUMPER_LEFT, BUMPER_RIGHT);
+            List.of(TRIGGER_RIGHT, TRIGGER_LEFT, BUMPER_LEFT, BUMPER_RIGHT);
 
     public PredictionControlAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                                     GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,

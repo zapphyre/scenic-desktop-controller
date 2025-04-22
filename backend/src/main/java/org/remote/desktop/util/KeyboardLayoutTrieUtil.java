@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,19 @@ public class KeyboardLayoutTrieUtil {
     //set labels
     public static final Map<Integer, Map<EActionButton, TrieGroupDef>> buttonDict;
 
-    static IdxWordTx stripLast = q ->p -> p.substring(0, p.length() - 1);
+    static IdxWordTx deleteOn = q -> p -> {
+//        if (p == null || q < 0 || q >= p.length()) return p;
+        return p.substring(0, q - 1) + p.substring(q);
+    };
+
+    static IdxWordTx toggleCase = i ->p -> {
+        int j = i - 1;
+        if (p == null || j < 0 || j >= p.length()) return p;
+        char[] chars = p.toCharArray();
+        char c = chars[j];
+        chars[j] = Character.isUpperCase(c) ? Character.toLowerCase(c) : Character.toUpperCase(c);
+        return new String(chars);
+    };
 
     static {
         List<TrieGroupDef> definitions = List.of(
@@ -40,7 +51,11 @@ public class KeyboardLayoutTrieUtil {
 
         LinkedList<TrieGroupDef> behavioralDefins = new LinkedList<>(definitions);
         behavioralDefins
-                .add(TrieGroupDef.builder().button(X).group(FUNCTION_GROUP_IDX).elements(List.of("Del")).transform(stripLast).build());
+                .add(TrieGroupDef.builder().button(X).group(FUNCTION_GROUP_IDX).elements(List.of("🠐"
+                )).transform(deleteOn).build());
+        behavioralDefins
+                .add(TrieGroupDef.builder().button(B).group(FUNCTION_GROUP_IDX).elements(List.of("⮁"
+                )).transform(toggleCase).build());
 
         trieDict = definitions.stream()
                 .flatMap(def -> def.getElements().stream()

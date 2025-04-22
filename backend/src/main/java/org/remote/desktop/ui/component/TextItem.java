@@ -1,21 +1,38 @@
 package org.remote.desktop.ui.component;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class TextItem extends StackPane {
-    private final Text textNode;
+    private final TextField textNode;
 
     public TextItem(String text) {
-        textNode = new Text(text);
+        textNode = new TextField(text);
         textNode.setFont(Font.font(32));
-//            TextFlow flow = new TextFlow(textNode);
-//            this.getChildren().add(flow);
-        this.getChildren().add(textNode);
+        textNode.setBackground(Background.EMPTY);
+        textNode.setFocusTraversable(false);
+        textNode.setAlignment(Pos.CENTER_LEFT); // Align text to the left
 
+        setPadding(Insets.EMPTY);
+        getChildren().add(textNode);
         setBorderVisible(false);
+    }
+
+    private void updatePreferredWidth() {
+        Text text = new Text(textNode.getText());
+        text.setFont(textNode.getFont());
+        double textWidth = text.getLayoutBounds().getWidth();
+        // Add small padding to avoid clipping
+        textNode.setPrefWidth(textWidth + 5); // Adjust padding as needed
+    }
+
+    public void deselect() {
+        textNode.deselect();
     }
 
     public void setText(String text) {
@@ -26,24 +43,37 @@ public class TextItem extends StackPane {
         return textNode.getText();
     }
 
-    public void setTextColor(Color color) {
-        textNode.setFill(color);
-    }
-
-    public void setFont(javafx.scene.text.Font font) {
+    public void setFont(Font font) {
         textNode.setFont(font);
     }
 
+    public TextItem getTextField() {
+        return this;
+    }
+
+    public void moveCursorLeft() {
+        textNode.requestFocus();
+        textNode.backward();
+    }
+
+    public void moveCursorRight() {
+        textNode.requestFocus();
+        textNode.forward();
+    }
+
+    public int getCursorPosition() {
+        return textNode.getCaretPosition();
+    }
+
     public void setBorderVisible(boolean visible) {
-        if (visible) {
+        if (visible)
             this.setBorder(new Border(new BorderStroke(
                     Color.BURLYWOOD,
                     BorderStrokeStyle.SOLID,
                     new CornerRadii(5),
                     new BorderWidths(4)
             )));
-        } else {
+        else
             this.setBorder(Border.EMPTY);
-        }
     }
 }

@@ -35,7 +35,7 @@ public class StickTextAdapter {
     void init() {
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
 
-        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(210, VariableGroupingInputWidgetBase.letterGroups.length));
+        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
         AxisEventFactory.leftStickStream().polarProducer(worker)
                 .map(groupsTranslator::translate)

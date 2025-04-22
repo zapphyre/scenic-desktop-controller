@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.Value;
 import org.remote.desktop.ui.component.TextContainer;
 
 import java.util.LinkedList;
@@ -72,12 +73,14 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         vert.setSpacing(3);
         horiz.setSpacing(7);
 
+        vert.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
+
         Scene scene = new Scene(vert);
-        scene.setFill(Color.grayRgb(23, .0));
+        scene.setFill(Color.TRANSPARENT);
 
 //        fittingCharacters = calculateTextItemsInHBox(horiz);
 //        fittingCharacters = calculateTextItemsEmpirically(new HBox(horiz), "q", Font.font(32));
-        fittingCharacters = 19;
+        fittingCharacters = 12;
 
 //        vert.setPrefWidth(widgetSize + 12);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
@@ -124,13 +127,6 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     AtomicInteger wordIdx = new AtomicInteger(0);
-
-    public void frameNextPredictedWord() {
-        Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
-        if (wordIdx.get() < wordsContainer.getWordsCount() - 1)
-            wordIdx.incrementAndGet();
-    }
-
     protected List<String> predictions = new LinkedList<>();
 
     public void nextPredictionsFrame() {
@@ -207,6 +203,30 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
             wordIdx.decrementAndGet();
     }
 
+    public void frameNextPredictedWord() {
+        Platform.runLater(() -> wordsContainer.setTextBorderVisible(wordIdx.get()));
+        if (wordIdx.get() < wordsContainer.getWordsCount() - 1)
+            wordIdx.incrementAndGet();
+    }
+
+    public void moveSentenceCursorLeft() {
+        System.out.println("moveCursorLeft");
+        lettersContainer.getLastItem().moveCursorLeft();
+    }
+
+    public void moveSentenceCursorRight() {
+        System.out.println("moveCursorRight");
+        lettersContainer.getLastItem().moveCursorRight();
+    }
+
+    public void moveCursorLeft() {
+        Platform.runLater(() -> activeRowControls.left.run());
+    }
+
+    public void moveCursorRight() {
+        Platform.runLater(() -> activeRowControls.right.run());
+    }
+
     public void clearAllWords() {
         Platform.runLater(() -> wordsContainer.clear());
     }
@@ -221,5 +241,21 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     public void render() {
         Platform.runLater(() -> primaryStage.show());
+    }
+
+    private RowControls activeRowControls = new RowControls(this::framePreviousPredictedWord, this::frameNextPredictedWord);
+    public void selectTopRow() {
+        activeRowControls = new RowControls(this::framePreviousPredictedWord, this::frameNextPredictedWord);
+    }
+
+    public void selectBottomRow() {
+        activeRowControls = new RowControls(this::moveSentenceCursorLeft, this::moveSentenceCursorRight);
+    }
+
+    @Value
+    @RequiredArgsConstructor
+    static class RowControls {
+        Runnable left;
+        Runnable right;
     }
 }
