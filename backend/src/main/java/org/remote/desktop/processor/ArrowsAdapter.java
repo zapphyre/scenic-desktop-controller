@@ -6,7 +6,12 @@ import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.event.VirtualInputStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
+import org.remote.desktop.model.dto.XdoActionDto;
+import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +31,7 @@ public class ArrowsAdapter extends ButtonProcessorBase {
     public ArrowsAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
                          TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
-                         SettingsDao settingsDao, VirtualInputStateRepository repository){
+                         SettingsDao settingsDao, VirtualInputStateRepository repository) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao, repository);
     }
 
@@ -37,5 +42,12 @@ public class ArrowsAdapter extends ButtonProcessorBase {
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
         return triggerBetween(UP, LEFT_STICK_X);
+    }
+
+    @Override
+    public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
+        return sceneXdoAction.getEventSourceScene().getName().equals(settingsDao.getSettings().getTextInputSceneName()) ?
+                new PredictionControlEvent(this, null, def.getLogicalEventType(), def.getTrigger()) :
+                super.mapEvent(def, sceneXdoAction, xdoAction);
     }
 }

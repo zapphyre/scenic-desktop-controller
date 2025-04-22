@@ -23,11 +23,17 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
 
     @Override
     public void onApplicationEvent(PredictionControlEvent event) {
+        if (event.getType().equalsIgnoreCase("DOWN"))
+            widget.selectBottomRow();
+
+        if (event.getType().equalsIgnoreCase("UP"))
+            widget.selectTopRow();
+
         if (event.getType().equalsIgnoreCase("LEFT"))
-            widget.framePreviousPredictedWord();
+            widget.moveCursorLeft();
 
         if (event.getType().equalsIgnoreCase("RIGHT"))
-            widget.frameNextPredictedWord();
+            widget.moveCursorRight();
 
         if (event.getType().equals("BUMPER_LEFT"))
             widget.resetStateClean();

@@ -1,9 +1,11 @@
 package org.remote.desktop.ui.component;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import org.remote.desktop.util.IdxWordTx;
 import org.remote.desktop.util.WordGenFun;
 
 import java.util.ArrayList;
@@ -16,10 +18,9 @@ public class TextContainer extends HBox {
     private final List<TextItem> items = new ArrayList<>();
 
     public TextContainer(boolean margins) {
+        setBackground(Background.EMPTY);
         setBorder(Border.stroke(Paint.valueOf(Color.BLACK.toString())));
-        setSpacing(10);
-//        setSpacing(10);
-//        setPadding(new javafx.geometry.Insets(10));
+        setSpacing(4);
     }
 
     public TextContainer() {
@@ -30,17 +31,36 @@ public class TextContainer extends HBox {
         TextItem item = new TextItem(text);
         items.add(item);
         this.getChildren().add(item);
+        items.forEach(TextItem::deselect);
     }
 
     public void transformLast(WordGenFun txFun) {
         String toModify = "";
+        String postfix = "";
         if (!items.isEmpty()) {
             TextItem last = items.getLast();
-            toModify = last.getText();
+            String text = last.getText();
+            toModify = text.substring(0, last.getCursorPosition());
+            postfix = text.substring(last.getCursorPosition());
+            System.out.println("toModify: " + toModify);
+            System.out.println("postfix: " + postfix);
+
             this.getChildren().remove(last);
         }
 
-        String transformed = txFun.transform(toModify);
+        String transformed = txFun.transform(toModify) + postfix;
+        addText(transformed);
+    }
+
+    public void transformLast(IdxWordTx idxWordTx) {
+        if (items.isEmpty()) return;
+
+        TextItem last = items.getLast();
+        String transformed = idxWordTx
+                .transforIdxWord(last.getCursorPosition())
+                .transform(last.getText());
+
+        this.getChildren().remove(last);
         addText(transformed);
     }
 
@@ -58,6 +78,10 @@ public class TextContainer extends HBox {
         if (index >= 0 && index < items.size())
             return items.get(index).getText();
         return "";
+    }
+
+    public TextItem getLastItem() {
+        return items.getLast().getTextField();
     }
 
     public int getWordsCount() {

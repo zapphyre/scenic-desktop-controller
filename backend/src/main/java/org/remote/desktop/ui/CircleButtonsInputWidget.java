@@ -158,10 +158,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         }
 
         if (groupActiveIndex == FUNCTION_GROUP_IDX) {
-            WordGenFun tranFx = getCurrentButtonWordTransformationFun(buttonActivated)
-                    .transforIdxWord(-1);
+            IdxWordTx idxWordTx = getCurrentButtonWordTransformationFun(buttonActivated);
+            WordGenFun tranFx = idxWordTx.transforIdxWord(-1);
 
-            Platform.runLater(() -> lettersContainer.transformLast(tranFx));
+            Platform.runLater(() -> lettersContainer.transformLast(idxWordTx));
+//            Platform.runLater(() -> lettersContainer.transformLast(tranFx));
         } else if (pendingResetTask == null) {
             char assignedTrieKey = activeButtonGroup.getAssignedTrieKey(buttonActivated);
             key.append(assignedTrieKey);
@@ -188,7 +189,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                 letterIndex.set(0);
 
             Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
-                    .get(letterIndex.getAndIncrement()); //increment has to be here
+                    .get(letterIndex.getAndIncrement()); //increment has to be here; just here
             scheduleSizeResetOn.apply(fontSetter);
 
             fontSetter.accept(42D);
