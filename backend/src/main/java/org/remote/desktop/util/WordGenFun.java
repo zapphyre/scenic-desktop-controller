@@ -1,6 +1,8 @@
 package org.remote.desktop.util;
 
+import javafx.scene.control.TextField;
+
 @FunctionalInterface
 public interface WordGenFun {
-    String transform(String word);
+    void transform(TextField word);
 }
