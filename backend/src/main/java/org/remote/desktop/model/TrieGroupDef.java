@@ -29,7 +29,11 @@ public class TrieGroupDef {
     IdxWordTx transform; //= idx ->word -> word + getElements().get(idx);
 
     public IdxWordTx getTransfFx() {
-        return i -> w -> transform == null ?
-                w + getElements().get(i) : transform.transforIdxWord(i).transform(w);
+        return i -> f -> {
+            if (Objects.isNull(transform))
+                f.appendText(letterIdxGetter.getLetterIdx(i));
+            else
+                transform.transforIdxWord(i).transform(f);
+        };
     }
 }

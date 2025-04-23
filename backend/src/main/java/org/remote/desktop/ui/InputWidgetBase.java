@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -43,7 +44,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected Function<String, List<String>> predictor = List::of;
 
     TextContainer wordsContainer = new TextContainer();
-    TextContainer lettersContainer = new TextContainer();
+//    TextContainer lettersContainer = new TextContainer();
+    TextField lettersContainer;
 
     abstract Pane createLeftWidget();
 
@@ -65,9 +67,20 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
         HBox wordsLayout = createContentLayout(secondaryTextHeight, scaleFactor);
         HBox lettersLayout = createContentLayout(secondaryTextHeight, scaleFactor);
+        lettersContainer= new TextField();
 
         wordsLayout.getChildren().addAll(wordsContainer);
         lettersLayout.getChildren().addAll(lettersContainer);
+
+        lettersContainer.setFont(Font.font(32));
+        lettersContainer.setBackground(Background.EMPTY);
+
+        // Allow TextField to grow horizontally
+        HBox.setHgrow(lettersContainer, Priority.ALWAYS); // TextField grows to fill HBox
+        lettersContainer.setMaxWidth(Double.MAX_VALUE);
+        lettersContainer.setMaxHeight(Double.MAX_VALUE);
+//        lettersContainer.prefHeightProperty().bind(lettersContainer.heightProperty());
+
 
         vert.getChildren().addAll(wordsLayout, lettersLayout);
         vert.setSpacing(3);
@@ -121,7 +134,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     @Override
     public void addWordToSentence() {
         Platform.runLater(() -> {
-            lettersContainer.addText(wordsContainer.getWord(wordIdx.get()));
+            lettersContainer.appendText(wordsContainer.getWord(wordIdx.get()) + " ");
+//            lettersContainer.addText(wordsContainer.getWord(wordIdx.get()));
             resetStateClean();
         });
     }
@@ -194,7 +208,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         close();
         clearAllWords();
         clearAllLetters();
-        return lettersContainer.getTextContent();
+//        return lettersContainer.getTextContent();
+        return lettersContainer.getText();
     }
 
     public void framePreviousPredictedWord() {
@@ -209,14 +224,21 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
             wordIdx.incrementAndGet();
     }
 
+    static String getLastWord(TextField textField) {
+        String[] words = textField.getText().split(" ");
+        return words[words.length - 1];
+    }
+
     public void moveSentenceCursorLeft() {
         System.out.println("moveCursorLeft");
-        lettersContainer.getLastItem().moveCursorLeft();
+//        lettersContainer.getLastItem().moveCursorLeft();
+        lettersContainer.backward();
     }
 
     public void moveSentenceCursorRight() {
         System.out.println("moveCursorRight");
-        lettersContainer.getLastItem().moveCursorRight();
+//        lettersContainer.getLastItem().moveCursorRight();
+        lettersContainer.forward();
     }
 
     public void moveCursorLeft() {

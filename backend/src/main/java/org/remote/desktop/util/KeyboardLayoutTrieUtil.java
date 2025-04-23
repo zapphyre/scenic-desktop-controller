@@ -1,5 +1,7 @@
 package org.remote.desktop.util;
 
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import lombok.experimental.UtilityClass;
 import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.ui.model.EActionButton;
@@ -23,18 +25,14 @@ public class KeyboardLayoutTrieUtil {
     //set labels
     public static final Map<Integer, Map<EActionButton, TrieGroupDef>> buttonDict;
 
-    static IdxWordTx deleteOn = q -> p -> {
-//        if (p == null || q < 0 || q >= p.length()) return p;
-        return p.substring(0, q - 1) + p.substring(q);
-    };
+    static IdxWordTx deleteOn = q -> TextInputControl::deletePreviousChar;
 
-    static IdxWordTx toggleCase = i ->p -> {
-        int j = i - 1;
-        if (p == null || j < 0 || j >= p.length()) return p;
-        char[] chars = p.toCharArray();
-        char c = chars[j];
-        chars[j] = Character.isUpperCase(c) ? Character.toLowerCase(c) : Character.toUpperCase(c);
-        return new String(chars);
+    static IdxWordTx toggleCase = i -> p -> {
+        int cp = p.getCaretPosition();
+        char charAt = p.getCharacters().charAt(cp);
+        p.deletePreviousChar();
+        char c = Character.isUpperCase(charAt) ? Character.toLowerCase(charAt) : Character.toUpperCase(charAt);
+        p.insertText(cp, String.valueOf(c));
     };
 
     static {
@@ -43,6 +41,7 @@ public class KeyboardLayoutTrieUtil {
                 TrieGroupDef.builder().button(B).trieCode('w').group(0).elements(List.of("D", "E", "F")).build(),
                 TrieGroupDef.builder().button(A).trieCode('e').group(0).elements(List.of("G", "H", "I")).build(),
                 TrieGroupDef.builder().button(X).trieCode('r').group(0).elements(List.of("J", "K", "L")).build(),
+
                 TrieGroupDef.builder().button(Y).trieCode('t').group(1).elements(List.of("M", "N", "O")).build(),
                 TrieGroupDef.builder().button(B).trieCode('y').group(1).elements(List.of("P", "Q", "R", "S")).build(),
                 TrieGroupDef.builder().button(A).trieCode('u').group(1).elements(List.of("T", "U", "V")).build(),

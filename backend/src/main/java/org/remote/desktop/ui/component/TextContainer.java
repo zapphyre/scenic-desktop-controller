@@ -48,7 +48,7 @@ public class TextContainer extends HBox {
             this.getChildren().remove(last);
         }
 
-        String transformed = txFun.transform(toModify) + postfix;
+        String transformed = ""; //txFun.transform(toModify) + postfix;
         addText(transformed);
     }
 
@@ -56,12 +56,12 @@ public class TextContainer extends HBox {
         if (items.isEmpty()) return;
 
         TextItem last = items.getLast();
-        String transformed = idxWordTx
-                .transforIdxWord(last.getCursorPosition())
-                .transform(last.getText());
+//        String transformed = idxWordTx
+//                .transforIdxWord(last.getCursorPosition())
+//                .transform(last.getText());
 
         this.getChildren().remove(last);
-        addText(transformed);
+//        addText(transformed);
     }
 
     public void clear() {

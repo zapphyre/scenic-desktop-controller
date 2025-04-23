@@ -89,7 +89,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                     pendingResetTask.run();
                     pendingResetTask = null;
                     WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
-                    Platform.runLater(() -> lettersContainer.transformLast(wordGenFun));
+                    Platform.runLater(() -> wordGenFun.transform(lettersContainer));
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
@@ -154,15 +154,15 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
             WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
 
-            Platform.runLater(() -> lettersContainer.transformLast(wordGenFun));
+            Platform.runLater(() -> wordGenFun.transform(lettersContainer));
         }
 
         if (groupActiveIndex == FUNCTION_GROUP_IDX) {
             IdxWordTx idxWordTx = getCurrentButtonWordTransformationFun(buttonActivated);
-            WordGenFun tranFx = idxWordTx.transforIdxWord(-1);
 
-            Platform.runLater(() -> lettersContainer.transformLast(idxWordTx));
-//            Platform.runLater(() -> lettersContainer.transformLast(tranFx));
+            Platform.runLater(() -> idxWordTx.transforIdxWord(lettersContainer.getCaretPosition())
+                            .transform(lettersContainer)
+            );
         } else if (pendingResetTask == null) {
             char assignedTrieKey = activeButtonGroup.getAssignedTrieKey(buttonActivated);
             key.append(assignedTrieKey);
