@@ -1,7 +1,9 @@
 package org.remote.desktop.util;
 
+import org.remote.desktop.model.LF;
+
 @FunctionalInterface
 public interface LetterIdxGetter {
 
-    String getLetterIdx(int letterIdx);
+    LF getLetterIdx(int letterIdx);
 }

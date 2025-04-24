@@ -15,9 +15,10 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
     @Getter
     private LetterCircle letterCircleLeft;
+
     @Getter
     private LetterCircle groupWidget;
-    public static String[] letterGroups = new String[]{"◑", "◐", "⍦"};
+    public static String[] letterGroups = new String[]{"◑", "༶", "◐", "Ⲯ"};
 
     private StringBuilder middleText = new StringBuilder();
     private HBox lettersLayout;
@@ -29,7 +30,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     @Override
     Pane createLeftWidget() {
         return groupWidget = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
-                1, -1, 40, widgetSize, letterGroups, 210);
+                1, -1, 40, widgetSize, letterGroups, 225);
     }
 
     @Override

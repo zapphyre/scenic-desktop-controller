@@ -127,15 +127,20 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         wordIdx.set(0);
     }
 
+    protected StringBuilder key = new StringBuilder();
+
     protected void resetPredictionStack() {
         predictions.clear();
         limitedPredictions.clear();
+        key.setLength(0);
     }
 
     @Override
     public void addWordToSentence() {
         Platform.runLater(() -> {
-            lettersContainer.appendText(" ");
+            if (!lettersContainer.getText().isEmpty() || !lettersContainer.getText().isBlank())
+                lettersContainer.appendText(" ");
+
             lettersContainer.appendText(limitedPredictions.get(wordIdx.get()));
             resetStateClean();
         });
