@@ -20,8 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.remote.desktop.util.KeyboardLayoutTrieUtil.FUNCTION_GROUP_IDX;
-import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
+import static org.remote.desktop.util.KeyboardLayoutTrieUtil.*;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
@@ -45,12 +44,10 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                     Map<EActionButton, ButtonsSettings> settingsMap = Arrays.stream(EActionButton.values())
                             .map(b -> groupDefs.getOrDefault(b, null))
                             .filter(Objects::nonNull)
-                            .collect(Collectors.toMap(TrieGroupDef::getButton,
-                                    a -> bs
+                            .collect(Collectors.toMap(TrieGroupDef::getButton, a -> bs
                                             .trieKey(a.getTrieCode())
                                             .charCount(a.getElements().size())
-                                            .idxTxFun(a.getTransfFx())
-                                            .letterIdxGetter(a.getLetterIdxGetter())
+                                            .elements(a.getElements())
                                             .build()
                             ));
 
@@ -96,11 +93,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     IdxWordTx getCurrentButtonWordTransformationFun(EActionButton eActionButton) {
         System.out.println("getCurrentButtonCharacter: " + letterIndex);
 
-        return activeButtonGroup.getCurrentWordTransformationFunction(eActionButton);
-    }
-
-    String str(List<String> lst) {
-        return String.join("", lst);
+        return activeButtonGroup.getCurrentWordTransformationFunction(eActionButton, letterIndex.get());
     }
 
     Pane rightPane = new Pane();
@@ -145,8 +138,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
     }
 
-    StringBuilder key = new StringBuilder();
-
     @Override
     public void setActiveAndType(EActionButton buttonActivated) {
         this.toggleVisual(buttonActivated);
@@ -157,7 +148,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
             Platform.runLater(() -> wordGenFun.transform(lettersContainer));
         }
 
-        if (groupActiveIndex == FUNCTION_GROUP_IDX) {
+        if (groupActiveIndex == FUNCTION_GROUP_IDX || groupActiveIndex == PUNCTUATION_GROUP_IDX) {
             IdxWordTx idxWordTx = getCurrentButtonWordTransformationFun(buttonActivated);
 
             Platform.runLater(() -> idxWordTx.transforIdxWord(lettersContainer.getCaretPosition())
@@ -169,6 +160,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
 
             Platform.runLater(() -> {
                 wordsContainer.clear();
+                System.out.println("key: " + key.toString());
                 predictions = new LinkedList<>(predictor.apply(key.toString()));
 
                 limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);

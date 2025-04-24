@@ -87,7 +87,7 @@ public class FourButtonWidget extends Pane {
         for (int i = 0; i < settings.getCharCount(); i++) {
 
             // Stroke (outline) text for better readability
-            String letterOpLabel = settings.getLetterIdxGetter().getLetterIdx(i);
+            String letterOpLabel = settings.getElements().get(i).getLabel();
             Text strokeText = new Text(letterOpLabel);
             strokeText.setFont(Font.font(textSize));
             strokeText.setFill(Color.TRANSPARENT);
@@ -103,7 +103,6 @@ public class FourButtonWidget extends Pane {
             Group letterGroup = new Group(strokeText, fillText);
 
             letterText.put(i, q -> Platform.runLater(() -> {
-                System.out.println("setting size to: " + q + " for letterIdx ");
                 strokeText.setFont(Font.font(q));
                 fillText.setFont(Font.font(q));
             }));
@@ -184,12 +183,12 @@ public class FourButtonWidget extends Pane {
         }
     }
 
-    public IdxWordTx getCurrentWordTransformationFunction(EActionButton buttonKey) {
-        return buttons.get(buttonKey).settings.getIdxTxFun();
+    public IdxWordTx getCurrentWordTransformationFunction(EActionButton buttonKey, int idx) {
+        return buttons.get(buttonKey).settings.getElements().get(idx).getTransform();
     }
 
-    public LetterIdxGetter getLetterForButton(EActionButton buttonKey) {
-        return buttons.get(buttonKey).settings.getLetterIdxGetter();
+    public String getLetterForButton(EActionButton buttonKey, int idx) {
+        return buttons.get(buttonKey).settings.getElements().get(idx).getLabel();
     }
 
     public int sizeOfActionsAssignedToButton(EActionButton buttonKey) {
