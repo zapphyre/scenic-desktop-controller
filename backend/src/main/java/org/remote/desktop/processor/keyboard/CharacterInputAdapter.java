@@ -32,7 +32,6 @@ public class CharacterInputAdapter extends KeyboardActionsBaseAdapter {
 
     private final List<EQualificationType> allowedQualifs = List.of(PUSH, RELEASE);
 
-
     public CharacterInputAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                                  GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
                                  TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,

@@ -1,7 +1,5 @@
 package org.remote.desktop.event.keyboard;
 
-import com.arun.trie.base.Trie;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.model.event.keyboard.ButtonEvent;
@@ -16,11 +14,6 @@ import org.springframework.stereotype.Component;
 public class ButtonInputWidgetAdapter implements ApplicationListener<ButtonEvent> {
 
     private final CircleButtonsInputWidget widget;
-
-    @PostConstruct
-    void intialize() {
-        System.out.println("ButtonInputWidgetAdapter initialized");
-    }
 
     @Override
     public void onApplicationEvent(ButtonEvent event) {
