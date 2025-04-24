@@ -64,10 +64,18 @@ public class TextContainer extends HBox {
 //        addText(transformed);
     }
 
-    public void clear() {
+    public void replaceContent(List<String> content) {
         items.clear();
+        Platform.runLater(() -> {
+            this.getChildren().clear();
+            content.forEach(this::addText);
+        });
+    }
+
+    public void clear() {
         System.out.println("clearing all items");
-        Platform.runLater(() -> this.getChildren().clear());
+        items.clear();
+        this.getChildren().clear();
     }
 
     public String getTextContent() {

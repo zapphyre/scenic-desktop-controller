@@ -171,7 +171,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
                 wordsContainer.clear();
                 predictions = new LinkedList<>(predictor.apply(key.toString()));
 
-                List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
+                limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
                 long count = limitedPredictions.stream().mapToInt(String::length).sum();
                 System.out.println("letter count: " + count);
 

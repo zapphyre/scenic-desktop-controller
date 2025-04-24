@@ -44,7 +44,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected Function<String, List<String>> predictor = List::of;
 
     TextContainer wordsContainer = new TextContainer();
-//    TextContainer lettersContainer = new TextContainer();
+    //    TextContainer lettersContainer = new TextContainer();
     TextField lettersContainer;
 
     abstract Pane createLeftWidget();
@@ -67,7 +67,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
         HBox wordsLayout = createContentLayout(secondaryTextHeight, scaleFactor);
         HBox lettersLayout = createContentLayout(secondaryTextHeight, scaleFactor);
-        lettersContainer= new TextField();
+        lettersContainer = new TextField();
 
         wordsLayout.getChildren().addAll(wordsContainer);
         lettersLayout.getChildren().addAll(lettersContainer);
@@ -118,7 +118,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     @Override
     public void setWordsAvailable(List<String> wordsAvailable) {
-        Platform.runLater(() -> wordsAvailable.forEach(text -> wordsContainer.addText(text)));
+        Platform.runLater(() -> wordsContainer.replaceContent(wordsAvailable));
     }
 
     public void resetStateClean() {
@@ -128,20 +128,22 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     protected void resetPredictionStack() {
-
+        predictions.clear();
+        limitedPredictions.clear();
     }
 
     @Override
     public void addWordToSentence() {
         Platform.runLater(() -> {
-            lettersContainer.appendText(wordsContainer.getWord(wordIdx.get()) + " ");
-//            lettersContainer.addText(wordsContainer.getWord(wordIdx.get()));
+            lettersContainer.appendText(" ");
+            lettersContainer.appendText(limitedPredictions.get(wordIdx.get()));
             resetStateClean();
         });
     }
 
     AtomicInteger wordIdx = new AtomicInteger(0);
     protected List<String> predictions = new LinkedList<>();
+    protected List<String> limitedPredictions = new LinkedList<>();
 
     public void nextPredictionsFrame() {
         List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
@@ -266,6 +268,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     private RowControls activeRowControls = new RowControls(this::framePreviousPredictedWord, this::frameNextPredictedWord);
+
     public void selectTopRow() {
         activeRowControls = new RowControls(this::framePreviousPredictedWord, this::frameNextPredictedWord);
     }
