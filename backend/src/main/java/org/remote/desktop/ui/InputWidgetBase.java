@@ -146,9 +146,10 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected List<String> limitedPredictions = new LinkedList<>();
 
     public void nextPredictionsFrame() {
-        List<String> limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
+        limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
 
         predictions.removeAll(limitedPredictions);
+        wordIdx.set(0);
 
         System.out.println("Predictions: " + limitedPredictions);
         setWordsAvailable(limitedPredictions);
