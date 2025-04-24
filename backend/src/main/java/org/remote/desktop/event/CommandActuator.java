@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -40,7 +41,9 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case KEYBOARD_ON -> inputWidgetBase.render();
             case KEYBOARD_OFF -> xDo("type", inputWidgetBase.getSentenceAndReset());
             case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
-//            case BUTTON -> eventPublisher.publishEvent(new ButtonEvent(this, EActionButton.valueOf(e.getTrigger())));
+            case BUTTON -> eventPublisher.publishEvent(
+                    new PredictionControlEvent(this, null, null, e.getTrigger())
+            );
         }
     }
 

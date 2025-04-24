@@ -28,11 +28,19 @@ public class KeyboardLayoutTrieUtil {
     static IdxWordTx deleteOn = q -> TextInputControl::deletePreviousChar;
 
     static IdxWordTx toggleCase = i -> p -> {
-        int cp = p.getCaretPosition();
-        char charAt = p.getCharacters().charAt(cp);
+        char targetChar = p.getText().charAt(i - 1);
+
+        char newChar;
+        if (Character.isUpperCase(targetChar)) {
+            newChar = Character.toLowerCase(targetChar);
+        } else if (Character.isLowerCase(targetChar)) {
+            newChar = Character.toUpperCase(targetChar);
+        } else {
+            return; // Not a letter, do nothing
+        }
+
         p.deletePreviousChar();
-        char c = Character.isUpperCase(charAt) ? Character.toLowerCase(charAt) : Character.toUpperCase(charAt);
-        p.insertText(cp, String.valueOf(c));
+        p.insertText(i - 1, String.valueOf(newChar));
     };
 
     static {
@@ -49,12 +57,10 @@ public class KeyboardLayoutTrieUtil {
         );
 
         LinkedList<TrieGroupDef> behavioralDefins = new LinkedList<>(definitions);
-        behavioralDefins
-                .add(TrieGroupDef.builder().button(X).group(FUNCTION_GROUP_IDX).elements(List.of("🠐"
-                )).transform(deleteOn).build());
-        behavioralDefins
-                .add(TrieGroupDef.builder().button(B).group(FUNCTION_GROUP_IDX).elements(List.of("⮁"
-                )).transform(toggleCase).build());
+        behavioralDefins.add(TrieGroupDef.builder()
+                .button(X).group(FUNCTION_GROUP_IDX).elements(List.of("🠐")).transform(deleteOn).build());
+        behavioralDefins.add(TrieGroupDef.builder()
+                .button(B).group(FUNCTION_GROUP_IDX).elements(List.of("⮁")).transform(toggleCase).build());
 
         trieDict = definitions.stream()
                 .flatMap(def -> def.getElements().stream()

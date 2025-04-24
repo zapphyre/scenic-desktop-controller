@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 public class ButtonInputWidgetAdapter implements ApplicationListener<ButtonEvent> {
 
     private final CircleButtonsInputWidget widget;
-    private final Trie<String> trie;
 
     @PostConstruct
     void intialize() {
