@@ -1,9 +1,8 @@
 package org.remote.desktop.util;
 
-import javafx.scene.control.TextInputControl;
 import lombok.experimental.UtilityClass;
-import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.model.LF;
+import org.remote.desktop.model.TrieGroupDef;
 import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.remote.desktop.model.LF.*;
+import static org.remote.desktop.model.LF.all;
 import static org.remote.desktop.ui.model.EActionButton.*;
 import static org.remote.desktop.util.TextFieldTransformations.*;
 

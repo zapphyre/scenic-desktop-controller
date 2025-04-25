@@ -60,46 +60,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
         return newLetters != null ? (currentLetter = newLetters[i]) : currentLetter;
     }
 
-    public String getLetterPicked() {
-        return currentLetter;
-    }
-
-    public String getFullContentClearClose() {
-        close();
-        String word = middleText.toString();
-        clearText();
-        return word;
-    }
-    
-    public void clearText() {
-
-    }
-
-    public void addSecondaryText(String line) {
-        System.out.println("addind: " + line);
-        Platform.runLater(() -> wordsContainer.addText(line));
-    }
-
-    int prevOn = 0;
-
-    public void setFrameOn(int index) {
-        wordsContainer.setTextBorderVisible(prevOn = index);
-    }
-
-    public void updateGroups(String[] newGroups) {
-        Platform.runLater(() -> {
-//            letterCircleLeft.updateSlicesAndLabels(newGroups, -1);
-//            circleWidgetRight.updateSlicesAndLabels(newGroups, -1);
-        });
-    }
-
-    public void updateHighlight(int section) {
-        Platform.runLater(() -> {
-            letterCircleLeft.selectSegment(section);
-            groupWidget.selectSegment(section);
-        });
-    }
-
     public void updateRotation(double rotationAngle) {
         Platform.runLater(() -> {
             String[] currentGroups = letterGroups;

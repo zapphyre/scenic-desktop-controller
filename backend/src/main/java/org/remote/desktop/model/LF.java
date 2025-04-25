@@ -28,13 +28,4 @@ public class LF {
     public static List<LF> all(String ...labels) {
         return Arrays.stream(labels).map(LF::new).toList();
     }
-
-//    public IdxWordTx getTfxIdx() {
-//        return i -> f -> {
-//            if (Objects.isNull(transform))
-//                f.appendText(label);
-//            else
-//                transform.transforIdxWord(i).transform(f);
-//        };
-//    }
 }
