@@ -91,20 +91,16 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     };
 
     IdxWordTx getCurrentButtonWordTransformationFun(EActionButton eActionButton) {
-        System.out.println("getCurrentButtonCharacter: " + letterIndex);
-
         return activeButtonGroup.getCurrentWordTransformationFunction(eActionButton, letterIndex.get());
     }
 
     Pane rightPane = new Pane();
-
     @Override
     Pane createRightWidget() {
         return rightPane;
     }
 
     FourButtonWidget activeButtonGroup;
-
     @Override
     public int setGroupActive(int index) {
         Platform.runLater(() -> {
@@ -123,7 +119,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase {
     }
 
     private EActionButton precisionInitiatior;
-
     public void activatePrecisionMode(EActionButton eActionButton) {
         System.out.println("activatePrecisionMode");
         groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = eActionButton);

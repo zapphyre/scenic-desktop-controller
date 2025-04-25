@@ -19,7 +19,6 @@ public class TextContainer extends HBox {
 
     public TextContainer(boolean margins) {
         setBackground(Background.EMPTY);
-        setBorder(Border.stroke(Paint.valueOf(Color.BLACK.toString())));
         setSpacing(4);
     }
 
@@ -30,38 +29,12 @@ public class TextContainer extends HBox {
     public void addText(String text) {
         TextItem item = new TextItem(text);
         items.add(item);
+
+        if (!this.getChildren().isEmpty())
+            this.getChildren().add(new TextItem("  "));
+
         this.getChildren().add(item);
-        items.forEach(TextItem::deselect);
-    }
-
-    public void transformLast(WordGenFun txFun) {
-        String toModify = "";
-        String postfix = "";
-        if (!items.isEmpty()) {
-            TextItem last = items.getLast();
-            String text = last.getText();
-            toModify = text.substring(0, last.getCursorPosition());
-            postfix = text.substring(last.getCursorPosition());
-            System.out.println("toModify: " + toModify);
-            System.out.println("postfix: " + postfix);
-
-            this.getChildren().remove(last);
-        }
-
-        String transformed = ""; //txFun.transform(toModify) + postfix;
-        addText(transformed);
-    }
-
-    public void transformLast(IdxWordTx idxWordTx) {
-        if (items.isEmpty()) return;
-
-        TextItem last = items.getLast();
-//        String transformed = idxWordTx
-//                .transforIdxWord(last.getCursorPosition())
-//                .transform(last.getText());
-
-        this.getChildren().remove(last);
-//        addText(transformed);
+//        items.forEach(TextItem::deselect);
     }
 
     public void replaceContent(List<String> content) {
@@ -89,7 +62,7 @@ public class TextContainer extends HBox {
     }
 
     public TextItem getLastItem() {
-        return items.getLast().getTextField();
+        return items.getLast();
     }
 
     public int getWordsCount() {

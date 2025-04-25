@@ -93,9 +93,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
 //        fittingCharacters = calculateTextItemsInHBox(horiz);
 //        fittingCharacters = calculateTextItemsEmpirically(new HBox(horiz), "q", Font.font(32));
-        fittingCharacters = 12;
+        fittingCharacters = 16;
 
-//        vert.setPrefWidth(widgetSize + 12);
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
