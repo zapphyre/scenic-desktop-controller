@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.remote.desktop.util.KeyboardLayoutTrieUtil.FUNCTION_GROUP_IDX;
 import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase implements ButtonInputProcessor {
@@ -48,9 +47,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                             .filter(Objects::nonNull)
                             .collect(Collectors.toMap(UiButtonBase::getButton, a -> bs
 //                                    .trieKey(a.getTrieCode())
-                                    .charCount(a.getElements().size())
-                                    .uiButton(a)
-                                    .build()
+                                            .charCount(a.getElements().size())
+                                            .uiButton(a)
+                                            .build()
                             ));
 
                     return new FourButtonWidget(settingsMap, (widgetSize * 2) * scaleFactor, 24);
@@ -87,10 +86,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                 .schedule(() -> {
                     pendingResetTask.run();
                     pendingResetTask = null;
-//                    WordGenFun wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
-//                    Platform.runLater(() -> wordGenFun.transform(lettersContainer));
+                    // -1 b/c incrementation is pre-applied, therefore has to be lowered at the end
                     Platform.runLater(() -> groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1));
-
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
@@ -99,14 +96,12 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     Pane rightPane = new Pane();
-
     @Override
     Pane createRightWidget() {
         return rightPane;
     }
 
     FourButtonWidget activeButtonGroup;
-
     @Override
     public int setGroupActive(int index) {
         Platform.runLater(() -> {
@@ -125,24 +120,18 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     private EActionButton precisionInitiatior;
+
     public void activatePrecisionMode(EActionButton eActionButton) {
-        System.out.println("activatePrecisionMode");
-//        groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = eActionButton);
-//        groupTxFun = ReplacingUiButtonAdapter.builder()
-//                .buttonTouch(activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eActionButton))
-//                .build()
-//                .processTouch(this);
-
+        // button long-pressed; will get longTouchHandler out of current uiButton definition
         groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eActionButton)
-                        .getLongTouchHandler().processTouch(this);
+                .getLongTouchHandler().processTouch(this);
 
-        letterIndex.set(0);
+        letterIndex.set(0); //start fresh
         Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
-                .get(letterIndex.getAndIncrement());
+                .get(letterIndex.getAndIncrement()); // get 0 and increment so on next touch idx + 1 is ready
         scheduleSizeResetOn.apply(fontSizeSetter);
 
-        System.out.println("setting font size to " + fontSizeSetter);
-        fontSizeSetter.accept(42D);
+        fontSizeSetter.accept(42d);
 
     }
 
@@ -151,46 +140,27 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         this.toggleVisual(buttonActivated);
         System.out.println("setActiveAndType");
 
+        // long press (precision mode) was activated && another button then activation pressed
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
-//            ILA wordGenFun = groupTxFun.transforIdxWord(letterIndex.getAndSet(0) - 1);
-            System.out.println("precision mode; button change");
+            // apply letter on previous buttons position
             groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1);
+
+            // generate transformation function out of new (secondly pressed) button
             groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated)
                     .getLongTouchHandler().processTouch(this);
 
-//            Platform.runLater(() -> wordGenFun.transform(lettersContainer));
-        }
-
-        if (groupActiveIndex == FUNCTION_GROUP_IDX) {
-            letterIndex.set(0);
-//            IdxWordTx idxWordTx = getCurrentButtonWordTransformationFun(buttonActivated);
-            System.out.println("function case");
+        } else if (pendingResetTask == null) { // default case -- trie input
             getCurrentButtonWordTransformationFun(buttonActivated)
-                    .actOnIndexLetter(0);
-//            Platform.runLater(() -> idxWordTx.transforIdxWord(lettersContainer.getCaretPosition())
-//                    .transform(lettersContainer)
-//            );
-        } else if (pendingResetTask == null) {
-            System.out.println("normal case");
-                getCurrentButtonWordTransformationFun(buttonActivated)
-                    .actOnIndexLetter(0);
-        } else {
+                    .actOnIndexLetter(-1); // index in not inportand, b/c processor should call asTrieChar(..) and use trie char
+        } else { // pending task != null -> precision mode was activated before and now the same button is pressed
             if (letterIndex.get() > activeButtonGroup.sizeOfActionsAssignedToButton(buttonActivated) - 1)
                 letterIndex.set(0);
 
-            System.out.println("precision mode");
-//            groupTxFun = getCurrentButtonWordTransformationFun(precisionInitiatior = buttonActivated);
-//            groupTxFun = LongPressUiButtonAdapter.builder()
-//                    .buttonTouch(activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated))
-//                    .build()
-//                    .processTouch(this);
-            int i = letterIndex.getAndIncrement();
-            System.out.println("index " + i);
             Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
-                    .get(i); //increment has to be here; just here
+                    .get(letterIndex.getAndIncrement()); //increment has to be here; just here and in precision activation
             scheduleSizeResetOn.apply(fontSetter);
 
-            fontSetter.accept(42D);
+            fontSetter.accept(42d);
         }
     }
 
@@ -225,16 +195,13 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     @Override
     public void asTrieChar(char c) {
         key.append(c);
-        System.out.println("non pending task");
 
         Platform.runLater(() -> {
             wordsContainer.clear();
-            System.out.println("key: " + key.toString());
             predictions = new LinkedList<>(predictor.apply(key.toString()));
 
             limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
             long count = limitedPredictions.stream().mapToInt(String::length).sum();
-            System.out.println("letter count: " + count);
 
             predictions.removeAll(limitedPredictions);
 
@@ -256,9 +223,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     @Override
     public void asDeletingLong(String letter) {
         Platform.runLater(() -> {
-            System.out.println("deleting long");
             lettersContainer.deletePreviousChar();
-            System.out.println("appending: " + letter);
             lettersContainer.appendText(letter);
         });
     }
