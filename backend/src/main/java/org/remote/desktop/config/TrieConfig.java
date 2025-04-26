@@ -1,7 +1,6 @@
 package org.remote.desktop.config;
 
 import com.arun.trie.base.Trie;
-import com.arun.trie.base.ValueFrequency;
 import com.arun.trie.io.TrieIO;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.prediction.G4Trie;
@@ -12,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.remote.desktop.util.KeyboardLayoutTrieUtil.trieDict;
+import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 
 @Slf4j
 @Configuration

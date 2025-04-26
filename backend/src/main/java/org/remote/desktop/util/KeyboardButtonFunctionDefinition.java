@@ -16,18 +16,18 @@ import static org.remote.desktop.ui.model.EActionButton.*;
 import static org.remote.desktop.util.TextFieldTransformations.*;
 
 @UtilityClass
-public class KeyboardLayoutTrieUtil {
+public class KeyboardButtonFunctionDefinition {
 
     // internal trie dictionary
     public static final Map<Character, Character> trieDict;
     public static int FUNCTION_GROUP_IDX = 3;
     public static int PUNCTUATION_GROUP_IDX = 1;
 
-    //set labels
+    // set labels
     public static final Map<Integer, Map<EActionButton, UiButtonBase>> buttonDict;
 
     static {
-        List<TrieButtonTouch> definitions = List.of(
+        List<TrieButtonTouch> trieDefs = List.of(
                 TrieButtonTouch.builder().button(Y).trieCode('q').group(0).elements(all("A", "B", "C")).build(),
                 TrieButtonTouch.builder().button(B).trieCode('w').group(0).elements(all("D", "E", "F")).build(),
                 TrieButtonTouch.builder().button(A).trieCode('e').group(0).elements(all("G", "H", "I")).build(),
@@ -39,26 +39,26 @@ public class KeyboardLayoutTrieUtil {
                 TrieButtonTouch.builder().button(X).trieCode('i').group(2).elements(all("W", "X", "Y", "Z")).build()
         );
 
-        LinkedList<UiButtonBase> behavioralDefins = new LinkedList<>(definitions);
+        LinkedList<UiButtonBase> behavioralDefins = new LinkedList<>(trieDefs);
         behavioralDefins.add(FunctionalButtonTouch.builder()
-                .button(X).group(FUNCTION_GROUP_IDX).transform(deleteOn).elements(List.of(new LF("🠐"))).build());
+                .button(X).group(FUNCTION_GROUP_IDX).transform(deleteOn).elements(all("🠐")).build());
         behavioralDefins.add(FunctionalButtonTouch.builder()
-                .button(B).group(FUNCTION_GROUP_IDX).transform(toggleCase).elements(List.of(new LF("⮁"))).build());
+                .button(B).group(FUNCTION_GROUP_IDX).transform(toggleCase).elements(all("⮁")).build());
         behavioralDefins.add(FunctionalButtonTouch.builder()
-                .button(A).group(FUNCTION_GROUP_IDX).transform(alternateCase).elements(List.of(new LF("⬳"))).build());
+                .button(A).group(FUNCTION_GROUP_IDX).transform(alternateCase).elements(all("⬳")).build());
         behavioralDefins.add(FunctionalButtonTouch.builder()
-                .button(Y).group(FUNCTION_GROUP_IDX).transform(camelize).elements(List.of(new LF("ᴁ"))).build());
+                .button(Y).group(FUNCTION_GROUP_IDX).transform(camelize).elements(all("ᴁ")).build());
 
         behavioralDefins.add(CharAddButtonTouch.builder()
-                .button(A).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF(","))).build());
+                .button(A).group(PUNCTUATION_GROUP_IDX).elements(all(",")).build());
         behavioralDefins.add(CharAddButtonTouch.builder()
-                .button(B).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF("."))).build());
+                .button(B).group(PUNCTUATION_GROUP_IDX).elements(all(".")).build());
         behavioralDefins.add(CharAddButtonTouch.builder()
-                .button(X).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF(";"))).build());
+                .button(X).group(PUNCTUATION_GROUP_IDX).elements(all(";")).build());
         behavioralDefins.add(CharAddButtonTouch.builder()
-                .button(Y).group(PUNCTUATION_GROUP_IDX).elements(all("?", "!", "˜")).build());
+                .button(Y).group(PUNCTUATION_GROUP_IDX).elements(all("?", "!", "~")).build());
 
-        trieDict = definitions.stream()
+        trieDict = trieDefs.stream()
                 .flatMap(def -> def.getElements().stream()
                         .map(l -> Map.entry(l.getLabel().charAt(0), def.getTrieCode())))
                 .collect(Collectors.toMap(

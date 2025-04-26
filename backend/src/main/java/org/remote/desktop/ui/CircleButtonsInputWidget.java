@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.remote.desktop.util.KeyboardLayoutTrieUtil.buttonDict;
+import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.buttonDict;
 
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase implements ButtonInputProcessor {
 
@@ -46,7 +46,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                             .map(b -> groupDefs.getOrDefault(b, null))
                             .filter(Objects::nonNull)
                             .collect(Collectors.toMap(UiButtonBase::getButton, a -> bs
-//                                    .trieKey(a.getTrieCode())
                                             .charCount(a.getElements().size())
                                             .uiButton(a)
                                             .build()
@@ -86,7 +85,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                 .schedule(() -> {
                     pendingResetTask.run();
                     pendingResetTask = null;
-                    // -1 b/c incrementation is pre-applied, therefore has to be lowered at the end
+                    // -1 b/c incrementation is post-applied, therefore has to be lowered at the end
                     Platform.runLater(() -> groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1));
                 }, 2100, TimeUnit.MILLISECONDS);
     };
@@ -120,7 +119,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     private EActionButton precisionInitiatior;
-
     public void activatePrecisionMode(EActionButton eActionButton) {
         // button long-pressed; will get longTouchHandler out of current uiButton definition
         groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eActionButton)
@@ -132,13 +130,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         scheduleSizeResetOn.apply(fontSizeSetter);
 
         fontSizeSetter.accept(42d);
-
     }
 
     @Override
     public void setActiveAndType(EActionButton buttonActivated) {
         this.toggleVisual(buttonActivated);
-        System.out.println("setActiveAndType");
 
         // long press (precision mode) was activated && another button then activation pressed
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
