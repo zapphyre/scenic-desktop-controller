@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import lombok.Builder;
 import lombok.Value;
 import org.remote.desktop.model.LF;
+import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.util.IdxWordTx;
 import org.remote.desktop.util.LetterIdxGetter;
 import org.remote.desktop.util.WordGenFun;
@@ -19,5 +20,6 @@ public class ButtonsSettings {
     char trieKey;
 
     int charCount;
-    List<LF> elements;
+//    List<LF> elements;
+    UiButtonBase uiButton;
 }

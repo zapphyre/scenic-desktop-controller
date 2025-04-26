@@ -127,7 +127,6 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     protected StringBuilder key = new StringBuilder();
-
     protected void resetPredictionStack() {
         predictions.clear();
         limitedPredictions.clear();

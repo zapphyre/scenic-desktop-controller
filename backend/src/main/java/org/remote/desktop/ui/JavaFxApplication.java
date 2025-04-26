@@ -15,6 +15,7 @@ public class JavaFxApplication extends Application {
     public void init() throws Exception {
     }
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         widget.start(primaryStage);

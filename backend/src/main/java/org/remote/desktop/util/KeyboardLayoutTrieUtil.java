@@ -1,8 +1,7 @@
 package org.remote.desktop.util;
 
 import lombok.experimental.UtilityClass;
-import org.remote.desktop.model.LF;
-import org.remote.desktop.model.TrieGroupDef;
+import org.remote.desktop.model.*;
 import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.HashMap;
@@ -25,39 +24,39 @@ public class KeyboardLayoutTrieUtil {
     public static int PUNCTUATION_GROUP_IDX = 1;
 
     //set labels
-    public static final Map<Integer, Map<EActionButton, TrieGroupDef>> buttonDict;
+    public static final Map<Integer, Map<EActionButton, UiButtonBase>> buttonDict;
 
     static {
-        List<TrieGroupDef> definitions = List.of(
-                TrieGroupDef.builder().button(Y).trieCode('q').group(0).elements(all("A", "B", "C")).build(),
-                TrieGroupDef.builder().button(B).trieCode('w').group(0).elements(all("D", "E", "F")).build(),
-                TrieGroupDef.builder().button(A).trieCode('e').group(0).elements(all("G", "H", "I")).build(),
-                TrieGroupDef.builder().button(X).trieCode('r').group(0).elements(all("J", "K", "L")).build(),
+        List<TrieButtonTouch> definitions = List.of(
+                TrieButtonTouch.builder().button(Y).trieCode('q').group(0).elements(all("A", "B", "C")).build(),
+                TrieButtonTouch.builder().button(B).trieCode('w').group(0).elements(all("D", "E", "F")).build(),
+                TrieButtonTouch.builder().button(A).trieCode('e').group(0).elements(all("G", "H", "I")).build(),
+                TrieButtonTouch.builder().button(X).trieCode('r').group(0).elements(all("J", "K", "L")).build(),
 
-                TrieGroupDef.builder().button(Y).trieCode('t').group(2).elements(all("M", "N", "O")).build(),
-                TrieGroupDef.builder().button(B).trieCode('y').group(2).elements(all("P", "Q", "R", "S")).build(),
-                TrieGroupDef.builder().button(A).trieCode('u').group(2).elements(all("T", "U", "V")).build(),
-                TrieGroupDef.builder().button(X).trieCode('i').group(2).elements(all("W", "X", "Y", "Z")).build()
+                TrieButtonTouch.builder().button(Y).trieCode('t').group(2).elements(all("M", "N", "O")).build(),
+                TrieButtonTouch.builder().button(B).trieCode('y').group(2).elements(all("P", "Q", "R", "S")).build(),
+                TrieButtonTouch.builder().button(A).trieCode('u').group(2).elements(all("T", "U", "V")).build(),
+                TrieButtonTouch.builder().button(X).trieCode('i').group(2).elements(all("W", "X", "Y", "Z")).build()
         );
 
-        LinkedList<TrieGroupDef> behavioralDefins = new LinkedList<>(definitions);
-        behavioralDefins.add(TrieGroupDef.builder()
-                .button(X).group(FUNCTION_GROUP_IDX).elements(List.of(new LF("🠐", deleteOn))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
-                .button(B).group(FUNCTION_GROUP_IDX).elements(List.of(new LF("⮁", toggleCase))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
-                .button(A).group(FUNCTION_GROUP_IDX).elements(List.of(new LF("⬳", alternateCase))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
-                .button(Y).group(FUNCTION_GROUP_IDX).elements(List.of(new LF("ᴁ", camelize))).build());
+        LinkedList<UiButtonBase> behavioralDefins = new LinkedList<>(definitions);
+        behavioralDefins.add(FunctionalButtonTouch.builder()
+                .button(X).group(FUNCTION_GROUP_IDX).transform(deleteOn).elements(List.of(new LF("🠐"))).build());
+        behavioralDefins.add(FunctionalButtonTouch.builder()
+                .button(B).group(FUNCTION_GROUP_IDX).transform(toggleCase).elements(List.of(new LF("⮁"))).build());
+        behavioralDefins.add(FunctionalButtonTouch.builder()
+                .button(A).group(FUNCTION_GROUP_IDX).transform(alternateCase).elements(List.of(new LF("⬳"))).build());
+        behavioralDefins.add(FunctionalButtonTouch.builder()
+                .button(Y).group(FUNCTION_GROUP_IDX).transform(camelize).elements(List.of(new LF("ᴁ"))).build());
 
-        behavioralDefins.add(TrieGroupDef.builder()
+        behavioralDefins.add(CharAddButtonTouch.builder()
                 .button(A).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF(","))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
+        behavioralDefins.add(CharAddButtonTouch.builder()
                 .button(B).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF("."))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
+        behavioralDefins.add(CharAddButtonTouch.builder()
                 .button(X).group(PUNCTUATION_GROUP_IDX).elements(List.of(new LF(";"))).build());
-        behavioralDefins.add(TrieGroupDef.builder()
-                .button(Y).group(PUNCTUATION_GROUP_IDX).elements(all("?", "!")).build());
+        behavioralDefins.add(CharAddButtonTouch.builder()
+                .button(Y).group(PUNCTUATION_GROUP_IDX).elements(all("?", "!", "˜")).build());
 
         trieDict = definitions.stream()
                 .flatMap(def -> def.getElements().stream()
@@ -73,9 +72,9 @@ public class KeyboardLayoutTrieUtil {
 
         buttonDict = behavioralDefins.stream()
                 .collect(Collectors.groupingBy(
-                        TrieGroupDef::getGroup,
+                        UiButtonBase::getGroup,
                         Collectors.toMap(
-                                TrieGroupDef::getButton,
+                                UiButtonBase::getButton,
                                 Function.identity(),
                                 (list1, list2) -> {
                                     throw new IllegalStateException("Duplicate code in same group");
