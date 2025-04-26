@@ -33,7 +33,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     AtomicInteger letterIndex = new AtomicInteger(0);
 
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, letterGroupCount, title);
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title);
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
                 .textColor(Color.DARKGOLDENROD)
                 .baseColor(Color.BURLYWOOD)
@@ -147,7 +147,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
         } else if (pendingResetTask == null) { // default case -- trie input
             getCurrentButtonWordTransformationFun(buttonActivated)
-                    .actOnIndexLetter(-1); // index in not inportand, b/c processor should call asTrieChar(..) and use trie char
+                    .actOnIndexLetter(0);
         } else { // pending task != null -> precision mode was activated before and now the same button is pressed
             if (letterIndex.get() > activeButtonGroup.sizeOfActionsAssignedToButton(buttonActivated) - 1)
                 letterIndex.set(0);

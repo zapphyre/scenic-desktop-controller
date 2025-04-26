@@ -29,7 +29,7 @@ public class StickTextAdapter {
 
     private final InputWidgetBase widget;
 
-    PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
+    private PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
     @PostConstruct
     void init() {

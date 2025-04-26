@@ -1,6 +1,7 @@
 package org.remote.desktop.ui.component;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -20,6 +21,7 @@ public class TextContainer extends HBox {
     public TextContainer(boolean margins) {
         setBackground(Background.EMPTY);
         setSpacing(4);
+        setAlignment(Pos.CENTER);
     }
 
     public TextContainer() {

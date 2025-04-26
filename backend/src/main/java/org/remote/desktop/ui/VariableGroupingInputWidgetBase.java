@@ -21,10 +21,9 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     public static String[] letterGroups = new String[]{"◑", "༶", "◐", "Ⲯ"};
 
     private StringBuilder middleText = new StringBuilder();
-    private HBox lettersLayout;
 
-    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, letterGroupCount, title);
+    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, String title) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title);
     }
 
     @Override

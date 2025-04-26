@@ -2,12 +2,10 @@ package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.asmus.builder.AxisEventFactory;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.PolarCoords;
-import org.asmus.service.JoyWorker;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SceneDao;
@@ -31,7 +29,7 @@ import java.util.function.Consumer;
 
 import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
 import static org.asmus.model.EButtonAxisMapping.TRIGGER_LEFT;
-import static org.remote.desktop.util.EtriggerFilter.triggerBetween;
+import static org.remote.desktop.util.ETriggerFilter.triggerBetween;
 import static org.remote.desktop.util.GestureUtil.buildNodeMap;
 import static org.remote.desktop.util.GestureUtil.gestures;
 
