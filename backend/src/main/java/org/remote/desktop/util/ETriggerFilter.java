@@ -7,7 +7,7 @@ import org.asmus.model.GamepadEvent;
 import java.util.function.Predicate;
 
 @UtilityClass
-public class EtriggerFilter {
+public class ETriggerFilter {
 
     public static Predicate<GamepadEvent> triggerUpTo(EButtonAxisMapping incl) {
         return q -> q.getType().ordinal() <= incl.ordinal();

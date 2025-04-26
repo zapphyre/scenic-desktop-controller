@@ -3,12 +3,14 @@ package org.remote.desktop.ui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
@@ -32,20 +34,18 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final double arcDefaultAlpha;
     protected final Color highlightedColor;
     protected final Color textColor;
-    protected final int letterGroupCount;
     protected final String title;
 
     double scaleFactor = 1.5;
 
     private Stage primaryStage;
     protected int fittingCharacters;
+    protected TextField lettersContainer;
 
     @Setter
     protected Function<String, List<String>> predictor = List::of;
 
-    TextContainer wordsContainer = new TextContainer();
-    //    TextContainer lettersContainer = new TextContainer();
-    TextField lettersContainer;
+    protected final TextContainer wordsContainer = new TextContainer();
 
     abstract Pane createLeftWidget();
 
@@ -56,18 +56,25 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         this.primaryStage = primaryStage;
 
         HBox horiz = new HBox();
-        VBox vert = new VBox(horiz);
+        VBox vert = new VBox();
+        vert.setAlignment(Pos.CENTER);
+
+        VBox textLayouts = new VBox();
 
         Pane leftWidget = createLeftWidget();
         Pane rightWidget = createRightWidget();
 
-        horiz.getChildren().addAll(leftWidget, rightWidget);
+        VBox leftVert = new VBox(leftWidget);
+        leftVert.setAlignment(Pos.CENTER);
+        horiz.getChildren().add(leftVert);
 
         double secondaryTextHeight = 42; //new Text("Sample").getBoundsInLocal().getHeight() * secondaryTextScale;
 
         HBox wordsLayout = createContentLayout(secondaryTextHeight, scaleFactor);
         HBox lettersLayout = createContentLayout(secondaryTextHeight, scaleFactor);
         lettersContainer = new TextField();
+        HBox.setHgrow(wordsContainer, Priority.ALWAYS); // Grow to fill HBox width
+        HBox.setHgrow(lettersContainer, Priority.ALWAYS); // Grow to fill HBox width
 
         wordsLayout.getChildren().addAll(wordsContainer);
         lettersLayout.getChildren().addAll(lettersContainer);
@@ -75,25 +82,29 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         lettersContainer.setFont(Font.font(32));
         lettersContainer.setBackground(Background.EMPTY);
 
-        // Allow TextField to grow horizontally
-        HBox.setHgrow(lettersContainer, Priority.ALWAYS); // TextField grows to fill HBox
-        lettersContainer.setMaxWidth(Double.MAX_VALUE);
-        lettersContainer.setMaxHeight(Double.MAX_VALUE);
-//        lettersContainer.prefHeightProperty().bind(lettersContainer.heightProperty());
+        textLayouts.getChildren().addAll(wordsLayout, lettersLayout);
+        textLayouts.setSpacing(3);
+        textLayouts.setPrefWidth(690);
 
-
-        vert.getChildren().addAll(wordsLayout, lettersLayout);
-        vert.setSpacing(3);
         horiz.setSpacing(7);
+        horiz.setAlignment(Pos.CENTER);
+        HBox.setHgrow(horiz, Priority.ALWAYS); // Grow to fill HBox width
 
-        vert.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
+        VBox textVert = new VBox(textLayouts);
+        textVert.setAlignment(Pos.CENTER);
+        horiz.getChildren().addAll(textVert, rightWidget);
+        vert.getChildren().add(horiz);
+        vert.setAlignment(Pos.CENTER);
+        vert.backgroundProperty().set(Background.EMPTY);
 
         Scene scene = new Scene(vert);
         scene.setFill(Color.TRANSPARENT);
 
 //        fittingCharacters = calculateTextItemsInHBox(horiz);
 //        fittingCharacters = calculateTextItemsEmpirically(new HBox(horiz), "q", Font.font(32));
-        fittingCharacters = 16;
+        fittingCharacters = 28;
+
+        renderOnLowerNthPartOfScreen(primaryStage, 4);
 
         primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setScene(scene);
@@ -101,9 +112,41 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
             event.consume();
             primaryStage.hide();
         });
+
+        Platform.setImplicitExit(false);
+    }
+
+    void renderOnLowerNthPartOfScreen(Stage primaryStage, int fraction) {
         primaryStage.setTitle("keyboard");
         primaryStage.setAlwaysOnTop(true);
-        Platform.setImplicitExit(false);
+
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+
+        double stageWidth = primaryStage.getWidth();
+        double stageHeight = primaryStage.getHeight();
+        primaryStage.setOnShown(e -> {
+            double x = (bounds.getWidth() - primaryStage.getWidth()) / 2;
+            double y = bounds.getHeight() - (bounds.getHeight() / fraction) - (primaryStage.getHeight() / 2);
+            primaryStage.setX(x);
+            primaryStage.setY(y);
+        });
+    }
+
+    private int findPreviousWordStart(String text, int caretPosition) {
+        if (caretPosition <= 0) return 0;
+        int pos = caretPosition - 1;
+        while (pos > 0 && Character.isWhitespace(text.charAt(pos))) pos--;
+        while (pos > 0 && !Character.isWhitespace(text.charAt(pos - 1))) pos--;
+        return pos;
+    }
+
+    private int findNextWordStart(String text, int caretPosition) {
+        if (caretPosition >= text.length()) return text.length();
+        int pos = caretPosition;
+        while (pos < text.length() && !Character.isWhitespace(text.charAt(pos))) pos++;
+        while (pos < text.length() && Character.isWhitespace(text.charAt(pos))) pos++;
+        return pos;
     }
 
     HBox createContentLayout(double height, double scaleFactor) {
@@ -127,6 +170,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     protected StringBuilder key = new StringBuilder();
+
     protected void resetPredictionStack() {
         predictions.clear();
         limitedPredictions.clear();
@@ -236,14 +280,10 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void moveSentenceCursorLeft() {
-        System.out.println("moveCursorLeft");
-//        lettersContainer.getLastItem().moveCursorLeft();
         lettersContainer.backward();
     }
 
     public void moveSentenceCursorRight() {
-        System.out.println("moveCursorRight");
-//        lettersContainer.getLastItem().moveCursorRight();
         lettersContainer.forward();
     }
 
@@ -279,6 +319,16 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     public void selectBottomRow() {
         activeRowControls = new RowControls(this::moveSentenceCursorLeft, this::moveSentenceCursorRight);
+    }
+
+    public void moveCursorWordLeft() {
+        int previousWordStart = findPreviousWordStart(lettersContainer.getText(), lettersContainer.getCaretPosition());
+        lettersContainer.positionCaret(previousWordStart);
+    }
+
+    public void moveCursorWordRight() {
+        int nextWordStart = findNextWordStart(lettersContainer.getText(), lettersContainer.getCaretPosition());
+        lettersContainer.positionCaret(nextWordStart);
     }
 
     @Value

@@ -4,7 +4,7 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import {EKeyEvt, GPadEvent, multiplicityValues, NameId, XdoAction} from "@/model/gpadOs";
+import {EKeyEvt, GPadEvent, multiplicityValues, buttonValues, NameId, XdoAction} from "@/model/gpadOs";
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";

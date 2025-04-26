@@ -42,7 +42,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case KEYBOARD_OFF -> xDo("type", inputWidgetBase.getSentenceAndReset());
             case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
             case BUTTON -> eventPublisher.publishEvent(
-                    new PredictionControlEvent(this, null, null, e.getTrigger())
+                    new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())
             );
         }
     }

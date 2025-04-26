@@ -1,9 +1,7 @@
 package org.remote.desktop.event.keyboard;
 
-import com.arun.trie.base.Trie;
-import javafx.scene.text.Font;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.event.VirtualInputStateRepository;
+import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.remote.desktop.ui.model.EActionButton;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Component;
 public class PredictionWidgetActuator implements ApplicationListener<PredictionControlEvent> {
 
     private final CircleButtonsInputWidget widget;
-    private final Trie<String> trie;
 
     public void longClick(String trigger) {
         widget.activatePrecisionMode(EActionButton.valueOf(trigger));
@@ -30,10 +27,16 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
             widget.selectTopRow();
 
         if (event.getType().equalsIgnoreCase("LEFT"))
-            widget.moveCursorLeft();
+            if (event.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
+                widget.moveCursorWordLeft();
+            else
+                widget.moveCursorLeft();
 
         if (event.getType().equalsIgnoreCase("RIGHT"))
-            widget.moveCursorRight();
+            if (event.getModifiers().contains(EButtonAxisMapping.BUMPER_LEFT))
+                widget.moveCursorWordRight();
+            else
+                widget.moveCursorRight();
 
         if (event.getType().equals("BUMPER_LEFT"))
             widget.resetStateClean();
