@@ -1,10 +1,6 @@
 package org.remote.desktop.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import org.remote.desktop.util.IdxWordTx;
 import org.remote.desktop.util.WordGenFun;
 
 import java.util.Arrays;
@@ -15,7 +11,7 @@ import java.util.Optional;
 public class LF {
 
     String label;
-    WordGenFun transform;
+    WordGenFun transform; //not being used currently; might come later might not (different textField addition function per button char)
 
     public LF(String label) {
         this.label = label;
