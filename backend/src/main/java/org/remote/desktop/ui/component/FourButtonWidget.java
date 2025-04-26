@@ -11,8 +11,10 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import lombok.Getter;
+import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.IndexLetterAction;
 import org.remote.desktop.util.IdxWordTx;
 import org.remote.desktop.util.LetterIdxGetter;
 import org.remote.desktop.util.WordGenFun;
@@ -87,7 +89,7 @@ public class FourButtonWidget extends Pane {
         for (int i = 0; i < settings.getCharCount(); i++) {
 
             // Stroke (outline) text for better readability
-            String letterOpLabel = settings.getElements().get(i).getLabel();
+            String letterOpLabel = settings.getUiButton().getElements().get(i).getLabel();
             Text strokeText = new Text(letterOpLabel);
             strokeText.setFont(Font.font(textSize));
             strokeText.setFill(Color.TRANSPARENT);
@@ -183,12 +185,16 @@ public class FourButtonWidget extends Pane {
         }
     }
 
-    public IdxWordTx getCurrentWordTransformationFunction(EActionButton buttonKey, int idx) {
-        return buttons.get(buttonKey).settings.getElements().get(idx).getTransform();
-    }
+//    public IdxWordTx getCurrentWordTransformationFunction(EActionButton buttonKey, int idx) {
+//        return buttons.get(buttonKey).settings.getElements().get(idx).getTransform();
+//    }
 
-    public String getLetterForButton(EActionButton buttonKey, int idx) {
-        return buttons.get(buttonKey).settings.getElements().get(idx).getLabel();
+//    public String getLetterForButton(EActionButton buttonKey, int idx) {
+//        return buttons.get(buttonKey).settings.getElements().get(idx).getLabel();
+//    }
+
+    public UiButtonBase getUiButtonBehaviourDef(EActionButton buttonKey) {
+        return buttons.get(buttonKey).settings.getUiButton();
     }
 
     public int sizeOfActionsAssignedToButton(EActionButton buttonKey) {
