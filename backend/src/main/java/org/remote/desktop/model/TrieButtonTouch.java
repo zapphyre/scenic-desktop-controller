@@ -4,6 +4,7 @@ import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.IndexLetterAction;
+import org.remote.desktop.ui.model.ModifiedIndexedTransformer;
 
 @Value
 @SuperBuilder

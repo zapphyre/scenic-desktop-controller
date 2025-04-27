@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
+import static org.remote.desktop.util.TextUtil.findNextWordStart;
+import static org.remote.desktop.util.TextUtil.findPreviousWordStart;
 
 @RequiredArgsConstructor
 public abstract class InputWidgetBase extends Application implements TwoGroupInputWidget {
@@ -133,22 +135,6 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         });
     }
 
-    private int findPreviousWordStart(String text, int caretPosition) {
-        if (caretPosition <= 0) return 0;
-        int pos = caretPosition - 1;
-        while (pos > 0 && Character.isWhitespace(text.charAt(pos))) pos--;
-        while (pos > 0 && !Character.isWhitespace(text.charAt(pos - 1))) pos--;
-        return pos;
-    }
-
-    private int findNextWordStart(String text, int caretPosition) {
-        if (caretPosition >= text.length()) return text.length();
-        int pos = caretPosition;
-        while (pos < text.length() && !Character.isWhitespace(text.charAt(pos))) pos++;
-        while (pos < text.length() && Character.isWhitespace(text.charAt(pos))) pos++;
-        return pos;
-    }
-
     HBox createContentLayout(double height, double scaleFactor) {
         HBox layout = new HBox(10 * scaleFactor);
         layout.setAlignment(Pos.CENTER);
@@ -255,11 +241,13 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     @Override
     public String getSentenceAndReset() {
+        String text = lettersContainer.getText();
         close();
         clearAllWords();
         clearAllLetters();
-//        return lettersContainer.getTextContent();
-        return lettersContainer.getText();
+
+        System.out.println("will write " + text);
+        return text;
     }
 
     public void framePreviousPredictedWord() {
@@ -308,7 +296,10 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void render() {
-        Platform.runLater(() -> primaryStage.show());
+        Platform.runLater(() -> {
+            primaryStage.requestFocus();
+            primaryStage.show();
+        });
     }
 
     private RowControls activeRowControls = new RowControls(this::framePreviousPredictedWord, this::frameNextPredictedWord);

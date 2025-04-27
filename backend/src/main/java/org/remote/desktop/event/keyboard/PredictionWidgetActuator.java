@@ -8,11 +8,14 @@ import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class PredictionWidgetActuator implements ApplicationListener<PredictionControlEvent> {
 
     private final CircleButtonsInputWidget widget;
+    private final List<String> regularButtons = List.of("A", "X", "Y", "B");
 
     public void longClick(String trigger) {
         widget.activatePrecisionMode(EActionButton.valueOf(trigger));
@@ -46,6 +49,9 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
 
         if (event.getType().equals("RIGHTTRIGGER_ENGAGE"))
             widget.nextPredictionsFrame();
+
+        if (regularButtons.contains(event.getType()))
+            widget.setActiveAndType(EActionButton.valueOf(event.getType()), event.getModifiers());
 
     }
 

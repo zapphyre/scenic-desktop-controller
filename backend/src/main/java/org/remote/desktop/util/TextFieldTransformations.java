@@ -1,12 +1,20 @@
 package org.remote.desktop.util;
 
-import javafx.scene.control.TextInputControl;
+import org.asmus.model.EButtonAxisMapping;
+
+import static org.remote.desktop.util.TextUtil.findPreviousWordStart;
 
 public class TextFieldTransformations {
 
-    public static IdxWordTx deleteOn = q -> TextInputControl::deletePreviousChar;
+    public static IdxWordTx deleteOn = (q, p) -> t -> {
+        if (p.contains(EButtonAxisMapping.BUMPER_LEFT)) {
+            int previousWordStart = findPreviousWordStart(t.getText(), t.getCaretPosition());
+            t.deleteText(previousWordStart, t.getText().length());
+        } else
+            t.deletePreviousChar();
+    };
     
-    public static IdxWordTx toggleCase = i -> p -> {
+    public static IdxWordTx toggleCase = (i, m) -> p -> {
         char targetChar = p.getText().charAt(i - 1);
 
         char newChar;
@@ -22,7 +30,7 @@ public class TextFieldTransformations {
         p.insertText(i - 1, String.valueOf(newChar));
     };
     
-    static IdxWordTx snakeize = i -> textField -> {
+    static IdxWordTx snakeize = (i, m) -> textField -> {
         String text = textField.getText();
         int caretPos = textField.getCaretPosition();
 
@@ -55,7 +63,7 @@ public class TextFieldTransformations {
     }
 
     // Transform word before caret to alternate case or back to lowercase
-    static IdxWordTx alternateCase = i -> textField -> {
+    static IdxWordTx alternateCase = (i, m) -> textField -> {
         String text = textField.getText();
         int caretPos = textField.getCaretPosition();
         if (caretPos == 0) return;
@@ -93,7 +101,7 @@ public class TextFieldTransformations {
     // v==========================
 
     // Transform words before caret to camelCase or undo to space-separated lowercase
-    static IdxWordTx camelize = i -> textField -> {
+    static IdxWordTx camelize = (i, m) -> textField -> {
         String text = textField.getText();
         int caretPos = textField.getCaretPosition();
         if (caretPos == 0) return;

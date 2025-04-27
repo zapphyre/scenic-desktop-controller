@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
@@ -115,6 +116,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     @Override
     public void toggleVisual(EActionButton index) {
+        this.modifiers = Set.of();
         activeButtonGroup.toggleButtonVisual(index);
     }
 
@@ -132,9 +134,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         fontSizeSetter.accept(42d);
     }
 
+    Set<EButtonAxisMapping> modifiers = Set.of();
     @Override
-    public void setActiveAndType(EActionButton buttonActivated) {
+    public void setActiveAndType(EActionButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
         this.toggleVisual(buttonActivated);
+        this.modifiers = modifiers;
 
         // long press (precision mode) was activated && another button then activation pressed
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
@@ -143,7 +147,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
             // generate transformation function out of new (secondly pressed) button
             groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated)
-                    .getLongTouchHandler().processTouch(this);
+                    .getLongTouchHandler().processTouch(this)   ;
 
         } else if (pendingResetTask == null) { // default case -- trie input
             getCurrentButtonWordTransformationFun(buttonActivated)
@@ -213,7 +217,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     @Override
     public void asFunction(IdxWordTx fx) {
-        fx.transforIdxWord(lettersContainer.getCaretPosition()).transform(lettersContainer);
+        fx.transforIdxWord(lettersContainer.getCaretPosition(), modifiers).transform(lettersContainer);
     }
 
     @Override

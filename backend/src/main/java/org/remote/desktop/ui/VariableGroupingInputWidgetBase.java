@@ -1,15 +1,14 @@
 package org.remote.desktop.ui;
 
 import javafx.application.Platform;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.ui.component.LetterCircle;
 import org.remote.desktop.ui.model.EActionButton;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
@@ -84,6 +83,6 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     }
 
     @Override
-    public void setActiveAndType(EActionButton index) {
+    public void setActiveAndType(EActionButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
     }
 }
