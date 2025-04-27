@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.EActionButton;
 import org.remote.desktop.ui.model.IndexLetterAction;
+import org.remote.desktop.ui.model.ModifiedIndexedTransformer;
 
 import java.util.List;
 
@@ -20,6 +21,10 @@ public abstract class UiButtonBase {
     List<LF> elements = List.of();
 
     public abstract IndexLetterAction processTouch(ButtonInputProcessor processor);
+
+    public ModifiedIndexedTransformer processTouchModified(ButtonInputProcessor processor) {
+        return q -> p -> processTouch(processor).actOnIndexLetter(p);
+    }
 
     public UiButtonBase getLongTouchHandler() {
         return this;

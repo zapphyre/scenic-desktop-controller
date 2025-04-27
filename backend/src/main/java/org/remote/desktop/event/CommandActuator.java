@@ -11,6 +11,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static jxdotool.xDoToolUtil.*;
 
 @Slf4j
@@ -39,7 +42,9 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
-            case KEYBOARD_OFF -> xDo("type", inputWidgetBase.getSentenceAndReset());
+            case KEYBOARD_OFF -> Executors.newSingleThreadScheduledExecutor()
+                    .schedule(() -> xDo("type", " " + inputWidgetBase.getSentenceAndReset()),
+                            21, TimeUnit.MILLISECONDS);
             case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())

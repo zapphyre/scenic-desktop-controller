@@ -11,6 +11,7 @@ import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.keyboard.ButtonEvent;
+import org.remote.desktop.processor.ButtonProcessorBase;
 import org.remote.desktop.service.GPadEventStreamService;
 import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationEvent;
@@ -26,7 +27,7 @@ import static org.asmus.model.EQualificationType.RELEASE;
 import static org.remote.desktop.util.ETriggerFilter.triggerUpTo;
 
 @Component
-public class CharacterInputAdapter extends KeyboardActionsBaseAdapter {
+public class CharacterInputAdapter extends ButtonProcessorBase {
 
     private final List<EQualificationType> allowedQualifs = List.of(PUSH, RELEASE);
 
@@ -37,6 +38,11 @@ public class CharacterInputAdapter extends KeyboardActionsBaseAdapter {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
     }
 
+    /*
+    * at the end, this will produce only events for visual button change that mimics press
+    * all actual widget input control is done through regular path as 'keyboard' scene (configurable in properties)
+    * and set on UI so this way widget supports modifiers and long-press
+    * */
     @Override
     protected void process() {
         gamepadObserver.getButtonEventStream()
@@ -59,6 +65,6 @@ public class CharacterInputAdapter extends KeyboardActionsBaseAdapter {
 
     @Override
     public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
-        return new ButtonEvent(this, EActionButton.valueOf(def.getTrigger()), def.getQualified());
+        return new ButtonEvent(this, EActionButton.valueOf(def.getTrigger()), def.getQualified(), def.getModifiers(), def.isLongPress());
     }
 }
