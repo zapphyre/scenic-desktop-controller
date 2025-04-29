@@ -19,6 +19,8 @@ public class ServiceDiscoveryConfig {
     @PostConstruct
     void init() {
         log.info("adding jmdns listener");
+//        jmdns.requestServiceInfo("_gevt._tcp.local.", "nuc");
+
         jmdns.addServiceListener("_gevt._tcp.local.", eventSourceRepository);
     }
 }

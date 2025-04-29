@@ -1,11 +1,12 @@
-package org.remote.desktop.controller;
+package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
-import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.TriggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +15,13 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("${api.prefix}")
 @RequiredArgsConstructor
-public class SceneCtrl {
+public class SceneCtrl implements SceneApi {
 
     private final SceneDao sceneDao;
     private final TriggerService triggerService;
+    private final LocalXdoSceneProvider xdoSceneProvider;
 
     @GetMapping("allScenes")
     public List<SceneVto> getAllScenes() {
@@ -29,6 +31,10 @@ public class SceneCtrl {
     @GetMapping("inherents/{sceneId}")
     public List<GamepadEventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
         return sceneDao.getInherentsRecurcivelyFor(sceneId);
+    }
+
+    public String getCurrentSceneName() {
+        return xdoSceneProvider.tryGetCurrentName();
     }
 
     @PostMapping("saveScene")

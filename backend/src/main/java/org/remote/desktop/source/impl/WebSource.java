@@ -3,10 +3,14 @@ package org.remote.desktop.source.impl;
 import lombok.Builder;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
+import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
+import org.remote.desktop.provider.impl.NetworkXdoSceneProvider;
+import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -30,6 +34,9 @@ public class WebSource implements ConnectableSource {
 
     private final ConnectableSource localSource;
     private final SettingsDao settingsDao;
+
+    private final XdoSceneService xdoSceneService;
+    private final SceneApi sceneApi;
 
     private boolean connected;
 
@@ -70,6 +77,8 @@ public class WebSource implements ConnectableSource {
 
         if (settingsDao.disconnectOnRemoteConnect())
             localSource.disconnect();
+
+        xdoSceneService.setSceneProvider(sceneApi::getCurrentSceneName);
 
         return ESourceEvent.CONNECTED;
     }

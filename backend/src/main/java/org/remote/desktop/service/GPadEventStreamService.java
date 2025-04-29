@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
@@ -29,7 +28,7 @@ public class GPadEventStreamService {
 
     private final SceneDao sceneDao;
     private final ButtonPressMapper buttonPressMapper;
-    private final SceneStateRepository sceneStateRepository;
+    private final XdoSceneService xdoSceneService;
     private final RecursiveScraper<GamepadEventDto, SceneDto> scraper = new RecursiveScraper<>();
 
     public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
@@ -59,9 +58,9 @@ public class GPadEventStreamService {
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        SceneDto scene = sceneStateRepository.isSceneForced() ?
-                sceneStateRepository.getForcedScene() :
-                sceneDao.getSceneForWindowNameOrBase(sceneStateRepository.tryGetCurrentName());
+        SceneDto scene = xdoSceneService.isSceneForced() ?
+                xdoSceneService.getForcedScene() :
+                sceneDao.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
 
         return sceneClickQualificationRelevant(click, scene);
     }

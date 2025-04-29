@@ -3,20 +3,19 @@ package org.remote.desktop.processor;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.builder.closure.button.RawArrowSource;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.dao.SettingsDao;
-import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.ELogicalTrigger;
 import org.remote.desktop.model.Node;
 import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.service.XdoSceneService;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -39,7 +38,7 @@ public class AxisAdapter {
 
     private final SceneDao sceneDao;
     private final SettingsDao settingsDao;
-    private final SceneStateRepository sceneStateRepository;
+    private final XdoSceneService xdoSceneService;
     private final IntrospectedEventFactory gamepadObserver;
     private final TriggerActionMatcher triggerActionMatcher;
     private final ButtonPressMapper buttonPressMapper;
@@ -47,12 +46,12 @@ public class AxisAdapter {
 
     private Map<ELogicalTrigger, Node> nodeMap, original;
 
-//        private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
-    private Consumer<PolarCoords> leftStickConsumer = (q) -> {
-    };
-//        private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
-    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
-    };
+        private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
+//    private Consumer<PolarCoords> leftStickConsumer = (q) -> {
+//    };
+        private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
+//    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
+//    };
 
 
     private final Map<EAxisEvent, Consumer<PolarCoords>> axisEventMap = Map.of(
@@ -68,7 +67,7 @@ public class AxisAdapter {
     @PostConstruct
     void init() {
         updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
-        sceneStateRepository.registerRecognizedSceneObserver(this::updateAxisConsumers);
+        xdoSceneService.registerRecognizedSceneObserver(this::updateAxisConsumers);
 
         nodeMap = original = buildNodeMap(gestures);
 
@@ -91,12 +90,12 @@ public class AxisAdapter {
                 .subscribe(q -> System.out.println("apply action: " + q));
     }
 
-    public RawArrowSource getLeftStickProcessor() {
-        return gamepadObserver.leftStickStream();
+    public Consumer<Map<String, Integer>> getLeftStickProcessor() {
+        return gamepadObserver.leftStickStream()::processArrowEvents;
     }
 
-    public RawArrowSource getRightStickProcessor() {
-        return gamepadObserver.rightStickStream();
+    public Consumer<Map<String, Integer>> getRightStickProcessor() {
+        return gamepadObserver.rightStickStream()::processArrowEvents;
     }
 
     void updateAxisConsumers(String windowName) {

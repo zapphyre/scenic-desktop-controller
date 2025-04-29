@@ -3,7 +3,6 @@ package org.remote.desktop.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.event.KeyboardStateRepository;
-import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.pojo.KeyPart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -16,13 +15,13 @@ public class StateService {
     private final Sinks.Many<String> sceneStateStream = Sinks.many().multicast().directBestEffort();
     private final Sinks.Many<KeyPart> keydownStateStream = Sinks.many().multicast().directBestEffort();
 
-    private final SceneStateRepository sceneStateRepository;
     private final KeyboardStateRepository keyboardStateRepository;
+    private final XdoSceneService xdoSceneService;
 
     @PostConstruct
     void init() {
-        sceneStateRepository.registerForcedSceneObserver(sceneStateStream::tryEmitNext);
-        sceneStateRepository.registerRecognizedSceneObserver(sceneStateStream::tryEmitNext);
+        xdoSceneService.registerForcedSceneObserver(sceneStateStream::tryEmitNext);
+        xdoSceneService.registerRecognizedSceneObserver(sceneStateStream::tryEmitNext);
         keyboardStateRepository.registerXdoCommandObserver(keydownStateStream::tryEmitNext);
     }
 
@@ -39,7 +38,7 @@ public class StateService {
     }
 
     public void nullifyForced() {
-        sceneStateRepository.nullifyForcedScene();
+        xdoSceneService.nullifyForcedScene();
         keyboardStateRepository.releaseAllPressedKeys();
     }
 }

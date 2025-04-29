@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
+import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -21,7 +22,7 @@ import static jxdotool.xDoToolUtil.*;
 @RequiredArgsConstructor
 public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
-    private final SceneStateRepository actuatedStateRepository;
+    private final XdoSceneService xdoSceneService;
     private final InputWidgetBase inputWidgetBase;
     protected final ApplicationEventPublisher eventPublisher;
     private final PredictionWidgetActuator widgetActuator;
@@ -40,7 +41,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case MOUSE_DOWN -> xDo("mousedown", xdoKeyPart);
             case MOUSE_UP -> xDo("mouseup", xdoKeyPart);
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
-            case SCENE_RESET -> actuatedStateRepository.nullifyForcedScene();
+            case SCENE_RESET -> xdoSceneService.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
             case KEYBOARD_OFF -> Executors.newSingleThreadScheduledExecutor()
                     .schedule(() -> xDo("type", " " + inputWidgetBase.getSentenceAndReset()),

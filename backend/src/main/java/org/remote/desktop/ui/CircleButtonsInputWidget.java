@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.buttonDict;
@@ -33,8 +34,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     private int groupActiveIndex;
     AtomicInteger letterIndex = new AtomicInteger(0);
 
-    public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title);
+    public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title, Consumer<String> importantor) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title, importantor);
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
                 .textColor(Color.DARKGOLDENROD)
                 .baseColor(Color.BURLYWOOD)
