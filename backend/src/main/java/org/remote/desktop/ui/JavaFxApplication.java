@@ -9,7 +9,7 @@ public class JavaFxApplication extends Application {
 
     InputWidgetBase widget = new CircleButtonsInputWidget(90, 2, Color.BURLYWOOD,
             0.4, Color.ORANGE, Color.BLACK,
-            6, "title");
+            6, "title", q -> {});
 
     @Override
     public void init() throws Exception {

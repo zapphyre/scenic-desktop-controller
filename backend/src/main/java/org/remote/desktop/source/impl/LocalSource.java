@@ -9,6 +9,8 @@ import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.WebSourceDef;
+import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
+import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -30,6 +32,8 @@ public class LocalSource implements ConnectableSource {
     private final ArrowsAdapter arrowsAdapter;
     private final AxisAdapter axisAdapter;
     private final SettingsDao settingsDao;
+    private final XdoSceneService xdoSceneService;
+    private final LocalXdoSceneProvider localXdoSceneProvider;
 
     private ESourceEvent state;
 
@@ -41,16 +45,18 @@ public class LocalSource implements ConnectableSource {
         worker.getAxisStream().subscribe(triggerAdapter.getLeftTriggerProcessor());
         worker.getAxisStream().subscribe(triggerAdapter.getRightTriggerProcessor());
 
-        worker.getAxisStream().subscribe(axisAdapter.getLeftStickProcessor()::processArrowEvents);
-        worker.getAxisStream().subscribe(axisAdapter.getRightStickProcessor()::processArrowEvents);
+        worker.getAxisStream().subscribe(axisAdapter.getLeftStickProcessor());
+        worker.getAxisStream().subscribe(axisAdapter.getRightStickProcessor());
 
-//        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
-//        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
+        Disposable disposable2 = leftStickStream().polarProducer(worker).subscribe(axisAdapter::getLeftStickConsumer);
+        Disposable disposable3 = rightStickStream().polarProducer(worker).subscribe(axisAdapter::getRightStickConsumer);
 
         disposables.add(disposable);
         disposables.add(disposable1);
 //        disposables.add(disposable2);
 //        disposables.add(disposable3);
+
+        xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 
         return state = ESourceEvent.CONNECTED;
     }

@@ -2,11 +2,13 @@ package org.remote.desktop.component;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
-import org.remote.desktop.event.SceneStateRepository;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.model.*;
-import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.ActionMatch;
+import org.remote.desktop.model.AppEventMapper;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.XdoSceneService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -21,9 +23,8 @@ import java.util.function.Function;
 public class TriggerActionMatcher {
 
     private final GPadEventStreamService gPadEventStreamService;
-    private final SceneStateRepository actuatedStateRepository;
-    private final SceneStateRepository sceneStateRepository;
     private final ButtonPressMapper buttonPressMapper;
+    private final XdoSceneService xdoSceneService;
 
     private final SettingsDao settingsDao;
 
@@ -34,9 +35,9 @@ public class TriggerActionMatcher {
             );
 
     Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
-        return actuatedStateRepository.isSceneForced() ?
-                getActionsOn(GPadEventStreamService::extractInheritedActions, actuatedStateRepository.getForcedScene(), q) :
-                getActionsOn(GPadEventStreamService::relativeWindowNameActions, sceneStateRepository.tryGetCurrentName(), q);
+        return xdoSceneService.isSceneForced() ?
+                getActionsOn(GPadEventStreamService::extractInheritedActions, xdoSceneService.getForcedScene(), q) :
+                getActionsOn(GPadEventStreamService::relativeWindowNameActions, xdoSceneService.tryGetCurrentName(), q);
     }
 
     <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ActionMatch, NextSceneXdoAction>> paramGetter,

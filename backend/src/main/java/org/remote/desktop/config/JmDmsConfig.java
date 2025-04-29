@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.jmdns.JmDNS;
 import java.io.IOException;
+import java.net.InetAddress;
 
 @Slf4j
 @Configuration
@@ -23,7 +24,7 @@ public class JmDmsConfig {
     @Bean
     public JmDNS jmdns() throws IOException {
         log.info("Local host ip address: {}", settingsDao.getIpAddress());
-        return JmDNS.create(settingsDao.getIpAddress());
+        return JmDNS.create(InetAddress.getByName(settingsDao.getIpAddress()));
     }
 
     @Bean

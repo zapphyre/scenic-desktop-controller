@@ -3,12 +3,15 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.config.FeignBuilder;
+import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
+import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.remote.desktop.source.impl.WebSource;
@@ -36,6 +39,8 @@ public class SourceManager {
     private final AxisAdapter axisAdapter;
     private final SettingsDao settingsDao;
     private final ReactiveWebServerApplicationContext serverContext;
+    private final XdoSceneService xdoSceneService;
+    private final FeignBuilder feignBuilder;
 
     @PostConstruct
     void init() {
@@ -60,6 +65,8 @@ public class SourceManager {
     }
 
     public void sourceDiscovered(WebSourceDef def) {
+        SceneApi sceneApi = feignBuilder.buildApiClient(createUrl(def.getBaseUrl(), def.getPort()));
+        String currentSceneName = sceneApi.getCurrentSceneName();
         connectableSources.put(def, WebSource.builder()
                 .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .axisAdapter(axisAdapter)
@@ -67,6 +74,8 @@ public class SourceManager {
                 .localSource(localSource)
                 .settingsDao(settingsDao)
                 .description(def.getName())
+                .xdoSceneService(xdoSceneService)
+                .sceneApi(sceneApi)
                 .build());
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
@@ -97,8 +106,12 @@ public class SourceManager {
 
     WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
         return WebClient.builder()
-                .baseUrl(String.format("http://%s:%d/api/%s/", baseUrl, port, "event"))
+                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/%s/", "event"))
                 .build()
                 .get();
+    }
+
+    public static String createUrl(String baseUrl, int port) {
+        return String.format("http://%s:%d", baseUrl, port);
     }
 }

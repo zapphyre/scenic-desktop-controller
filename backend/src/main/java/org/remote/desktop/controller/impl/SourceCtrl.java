@@ -1,4 +1,4 @@
-package org.remote.desktop.controller;
+package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.component.SourceManager;

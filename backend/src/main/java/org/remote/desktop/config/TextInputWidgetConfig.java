@@ -23,7 +23,7 @@ public class TextInputWidgetConfig {
     public CircleButtonsInputWidget inputWidget() {
         CircleButtonsInputWidget variableGroupingInputWidget = new CircleButtonsInputWidget(90,2, Color.BURLYWOOD,
                 0.4, Color.ORANGE, Color.BLACK,
-                6, settingsDao.getSettings().getTextInputSceneName());
+                6, settingsDao.getSettings().getTextInputSceneName(), trie::incrementFrequency);
 
         variableGroupingInputWidget.setPredictor(q -> trie.getValueFreqSuggestions(q).stream()
                         .sorted().map(ValueFrequency::getValue).toList()

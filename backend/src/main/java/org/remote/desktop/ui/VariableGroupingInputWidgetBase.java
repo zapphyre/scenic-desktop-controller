@@ -9,6 +9,7 @@ import org.remote.desktop.ui.component.LetterCircle;
 import org.remote.desktop.ui.model.EActionButton;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
@@ -21,7 +22,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
     private StringBuilder middleText = new StringBuilder();
 
-    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, String title) {
+    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, String title, Consumer<String> importantor) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title);
     }
 
