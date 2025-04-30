@@ -1,6 +1,7 @@
 package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.GamepadEvent;
@@ -46,10 +47,12 @@ public class AxisAdapter {
 
     private Map<ELogicalTrigger, Node> nodeMap, original;
 
-        private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
-//    private Consumer<PolarCoords> leftStickConsumer = (q) -> {
+    @Getter
+    private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
+    //    private Consumer<PolarCoords> leftStickConsumer = (q) -> {
 //    };
-        private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
+    @Getter
+    private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
 //    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
 //    };
 
@@ -119,14 +122,6 @@ public class AxisAdapter {
             leftStickConsumer = consumers.leftStickConsumer;
             rightStickConsumer = consumers.rightStickConsumer;
         }
-    }
-
-    public void getRightStickConsumer(PolarCoords pos) {
-        rightStickConsumer.accept(pos);
-    }
-
-    public void getLeftStickConsumer(PolarCoords pos) {
-        leftStickConsumer.accept(pos);
     }
 
     record Consumers(Consumer<PolarCoords> rightStickConsumer, Consumer<PolarCoords> leftStickConsumer) {

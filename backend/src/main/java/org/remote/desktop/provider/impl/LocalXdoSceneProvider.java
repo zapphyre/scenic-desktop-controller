@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 @Service
 public class LocalXdoSceneProvider implements XdoSceneProvider {
 
-    private String lastRecognized;
+    private String lastRecognized = "";
 
     @NonNull
     @Override
@@ -30,11 +30,12 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
 
     String safeIdentityGet() {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(xDoToolUtil::runIdentityScript)
-                .completeOnTimeout(lastRecognized, 21, TimeUnit.MILLISECONDS);
+                .completeOnTimeout(lastRecognized, 690, TimeUnit.MILLISECONDS);
 
         try {
-            return future.get(21, TimeUnit.MILLISECONDS);
+            return future.get(420, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
             System.out.println("script timed out");
             return lastRecognized;
         }

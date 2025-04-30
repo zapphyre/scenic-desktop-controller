@@ -26,8 +26,6 @@ public class TriggerActionMatcher {
     private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
 
-    private final SettingsDao settingsDao;
-
     public Function<AppEventMapper,Function<ButtonActionDef, Flux<ApplicationEvent>>> actionPickPipeline = r -> p -> Flux.just(p)
             .flatMap(this::getNextSceneButtonEvent)
             .flatMap(q -> Flux.fromIterable(q.getActions())
