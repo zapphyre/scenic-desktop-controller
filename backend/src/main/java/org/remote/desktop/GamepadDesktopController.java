@@ -16,6 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 public class GamepadDesktopController {
 
     public static void main(String[] args) {
+        System.setProperty("java.awt.headless", "false");
         SpringApplication.run(GamepadDesktopController.class, args);
     }
 }

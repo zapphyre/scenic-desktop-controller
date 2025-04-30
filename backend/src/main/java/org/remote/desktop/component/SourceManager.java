@@ -4,13 +4,14 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.config.FeignBuilder;
-import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.WebSourceDef;
+import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
+import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
@@ -37,6 +38,8 @@ public class SourceManager {
     private final LocalSource localSource;
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
+    private final ArrowsAdapter arrowsAdapter;
+    private final TriggerAdapter triggerAdapter;
     private final SettingsDao settingsDao;
     private final ReactiveWebServerApplicationContext serverContext;
     private final XdoSceneService xdoSceneService;
@@ -65,17 +68,17 @@ public class SourceManager {
     }
 
     public void sourceDiscovered(WebSourceDef def) {
-        SceneApi sceneApi = feignBuilder.buildApiClient(createUrl(def.getBaseUrl(), def.getPort()));
-        String currentSceneName = sceneApi.getCurrentSceneName();
         connectableSources.put(def, WebSource.builder()
                 .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .axisAdapter(axisAdapter)
                 .buttonAdapter(buttonAdapter)
+                .arrowsAdapter(arrowsAdapter)
+                .triggerAdapter(triggerAdapter)
                 .localSource(localSource)
                 .settingsDao(settingsDao)
                 .description(def.getName())
                 .xdoSceneService(xdoSceneService)
-                .sceneApi(sceneApi)
+                .sceneApi(feignBuilder.buildApiClient(createUrl(def.getBaseUrl(), def.getPort())))
                 .build());
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));

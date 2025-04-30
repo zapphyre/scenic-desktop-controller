@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.component.SourceManager;
+import org.remote.desktop.source.impl.LocalSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,15 +23,18 @@ import static org.asmus.builder.AxisEventFactory.rightStickStream;
 public class EventCtrl {
 
     private final JoyWorker worker;
+    private final LocalSource source;
 
     @GetMapping("button")
     public Flux<List<TimedValue>> getGpadButtonStateStream() {
-        return worker.getButtonStream();
+        return worker.getButtonStream()
+                .doOnSubscribe(q -> source.disconnect())
+                .doOnTerminate(source::connect);
     }
 
     @GetMapping("axis")
     public Flux<Map<String, Integer>> getGpadAxisStateStream() {
-        return worker.getAxisStream();
+        return worker.getAxisStream().publish().autoConnect();
     }
 
     @GetMapping("left-stick")

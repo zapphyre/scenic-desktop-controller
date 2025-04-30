@@ -4,29 +4,27 @@ import lombok.Builder;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.controller.SceneApi;
-import org.remote.desktop.processor.AxisAdapter;
-import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
-import org.remote.desktop.provider.impl.NetworkXdoSceneProvider;
+import org.remote.desktop.processor.ArrowsAdapter;
+import org.remote.desktop.processor.AxisAdapter;
+import org.remote.desktop.processor.ButtonAdapter;
+import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.service.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 @Builder
-public class WebSource implements ConnectableSource {
-
-    private final List<Disposable> disposables = new LinkedList<>();
+public class WebSource extends BaseSource {
 
     private final ButtonAdapter buttonAdapter;
+    private final ArrowsAdapter arrowsAdapter;
+    private final TriggerAdapter triggerAdapter;
     private final AxisAdapter axisAdapter;
 
     private final WebClient.RequestHeadersUriSpec<?> spec;
@@ -38,60 +36,52 @@ public class WebSource implements ConnectableSource {
     private final XdoSceneService xdoSceneService;
     private final SceneApi sceneApi;
 
-    private boolean connected;
+    private ESourceEvent state;
 
     @Override
     public ESourceEvent connect() {
-        Disposable disposable = spec.uri("button")
+        connectAndRemember(spec.uri("button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(new ParameterizedTypeReference<List<TimedValue>>() {
-                })
-                .subscribe(buttonAdapter.getButtonConsumer());
+                })::subscribe, buttonAdapter::getButtonConsumer);
 
-//        Disposable disposable1 = spec.uri("axis")
-//                .accept(MediaType.TEXT_EVENT_STREAM)
-//                .retrieve()
-//                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
-//                })
-//                .subscribe(buttonAdapter.getArrowConsumer());
+        connectAndRemember(spec.uri("axis")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
+                })::subscribe, arrowsAdapter::getArrowConsumer);
 
-        Disposable disposable2 = spec.uri("left-stick")
+        connectAndRemember(spec.uri("axis")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
+                })::subscribe, triggerAdapter::getLeftTriggerProcessor);
+
+        connectAndRemember(spec.uri("axis")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
+                })::subscribe, triggerAdapter::getRightTriggerProcessor);
+
+        connectAndRemember(spec.uri("left-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
-                .subscribe(axisAdapter::getLeftStickConsumer);
+                ::subscribe, axisAdapter::getLeftStickConsumer);
 
-        Disposable disposable3 = spec.uri("right-stick")
+        connectAndRemember(spec.uri("right-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(PolarCoords.class)
-                .subscribe(axisAdapter::getRightStickConsumer);
-
-        disposables.add(disposable);
-//        disposables.add(disposable1);
-        disposables.add(disposable2);
-        disposables.add(disposable3);
-
-        connected = true;
+                ::subscribe, axisAdapter::getRightStickConsumer);
 
         if (settingsDao.disconnectOnRemoteConnect())
             localSource.disconnect();
 
-        xdoSceneService.setSceneProvider(sceneApi::getCurrentSceneName);
+//        xdoSceneService.setSceneProvider(sceneApi::getCurrentSceneName);
 
-        return ESourceEvent.CONNECTED;
-    }
-
-    @Override
-    public ESourceEvent disconnect() {
-        disposables.forEach(Disposable::dispose);
-        disposables.clear();
-
-        connected = false;
-        localSource.connect();
-
-        return ESourceEvent.DISCONNECTED;
+        return state = ESourceEvent.CONNECTED;
     }
 
     @Override
@@ -101,6 +91,6 @@ public class WebSource implements ConnectableSource {
 
     @Override
     public boolean isConnected() {
-        return connected;
+        return state == ESourceEvent.CONNECTED;
     }
 }
