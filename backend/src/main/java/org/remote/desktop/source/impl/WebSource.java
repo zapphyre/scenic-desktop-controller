@@ -38,43 +38,44 @@ public class WebSource extends BaseSource {
 
     private ESourceEvent state;
 
+    private final ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
+    };
+
+    private final ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
+    };
+
+
     @Override
     public ESourceEvent connect() {
         connectAndRemember(spec.uri("button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<List<TimedValue>>() {
-                })::subscribe, buttonAdapter::getButtonConsumer);
+                .bodyToFlux(BUTTON_RAW_DATA)::subscribe, buttonAdapter::getButtonConsumer);
 
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
-                })::subscribe, arrowsAdapter::getArrowConsumer);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, arrowsAdapter::getArrowConsumer);
 
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
-                })::subscribe, triggerAdapter::getLeftTriggerProcessor);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, triggerAdapter::getLeftTriggerProcessor);
 
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(new ParameterizedTypeReference<Map<String, Integer>>() {
-                })::subscribe, triggerAdapter::getRightTriggerProcessor);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, triggerAdapter::getRightTriggerProcessor);
 
         connectAndRemember(spec.uri("left-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(PolarCoords.class)
-                ::subscribe, axisAdapter::getLeftStickConsumer);
+                .bodyToFlux(PolarCoords.class)::subscribe, axisAdapter::getLeftStickConsumer);
 
         connectAndRemember(spec.uri("right-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(PolarCoords.class)
-                ::subscribe, axisAdapter::getRightStickConsumer);
+                .bodyToFlux(PolarCoords.class)::subscribe, axisAdapter::getRightStickConsumer);
 
         if (settingsDao.disconnectOnRemoteConnect())
             localSource.disconnect();
