@@ -36,7 +36,6 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     @PostConstruct
     protected void process() {
         gamepadObserver.getButtonEventStream()
-                .log()
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())

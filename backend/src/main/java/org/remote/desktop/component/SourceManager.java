@@ -7,7 +7,6 @@ import org.remote.desktop.config.FeignBuilder;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
-import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
@@ -19,6 +18,8 @@ import org.remote.desktop.source.impl.WebSource;
 import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.zapphyre.discovery.intf.JmDnsInstanceManager;
+import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -29,7 +30,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SourceManager {
+public class SourceManager implements JmDnsInstanceManager {
 
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 

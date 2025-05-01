@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.model.WebSourceDef;
 import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
@@ -12,6 +11,7 @@ import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.XdoSceneService;
 import org.springframework.stereotype.Component;
+import org.zapphyre.discovery.model.WebSourceDef;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;

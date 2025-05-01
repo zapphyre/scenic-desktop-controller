@@ -3,7 +3,7 @@ package org.remote.desktop.source;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.mapper.EventSourceMapper;
-import org.remote.desktop.model.WebSourceDef;
+import org.zapphyre.discovery.model.WebSourceDef;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;

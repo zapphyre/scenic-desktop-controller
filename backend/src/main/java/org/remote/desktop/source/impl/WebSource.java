@@ -36,8 +36,6 @@ public class WebSource extends BaseSource {
     private final XdoSceneService xdoSceneService;
     private final SceneApi sceneApi;
 
-    private ESourceEvent state;
-
     private final ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 

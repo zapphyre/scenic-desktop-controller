@@ -2,7 +2,7 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.remote.desktop.model.WebSourceDef;
+import org.zapphyre.discovery.model.WebSourceDef;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;

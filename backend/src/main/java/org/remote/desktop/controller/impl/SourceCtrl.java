@@ -3,8 +3,8 @@ package org.remote.desktop.controller.impl;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.component.SourceManager;
 import org.remote.desktop.model.SourceEvent;
-import org.remote.desktop.model.WebSourceDef;
 import org.springframework.web.bind.annotation.*;
+import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
