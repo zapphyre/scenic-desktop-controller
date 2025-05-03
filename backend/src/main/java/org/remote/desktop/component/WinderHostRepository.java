@@ -1,0 +1,55 @@
+package org.remote.desktop.component;
+
+import lombok.RequiredArgsConstructor;
+import org.remote.desktop.config.FeignBuilder;
+import org.remote.desktop.db.dao.SettingsDao;
+import org.springframework.stereotype.Component;
+import org.winder.api.WinderConstants;
+import org.winder.api.WinderNativeConnectorApi;
+import org.winder.common.model.EWinderOp;
+import org.winder.common.model.WinderCommand;
+import org.zapphyre.discovery.intf.JmAutoRegistry;
+import org.zapphyre.discovery.model.JmDnsProperties;
+import org.zapphyre.discovery.model.WebSourceDef;
+
+@Component
+@RequiredArgsConstructor
+public class WinderHostRepository implements JmAutoRegistry {
+
+    private final SettingsDao settingsDao;
+    private final FeignBuilder feignBuilder;
+    private WinderNativeConnectorApi winderApi;
+
+    @Override
+    public void sourceDiscovered(WebSourceDef webSourceDef) {
+        System.out.println("WINDER sourceDiscovered: " + webSourceDef);
+        winderApi = feignBuilder.buildWinderNativeConnectorApiClient(webSourceDef.getBaseUrl());
+    }
+
+    public void ff() {
+        winderApi.command(WinderCommand.builder()
+                .operation(EWinderOp.FF)
+                .build());
+    }
+
+    public void rw() {
+        winderApi.command(WinderCommand.builder()
+                .operation(EWinderOp.RW)
+                .build());
+    }
+
+    @Override
+    public void sourceLost(String s) {
+
+    }
+
+    @Override
+    public JmDnsProperties getJmDnsProperties() {
+        return JmDnsProperties.builder()
+                .greetingMessage("hi")
+                .group(WinderConstants.JM_GROUP)
+                .instanceName("zbook_gpad")
+                .mineIpAddress(settingsDao.getIpAddress())
+                .build();
+    }
+}

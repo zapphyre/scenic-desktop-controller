@@ -3,6 +3,7 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
@@ -26,6 +27,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final InputWidgetBase inputWidgetBase;
     protected final ApplicationEventPublisher eventPublisher;
     private final PredictionWidgetActuator widgetActuator;
+    private final WinderHostRepository winderHostRepository;
 
     @Override
     @SneakyThrows
@@ -50,6 +52,8 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())
             );
+            case WINDER_FF -> winderHostRepository.ff();
+            case WINDER_RW -> winderHostRepository.rw();
         }
     }
 

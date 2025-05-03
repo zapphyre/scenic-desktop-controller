@@ -18,7 +18,8 @@ import org.remote.desktop.source.impl.WebSource;
 import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.zapphyre.discovery.intf.JmDnsInstanceManager;
+import org.zapphyre.discovery.intf.JmAutoRegistry;
+import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -30,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SourceManager implements JmDnsInstanceManager {
+public class GpadHostRepository implements JmAutoRegistry {
 
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 
@@ -79,7 +80,7 @@ public class SourceManager implements JmDnsInstanceManager {
                 .settingsDao(settingsDao)
                 .description(def.getName())
                 .xdoSceneService(xdoSceneService)
-                .sceneApi(feignBuilder.buildApiClient(createUrl(def.getBaseUrl(), def.getPort())))
+                .sceneApi(feignBuilder.buildGpadApiClient(createUrl(def.getBaseUrl(), def.getPort())))
                 .build());
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
@@ -117,5 +118,15 @@ public class SourceManager implements JmDnsInstanceManager {
 
     public static String createUrl(String baseUrl, int port) {
         return String.format("http://%s:%d", baseUrl, port);
+    }
+
+    @Override
+    public JmDnsProperties getJmDnsProperties() {
+        return JmDnsProperties.builder()
+                .greetingMessage("hi")
+                .group("gevt")
+                .instanceName("zbook")
+                .mineIpAddress(settingsDao.getIpAddress())
+                .build();
     }
 }

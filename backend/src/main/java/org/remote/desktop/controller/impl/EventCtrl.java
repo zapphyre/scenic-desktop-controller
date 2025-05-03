@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.asmus.service.JoyWorker;
-import org.remote.desktop.component.SourceManager;
 import org.remote.desktop.source.impl.LocalSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

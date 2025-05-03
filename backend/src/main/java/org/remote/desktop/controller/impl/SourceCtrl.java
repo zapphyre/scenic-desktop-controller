@@ -1,7 +1,7 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.component.SourceManager;
+import org.remote.desktop.component.GpadHostRepository;
 import org.remote.desktop.model.SourceEvent;
 import org.springframework.web.bind.annotation.*;
 import org.zapphyre.discovery.model.WebSourceDef;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SourceCtrl {
 
-    private final SourceManager sourceManager;
+    private final GpadHostRepository sourceManager;
 
     @GetMapping("events")
     public Flux<SourceEvent> getConnectedEventStream() {
