@@ -2,12 +2,15 @@ package org.remote.desktop.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.Value;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Value
 @ToString(onlyExplicitlyIncluded = true)
@@ -22,7 +25,7 @@ public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto
     String name;
     String windowName;
 
-    List<SceneDto> inheritsFrom;
+    Set<SceneDto> inheritsFrom;
 
     EAxisEvent leftAxisEvent;
     EAxisEvent rightAxisEvent;

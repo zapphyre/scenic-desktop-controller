@@ -64,4 +64,8 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
         forcedSceneObservers.add(observer);
     }
 
+    @Override
+    public boolean supportsAsyncExecution() {
+        return true;
+    }
 }

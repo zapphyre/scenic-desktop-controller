@@ -1,7 +1,6 @@
 package org.remote.desktop.component;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.AppEventMapper;
@@ -42,7 +41,7 @@ public class TriggerActionMatcher {
                                               P param,
                                               ButtonActionDef buttons) {
         return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
-                .mapNotNull(getActionsForButtons(buttonPressMapper.map(buttons)))
+                .mapNotNull(q -> getActionsForButtons(buttonPressMapper.map(buttons)).apply(q))
                 .map(q -> q.withButtonTrigger(buttons));
     }
 

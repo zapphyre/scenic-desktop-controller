@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
-import org.remote.desktop.model.dto.GamepadEventDto;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Data
 @Entity
@@ -36,7 +36,7 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
             joinColumns = @JoinColumn(name = "scene_id"),
             inverseJoinColumns = @JoinColumn(name = "parent_scene_id")
     )
-    private List<Scene> inheritsFrom;
+    private Set<Scene> inheritsFrom; // Set b/c for come reason (prolly mapstruct context) i had duplicate objects in gamepadEvent/nextScene
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<GamepadEvent> gamepadEvents = new LinkedList<>();

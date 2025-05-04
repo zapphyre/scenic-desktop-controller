@@ -12,7 +12,6 @@ import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.GamepadEventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
-import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
@@ -178,7 +177,7 @@ public class SceneDao {
                 .toList();
     }
 
-    <R> List<R> safeRepo(Function<List<Long>, List<R>> repoFun, List<Long> ids) {
+    <R> List<R> safeRepo(Function<Iterable<Long>, List<R>> repoFun, Iterable<Long> ids) {
         return Optional.ofNullable(ids)
                 .map(repoFun)
                 .orElse(List.of());

@@ -18,7 +18,7 @@ public class SceneVto {
     String name;
     String windowName;
 
-    List<Long> inheritsIdFk;
+    Set<Long> inheritsIdFk;
 
     @Builder.Default
     EAxisEvent leftAxisEvent = EAxisEvent.NOOP;

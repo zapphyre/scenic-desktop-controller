@@ -4,20 +4,22 @@ import org.mapstruct.*;
 import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.util.RecursiveScraper;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = GamepadEventMapper.class)
 public interface SceneMapper {
 
     RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
 
+    @Mapping(target = "inheritsFromSafe", ignore = true)
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
     List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);
@@ -42,10 +44,10 @@ public interface SceneMapper {
     SceneVto map(Scene entity);
 
     @Named("mapInheritNames")
-    default List<Long> mapInheritNames(List<Scene> inherits) {
+    default Set<Long> mapInheritNames(Set<Scene> inherits) {
         return inherits.stream()
                 .map(Scene::getId)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
 
@@ -63,7 +65,7 @@ public interface SceneMapper {
 
     @AfterMapping
     default void afterUpdate(@MappingTarget Scene target, @Context List<Scene> inherits) {
-        target.setInheritsFrom(inherits);
+        target.setInheritsFrom(new HashSet<>(inherits));
     }
 
     default Function<SceneVto, Scene> mapWithInherents(List<Scene> inherits) {
