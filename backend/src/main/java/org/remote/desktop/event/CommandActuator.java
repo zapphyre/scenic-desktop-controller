@@ -3,6 +3,7 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
@@ -45,9 +46,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case SCENE_RESET -> xdoSceneService.nullifyForcedScene();
             case KEYBOARD_ON -> inputWidgetBase.render();
-            case KEYBOARD_OFF -> Executors.newSingleThreadScheduledExecutor()
-                    .schedule(() -> xDo("type", " " + inputWidgetBase.getSentenceAndReset()),
-                            21, TimeUnit.MILLISECONDS);
+            case KEYBOARD_OFF -> MouseCtrl.paste();
             case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())

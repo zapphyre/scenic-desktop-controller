@@ -6,6 +6,7 @@ import org.asmus.model.PolarCoords;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 @UtilityClass
 public class MouseCtrl {
@@ -18,6 +19,14 @@ public class MouseCtrl {
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void paste() {
+        click();
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_V);
+        robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
     public static void click() {

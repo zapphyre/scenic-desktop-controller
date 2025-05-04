@@ -11,7 +11,7 @@ export interface Scene {
 
 export interface NameId {
     name: string;
-    id: number;
+    id?: number;
 }
 
 export interface GPadEvent {

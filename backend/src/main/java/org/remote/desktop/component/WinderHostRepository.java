@@ -1,6 +1,7 @@
 package org.remote.desktop.component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.config.FeignBuilder;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WinderHostRepository implements JmAutoRegistry {
@@ -40,7 +42,7 @@ public class WinderHostRepository implements JmAutoRegistry {
 
     @Override
     public void sourceLost(String s) {
-
+        log.warn("disconnected from winder: " + s);
     }
 
     @Override

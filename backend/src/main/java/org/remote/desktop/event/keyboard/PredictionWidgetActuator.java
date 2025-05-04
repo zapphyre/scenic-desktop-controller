@@ -8,6 +8,9 @@ import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 @Component
@@ -50,13 +53,22 @@ public class PredictionWidgetActuator implements ApplicationListener<PredictionC
         if (event.getType().equals("RIGHTTRIGGER_ENGAGE"))
             widget.nextPredictionsFrame();
 
+        if (event.getType().equals("LEFTTRIGGER_ENGAGE"))
+            copyToClipboard(widget.getSentenceAndReset());
+
         if (regularButtons.contains(event.getType()))
             widget.setActiveAndType(EActionButton.valueOf(event.getType()), event.getModifiers());
 
     }
 
+    void copyToClipboard(String text) {
+        StringSelection stringSelection = new StringSelection(text);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
     @Override
     public boolean supportsAsyncExecution() {
-        return false;
+        return true;
     }
 }

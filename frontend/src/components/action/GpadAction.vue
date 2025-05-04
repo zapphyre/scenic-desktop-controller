@@ -43,16 +43,13 @@ const change = async () => {
   await apiClient.put("updateGamepadEvent", props.gpadEvent);
 }
 
-const forcedChanged = async () => {
-  await apiClient.put("updateGamepadEvent", props.gpadEvent);
-}
-
 const emit = defineEmits<{
   remove: [gPadEvent: GPadEvent];
 }>();
 
 onMounted(() => {
   forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
+  forcedAvailableRef.value.unshift({id: undefined, name: "[unset]"});
 })
 </script>
 
@@ -120,7 +117,7 @@ onMounted(() => {
                       option-label="name"
                       placeholder="Forced next scene"
                       class="input-item"
-                      @change="forcedChanged"
+                      @change="change"
                       :disabled="disabled"
                   />
                 </div>
