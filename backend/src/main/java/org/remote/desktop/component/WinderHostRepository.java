@@ -22,30 +22,29 @@ public class WinderHostRepository implements JmAutoRegistry {
     private final FeignBuilder feignBuilder;
     private WinderNativeConnectorApi winderApi;
 
-    @Override
     public void sourceDiscovered(WebSourceDef webSourceDef) {
         System.out.println("WINDER sourceDiscovered: " + webSourceDef);
         winderApi = feignBuilder.buildWinderNativeConnectorApiClient(webSourceDef.getBaseUrl());
     }
 
     public void ff() {
+//        log.info("ff");
         winderApi.command(WinderCommand.builder()
                 .operation(EWinderOp.FF)
                 .build());
     }
 
     public void rw() {
+//        log.info("rw");
         winderApi.command(WinderCommand.builder()
                 .operation(EWinderOp.RW)
                 .build());
     }
 
-    @Override
     public void sourceLost(String s) {
         log.warn("disconnected from winder: " + s);
     }
 
-    @Override
     public JmDnsProperties getJmDnsProperties() {
         return JmDnsProperties.builder()
                 .greetingMessage("hi")

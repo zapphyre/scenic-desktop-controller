@@ -4,7 +4,10 @@ import App from './GpadOs.vue';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import 'primeflex/primeflex.css'; // Import PrimeFlex CSS
-import 'primeicons/primeicons.css'; // Add this for icons
+import 'primeicons/primeicons.css';
+import {heartbeatService} from "@/service/HeartbeatService"; // Add this for icons
+
+heartbeatService.start();
 
 let app = createApp(App);
 app.use(PrimeVue, {

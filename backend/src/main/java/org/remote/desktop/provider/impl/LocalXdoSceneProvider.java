@@ -33,7 +33,7 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
                 .completeOnTimeout(lastRecognized, 690, TimeUnit.MILLISECONDS);
 
         try {
-            return future.get(420, TimeUnit.MILLISECONDS);
+            return future.get(21, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
             System.out.println("script timed out");

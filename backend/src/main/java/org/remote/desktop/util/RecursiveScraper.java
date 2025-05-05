@@ -7,7 +7,7 @@ import java.util.*;
 
 public class RecursiveScraper<T, S extends GamepadEventContainer<T, S>> {
     public Set<T> scrapeActionsRecursive(GamepadEventContainer<T, S> sceneDto) {
-        return sceneDto == null ? Set.of() : scrapeActionsRecursive(sceneDto, new HashSet<>());
+        return sceneDto == null ? Set.of() : scrapeActionsRecursive(sceneDto, new LinkedHashSet<>());
     }
 
     public Set<T> scrapeActionsRecursive(GamepadEventContainer<T, S> sceneDto, Set<T> gamepadEventDtos) {
