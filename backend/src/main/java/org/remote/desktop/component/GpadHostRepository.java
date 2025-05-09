@@ -31,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GpadHostRepository implements JmAutoRegistry {
+public class GpadHostRepository  {
 
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 
@@ -120,7 +120,6 @@ public class GpadHostRepository implements JmAutoRegistry {
         return String.format("http://%s:%d", baseUrl, port);
     }
 
-    @Override
     public JmDnsProperties getJmDnsProperties() {
         return JmDnsProperties.builder()
                 .greetingMessage("hi")
