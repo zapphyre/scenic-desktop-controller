@@ -13,11 +13,14 @@ import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
 
+import java.util.Objects;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class WinderHostRepository implements JmAutoRegistry {
 
+    private final SettingsDao settingsDao;
     private final FeignBuilder feignBuilder;
     private WinderNativeConnectorApi winderApi;
 
@@ -27,20 +30,25 @@ public class WinderHostRepository implements JmAutoRegistry {
     }
 
     public void ff() {
-//        log.info("ff");
-        winderApi.command(WinderCommand.builder()
-                .operation(EWinderOp.FF)
-                .build());
+        log.info("ff");
+
+        if (Objects.nonNull(winderApi))
+            winderApi.command(WinderCommand.builder()
+                    .operation(EWinderOp.FF)
+                    .build());
     }
 
     public void rw() {
-//        log.info("rw");
-        winderApi.command(WinderCommand.builder()
-                .operation(EWinderOp.RW)
-                .build());
+        log.info("rw");
+
+        if (Objects.nonNull(winderApi))
+            winderApi.command(WinderCommand.builder()
+                    .operation(EWinderOp.RW)
+                    .build());
     }
 
     public void sourceLost(String s) {
+        winderApi = null;
         log.warn("disconnected from winder: " + s);
     }
 
