@@ -18,7 +18,6 @@ import org.zapphyre.discovery.model.WebSourceDef;
 @RequiredArgsConstructor
 public class WinderHostRepository implements JmAutoRegistry {
 
-    private final SettingsDao settingsDao;
     private final FeignBuilder feignBuilder;
     private WinderNativeConnectorApi winderApi;
 
@@ -50,7 +49,6 @@ public class WinderHostRepository implements JmAutoRegistry {
                 .greetingMessage("hi")
                 .group(WinderConstants.JM_GROUP)
                 .instanceName("zbook_gpad")
-                .mineIpAddress(settingsDao.getIpAddress())
                 .build();
     }
 }
