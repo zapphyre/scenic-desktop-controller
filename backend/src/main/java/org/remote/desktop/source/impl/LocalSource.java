@@ -1,6 +1,7 @@
 package org.remote.desktop.source.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
@@ -12,13 +13,16 @@ import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.XdoSceneService;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.model.WebSourceDef;
+import reactor.core.publisher.Flux;
+
+import java.time.Duration;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @Component
 @RequiredArgsConstructor
-public class LocalSource extends BaseSource  {
+public class LocalSource extends BaseSource {
 
     private final JoyWorker worker;
     private final ButtonAdapter buttonAdapter;
@@ -41,7 +45,15 @@ public class LocalSource extends BaseSource  {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-        connectAndRemember(leftStickStream().polarProducer(worker)::subscribe, axisAdapter::getLeftStickConsumer);
+        Flux<PolarCoords> cached = leftStickStream().polarProducer(worker);
+
+        Flux<PolarCoords> leftStick = cached
+                .switchMap(p -> p.isZero() ? Flux.just(p) : // pass (0,0) once, then complete
+                        Flux.interval(Duration.ofMillis(4))
+                                .map(i -> p)
+                                .log("repeater"));
+
+        connectAndRemember(leftStick::subscribe, axisAdapter::getLeftStickConsumer);
         connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
