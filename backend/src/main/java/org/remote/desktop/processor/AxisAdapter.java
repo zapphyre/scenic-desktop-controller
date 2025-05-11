@@ -86,7 +86,7 @@ public class AxisAdapter {
 
         digitized.map(buttonPressMapper::map)
                 .mapNotNull(ButtonActionDef::getLogicalTrigger)
-                .mapNotNull(q -> nodeMap.get(q))
+                .mapNotNull(q -> nodeMap.get(q)) // can't use method reference b/c I am re-assigning nodeMap
                 .doOnNext(q -> nodeMap = q.getConnections())
                 .mapNotNull(Node::getActions)
                 .flatMap(Flux::fromIterable)
