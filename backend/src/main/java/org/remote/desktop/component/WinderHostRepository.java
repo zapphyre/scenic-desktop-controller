@@ -47,9 +47,9 @@ public class WinderHostRepository implements JmAutoRegistry {
                     .build());
     }
 
-    public void sourceLost(String s) {
+    public void sourceLost(WebSourceDef s) {
         winderApi = null;
-        log.warn("disconnected from winder: " + s);
+        log.warn("disconnected from winder: " + s.getName());
     }
 
     public JmDnsProperties getJmDnsProperties() {
