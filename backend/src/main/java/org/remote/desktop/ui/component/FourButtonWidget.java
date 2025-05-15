@@ -14,10 +14,6 @@ import lombok.Getter;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EActionButton;
-import org.remote.desktop.ui.model.IndexLetterAction;
-import org.remote.desktop.util.IdxWordTx;
-import org.remote.desktop.util.LetterIdxGetter;
-import org.remote.desktop.util.WordGenFun;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+import static org.remote.desktop.util.NumUtil.mapClamped;
+import static org.remote.desktop.util.NumUtil.mapVal;
+
 @UtilityClass
 public class MouseCtrl {
     double sensitivity = 0.004;
@@ -35,13 +38,13 @@ public class MouseCtrl {
     }
 
     public static void moveMouse(PolarCoords polarCoords) {
-        double scaledRadius = polarCoords.radius();
+        double scaledRadius = polarCoords.getRadius();
 
         scaledRadius = mapVal(scaledRadius, -32767, 32768, -10, 10);
 
         // Calculate Cartesian coordinates
-        int xMovement = (int) (scaledRadius * Math.cos(polarCoords.theta()));
-        int yMovement = (int) (scaledRadius * Math.sin(polarCoords.theta()));
+        int xMovement = (int) (scaledRadius * Math.cos(polarCoords.getTheta()));
+        int yMovement = (int) (scaledRadius * Math.sin(polarCoords.getTheta()));
 
         // Get the current mouse position
         int currentX = MouseInfo.getPointerInfo().getLocation().x;
@@ -51,10 +54,11 @@ public class MouseCtrl {
         robot.mouseMove(currentX + xMovement, currentY + yMovement);
     }
 
+    int delay = 3; // milliseconds between each scroll step
     @SneakyThrows
     public static void scroll(PolarCoords coords) {
-        double theta = coords.theta(); // 45 degrees in radians
-        double radius = coords.radius(); // Example value within your range
+        double theta = coords.getTheta(); // 45 degrees in radians
+        double radius = coords.getRadius(); // Example value within your range
 
         double x = radius * Math.cos(theta);
         double y = radius * Math.sin(theta);
@@ -64,16 +68,13 @@ public class MouseCtrl {
         double sensitivityFactor = Math.abs(y) / Math.abs(mappedRadius); // Use mapped radius for sensitivity calculation
 
         int scrollAmount = (int) (Math.abs(radius) * sensitivityFactor * 0.002); // Adjust the 0.01 to fine-tune sensitivity
-        int delay = 21; // milliseconds between each scroll step
 
         // Vertical Scrolling
         // Use y to determine scroll direction and magnitude
         int scrollDirection = (int) Math.signum(y); // -1 for up, 1 for down, 0 if y is 0
         robot.mouseWheel(scrollDirection * scrollAmount); // Adjust scroll amount based on sensitivity
-        Thread.sleep(delay);
+//        Thread.sleep(delay);
     }
 
-    public static double mapVal(double value, int start1, int stop1, int start2, int stop2) {
-        return start2 + (stop2 - start2) * (value - start1) / (stop1 - start1);
-    }
+
 }

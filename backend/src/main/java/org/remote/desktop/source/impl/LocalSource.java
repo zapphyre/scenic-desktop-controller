@@ -11,6 +11,7 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
@@ -19,6 +20,7 @@ import java.time.Duration;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
+import static org.remote.desktop.util.FluxUtil.*;
 
 @Component
 @RequiredArgsConstructor
@@ -45,16 +47,17 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-        Flux<PolarCoords> cached = leftStickStream().polarProducer(worker);
+//        connectAndRemember(leftStickStream().polarProducer(worker)
+//                        .switchMap(repeat(PolarCoords::isZero)::apply)::subscribe,
+//                axisAdapter::getLeftStickConsumer);
 
-        Flux<PolarCoords> leftStick = cached
-                .switchMap(p -> p.isZero() ? Flux.just(p) : // pass (0,0) once, then complete
-                        Flux.interval(Duration.ofMillis(4))
-                                .map(i -> p)
-                                .log("repeater"));
+        connectAndRemember(repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)::subscribe,
+                axisAdapter::getLeftStickConsumer);
 
-        connectAndRemember(leftStick::subscribe, axisAdapter::getLeftStickConsumer);
         connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
+
+//        connectAndRemember(repeat(, PolarCoords::isZero, 40)::subscribe,
+//                axisAdapter::getRightStickConsumer);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 
