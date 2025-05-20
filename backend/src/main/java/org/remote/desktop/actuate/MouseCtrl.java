@@ -73,7 +73,7 @@ public class MouseCtrl {
         // Use y to determine scroll direction and magnitude
         int scrollDirection = (int) Math.signum(y); // -1 for up, 1 for down, 0 if y is 0
         robot.mouseWheel(scrollDirection * scrollAmount); // Adjust scroll amount based on sensitivity
-//        Thread.sleep(delay);
+        Thread.sleep(delay);
     }
 
 

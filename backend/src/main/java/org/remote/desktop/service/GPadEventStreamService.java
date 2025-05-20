@@ -38,7 +38,7 @@ public class GPadEventStreamService {
                         .anyMatch(sameAsClick(click));
     }
 
-    public Predicate<String> sameAsClick(ButtonActionDef click) {
+    Predicate<String> sameAsClick(ButtonActionDef click) {
         return click.getTrigger()::equals;
     }
 
