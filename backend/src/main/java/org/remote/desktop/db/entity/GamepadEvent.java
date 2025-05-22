@@ -34,7 +34,7 @@ public class GamepadEvent {
     @Enumerated(EnumType.STRING)
     private EMultiplicity multiplicity;
 
-    // has to me many-one otherwise hibernate creates unique constrain on this column
+    // has to be many-one otherwise hibernate creates unique constrain on this column
     @ManyToOne(cascade = {CascadeType.DETACH})
     private Scene nextScene;
 

@@ -50,7 +50,7 @@ public class TrieConfig {
             } else {
                 log.info("Successfully read {} words from file: {}", words.size(), filePath);
             }
-            return List.copyOf(words); // Return immutable list
+            return words;
         } catch (Exception e) {
             log.error("Error reading words from file {}: {}", filePath, e.getMessage(), e);
             throw new Exception("Failed to read words from file: " + filePath, e);
