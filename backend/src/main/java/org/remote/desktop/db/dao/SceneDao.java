@@ -35,6 +35,7 @@ import java.util.function.Function;
 public class SceneDao {
 
     public static final String SCENE_CACHE_NAME = "scenes";
+    public static final String SCENE_LIST_CACHE_NAME = "many_scenes";
     public static final String SCENE_ACTIONS_CACHE_NAME = "scene_actions";
     public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
 
@@ -75,7 +76,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @Cacheable(SCENE_CACHE_NAME)
+    @Cacheable(SCENE_LIST_CACHE_NAME)
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
@@ -91,7 +92,7 @@ public class SceneDao {
                 .toList();
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void update(XdoActionVto vto) {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
@@ -99,7 +100,7 @@ public class SceneDao {
                 .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)));
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void update(GamepadEventVto vto) {
         Optional.of(vto)
                 .map(GamepadEventVto::getId)
@@ -110,7 +111,7 @@ public class SceneDao {
                 ));
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void update(SceneVto vto) {
         Optional.of(vto)
                 .map(SceneVto::getId)
@@ -118,7 +119,7 @@ public class SceneDao {
                 .ifPresent(sceneMapper.update(vto, sceneRepository.findAllById(vto.getInheritsIdFk())));
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Long save(SceneVto vto) {
         return Optional.of(vto)
                 .map(sceneMapper.mapWithInherents(safeRepo(sceneRepository::findAllById, vto.getInheritsIdFk())))
@@ -127,7 +128,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Long save(GamepadEventVto vto) {
         return Optional.of(vto)
                 .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentFk(), sceneRepository::findById),
@@ -138,7 +139,7 @@ public class SceneDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Mono<Long> save(XdoActionVto vto) {
         return Mono.just(vto)
                 .map(xdoActionMapper.map(nullableRepoOp(vto.getGamepadEventFk(), gamepadEventRepository::findById)))
@@ -146,17 +147,17 @@ public class SceneDao {
                 .map(XdoAction::getId);
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void removeXdoAction(Long id) {
         xdoActionRepository.deleteById(id);
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void removeGamepadEvent(Long id) {
         gamepadEventRepository.deleteById(id);
     }
 
-    @CacheEvict(value = SCENE_CACHE_NAME, allEntries = true)
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void removeScene(Long name) {
         sceneRepository.deleteById(name);
     }

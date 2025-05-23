@@ -37,7 +37,7 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
         try {
             return future.get(21, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            log.error(e.getMessage());
+            log.error("scene script timed out");
             return lastRecognized;
         }
     }

@@ -65,6 +65,7 @@ public class GPadEventStreamService {
         return sceneClickQualificationRelevant(click, scene);
     }
 
+//    @Cacheable("qwer")
     public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
         return Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
