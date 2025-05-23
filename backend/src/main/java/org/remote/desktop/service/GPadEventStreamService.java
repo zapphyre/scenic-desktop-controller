@@ -42,7 +42,7 @@ public class GPadEventStreamService {
         return click.getTrigger()::equals;
     }
 
-    @Cacheable(SceneDao.SCENE_CACHE_NAME)
+    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return Optional.ofNullable(windowName)
                 .map(sceneDao::getSceneForWindowNameOrBase)
@@ -50,7 +50,7 @@ public class GPadEventStreamService {
                 .orElse(Map.of());
     }
 
-    @Cacheable(SceneDao.SCENE_CACHE_NAME)
+    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return scraper.scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto))

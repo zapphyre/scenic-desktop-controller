@@ -1,6 +1,7 @@
 package org.remote.desktop.provider.impl;
 
 import jxdotool.xDoToolUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.provider.XdoSceneProvider;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@Slf4j
 @Service
 public class LocalXdoSceneProvider implements XdoSceneProvider {
 
@@ -35,8 +37,7 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
         try {
             return future.get(21, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-            System.out.println("script timed out");
+            log.error(e.getMessage());
             return lastRecognized;
         }
     }

@@ -35,6 +35,7 @@ import java.util.function.Function;
 public class SceneDao {
 
     public static final String SCENE_CACHE_NAME = "scenes";
+    public static final String SCENE_ACTIONS_CACHE_NAME = "scene_actions";
     public static final String SCENE_AXIS_CACHE_NAME = "scene_axis_assign";
 
     private final RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
