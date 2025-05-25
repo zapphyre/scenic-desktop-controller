@@ -125,7 +125,6 @@ public class GpadHostRepository  {
                 .greetingMessage("hi")
                 .group("gevt")
                 .instanceName("zbook")
-//                .mineIpAddress(settingsDao.getIpAddress())
                 .build();
     }
 }
