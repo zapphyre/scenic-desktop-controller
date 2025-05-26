@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
 import static org.asmus.model.EButtonAxisMapping.TRIGGER_LEFT;
@@ -69,8 +70,8 @@ public class AxisAdapter {
 
     @PostConstruct
     void init() {
-        updateAxisConsumers(settingsDao.getSettings().getBaseSceneName());
-        xdoSceneService.registerRecognizedSceneObserver(this::updateAxisConsumers);
+        xdoSceneService.registerRecognizedSceneObserver(this::updateAxisConsumersByWindowName);
+        xdoSceneService.registerForcedSceneObserver(this::updateAxisConsumersBySceneName);
 
         nodeMap = original = buildNodeMap(gestures);
 
@@ -101,27 +102,49 @@ public class AxisAdapter {
         return gamepadObserver.rightStickStream()::processArrowEvents;
     }
 
-    void updateAxisConsumers(String windowName) {
+    void setConsumersFor(SceneDto sceneDto, String key) {
+        EAxisEvent leftAxisEvent = sceneDto.getLeftAxisEvent();
+        EAxisEvent rightAxisEvent = sceneDto.getRightAxisEvent();
+
+        SceneDto base = sceneDao.getScene(settingsDao.getSettings().getBaseSceneName());
+
+        leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
+        rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
+
+        leftStickConsumer = axisEventMap.get(leftAxisEvent);
+        rightStickConsumer = axisEventMap.get(rightAxisEvent);
+
+        cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
+                .put(key, new Consumers(rightStickConsumer, leftStickConsumer));
+    }
+
+    void updateAxisConsumersBySceneName(String sceneName) {
+        Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(sceneName, Consumers.class);
+
+        if (Objects.isNull(consumers)) {
+            SceneDto sceneByName = sceneDao.getScene(sceneName);
+
+            setConsumersFor(sceneByName, sceneName);
+        } else
+            setConsumers(consumers);
+
+        Objects.requireNonNull(cacheManager.getCache(SceneDao.SCENE_ACTIONS_CACHE_NAME)).clear();
+    }
+
+    void updateAxisConsumersByWindowName(String windowName) {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            EAxisEvent leftAxisEvent = sceneDao.getSceneForWindowNameOrBase(windowName).getLeftAxisEvent();
-            EAxisEvent rightAxisEvent = sceneDao.getSceneForWindowNameOrBase(windowName).getRightAxisEvent();
+            SceneDto sceneForWindowNameOrBase = sceneDao.getSceneForWindowNameOrBase(windowName);
 
-            SceneDto base = sceneDao.getScene(settingsDao.getSettings().getBaseSceneName());
+            setConsumersFor(sceneForWindowNameOrBase, windowName);
+        } else
+            setConsumers(consumers);
+    }
 
-            leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
-            rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
-
-            leftStickConsumer = axisEventMap.get(leftAxisEvent);
-            rightStickConsumer = axisEventMap.get(rightAxisEvent);
-
-            cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
-                    .put(windowName, new Consumers(rightStickConsumer, leftStickConsumer));
-        } else {
-            leftStickConsumer = consumers.leftStickConsumer;
-            rightStickConsumer = consumers.rightStickConsumer;
-        }
+    void setConsumers(Consumers consumers) {
+        leftStickConsumer = consumers.leftStickConsumer;
+        rightStickConsumer = consumers.rightStickConsumer;
     }
 
     record Consumers(Consumer<PolarCoords> rightStickConsumer, Consumer<PolarCoords> leftStickConsumer) {

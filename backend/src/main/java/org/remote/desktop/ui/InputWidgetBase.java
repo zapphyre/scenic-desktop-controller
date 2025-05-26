@@ -169,7 +169,11 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
             if (!lettersContainer.getText().isEmpty() || !lettersContainer.getText().isBlank())
                 lettersContainer.appendText(" ");
 
-            lettersContainer.appendText(limitedPredictions.get(wordIdx.get()));
+            if (wordIdx.get() == 0 && limitedPredictions.isEmpty())
+                lettersContainer.appendText(" ");
+            else
+                lettersContainer.appendText(limitedPredictions.get(wordIdx.get()));
+
             resetStateClean();
         });
     }

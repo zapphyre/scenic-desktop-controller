@@ -11,16 +11,12 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.XdoSceneService;
-import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.model.WebSourceDef;
-import reactor.core.publisher.Flux;
-
-import java.time.Duration;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
-import static org.remote.desktop.util.FluxUtil.*;
+import static org.remote.desktop.util.FluxUtil.repeat;
 
 @Component
 @RequiredArgsConstructor
@@ -47,12 +43,12 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-//        connectAndRemember(leftStickStream().polarProducer(worker)
-//                        .switchMap(repeat(PolarCoords::isZero)::apply)::subscribe,
-//                axisAdapter::getLeftStickConsumer);
-
-        connectAndRemember(repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)::subscribe,
-                axisAdapter::getLeftStickConsumer);
+        /*
+         *   consumer in .subscribe(..) -=can not=- be interchanged for method reference b/c it's being re-assigned
+         *   in runtime on the instance
+         */
+        repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
+                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q));
 
         connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
 
