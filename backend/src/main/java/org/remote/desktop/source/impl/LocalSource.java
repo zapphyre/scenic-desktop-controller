@@ -42,18 +42,16 @@ public class LocalSource extends BaseSource {
 
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
+        connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
 
         /*
          *   consumer in .subscribe(..) -=can not=- be interchanged for method reference b/c it's being re-assigned
-         *   in runtime on the instance
+         *   in runtime on the instance;
+         *   still, i want to use `connectAndRemember` for it manages disposable the standard way
          */
-        repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
-                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q));
-
-        connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
-
-//        connectAndRemember(repeat(, PolarCoords::isZero, 40)::subscribe,
-//                axisAdapter::getRightStickConsumer);
+        connectAndRemember((_) ->
+                repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
+                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 
