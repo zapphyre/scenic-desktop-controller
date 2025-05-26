@@ -42,6 +42,7 @@ public class LocalSource extends BaseSource {
 
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
+
         connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
 
         /*
@@ -49,7 +50,7 @@ public class LocalSource extends BaseSource {
          *   in runtime on the instance;
          *   still, i want to use `connectAndRemember` for it manages disposable the standard way
          */
-        connectAndRemember((_) ->
+        connectAndRemember(_ ->
                 repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
                         .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
 

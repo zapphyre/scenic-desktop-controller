@@ -38,11 +38,12 @@ public class StickTextAdapter {
         PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
         AxisEventFactory.leftStickStream().polarProducer(worker)
+                .filter(q -> q.getRadius() > 12_000)
                 .map(groupsTranslator::translate)
                 .distinctUntilChanged()
-//                .filter(_ -> widget.isReady())
                 .map(widget::setGroupActive)
                 .distinctUntilChanged()
+                .doOnComplete(() -> ui.cancel(true))
                 .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
 
 //        AxisEventFactory.rightStickStream().polarProducer(worker)

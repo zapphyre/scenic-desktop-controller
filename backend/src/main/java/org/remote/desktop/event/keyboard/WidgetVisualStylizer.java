@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnBean(CircleButtonsInputWidget.class)
-public class ButtonInputWidgetAdapter implements ApplicationListener<ButtonEvent> {
+public class WidgetVisualStylizer implements ApplicationListener<ButtonEvent> {
 
     private final CircleButtonsInputWidget widget;
 

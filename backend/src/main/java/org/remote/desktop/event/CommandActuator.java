@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.actuate.MouseCtrl;
 import org.remote.desktop.component.WinderHostRepository;
-import org.remote.desktop.event.keyboard.PredictionWidgetActuator;
+import org.remote.desktop.event.keyboard.KeyboardWidgetMainActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.service.XdoSceneService;
@@ -13,9 +13,6 @@ import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static jxdotool.xDoToolUtil.*;
 
@@ -27,7 +24,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final XdoSceneService xdoSceneService;
     private final InputWidgetBase inputWidgetBase;
     protected final ApplicationEventPublisher eventPublisher;
-    private final PredictionWidgetActuator widgetActuator;
+    private final KeyboardWidgetMainActuator widgetActuator;
     private final WinderHostRepository winderHostRepository;
 
     @Override

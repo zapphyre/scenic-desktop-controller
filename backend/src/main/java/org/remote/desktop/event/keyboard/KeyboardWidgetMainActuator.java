@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class PredictionWidgetActuator implements ApplicationListener<PredictionControlEvent> {
+public class KeyboardWidgetMainActuator implements ApplicationListener<PredictionControlEvent> {
 
     private final CircleButtonsInputWidget widget;
     private final List<String> regularButtons = List.of("A", "X", "Y", "B");
