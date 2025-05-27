@@ -85,7 +85,7 @@ public class FourButtonWidget extends Pane {
         for (int i = 0; i < settings.getCharCount(); i++) {
 
             // Stroke (outline) text for better readability
-            String letterOpLabel = settings.getUiButton().getElements().get(i).getLabel();
+            String letterOpLabel = settings.getUiButton().getLettersOnButton().get(i).getLabel();
             Text strokeText = new Text(letterOpLabel);
             strokeText.setFont(Font.font(textSize));
             strokeText.setFill(Color.TRANSPARENT);

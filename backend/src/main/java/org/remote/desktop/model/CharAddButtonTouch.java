@@ -7,19 +7,18 @@ import org.remote.desktop.ui.model.IndexLetterAction;
 
 @Value
 @SuperBuilder
-public class CharAddButtonTouch extends UiButtonBase {
+public class CharAddButtonTouch extends UiButtonBase { // to add individual character after long-press
 
     @Override
     public IndexLetterAction processTouch(ButtonInputProcessor processor) {
-        return q -> processor.asLetter(getElements().get(q).getLabel());
+        return q -> processor.asLetter(getLettersOnButton().get(q).getLabel());
     }
 
-    @Override
     public UiButtonBase getLongTouchHandler() {
         return ReplacingUiButtonAdapter.builder()
                 .group(group)
                 .button(button)
-                .elements(elements)
+                .lettersOnButton(lettersOnButton)
                 .build();
     }
 }

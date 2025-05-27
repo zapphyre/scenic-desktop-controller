@@ -23,7 +23,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
     private final XdoSceneService xdoSceneService;
     private final InputWidgetBase inputWidgetBase;
-    protected final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final KeyboardWidgetMainActuator widgetActuator;
     private final WinderHostRepository winderHostRepository;
 

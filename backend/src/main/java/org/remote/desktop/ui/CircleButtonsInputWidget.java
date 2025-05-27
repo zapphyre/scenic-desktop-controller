@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.component.FourButtonWidget;
@@ -20,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.buttonDict;
@@ -48,9 +48,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                             .map(b -> groupDefs.getOrDefault(b, null))
                             .filter(Objects::nonNull)
                             .collect(Collectors.toMap(UiButtonBase::getButton, a -> bs
-                                            .charCount(a.getElements().size())
-                                            .uiButton(a)
-                                            .build()
+                                    .charCount(a.getLettersOnButton().size())
+                                    .uiButton(a)
+                                    .build()
                             ));
 
                     return new FourButtonWidget(settingsMap, (widgetSize * 2) * scaleFactor, 24);
@@ -97,12 +97,14 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     Pane rightPane = new Pane();
+
     @Override
     Pane createRightWidget() {
         return rightPane;
     }
 
     FourButtonWidget activeButtonGroup;
+
     @Override
     public int setGroupActive(int index) {
         Platform.runLater(() -> {
@@ -122,20 +124,22 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     private EActionButton precisionInitiatior;
+
     public void activatePrecisionMode(EActionButton eActionButton) {
         // button long-pressed; will get longTouchHandler out of current uiButton definition
         groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eActionButton)
                 .getLongTouchHandler().processTouch(this);
 
-        letterIndex.set(0); //start fresh
+        letterIndex.set(1); //start fresh
         Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
-                .get(letterIndex.getAndIncrement()); // get 0 and increment so on next touch idx + 1 is ready
+                .get(0); // get 0 and increment so on next touch idx + 1 is ready
         scheduleSizeResetOn.apply(fontSizeSetter);
 
         fontSizeSetter.accept(42d);
     }
 
     Set<EButtonAxisMapping> modifiers = Set.of();
+
     @Override
     public void setActiveAndType(EActionButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
         this.toggleVisual(buttonActivated);
@@ -144,11 +148,16 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         // long press (precision mode) was activated && another button then activation pressed
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
             // apply letter on previous buttons position
-            groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1);
+            groupTxFun.actOnIndexLetter(letterIndex.getAndSet(1) - 1);
 
             // generate transformation function out of new (secondly pressed) button
             groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated)
-                    .getLongTouchHandler().processTouch(this)   ;
+                    .getLongTouchHandler().processTouch(this);
+
+            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
+                    .get(0);
+            scheduleSizeResetOn.apply(fontSetter);
+            fontSetter.accept(42d);
 
         } else if (pendingResetTask == null) { // default case -- trie input
             getCurrentButtonWordTransformationFun(buttonActivated)
@@ -166,6 +175,24 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     @Override
+    public void resetStateClean() {
+        if (pendingResetTask == null)
+            super.resetStateClean();
+        else
+            asDeletingLong("");
+    }
+
+    @Override // in case precision mode is active, add current character (speedup)
+    public void addWordToSentence() {
+        if (pendingResetTask == null) {
+            super.addWordToSentence();
+            return;
+        }
+
+        groupTxFun.actOnIndexLetter(letterIndex.get() - 1);
+    }
+
+    @Override
     protected void resetPredictionStack() {
         key.setLength(0);
     }
@@ -178,12 +205,12 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             // Calculate the character count for the current word
             // Add 1 for the space if the result list is not empty
             int wordLength = word.length();
-            int additionalChars = wordLength; // + (result.isEmpty() ? 0 : 1);
+            // + (result.isEmpty() ? 0 : 1);
 
             // Check if adding the word exceeds the max character limit
-            if (currentCharCount + additionalChars <= maxChars) {
+            if (currentCharCount + wordLength <= maxChars) {
                 result.add(word);
-                currentCharCount += additionalChars;
+                currentCharCount += wordLength;
             } else {
                 // Stop if the next word would exceed the limit
                 break;
@@ -202,7 +229,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             predictions = new LinkedList<>(predictor.apply(key.toString()));
 
             limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
-            long count = limitedPredictions.stream().mapToInt(String::length).sum();
+//            long count = limitedPredictions.stream().mapToInt(String::length).sum();
 
             predictions.removeAll(limitedPredictions);
 
@@ -227,6 +254,18 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             lettersContainer.deletePreviousChar();
             lettersContainer.appendText(letter);
         });
+    }
+
+
+    @RequiredArgsConstructor
+    static abstract class ButtonAction {
+        int idx = 0;
+        UiButtonBase buttonBase;
+        List<String> letters;
+    }
+
+    class ButtonLetter extends ButtonAction {
+
     }
 }
 

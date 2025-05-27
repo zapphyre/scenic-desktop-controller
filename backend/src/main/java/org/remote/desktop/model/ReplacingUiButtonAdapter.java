@@ -11,6 +11,6 @@ public class ReplacingUiButtonAdapter extends UiButtonBase {
 
     @Override
     public IndexLetterAction processTouch(ButtonInputProcessor processor) {
-        return q -> processor.  asDeletingLong(getElements().get(q).getLabel());
+        return q -> processor.asDeletingLong(getLettersOnButton().get(q).getLabel());
     }
 }

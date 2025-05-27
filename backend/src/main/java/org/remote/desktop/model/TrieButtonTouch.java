@@ -4,7 +4,6 @@ import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.IndexLetterAction;
-import org.remote.desktop.ui.model.ModifiedIndexedTransformer;
 
 @Value
 @SuperBuilder
@@ -17,11 +16,10 @@ public class TrieButtonTouch extends UiButtonBase {
         return q -> processor.asTrieChar(trieCode);
     }
 
-    @Override
     public UiButtonBase getLongTouchHandler() {
         return CharAddButtonTouch.builder()
                 .group(group)
-                .elements(elements)
+                .lettersOnButton(lettersOnButton)
                 .button(button)
                 .build();
     }

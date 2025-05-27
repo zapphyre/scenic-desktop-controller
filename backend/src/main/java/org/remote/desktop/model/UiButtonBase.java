@@ -18,13 +18,9 @@ public abstract class UiButtonBase {
     EActionButton button;
 
     @Builder.Default
-    List<LF> elements = List.of();
+    List<LF> lettersOnButton = List.of();
 
     public abstract IndexLetterAction processTouch(ButtonInputProcessor processor);
-
-    public ModifiedIndexedTransformer processTouchModified(ButtonInputProcessor processor) {
-        return q -> p -> processTouch(processor).actOnIndexLetter(p);
-    }
 
     public UiButtonBase getLongTouchHandler() {
         return this;
