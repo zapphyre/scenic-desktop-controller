@@ -19,6 +19,8 @@ public class TextInputWidgetConfig {
     private final SettingsDao settingsDao;
     private final Trie<String> trie;
 
+
+
     @Bean
     public CircleButtonsInputWidget inputWidget() {
         CircleButtonsInputWidget variableGroupingInputWidget = new CircleButtonsInputWidget(90,2, Color.BURLYWOOD,

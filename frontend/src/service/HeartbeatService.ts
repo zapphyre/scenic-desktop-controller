@@ -4,6 +4,13 @@ export class HeartbeatService {
     private eventSource: EventSource | null = null;
     private isConnecting = false;
 
+    private scheduleRetry() {
+        this.eventSource?.close();
+        this.eventSource = null;
+        this.isConnecting = false;
+        setTimeout(this.connect.bind(this), 2100)
+    }
+
     public start() {
         this.connect();
     }
@@ -14,7 +21,12 @@ export class HeartbeatService {
         }
         this.isConnecting = true;
 
-        this.eventSource = new EventSource(HeartbeatService.HB_ENDPOINT);
+        try {
+            this.eventSource = new EventSource(HeartbeatService.HB_ENDPOINT);
+        } catch (e) {
+            this.scheduleRetry();
+            return;
+        }
 
         this.eventSource.onmessage = (event: MessageEvent) => {
             const newUuid = event.data;
@@ -33,12 +45,7 @@ export class HeartbeatService {
             this.isConnecting = false;
         };
 
-        this.eventSource.onerror = (e) => {
-            this.eventSource?.close();
-            this.eventSource = null;
-            this.isConnecting = false;
-            setTimeout(this.connect, 2100)
-        };
+        this.eventSource.onerror = (e) => this.scheduleRetry();
     }
 }
 
