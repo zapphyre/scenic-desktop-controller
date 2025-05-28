@@ -5,6 +5,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.component.FourButtonWidget;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.buttonDict;
 
+@Slf4j
 public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase implements ButtonInputProcessor {
 
     @Getter
@@ -79,7 +81,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                 pendingReset.cancel(true);
                 pendingResetTask.run();
             } catch (Exception e) {
-                System.out.println(e);
+                log.error("can't cancel letter size changer pending task");
             }
         }
 
