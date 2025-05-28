@@ -31,6 +31,7 @@ public interface SettingMapper {
     Setting map(SettingDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "settingsInstance", constant = Setting.INST_NAME)
     Setting map(SettingsProperties props);
 
     @Mapping(target = "id", ignore = true)

@@ -34,4 +34,6 @@ public class Setting {
     private String ipAddress;
 
     private Integer port;
+
+    private Boolean persistentPreciseInput;
 }

@@ -14,5 +14,8 @@ public class SettingsProperties {
     private Boolean disconnectLocalOnRemoteConnection;
     private String ipAddress;
     private Integer port;
-    private String textInputSceneName;
+
+    private String hintedIpAddress;
+    private String textInputSceneName = "keyboard";
+    private boolean persistentPreciseInput;
 }

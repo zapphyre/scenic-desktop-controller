@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -13,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Value;
@@ -21,12 +23,14 @@ import org.remote.desktop.ui.component.TextContainer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
 import static org.remote.desktop.util.TextUtil.findNextWordStart;
 import static org.remote.desktop.util.TextUtil.findPreviousWordStart;
 
+@AllArgsConstructor
 @RequiredArgsConstructor
 public abstract class InputWidgetBase extends Application implements TwoGroupInputWidget {
 
@@ -36,13 +40,17 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final double arcDefaultAlpha;
     protected final Color highlightedColor;
     protected final Color textColor;
-    protected final String title;
+    private final boolean persistentPreciseInputInit;
+    protected final Consumer<Boolean> persistentPrecisionMode;
 
+    protected boolean persistentPreciseInput;
     double scaleFactor = 1.5;
 
     private Stage primaryStage;
     protected int fittingCharacters;
     protected TextField lettersContainer;
+    //    Text inputMode = new Text("asdf");
+    ToggleButton inputMode;
 
     @Setter
     protected Function<String, List<String>> predictor = List::of;
@@ -53,13 +61,29 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     abstract Pane createRightWidget();
 
+    Function<Boolean, String> precisionToggleText = q -> q ? "Persistent" : "Timely";
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
+        inputMode = new ToggleButton("Input");
+
         HBox horiz = new HBox();
         VBox vert = new VBox();
         vert.setAlignment(Pos.CENTER);
+
+        HBox hBox = new HBox(inputMode);
+//        hBox.setBackground(Background.fill(Paint.valueOf("yellow")));
+        vert.getChildren().add(hBox);
+
+        inputMode.setText(precisionToggleText.apply(persistentPreciseInput = persistentPreciseInputInit));
+
+        inputMode.setOnAction(event -> {
+                    persistentPrecisionMode.accept(persistentPreciseInput = !persistentPreciseInput);
+                    inputMode.setText(precisionToggleText.apply(persistentPreciseInput));
+                }
+        );
 
         VBox textLayouts = new VBox();
 

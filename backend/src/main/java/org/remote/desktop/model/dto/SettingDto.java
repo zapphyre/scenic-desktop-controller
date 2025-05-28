@@ -18,4 +18,5 @@ public class SettingDto {
     boolean ipSetManually;
     String hintedIpAddress;
     String textInputSceneName = "keyboard";
+    boolean persistentPreciseInput;
 }

@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.UiButtonBase;
@@ -34,11 +33,16 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     @Getter
     private int groupActiveIndex;
-    AtomicInteger letterIndex = new AtomicInteger(0);
+    private final AtomicInteger letterIndex = new AtomicInteger(0);
     private Runnable sceneForce;
 
-    public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title, Consumer<String> importantor) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title, importantor);
+    public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor,
+                                    double arcDefaultAlpha, Color highlightedColor, Color textColor,
+                                    int letterGroupCount, String title, Consumer<String> importantor,
+                                    boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode
+    ) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title,
+                importantor, persistentPreciseInput, persistentPrecisionMode);
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
                 .textColor(Color.DARKGOLDENROD)
                 .baseColor(Color.BURLYWOOD)
@@ -88,6 +92,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         System.out.println("will schedule size reset");
         return pendingReset = Executors.newSingleThreadScheduledExecutor()
                 .schedule(() -> {
+                    if (persistentPreciseInput)
+                        return;
+
                     pendingResetTask.run();
                     pendingResetTask = null;
                     // -1 b/c incrementation is post-applied, therefore has to be lowered at the end
@@ -155,7 +162,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         // long press (precision mode) was activated && another button then activation pressed
         if (buttonActivated != precisionInitiatior && pendingResetTask != null) {
             // apply letter on previous buttons position
-            groupTxFun.actOnIndexLetter(letterIndex.getAndSet(1) - 1);
+            if (!persistentPreciseInput)
+                groupTxFun.actOnIndexLetter(letterIndex.getAndSet(1) - 1);
 
             // generate transformation function out of new (secondly pressed) button
             groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated)
@@ -265,17 +273,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     public void setKeyboardSceneActuator(Runnable forceScene) {
         sceneForce = forceScene;
-    }
-
-    @RequiredArgsConstructor
-    static abstract class ButtonAction {
-        int idx = 0;
-        UiButtonBase buttonBase;
-        List<String> letters;
-    }
-
-    class ButtonLetter extends ButtonAction {
-
     }
 }
 

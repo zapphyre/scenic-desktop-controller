@@ -2,6 +2,7 @@ package org.remote.desktop.db.dao;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.db.entity.Setting;
 import org.remote.desktop.db.repository.SettingsRepository;
 import org.remote.desktop.mapper.SettingMapper;
 import org.remote.desktop.model.dto.SettingDto;
@@ -28,7 +29,10 @@ public class SettingsDao {
 
     @PostConstruct
     void deleteAll() {
-        settingsRepository.deleteAll();
+        Setting current = settingsRepository.findBySettingsInstance(INST_NAME)
+                .orElseGet(() -> settingsRepository.save(settingMapper.map(settingsProperties)));
+
+//        settingsRepository.deleteAll();
     }
 
     public void update(SettingDto dto) {
@@ -42,6 +46,11 @@ public class SettingsDao {
 
     public boolean disconnectOnRemoteConnect() {
         return getSettings().isDisconnectLocalOnRemoteConnection();
+    }
+
+    public void setPersistentInputMode(boolean persistentInputMode) {
+        settingsRepository.findBySettingsInstance(INST_NAME)
+                .ifPresent(q -> q.setPersistentPreciseInput(persistentInputMode));
     }
 
     public String getInstanceName() {

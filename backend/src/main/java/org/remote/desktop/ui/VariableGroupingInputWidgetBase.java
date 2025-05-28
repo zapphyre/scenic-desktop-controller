@@ -22,8 +22,12 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
     private StringBuilder middleText = new StringBuilder();
 
-    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, String title, Consumer<String> importantor) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title);
+    public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor,
+                                           double arcDefaultAlpha, Color highlightedColor, Color textColor,
+                                           String title, Consumer<String> importantor,
+                                           boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput,
+                persistentPrecisionMode);
     }
 
     @Override
