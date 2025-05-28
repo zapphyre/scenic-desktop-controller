@@ -11,12 +11,12 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.model.WebSourceDef;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
-import static org.remote.desktop.util.FluxUtil.repeat;
 
 @Component
 @RequiredArgsConstructor
@@ -51,7 +51,7 @@ public class LocalSource extends BaseSource {
          *   still, i want to use `connectAndRemember` for it manages disposable the standard way
          */
         connectAndRemember(_ ->
-                repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
+                FluxUtil.repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
                         .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);

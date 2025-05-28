@@ -40,6 +40,10 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
                 .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
+    public void forceScene(SceneDto scene) {
+        forcedScene = scene;
+    }
+
     public String tryGetCurrentName() {
         String scene = sceneProvider.get();
 

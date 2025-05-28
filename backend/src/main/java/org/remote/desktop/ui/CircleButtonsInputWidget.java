@@ -33,6 +33,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     @Getter
     private int groupActiveIndex;
     AtomicInteger letterIndex = new AtomicInteger(0);
+    private Runnable sceneForce;
 
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor, double arcDefaultAlpha, Color highlightedColor, Color textColor, int letterGroupCount, String title, Consumer<String> importantor) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title, importantor);
@@ -89,6 +90,10 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                     pendingResetTask = null;
                     // -1 b/c incrementation is post-applied, therefore has to be lowered at the end
                     Platform.runLater(() -> groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1));
+
+                    if (Objects.nonNull(sceneForce))
+                        sceneForce.run();
+
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
@@ -256,6 +261,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         });
     }
 
+    public void setKeyboardSceneActuator(Runnable forceScene) {
+        sceneForce = forceScene;
+    }
 
     @RequiredArgsConstructor
     static abstract class ButtonAction {
