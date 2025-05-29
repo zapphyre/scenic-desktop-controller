@@ -25,9 +25,8 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor,
                                            double arcDefaultAlpha, Color highlightedColor, Color textColor,
                                            String title, Consumer<String> importantor,
-                                           boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput,
-                persistentPrecisionMode);
+                                           boolean persistentPreciseInput) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput);
     }
 
     @Override
@@ -40,6 +39,11 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     Pane createRightWidget() {
         return letterCircleLeft = new LetterCircle(letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, 1,
                 1.5, -1, 40, widgetSize, letterGroups, 135);
+    }
+
+    @Override
+    void persistentInputChange(Boolean persistent) {
+
     }
 
     String[] arraize(String input) {

@@ -30,6 +30,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     @Getter
     private final Map<Integer, FourButtonWidget> groupWidgetMap;
+    private final Consumer<Boolean> persistentPrecisionMode;
 
     @Getter
     private int groupActiveIndex;
@@ -42,7 +43,9 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                                     boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode
     ) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title,
-                importantor, persistentPreciseInput, persistentPrecisionMode);
+                importantor, persistentPreciseInput);
+        this.persistentPrecisionMode = persistentPrecisionMode;
+
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
                 .textColor(Color.DARKGOLDENROD)
                 .baseColor(Color.BURLYWOOD)
@@ -65,6 +68,13 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
         rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(groupActiveIndex = 0));
         scheduleSizeResetOn = sizeReset.apply(activeButtonGroup.getTextSize());
+    }
+
+    protected void persistentInputChange(Boolean persistent) {
+        if (Objects.nonNull(pendingResetTask))
+            pendingResetTask.run();
+
+        persistentPrecisionMode.accept(persistent);
     }
 
     private final Function<Double, Function<Consumer<Double>, Runnable>> resetTask =
@@ -164,13 +174,15 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             // apply letter on previous buttons position
             if (!persistentPreciseInput)
                 groupTxFun.actOnIndexLetter(letterIndex.getAndSet(1) - 1);
+            else
+                letterIndex.set(1); // if persistentPrecision and another button clicked i need to (re)set idx to 1 (will be -1 on apply)
 
             // generate transformation function out of new (secondly pressed) button
             groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = buttonActivated)
                     .getLongTouchHandler().processTouch(this);
 
-            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
-                    .get(0);
+            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap()
+                    .get(buttonActivated).get(0);
             scheduleSizeResetOn.apply(fontSetter);
             fontSetter.accept(42d);
 
@@ -181,8 +193,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             if (letterIndex.get() > activeButtonGroup.sizeOfActionsAssignedToButton(buttonActivated) - 1)
                 letterIndex.set(0);
 
-            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap().get(buttonActivated)
-                    .get(letterIndex.getAndIncrement()); //increment has to be here; just here and in precision activation
+            Consumer<Double> fontSetter = activeButtonGroup.getLettersMap()
+                    .get(buttonActivated).get(letterIndex.getAndIncrement()); //increment has to be here; just here and in precision activation
             scheduleSizeResetOn.apply(fontSetter);
 
             fontSetter.accept(42d);

@@ -41,7 +41,6 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final Color highlightedColor;
     protected final Color textColor;
     private final boolean persistentPreciseInputInit;
-    protected final Consumer<Boolean> persistentPrecisionMode;
 
     protected boolean persistentPreciseInput;
     double scaleFactor = 1.5;
@@ -60,6 +59,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     abstract Pane createLeftWidget();
 
     abstract Pane createRightWidget();
+
+    abstract  void persistentInputChange(Boolean persistent);
 
     Function<Boolean, String> precisionToggleText = q -> q ? "Persistent" : "Timely";
 
@@ -80,7 +81,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         inputMode.setText(precisionToggleText.apply(persistentPreciseInput = persistentPreciseInputInit));
 
         inputMode.setOnAction(event -> {
-                    persistentPrecisionMode.accept(persistentPreciseInput = !persistentPreciseInput);
+                    persistentInputChange(persistentPreciseInput = !persistentPreciseInput);
                     inputMode.setText(precisionToggleText.apply(persistentPreciseInput));
                 }
         );
