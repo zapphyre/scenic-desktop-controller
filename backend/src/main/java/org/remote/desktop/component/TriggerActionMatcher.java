@@ -45,6 +45,8 @@ public class TriggerActionMatcher {
                 .map(q -> q.withButtonTrigger(buttons));
     }
 
+    // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier
+    // that was isLong = false --which will match here the same way as unmodified release click would
     Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
         return q -> q.get(def);
     }
