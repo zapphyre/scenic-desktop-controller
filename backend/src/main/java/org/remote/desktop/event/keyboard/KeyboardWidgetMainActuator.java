@@ -69,6 +69,6 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
 
     @Override
     public boolean supportsAsyncExecution() {
-        return true;
+        return false;
     }
 }

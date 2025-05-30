@@ -144,7 +144,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     @Override
     public void toggleVisual(EActionButton index) {
         this.modifiers = Set.of();
-        activeButtonGroup.toggleButtonVisual(index);
+        Platform.runLater(() -> activeButtonGroup.toggleButtonVisual(index));
     }
 
     private EActionButton precisionInitiatior;
@@ -166,7 +166,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     @Override
     public void setActiveAndType(EActionButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
-        this.toggleVisual(buttonActivated);
         this.modifiers = modifiers;
 
         // long press (precision mode) was activated && another button then activation pressed
@@ -260,7 +259,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
             predictions.removeAll(limitedPredictions);
 
-            System.out.println("Predictions: " + limitedPredictions);
+//            System.out.println("Predictions: " + limitedPredictions);
             setWordsAvailable(limitedPredictions);
         });
     }

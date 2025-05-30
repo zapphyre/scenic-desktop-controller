@@ -41,7 +41,7 @@ public class TriggerActionMatcher {
                                               P param,
                                               ButtonActionDef buttons) {
         return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
-                .mapNotNull(q -> getActionsForButtons(buttonPressMapper.map(buttons)).apply(q))
+                .mapNotNull(getActionsForButtons(buttonPressMapper.map(buttons)))
                 .map(q -> q.withButtonTrigger(buttons));
     }
 

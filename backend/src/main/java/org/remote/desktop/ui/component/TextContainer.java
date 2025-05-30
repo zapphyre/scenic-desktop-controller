@@ -2,18 +2,15 @@ package org.remote.desktop.ui.component;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import org.remote.desktop.util.IdxWordTx;
-import org.remote.desktop.util.WordGenFun;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.aspectj.bridge.Version.getText;
 
 public class TextContainer extends HBox {
     private final List<TextItem> items = new ArrayList<>();
@@ -48,7 +45,7 @@ public class TextContainer extends HBox {
     }
 
     public void clear() {
-        System.out.println("clearing all items");
+//        System.out.println("clearing all items");
         items.clear();
         this.getChildren().clear();
     }
