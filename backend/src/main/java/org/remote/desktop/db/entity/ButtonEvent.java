@@ -1,0 +1,43 @@
+package org.remote.desktop.db.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.asmus.model.EMultiplicity;
+
+import java.util.List;
+
+@Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class ButtonEvent {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    private Long id;
+
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    private String trigger;
+
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    private boolean longPress;
+
+    @Enumerated(EnumType.STRING)
+    private EMultiplicity multiplicity;
+
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
+    private List<String> modifiers;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Event event;
+}

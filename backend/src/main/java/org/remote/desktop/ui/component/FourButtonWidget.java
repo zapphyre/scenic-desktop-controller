@@ -25,6 +25,7 @@ public class FourButtonWidget extends Pane {
 
     private final Map<EActionButton, ButtonsSettings> defs;
     private final double radius;
+
     @Getter
     private final double textSize;
     private final double shift;

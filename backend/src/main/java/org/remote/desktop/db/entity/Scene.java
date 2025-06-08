@@ -2,6 +2,7 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.remote.desktop.model.ButtonEventsContainer;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
@@ -36,10 +37,14 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
             joinColumns = @JoinColumn(name = "scene_id"),
             inverseJoinColumns = @JoinColumn(name = "parent_scene_id")
     )
-    private Set<Scene> inheritsFrom; // Set b/c for come reason (prolly mapstruct context) i had duplicate objects in gamepadEvent/nextScene
+    private Set<Scene> inheritsFrom; // Set b/c for some reason (prolly mapstruct context) i had duplicate objects in gamepadEvent/nextScene
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<GamepadEvent> gamepadEvents = new LinkedList<>();
+
+    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Event> events = new LinkedList<>();
+
 
     @Enumerated(EnumType.STRING)
     private EAxisEvent leftAxisEvent = EAxisEvent.DEFAULT;

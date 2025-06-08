@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
 import static org.asmus.model.EButtonAxisMapping.TRIGGER_LEFT;

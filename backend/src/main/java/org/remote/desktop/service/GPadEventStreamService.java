@@ -86,7 +86,7 @@ public class GPadEventStreamService {
                     EQualificationType.MULTIPLE
             ));
 
-        // extended for long click == true b/c on the scene that max qualification is long, even untruthy long matches
+        // extended for longPress == true b/c on the scene that max qualification is long, even untruthy long matches
         // and it would generate -release- purging qualif filter element unjustly as action itself was not longPress,
         // only it was recognized as 'relevant' as long since it was max scene qualif and there was long action configured
         if (click.getQualified() == EQualificationType.LONG && click.isLongPress())

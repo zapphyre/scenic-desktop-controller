@@ -27,6 +27,12 @@ public class XdoAction {
     @EqualsAndHashCode.Exclude
     private GamepadEvent gamepadEvent;
 
+    @ManyToOne(cascade = CascadeType.DETACH)
+    @JoinColumn
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Event event;
+
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "key_stroked", joinColumns = @JoinColumn(name = "xdo_action_id"))
     @Column(name = "key_stroke", nullable = false)
