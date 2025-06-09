@@ -22,11 +22,11 @@ public class Event {
     private Long id;
 
     @JoinColumn
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private GestureEvent gestureEvent;
 
     @JoinColumn
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private ButtonEvent buttonEvent;
 
     @JoinColumn

@@ -35,7 +35,7 @@ public class ButtonEvent {
     @ToString.Include
     @EqualsAndHashCode.Include
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "modifier", joinColumns = @JoinColumn(name = "modifier_id"))
+    @CollectionTable(name = "button_modifier", joinColumns = @JoinColumn(name = "button_id"))
     private List<String> modifiers;
 
     @ManyToOne(fetch = FetchType.EAGER)
