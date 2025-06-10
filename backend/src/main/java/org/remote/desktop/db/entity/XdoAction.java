@@ -41,15 +41,16 @@ public class XdoAction {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(gamepadEvent)
-                .map(GamepadEvent::getActions)
-                .ifPresent(q -> q.add(this));
+        // produces concurrent modification exception idk
+//        Optional.ofNullable(event)
+//                .map(Event::getActions)
+//                .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(gamepadEvent)
-                .map(GamepadEvent::getActions)
+        Optional.ofNullable(event)
+                .map(Event::getActions)
                 .ifPresent(p -> p.remove(this));
     }
 }

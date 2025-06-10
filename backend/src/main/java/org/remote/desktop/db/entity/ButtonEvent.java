@@ -5,6 +5,7 @@ import lombok.*;
 import org.asmus.model.EMultiplicity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Entity
@@ -40,4 +41,16 @@ public class ButtonEvent {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Event event;
+
+    @PreUpdate
+    @PrePersist
+    public synchronized void relinkEntities() {
+        Optional.ofNullable(event)
+                .ifPresent(q -> q.setButtonEvent(this));
+    }
+
+    @PreRemove
+    public void detachEntity() {
+        Optional.ofNullable(event).ifPresent(q -> q.setScene(null));
+    }
 }

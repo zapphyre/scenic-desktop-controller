@@ -1,6 +1,7 @@
 package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
+import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = GamepadEventMapper.class)
 public interface SceneMapper {
 
-    RecursiveScraper<GamepadEvent, Scene> scraper = new RecursiveScraper<>();
+    RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
     @Mapping(target = "inheritsFromSafe", ignore = true)
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
@@ -35,7 +36,7 @@ public interface SceneMapper {
     }
 
     @Named("inheritedEvents")
-    default Set<GamepadEvent> inheritedEvents(Scene entity) {
+    default Set<Event> inheritedEvents(Scene entity) {
         return scraper.scrapeActionsRecursive(entity);
     }
 
@@ -56,11 +57,11 @@ public interface SceneMapper {
     }
 
     @Mapping(target = "inheritsFrom", ignore = true)
-    @Mapping(target = "gamepadEvents", ignore = true)
+    @Mapping(target = "events", ignore = true)
     void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits);
 
     @Mapping(target = "inheritsFrom", ignore = true)
-    @Mapping(target = "gamepadEvents", ignore = true)
+    @Mapping(target = "events", ignore = true) // i'm setting them by id
     Scene map(SceneVto vto, @Context List<Scene> inherits);
 
     @AfterMapping

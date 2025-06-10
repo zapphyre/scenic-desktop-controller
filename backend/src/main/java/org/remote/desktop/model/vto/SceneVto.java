@@ -25,7 +25,7 @@ public class SceneVto {
     @Builder.Default
     EAxisEvent rightAxisEvent = EAxisEvent.NOOP;
 
-    List<GamepadEventVto> gamepadEvents;
+    List<EventVto> events;
 
-    List<GamepadEventVto> inheritedGamepadEvents;
+    List<EventVto> inheritedGamepadEvents;
 }

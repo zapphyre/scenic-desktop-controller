@@ -5,7 +5,7 @@ import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
 import {getSceneNameIdList, getScenes, getTriggers} from "@/api/store";
-import {axisValues, EAxisEvent, GPadEvent, NameId, Scene} from '@/model/gpadOs'
+import {axisValues, ButtonEventVto, EAxisEvent, EventVto, GPadEvent, NameId, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
@@ -34,7 +34,8 @@ const fetchScenes = async () => {
 const changedScene = (event: SelectChangeEvent) => {
   selectedSceneRef.value = event.value;
 
-  selectedSceneRef.value?.gamepadEvents.sort((a: GPadEvent, b: GPadEvent) => (b.id ?? 0) - (a.id ?? 0));
+  console.log("selectedSceneRef.value", selectedSceneRef.value);
+  selectedSceneRef.value?.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
 
   inheritedAvailableRef.value = getSceneNameIdList()
       .filter(s => s.id !== event.value?.id)
@@ -59,23 +60,23 @@ const changedRightAxis = (event: any) => {
 }
 
 const addNewGamepadEvent = async () => {
-  const gPadEvent = {parentFk: selectedSceneRef.value?.id} as GPadEvent;
+  const eventVto = {parentFk: selectedSceneRef.value?.id} as EventVto;
 
-  gPadEvent.id = (await apiClient.post("saveGamepadEvent", gPadEvent)).data;
-  console.log("gPadEvent.id", gPadEvent.id);
-  if (!selectedSceneRef.value?.gamepadEvents) selectedSceneRef.value!.gamepadEvents = [];
+  eventVto.id = (await apiClient.post("saveGamepadEvent", eventVto)).data;
+  console.log("eventVto.id", eventVto.id);
+  if (!selectedSceneRef.value?.events) selectedSceneRef.value!.events = [];
 
-  selectedSceneRef.value?.gamepadEvents.unshift(gPadEvent);
+  selectedSceneRef.value?.events.unshift(eventVto);
 
-  // watch(gPadEvent, async (q) => {
-  //   console.log('sending update', gPadEvent);
-  //   // await apiClient.put("updateGamepadEvent", gPadEvent);
+  // watch(eventVto, async (q) => {
+  //   console.log('sending update', eventVto);
+  //   // await apiClient.put("updateGamepadEvent", eventVto);
   // });
 }
 
-const removeGpadEvent = async (gpadEvent: GPadEvent) => {
-  await apiClient.delete("removeGamepadEvent", {data: gpadEvent.id});
-  _.remove(selectedSceneRef?.value?.gamepadEvents ?? [], q => q === gpadEvent);
+const removeGpadEvent = async (buttonEvent: ButtonEventVto) => {
+  await apiClient.delete("removeGamepadEvent", {data: buttonEvent.id});
+  _.remove(selectedSceneRef?.value?.events ?? [], q => q.buttonEvent === buttonEvent);
 }
 
 const changedInherents = async (q: any) => {
@@ -202,14 +203,14 @@ onMounted(fetchScenes);
 
     <div class="grid grid-nogutter">
       <div class="col" v-if="selectedSceneRef">
-        <div v-for="action in selectedSceneRef.gamepadEvents">
-          <GpadAction :selected-scene-id="selectedSceneRef.id!" :gpadEvent="action" @remove="removeGpadEvent"/>
+        <div v-for="action in selectedSceneRef.events">
+          <GpadAction :selected-scene-id="selectedSceneRef.id!" :event="action" @removeButtonEvt="removeGpadEvent"/>
         </div>
       </div>
       <div v-if="selectedSceneRef">
         <div class="col">
           <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
-            <GpadAction :selected-scene-id="selectedSceneRef.id!" :disabled="true" :gpadEvent="ihr"/>
+            <GpadAction :selected-scene-id="selectedSceneRef.id!" :disabled="true" :event="ihr"/>
           </div>
         </div>
       </div>

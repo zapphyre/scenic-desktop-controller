@@ -4,7 +4,7 @@ import java.util.*;
 
 public interface GamepadEventContainer<T, S extends GamepadEventContainer<T, S>> {
 
-    List<T> getGamepadEvents();
+    List<T> getEvents();
 
     Set<S> getInheritsFrom();
 

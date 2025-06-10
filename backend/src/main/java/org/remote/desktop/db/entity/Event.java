@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Entity
@@ -33,6 +34,35 @@ public class Event {
     @ManyToOne(cascade = CascadeType.DETACH)
     private Scene scene;
 
+    // has to be many-one otherwise hibernate creates unique constrain on this column
+    @ManyToOne(cascade = {CascadeType.DETACH})
+    private Scene nextScene;
+
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.DETACH, CascadeType.REMOVE})
     private List<XdoAction> actions = new ArrayList<>();
+
+    @PreUpdate
+    @PrePersist
+    public synchronized void relinkEntities() {
+        Optional.ofNullable(actions).orElse(List.of())
+                .forEach(p -> p.setEvent(this));
+
+        Optional.ofNullable(scene)
+                .map(Scene::getEvents)
+                .ifPresent(q -> q.add(this));
+
+        Optional.ofNullable(buttonEvent)
+                .ifPresent(p -> p.setEvent(this));
+
+        Optional.ofNullable(gestureEvent)
+                .ifPresent(p -> p.setEvent(this));
+    }
+
+    @PreRemove
+    public void detachEntity() {
+        scene.getEvents().remove(this);
+        actions.forEach(q -> q.setEvent(null));
+        gestureEvent.setEvent(null);
+        buttonEvent.setEvent(null);
+    }
 }

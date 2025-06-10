@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
+import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
@@ -16,7 +17,7 @@ import java.util.Set;
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto> {
+public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
 
     Long id;
 
@@ -30,5 +31,5 @@ public class SceneDto implements GamepadEventContainer<GamepadEventDto, SceneDto
     EAxisEvent leftAxisEvent;
     EAxisEvent rightAxisEvent;
 
-    List<GamepadEventDto> gamepadEvents = new LinkedList<>();
+    List<EventDto> events = new LinkedList<>();
 }

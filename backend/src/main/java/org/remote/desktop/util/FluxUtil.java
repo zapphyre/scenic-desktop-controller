@@ -6,10 +6,9 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import static org.remote.desktop.util.NumUtil.mapClamped;
 
 @UtilityClass
 public class FluxUtil {
@@ -32,7 +31,9 @@ public class FluxUtil {
                     .map(i -> q.withRadius(delta))
                     .takeUntil(stopWhen);
         };
-
     }
 
+    public  <T> BinaryOperator<T> laterMerger() {
+        return (q, p) -> p;
+    }
 }

@@ -2,7 +2,6 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.remote.desktop.model.ButtonEventsContainer;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
@@ -19,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serializable {
+public class Scene implements GamepadEventContainer<Event, Scene>, Serializable {
 
     @Id
     @EqualsAndHashCode.Include
@@ -39,8 +38,8 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
     )
     private Set<Scene> inheritsFrom; // Set b/c for some reason (prolly mapstruct context) i had duplicate objects in gamepadEvent/nextScene
 
-    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<GamepadEvent> gamepadEvents = new LinkedList<>();
+//    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+//    private List<GamepadEvent> gamepadEvents = new LinkedList<>();
 
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Event> events = new LinkedList<>();
@@ -55,12 +54,12 @@ public class Scene implements GamepadEventContainer<GamepadEvent, Scene>, Serial
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(gamepadEvents)
+        Optional.ofNullable(events)
                 .ifPresent(q -> q.forEach(p -> p.setScene(this)));
     }
 
     @PreRemove
     public void preremove() {
-        gamepadEvents.forEach(p -> p.setScene(null));
+        events.forEach(p -> p.setScene(null));
     }
 }

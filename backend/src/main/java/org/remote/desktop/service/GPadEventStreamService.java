@@ -8,10 +8,12 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.dto.GamepadEventDto;
+import org.remote.desktop.model.dto.ButtonEventDto;
+import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
+import org.remote.desktop.util.FluxUtil;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,9 +31,9 @@ public class GPadEventStreamService {
     private final SceneDao sceneDao;
     private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
-    private final RecursiveScraper<GamepadEventDto, SceneDto> scraper = new RecursiveScraper<>();
+    private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
 
-    public Predicate<GamepadEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+    public Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
         return q -> sameAsClick(click).test(q.getTrigger()) ||
                 q.getModifiers().stream()
                         .map(Enum::name)
@@ -54,7 +56,7 @@ public class GPadEventStreamService {
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return scraper.scrapeActionsRecursive(sceneDto).stream()
                 .map(buttonPressMapper.map(sceneDto))
-                .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, (p, q) -> q));
+                .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, FluxUtil.laterMerger()));
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
@@ -69,6 +71,7 @@ public class GPadEventStreamService {
     public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
         return Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
+                        .map(EventDto::getButtonEvent)
                         .filter(triggerAndModifiersSameAsClick(click))
                         .anyMatch(q.getPredicate()))
                 .findFirst()
@@ -78,9 +81,10 @@ public class GPadEventStreamService {
     }
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
+
     public void computeRemainderFilter(ButtonActionDef click) {
         if (click.getQualified() == EQualificationType.PUSH)
-            qualificationReceived.addAll(Arrays.asList(
+            qualificationReceived.addAll(List.of(
                     EQualificationType.RELEASE,
                     EQualificationType.LONG,
                     EQualificationType.MULTIPLE

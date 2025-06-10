@@ -5,13 +5,34 @@ export interface Scene {
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
     inheritsIdFk: number[] | undefined;
-    gamepadEvents: GPadEvent[];
-    inheritedGamepadEvents: GPadEvent[];
+    events: EventVto[];
+    inheritedGamepadEvents: EventVto[];
 }
 
 export interface NameId {
     name: string;
     id?: number;
+}
+
+export interface EventVto {
+    id: number | undefined;
+    gestureEvent?: GestureEventVto;
+    buttonEvent?: ButtonEventVto;
+    parentFk: number | null;
+    nextSceneFk: number | null;
+    actions: XdoAction[];
+}
+
+export interface GestureEventVto {
+    id: number | null;
+}
+
+export interface ButtonEventVto {
+    id: number | null;
+    trigger: string;
+    longPress: boolean;
+    multiplicity: EMultiplicity;
+    modifiers: string[];
 }
 
 export interface GPadEvent {
@@ -29,7 +50,7 @@ export interface XdoAction {
     id: number | undefined;
     keyEvt: EKeyEvt | undefined;
     keyStrokes: string[];
-    gamepadEventFk: number | undefined;
+    eventFk: number | undefined;
 }
 
 export interface KeyPart {

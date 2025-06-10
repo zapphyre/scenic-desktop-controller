@@ -4,47 +4,57 @@ import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import {EKeyEvt, GPadEvent, multiplicityValues, buttonValues, NameId, XdoAction} from "@/model/gpadOs";
+import {
+  ButtonEventVto,
+  buttonValues,
+  EKeyEvt,
+  EventVto,
+  GestureEventVto,
+  multiplicityValues,
+  NameId,
+  XdoAction
+} from "@/model/gpadOs";
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {getSceneNameIdList, getScenes, getTriggers} from "@/api/store";
+import {getSceneNameIdList, getTriggers} from "@/api/store";
 import {onMounted, ref} from "vue";
 
 const forcedAvailableRef = ref<NameId[]>();
 
 const props = defineProps<{
-  gpadEvent: GPadEvent;
+  event: EventVto;
   disabled?: boolean | false;
   selectedSceneId: number
 }>();
 
 const addNewAction = async () => {
   const toSave: XdoAction = {
-    gamepadEventFk: props.gpadEvent.id,
+    eventFk: props.event.id,
     id: undefined,
     keyEvt: EKeyEvt.STROKE,
     keyStrokes: []
   };
   toSave.id = (await apiClient.post("saveXdoAction", toSave)).data;
 
-  if (!props.gpadEvent.actions) props.gpadEvent.actions = [];
+  if (!props.event.actions) props.event.actions = [];
 
-  props.gpadEvent.actions.push(toSave);
+  props.event.actions.push(toSave);
 }
 
 const removeXdoAction = async (action: XdoAction) => {
   await apiClient.delete("removeXdoAction", {data: action.id});
-  _.remove(props.gpadEvent.actions, q => q === action);
+  _.remove(props.event.actions, q => q === action);
 }
 
 const change = async () => {
   console.log("changed");
-  await apiClient.put("updateGamepadEvent", props.gpadEvent);
+  await apiClient.put("updateGamepadEvent", props.event);
 }
 
 const emit = defineEmits<{
-  remove: [gPadEvent: GPadEvent];
+  removeButtonEvt: [buttonEvent: ButtonEventVto],
+  removeGestureEvt: [gestureEvent: GestureEventVto]
 }>();
 
 onMounted(() => {
@@ -62,13 +72,13 @@ onMounted(() => {
 
         <div class="col-6">
           <div class="col-12" style="width: 100%">
-            <div class="grid">
+            <div class="grid" v-if="props.event.buttonEvent">
               <div class="col-1">
-                <Button :disabled="disabled" @click="() => emit('remove', props.gpadEvent)" icon="pi pi-trash"/>
+                <Button :disabled="disabled" @click="() => emit('removeButtonEvt', props.event.buttonEvent!!)" icon="pi pi-trash"/>
               </div>
               <div class="col-4">
                 <Select
-                    v-model="props.gpadEvent.trigger"
+                    v-model="props.event.buttonEvent.trigger"
                     :options="getTriggers()"
                     placeholder="Trigger"
                     class="input-item"
@@ -78,7 +88,7 @@ onMounted(() => {
               </div>
               <div class="col-4">
                 <Select
-                    v-model="props.gpadEvent.multiplicity"
+                    v-model="props.event.buttonEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="input-item"
@@ -88,7 +98,7 @@ onMounted(() => {
               </div>
               <div class="col-3">
                 <MultiSelect
-                    v-model="props.gpadEvent.modifiers"
+                    v-model="props.event.buttonEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="input-item"
@@ -101,7 +111,7 @@ onMounted(() => {
                 <div class="flex flex-wrap justify-content-end gap-5">
                   <div class="flex align-items-end gap-2">
                     <label for="longPress">Long Press</label>
-                    <Checkbox :disabled="disabled" name="longPress" v-model="props.gpadEvent.longPress" binary
+                    <Checkbox :disabled="disabled" name="longPress" v-model="props.event.buttonEvent.longPress" binary
                               @change="change"
                               label="Long Press"/>
                   </div>
@@ -111,7 +121,7 @@ onMounted(() => {
               <div class="col-7">
                 <div class="flex justify-content-center align-items-center justify-center gap-4">
                   <Select
-                      v-model="props.gpadEvent.nextSceneFk"
+                      v-model="props.event.nextSceneFk"
                       :options="forcedAvailableRef"
                       option-value="id"
                       option-label="name"
@@ -128,7 +138,7 @@ onMounted(() => {
         </div>
 
         <div class="col-6" style="min-width: 552px">
-          <XdoActionSection v-for="act in props.gpadEvent.actions"
+          <XdoActionSection v-for="act in props.event.actions"
                             :xdo-action="act"
                             :disabled="disabled"
                             @addKeyStroke="q => act?.keyStrokes?.push(q)"

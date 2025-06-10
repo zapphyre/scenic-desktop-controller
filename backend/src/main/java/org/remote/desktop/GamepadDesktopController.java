@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.ButtonEvent;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.GamepadEvent;
+import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.GamepadEventRepository;
+import org.remote.desktop.db.repository.XdoActionRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -28,6 +30,7 @@ public class GamepadDesktopController {
 
     final GamepadEventRepository gamepadEventRepository;
     final EventRepository eventRepository;
+    final XdoActionRepository xdoActionRepository;
 
     public static void main(String[] args) {
         System.setProperty("java.awt.headless", "false");
@@ -38,35 +41,45 @@ public class GamepadDesktopController {
     void migrate() {
 
         List<GamepadEvent> gEvents = gamepadEventRepository.findAll();
-        List<Event> events = new ArrayList<>();
+        xdoActionRepository.deleteAll();
 
         for (GamepadEvent gEvent : gEvents) {
-//            gamepadEventRepository.delete(gEvent);
-//            gamepadEventRepository.flush();
-
             Event event = new Event();
 
             ButtonEvent buttonEvent = new ButtonEvent();
-            buttonEvent.setEvent(event);
+//            buttonEvent.setEvent(event);
             event.setButtonEvent(buttonEvent);
+
             event.setScene(gEvent.getScene());
+            event.setNextScene(gEvent.getNextScene());
             buttonEvent.setTrigger(gEvent.getTrigger());
             buttonEvent.setMultiplicity(gEvent.getMultiplicity());
-//            buttonEvent.setModifiers(new ArrayList<>(gEvent.getModifiers()));
             buttonEvent.setLongPress(gEvent.isLongPress());
 
-            gEvent.getActions().forEach(action -> {
+            ArrayList<XdoAction> actions = new ArrayList<>();
+//            event.setActions(new ArrayList<>(gEvent.getActions()));
+            for (XdoAction action : gEvent.getActions()) {
+
+                action.setId(null);
+                action.setGamepadEvent(null);
+//                XdoAction save = xdoActionRepository.save(action);
                 action.setEvent(event);
-            });
+                actions.add(action);
+//                actions.add(save);
+//                xdoActionRepository.flush();
+            }
+            event.setActions(actions);
 
-            events.add(event);
-
-            eventRepository.save(event);
-            eventRepository.flush();
-
+//            xdoActionRepository.flush();
             buttonEvent.setModifiers(new ArrayList<>(gEvent.getModifiers()));
+//            gamepadEventRepository.delete(gEvent);
+
             eventRepository.save(event);
-            gamepadEventRepository.delete(gEvent);
+
+//            xdoActionRepository.deleteAll();
+//            xdoActionRepository.flush();
+            xdoActionRepository.saveAll(actions);
+
             eventRepository.flush();
         }
 

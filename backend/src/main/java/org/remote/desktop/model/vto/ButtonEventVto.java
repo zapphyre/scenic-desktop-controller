@@ -3,18 +3,20 @@ package org.remote.desktop.model.vto;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.remote.desktop.model.EKeyEvt;
+import org.asmus.model.EMultiplicity;
 
 import java.util.List;
 
 @Value
 @Builder
 @Jacksonized
-public class XdoActionVto {
+public class ButtonEventVto {
+
     Long id;
-    EKeyEvt keyEvt;
 
-    List<String> keyStrokes;
+    String trigger;
+    boolean longPress;
+    EMultiplicity multiplicity;
+    List<String> modifiers;
 
-    Long eventFk;
 }

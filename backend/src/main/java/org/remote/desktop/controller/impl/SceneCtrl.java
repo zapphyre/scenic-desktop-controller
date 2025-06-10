@@ -3,6 +3,7 @@ package org.remote.desktop.controller.impl;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
@@ -29,7 +30,7 @@ public class SceneCtrl implements SceneApi {
     }
 
     @GetMapping("inherents/{sceneId}")
-    public List<GamepadEventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
+    public List<EventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
         return sceneDao.getInherentsRecurcivelyFor(sceneId);
     }
 
@@ -50,7 +51,7 @@ public class SceneCtrl implements SceneApi {
 
     @PutMapping("updateGamepadEvent")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateGamepadAction(@RequestBody GamepadEventVto gamepadEventVto) {
+    public void updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
         sceneDao.update(gamepadEventVto);
     }
 
@@ -68,7 +69,7 @@ public class SceneCtrl implements SceneApi {
 
     @PostMapping("saveGamepadEvent")
     @ResponseStatus(HttpStatus.CREATED)
-    public Long saveGamepadEvent(@RequestBody GamepadEventVto gamepadEventVto) {
+    public Long saveGamepadEvent(@RequestBody EventVto gamepadEventVto) {
         return sceneDao.save(gamepadEventVto);
     }
 

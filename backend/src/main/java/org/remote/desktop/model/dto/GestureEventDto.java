@@ -2,24 +2,16 @@ package org.remote.desktop.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
-import org.remote.desktop.model.EKeyEvt;
-
-import java.util.List;
 
 @Value
-@Builder
+@ToString
+@EqualsAndHashCode
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-public class XdoActionDto {
+public class GestureEventDto {
+
     Long id;
-    EKeyEvt keyEvt;
 
-    List<String> keyStrokes;
-
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    EventDto event;
 }

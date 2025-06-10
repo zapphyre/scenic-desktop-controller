@@ -9,7 +9,6 @@ import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.XdoActionVto;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -20,7 +19,7 @@ public interface XdoActionMapper {
 
     XdoActionDto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
 
-    @Mapping(target = "gamepadEventFk", source = "gamepadEvent.id")
+    @Mapping(target = "eventFk", source = "gamepadEvent.id")
     XdoActionVto map(XdoAction entity);
 
     void update(XdoActionDto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);

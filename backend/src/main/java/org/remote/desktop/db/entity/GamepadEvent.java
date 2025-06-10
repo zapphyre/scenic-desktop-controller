@@ -58,14 +58,14 @@ public class GamepadEvent {
                 .filter(q -> q.getGamepadEvent() != null)
                 .forEach(p -> p.setGamepadEvent(this));
 
-        Optional.ofNullable(scene)
-                .map(Scene::getGamepadEvents)
-                .ifPresent(q -> q.add(this));
+//        Optional.ofNullable(scene)
+//                .map(Scene::getGamepadEvents)
+//                .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        scene.getGamepadEvents().remove(this);
+//        scene.getGamepadEvents().remove(this);
         actions.forEach(q -> q.setGamepadEvent(null));
     }
 }

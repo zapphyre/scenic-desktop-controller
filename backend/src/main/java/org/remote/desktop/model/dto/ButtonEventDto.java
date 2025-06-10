@@ -2,24 +2,28 @@ package org.remote.desktop.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import lombok.Value;
-import org.remote.desktop.model.EKeyEvt;
+import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.EMultiplicity;
+import org.remote.desktop.model.Behavioral;
 
 import java.util.List;
+import java.util.Set;
 
 @Value
-@Builder
+@ToString
+@EqualsAndHashCode
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
-public class XdoActionDto {
+public class ButtonEventDto implements Behavioral {
+
     Long id;
-    EKeyEvt keyEvt;
 
-    List<String> keyStrokes;
+    String trigger;
+    boolean longPress;
+    EMultiplicity multiplicity;
+    Set<EButtonAxisMapping> modifiers;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    EventDto event;
 }
