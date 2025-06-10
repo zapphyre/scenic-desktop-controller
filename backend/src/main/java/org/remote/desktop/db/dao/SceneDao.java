@@ -6,7 +6,6 @@ import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
-import org.remote.desktop.db.repository.GamepadEventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
@@ -43,7 +42,6 @@ public class SceneDao {
     private final RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
     private final SceneRepository sceneRepository;
-    private final GamepadEventRepository gamepadEventRepository;
     private final XdoActionRepository xdoActionRepository;
     private final EventRepository eventRepository;
 
@@ -99,7 +97,7 @@ public class SceneDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
-                .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getEventFk(), gamepadEventRepository::findById)));
+                .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getEventFk(), eventRepository::findById)));
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
@@ -144,7 +142,7 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Mono<Long> save(XdoActionVto vto) {
         return Mono.just(vto)
-                .map(xdoActionMapper.map(nullableRepoOp(vto.getEventFk(), gamepadEventRepository::findById)))
+                .map(xdoActionMapper.map(nullableRepoOp(vto.getEventFk(), eventRepository::findById)))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId);
     }
@@ -156,7 +154,7 @@ public class SceneDao {
 
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void removeGamepadEvent(Long id) {
-        gamepadEventRepository.deleteById(id);
+        eventRepository.deleteById(id);
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)

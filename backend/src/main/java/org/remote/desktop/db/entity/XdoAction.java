@@ -25,12 +25,6 @@ public class XdoAction {
     @JoinColumn
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private GamepadEvent gamepadEvent;
-
-    @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private Event event;
 
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)

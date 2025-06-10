@@ -2,7 +2,6 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.Event;
-import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.SceneVto;

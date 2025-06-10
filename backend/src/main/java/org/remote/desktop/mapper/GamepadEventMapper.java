@@ -6,16 +6,12 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.remote.desktop.db.entity.ButtonEvent;
 import org.remote.desktop.db.entity.Event;
-import org.remote.desktop.db.entity.GamepadEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.dto.EventDto;
-import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.vto.EventVto;
-import org.remote.desktop.model.vto.GamepadEventVto;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 

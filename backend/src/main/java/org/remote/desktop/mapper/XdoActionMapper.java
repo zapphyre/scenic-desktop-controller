@@ -4,7 +4,7 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.remote.desktop.db.entity.GamepadEvent;
+import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.XdoActionVto;
@@ -19,7 +19,7 @@ public interface XdoActionMapper {
 
     XdoActionDto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
 
-    @Mapping(target = "eventFk", source = "gamepadEvent.id")
+    @Mapping(target = "eventFk", source = "event.id")
     XdoActionVto map(XdoAction entity);
 
     void update(XdoActionDto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);
@@ -29,17 +29,17 @@ public interface XdoActionMapper {
     }
 
     @Mapping(target = "id", source = "source.id")
-    @Mapping(target = "gamepadEvent", source = "gEvt")
-    void update(@MappingTarget XdoAction target, XdoActionVto source, GamepadEvent gEvt);
+    @Mapping(target = "event", source = "gEvt")
+    void update(@MappingTarget XdoAction target, XdoActionVto source, Event gEvt);
 
-    default Consumer<XdoAction> update(XdoActionVto source, GamepadEvent gEvt) {
+    default Consumer<XdoAction> update(XdoActionVto source, Event gEvt) {
         return q -> update(q, source, gEvt);
     }
 
     @Mapping(target = "id", source = "vto.id")
-    XdoAction map(XdoActionVto vto, GamepadEvent gamepadEvent);
+    XdoAction map(XdoActionVto vto, Event gamepadEvent);
 
-    default Function<XdoActionVto, XdoAction> map(GamepadEvent gamepadEvent) {
+    default Function<XdoActionVto, XdoAction> map(Event gamepadEvent) {
         return q -> map(q, gamepadEvent);
     }
 }

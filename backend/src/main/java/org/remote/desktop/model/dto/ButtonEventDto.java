@@ -3,14 +3,12 @@ package org.remote.desktop.model.dto;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.Value;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EMultiplicity;
 import org.remote.desktop.model.Behavioral;
 
-import java.util.List;
 import java.util.Set;
 
 @Value
@@ -19,6 +17,7 @@ import java.util.Set;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class ButtonEventDto implements Behavioral {
 
+    @EqualsAndHashCode.Exclude
     Long id;
 
     String trigger;

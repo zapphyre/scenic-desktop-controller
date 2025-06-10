@@ -38,9 +38,6 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
     )
     private Set<Scene> inheritsFrom; // Set b/c for some reason (prolly mapstruct context) i had duplicate objects in gamepadEvent/nextScene
 
-//    @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
-//    private List<GamepadEvent> gamepadEvents = new LinkedList<>();
-
     @OneToMany(mappedBy = "scene", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Event> events = new LinkedList<>();
 

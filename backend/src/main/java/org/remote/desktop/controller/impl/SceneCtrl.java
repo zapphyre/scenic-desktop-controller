@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.vto.EventVto;
-import org.remote.desktop.model.vto.GamepadEventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
