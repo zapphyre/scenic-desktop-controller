@@ -80,28 +80,8 @@ onMounted(() => {
       { deep: true, immediate: false }
   );
 
-// Update parent and API when strokes change
-//   watch(
-//       strokes,
-//       async (newStrokes, oldValue) => {
-//         if (_.isEqual(newStrokes, strokes.value)) return;
-//
-//         console.log("strokes.value", strokes.value);
-//         console.log("newStrokes", newStrokes);
-//         console.log("oldValue", oldValue);
-//
-//         console.log('not equa$$$$$$$$$$$$$$$$l');
-//         props.xdoAction.keyStrokes = newStrokes;
-//         await apiClient.put("updateXdoAction", { ...props.xdoAction, keyStrokes: newStrokes });
-//       },
-//       { deep: true, immediate: false }
-//   );
-});;
+});
 
-// const handleFilter = (event: any) => {
-//   filtered.value = event.value;
-//   filterChange();
-// };
 </script>
 
 <template>

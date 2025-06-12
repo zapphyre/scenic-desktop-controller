@@ -6,14 +6,21 @@ import SourceSelect from "./components/source/SourceSelect.vue";
 import Settings from "./components/setting/Settings.vue";
 
 import {ref} from "vue";
+import GestureDef from "@/components/gesture/GestureDef.vue";
 
 const selected = ref(ActionSettings)
 
-const menu = ref([{
-  label: 'Action Settings',
-  icon: 'pi pi-sliders-h',
-  command: () => selected.value = ActionSettings
-},
+const menu = ref([
+  {
+    label: 'Action Settings',
+    icon: 'pi pi-sliders-h',
+    command: () => selected.value = ActionSettings
+  },
+  {
+    label: 'Gesture',
+    icon: 'pi pi-sliders-h',
+    command: () => selected.value = GestureDef
+  },
   {
     label: 'State Control',
     icon: 'pi pi-objects-column',

@@ -6,6 +6,7 @@ import { ref } from "vue";
 const strokes = ref([]); // Initialize as empty array
 const scenes = ref([]);
 const triggers = ref([]);
+const gestures = ref([]);
 let isInitialized = false; // Track if data has been fetched
 
 // Fetch strokes from API (called only once)
@@ -39,10 +40,19 @@ const fetchTriggers = async () => {
     }
 }
 
+const fetchGestures = async () => {
+    try {
+        gestures.value = (await apiClient.get("gestures")).data;
+    } catch (e) {
+        console.error("Failed to fetch gestures:", e);
+    }
+}
+
 // Initialize the data immediately when the module is imported
 await fetchStrokes();
 await fetchScenes();
 await fetchTriggers();
+await fetchGestures();
 
 // Export a function to access the strokes
 export const useStrokesStore = () => {
@@ -58,3 +68,4 @@ export const getStrokes = () => strokes.value;
 export const getScenes = () => scenes.value;
 export const getSceneNameIdList = () => scenes.value.map((s) => ({name: s.name, id: s.id}));
 export const getTriggers = () => triggers.value;
+export const getGestures = () => gestures.value;

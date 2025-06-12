@@ -1,5 +1,5 @@
 declare module '@/api/store' {
-    import {NameId, Scene} from "@/model/gpadOs";
+    import {Gesture, NameId, Scene} from "@/model/gpadOs";
 
     export function useStrokesStore(): {
         strokes: string[];
@@ -10,4 +10,5 @@ declare module '@/api/store' {
     export function getScenes(): Scene[];
     export function getSceneNameIdList(): NameId[];
     export function getTriggers(): string[];
+    export function getGestures(): Gesture[];
 }

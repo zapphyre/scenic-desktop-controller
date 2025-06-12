@@ -8,7 +8,7 @@ import java.util.List;
 
 @Value
 @Builder
-public class Gesture {
+public class Segment {
     List<ELogicalTrigger> triggers;
     List<XdoActionDto> actions;
 }

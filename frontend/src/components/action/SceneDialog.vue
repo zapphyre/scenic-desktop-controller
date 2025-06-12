@@ -66,8 +66,7 @@ const inputColClass = computed(() => `col-${12 - labelColWidth}`);
           <label
               for="name"
               :class="labelColClass"
-              class="font-semibold text-left pr-2"
-          >Name</label>
+              class="font-semibold text-left pr-2">Name</label>
           <div :class="inputColClass" class="p-0">
             <InputText
                 id="name"
@@ -83,8 +82,7 @@ const inputColClass = computed(() => `col-${12 - labelColWidth}`);
           <label
               for="wname"
               :class="labelColClass"
-              class="font-semibold text-left pr-2"
-          >Window Name</label>
+              class="font-semibold text-left pr-2">Window Name</label>
           <div :class="inputColClass" class="p-0">
             <InputText
                 id="wname"
@@ -100,12 +98,11 @@ const inputColClass = computed(() => `col-${12 - labelColWidth}`);
           <label
               for="inherits"
               :class="labelColClass"
-              class="font-semibold text-left pr-2"
-          >Inherits From</label>
+              class="font-semibold text-left pr-2">Inherits From</label>
           <div :class="inputColClass" class="p-0">
             <Select
                 id="inherits"
-                v-model="props.scene.inheritsNameFk"
+                v-model="props.scene.inheritsIdFk"
                 :options="props.inheritsAvail"
                 placeholder="Inherits from Scene"
                 class="w-full"
@@ -118,8 +115,7 @@ const inputColClass = computed(() => `col-${12 - labelColWidth}`);
           <label
               for="leftAxis"
               :class="labelColClass"
-              class="font-semibold text-left pr-2"
-          >Left Axis</label>
+              class="font-semibold text-left pr-2">Left Axis</label>
           <div :class="inputColClass" class="p-0">
             <Select
                 id="leftAxis"
@@ -135,8 +131,7 @@ const inputColClass = computed(() => `col-${12 - labelColWidth}`);
           <label
               for="rightAxis"
               :class="labelColClass"
-              class="font-semibold text-left pr-2"
-          >Right Axis</label>
+              class="font-semibold text-left pr-2">Right Axis</label>
           <div :class="inputColClass" class="p-0">
             <Select
                 id="rightAxis"

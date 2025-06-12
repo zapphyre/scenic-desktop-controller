@@ -99,6 +99,13 @@
             <artifactId>trie</artifactId>
             <version>${trie.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.zapphyre</groupId>
+            <artifactId>polar-coord-matcher</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>org.winder</groupId>
             <artifactId>api</artifactId>

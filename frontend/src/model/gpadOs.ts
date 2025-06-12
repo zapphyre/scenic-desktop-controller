@@ -27,6 +27,12 @@ export interface GestureEventVto {
     id: number | null;
 }
 
+export interface Gesture {
+    id: number | undefined;
+    name: string;
+    paths: string[];
+}
+
 export interface ButtonEventVto {
     id: number | null;
     trigger: string;

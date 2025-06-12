@@ -4,6 +4,7 @@ package org.remote.desktop.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,5 +27,5 @@ public class Gesture {
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "gesture_path", joinColumns = @JoinColumn(name = "gesture_id"))
     @Column(name = "path", nullable = false)
-    private List<String> path;
+    private List<String> paths = new ArrayList<>();
 }

@@ -43,7 +43,7 @@ public class Event {
 
     @PreUpdate
     @PrePersist
-    public synchronized void relinkEntities() {
+    public void relinkEntities() {
         Optional.ofNullable(actions).orElse(List.of())
                 .forEach(p -> p.setEvent(this));
 
