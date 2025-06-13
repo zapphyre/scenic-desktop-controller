@@ -30,7 +30,13 @@ export interface GestureEventVto {
 export interface Gesture {
     id: number | undefined;
     name: string;
-    paths: string[];
+    paths: GesturePath[]
+}
+
+export interface GesturePath {
+    id: number | undefined;
+    path: string;
+    edit: boolean;
 }
 
 export interface ButtonEventVto {

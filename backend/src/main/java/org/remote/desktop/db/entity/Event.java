@@ -61,8 +61,8 @@ public class Event {
     @PreRemove
     public void detachEntity() {
         scene.getEvents().remove(this);
-        actions.forEach(q -> q.setEvent(null));
-        gestureEvent.setEvent(null);
-        buttonEvent.setEvent(null);
+        Optional.ofNullable(actions).orElse(List.of()).forEach(q -> q.setEvent(null));
+        Optional.ofNullable(gestureEvent).ifPresent(q -> q.setEvent(null));
+        Optional.ofNullable(buttonEvent).ifPresent(q -> q.setEvent(null));
     }
 }

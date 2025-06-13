@@ -1,11 +1,8 @@
 package org.remote.desktop.db.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Data
@@ -15,7 +12,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Gesture {
+public class GesturePath {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,23 +21,23 @@ public class Gesture {
 
     @ToString.Include
     @EqualsAndHashCode.Include
-    private String name;
+    private String path;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "gesture", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn
+    @ManyToOne(cascade = CascadeType.DETACH)
     @EqualsAndHashCode.Include
-    private List<GesturePath> paths = new ArrayList<>();
+    private Gesture gesture;
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(paths).orElseGet(ArrayList::new)
-                .forEach(q -> q.setGesture(this));
+        Optional.ofNullable(gesture)
+                .ifPresent(q -> q.getPaths().add(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(paths).orElseGet(ArrayList::new)
-                .forEach(path -> path.setGesture(null));
+        Optional.ofNullable(gesture)
+                .ifPresent(q -> q.getPaths().remove(this));
     }
 }

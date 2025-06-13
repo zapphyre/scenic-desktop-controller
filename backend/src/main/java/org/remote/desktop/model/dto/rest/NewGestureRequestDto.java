@@ -1,12 +1,16 @@
 package org.remote.desktop.model.dto.rest;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
-@RequiredArgsConstructor
+@Builder
+@Jacksonized
 public class NewGestureRequestDto {
 
     long id;
-    EStick stick;
+
+    @Builder.Default
+    EStick stick = EStick.LEFT;
 }

@@ -24,8 +24,7 @@ export class HeartbeatService {
         try {
             this.eventSource = new EventSource(HeartbeatService.HB_ENDPOINT);
         } catch (e) {
-            this.scheduleRetry();
-            return;
+            return this.scheduleRetry();
         }
 
         this.eventSource.onmessage = (event: MessageEvent) => {

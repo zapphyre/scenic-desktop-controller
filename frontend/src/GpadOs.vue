@@ -18,7 +18,7 @@ const menu = ref([
   },
   {
     label: 'Gesture',
-    icon: 'pi pi-sliders-h',
+    icon: 'pi pi-bullseye',
     command: () => selected.value = GestureDef
   },
   {

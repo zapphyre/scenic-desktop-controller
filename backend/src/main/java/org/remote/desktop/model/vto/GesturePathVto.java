@@ -4,16 +4,11 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.List;
-
 @Value
 @Builder
 @Jacksonized
-public class GestureVto {
+public class GesturePathVto {
 
-    Long id;
-
-    String name;
-    List<GesturePathVto> paths;
-
+    long id;
+    String path;
 }
