@@ -5,7 +5,7 @@ import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
 import {actionValues, XdoAction} from "@/model/gpadOs";
 import {onMounted, ref, watch} from "vue";
-import {getStrokes, useStrokesStore} from "@/api/store";
+import {getStrokes, useStrokesStore} from "@/api/dataStore";
 import apiClient from '@/api';
 import _ from "lodash";
 
@@ -85,51 +85,42 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid grid-nogutter">
-    <div class="flex flex-wrap justify-center">
-      <div class="flex items-center">
-        <div class="col">
-          <Select
-              v-model="props.xdoAction.keyEvt"
-              :options="actionValues"
-              placeholder="XdoActionType"
-              class="input-item"
-              :disabled="disabled"
-              @change="evtTypeChanged"
+  <div class="flex justify-content-center align-items-center gap-2">
+    <Select
+        v-model="props.xdoAction.keyEvt"
+        :options="actionValues"
+        placeholder="XdoActionType"
+        class="w-4 input-item"
+        :disabled="disabled"
+        @change="evtTypeChanged"
+    />
+    <MultiSelect
+        :disabled="disabled"
+        v-model="strokes"
+        :options="filteredStrokes"
+        placeholder="Select key strokes"
+        class="w-4 input-item"
+        @change="changed"
+    >
+      <template #header>
+        <div class="header">Available Key Strokes</div>
+        <div>
+          <InputText
+              name="keystrokesSearch"
+              v-model="filtered"
+              @input="filterChange"
+              @keyup.enter="add"
+              placeholder="Search or Create"
           />
         </div>
-        <div class="col">
-          <MultiSelect
-              :disabled="disabled"
-              v-model="strokes"
-              :options="filteredStrokes"
-              placeholder="Select key strokes"
-              class="w-full input-item"
-              @change="changed"
-          >
-            <template #header>
-              <div class="header">Available Key Strokes</div>
-              <div>
-                <InputText
-                    name="keystrokesSearch"
-                    v-model="filtered"
-                    @input="filterChange"
-                    @keyup.enter="add"
-                    placeholder="Search or Create"
-                />
-              </div>
-            </template>
-          </MultiSelect>
-        </div>
-        <div class="col">
-          <Button
-              :disabled="disabled"
-              @click="() => emit('remove', props.xdoAction)"
-              icon="pi pi-trash"
-          />
-        </div>
-      </div>
-    </div>
+      </template>
+    </MultiSelect>
+    <Button
+        :disabled="disabled"
+        @click="() => emit('remove', props.xdoAction)"
+        icon="pi pi-trash"
+        class="p-button-danger p-button-sm"
+    />
   </div>
 </template>
 

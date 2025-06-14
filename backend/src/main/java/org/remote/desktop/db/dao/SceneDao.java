@@ -9,13 +9,14 @@ import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
-import org.remote.desktop.mapper.GamepadEventMapper;
+import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.util.FluxUtil;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +28,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static java.util.stream.Collectors.*;
+import static org.remote.desktop.util.FluxUtil.*;
 
 @Slf4j
 @Component
@@ -47,7 +51,7 @@ public class SceneDao {
 
     private final SceneMapper sceneMapper;
     private final XdoActionMapper xdoActionMapper;
-    private final GamepadEventMapper gamepadEventMapper;
+    private final EventMapper eventMapper;
 
 
     @Cacheable(SCENE_CACHE_NAME)
@@ -80,15 +84,11 @@ public class SceneDao {
     public List<SceneVto> getAllSceneVtos() {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
-                .map(q -> {
-                    List<EventVto> inherents = sceneRepository.findAllById(q.getInheritsIdFk()).stream()
-                            .map(scraper::scrapeActionsRecursive)
-                            .map(gamepadEventMapper::map)
-                            .flatMap(Collection::stream)
-                            .toList();
-
-                    return q.withInheritedGamepadEvents(inherents);
-                })
+                .map(q -> sceneRepository.findAllById(q.getInheritsIdFk()).stream()
+                        .map(scraper::scrapeActionsRecursive)
+                        .map(eventMapper::map)
+                        .flatMap(Collection::stream)
+                        .collect(collectingAndThen(toList(), q::withInheritedGamepadEvents)))
                 .toList();
     }
 
@@ -97,7 +97,7 @@ public class SceneDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
-                .ifPresent(xdoActionMapper.update(vto, nullableRepoOp(vto.getEventFk(), eventRepository::findById)));
+                .ifPresent(xdoActionMapper.update(vto, optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
@@ -105,9 +105,9 @@ public class SceneDao {
         Optional.of(vto)
                 .map(EventVto::getId)
                 .flatMap(eventRepository::findById)
-                .ifPresent(gamepadEventMapper.update(vto,
-                        nullableRepoOp(vto.getParentFk(), sceneRepository::findById),
-                        nullableRepoOp(vto.getNextSceneFk(), sceneRepository::findById)
+                .ifPresent(eventMapper.update(vto,
+                        optToNull(vto.getParentFk(), sceneRepository::findById),
+                        optToNull(vto.getNextSceneFk(), sceneRepository::findById)
                 ));
     }
 
@@ -131,8 +131,8 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Long save(EventVto vto) {
         return Optional.of(vto)
-                .map(gamepadEventMapper.map(nullableRepoOp(vto.getParentFk(), sceneRepository::findById),
-                        nullableRepoOp(vto.getNextSceneFk(), sceneRepository::findById))
+                .map(eventMapper.map(optToNull(vto.getParentFk(), sceneRepository::findById),
+                        optToNull(vto.getNextSceneFk(), sceneRepository::findById))
                 )
                 .map(eventRepository::save)
                 .map(Event::getId)
@@ -142,7 +142,7 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Mono<Long> save(XdoActionVto vto) {
         return Mono.just(vto)
-                .map(xdoActionMapper.map(nullableRepoOp(vto.getEventFk(), eventRepository::findById)))
+                .map(xdoActionMapper.map(optToNull(vto.getEventFk(), eventRepository::findById)))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId);
     }
@@ -160,12 +160,6 @@ public class SceneDao {
     @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void removeScene(Long name) {
         sceneRepository.deleteById(name);
-    }
-
-    static <T, R> R nullableRepoOp(T id, Function<T, Optional<R>> function) {
-        return Optional.ofNullable(id)
-                .flatMap(function)
-                .orElse(null);
     }
 
     public List<String> getAllCurrentXdoStrokes() {
@@ -187,7 +181,7 @@ public class SceneDao {
                 .orElseThrow();
 
         return scraper.scrapeActionsRecursive(scene).stream()
-                .map(gamepadEventMapper::map)
+                .map(eventMapper::map)
                 .toList();
     }
 }

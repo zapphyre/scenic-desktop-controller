@@ -1,28 +1,18 @@
 <script setup lang="ts">
 
 import {onMounted} from "vue";
-import {getGestures} from "@/api/store";
+import {getGestures, addGesture} from "@/api/dataStore";
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import apiClient from '@/api';
 import type {Gesture, GesturePath} from "@/model/gpadOs";
 
 const gestures = getGestures();
-// gestures.forEach(gesture => {
-//   gesture.uiPaths = [];
-//   gesture.paths.forEach((path: string) => {
-//     gesture.uiPaths.push({path} as GesturePath);
-//   })
-// })
-
-console.log('gestures', gestures);
-// State for gestures
-// const gestures = ref([]);
 
 // Add a new gesture
-const addGesture = async () => {
+const addNewGesture = async () => {
   const id = (await apiClient.post("gestures", {})).data;
-  gestures.push({id, paths: [], name: "", uiPaths: []} as Gesture);
+  addGesture({id, paths: [], name: "", uiPaths: []} as Gesture);
 };
 
 // Add a path to a specific gesture
@@ -64,7 +54,7 @@ const removePath = async (gesture: Gesture, uiPath: GesturePath, idx: number) =>
 };
 
 const removeGesture = async (gesture: Gesture) => {
-  await apiClient.delete(`gestures/delete-gesture/${gesture.id}`)
+  await apiClient.delete(`gestures/${gesture.id}`)
   gestures.splice(gestures.indexOf(gesture), 1);
 }
 // Edit a path (toggle receiving state)
@@ -80,10 +70,13 @@ onMounted(() => {
 <template>
   <div class="p-4">
     <!-- Add Gesture Button -->
-    <div class="mb-4 flex justify-content-center">
-      <Button label="Add Gesture" icon="pi pi-plus" @click="addGesture"/>
+    <div class="grid">
+      <div class="col-12">
+        <div class="mb-4 flex justify-content-center">
+          <Button label="Add Gesture" icon="pi pi-plus" @click="addNewGesture"/>
+        </div>
+      </div>
     </div>
-
     <!-- Gesture Grid -->
     <div class="grid" v-for="(gesture, index) in gestures" :key="index">
       <div class="col-12">

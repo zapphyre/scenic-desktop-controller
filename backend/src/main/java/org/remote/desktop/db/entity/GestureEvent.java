@@ -5,19 +5,19 @@ import lombok.*;
 
 import java.util.Optional;
 
+@With
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode
 public class GestureEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ToString.Include
-    @EqualsAndHashCode.Include
     private Long id;
 
     @JoinColumn
@@ -29,6 +29,7 @@ public class GestureEvent {
     private Gesture rightStickGesture;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
     private Event event;
 
     @PreUpdate
@@ -40,6 +41,6 @@ public class GestureEvent {
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(event).ifPresent(q -> q.setScene(null));
+        Optional.ofNullable(event).ifPresent(q -> q.setGestureEvent(null));
     }
 }

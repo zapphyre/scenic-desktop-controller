@@ -8,7 +8,7 @@ import {
   ButtonEventVto,
   buttonValues,
   EKeyEvt,
-  EventVto,
+  EventVto, Gesture,
   GestureEventVto,
   multiplicityValues,
   NameId,
@@ -17,8 +17,12 @@ import {
 import XdoActionSection from "@/components/action/XdoActionSection.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {getSceneNameIdList, getTriggers} from "@/api/store";
+import {getGestures, getGesturesNameIdList, getSceneNameIdList, getTriggers} from "@/api/dataStore";
 import {onMounted, ref} from "vue";
+
+const gestures = getGesturesNameIdList();
+
+console.log('gestures', gestures);
 
 const forcedAvailableRef = ref<NameId[]>();
 
@@ -52,6 +56,25 @@ const change = async () => {
   await apiClient.put("updateGamepadEvent", props.event);
 }
 
+const addNewGesture = async (event: EventVto) => {
+  const id = (await apiClient.post(`event/${event.id}/gesture`)).data;
+  const gestEvt = {id} as GestureEventVto;
+
+  event.gestureEvent = gestEvt;
+}
+
+const removeGestureFromEvent = async (event: EventVto) => {
+  await apiClient.delete(`event/gesture/${event.gestureEvent?.id}`);
+
+  event.gestureEvent = undefined;
+}
+
+const gestureChange = async () => {
+  await apiClient.put(`event/gesture`, props.event.gestureEvent);
+
+
+}
+
 const emit = defineEmits<{
   removeButtonEvt: [buttonEvent: ButtonEventVto],
   removeGestureEvt: [gestureEvent: GestureEventVto]
@@ -59,92 +82,141 @@ const emit = defineEmits<{
 
 onMounted(() => {
   forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
-  forcedAvailableRef.value.unshift({id: undefined, name: "[unset]"});
 })
 </script>
 
 <template>
-  <hr/>
+  <hr />
 
-  <div class="grid nested-grid">
-    <div class="card flex flex-wrap justify-center gap-4">
-      <div class="flex items-center gap-2">
-
-        <div class="col-6">
-          <div class="col-12" style="width: 100%">
-            <div class="grid" v-if="props.event.buttonEvent">
-              <div class="col-1">
-                <Button :disabled="disabled" @click="() => emit('removeButtonEvt', props.event.buttonEvent!!)" icon="pi pi-trash"/>
-              </div>
-              <div class="col-4">
+  <div class="grid w-full">
+    <div class="card p-3 w-full">
+      <div class="grid">
+        <!-- Left Section -->
+        <div class="col-6" v-if="props.event.buttonEvent">
+          <div class="flex flex-column gap-3">
+            <!-- First Row: Button + 3 Selects -->
+            <div class="flex align-items-center gap-2">
+              <Button
+                  :disabled="disabled"
+                  class="p-button-danger p-button-sm"
+                  icon="pi pi-trash"
+                  @click="() => emit('removeButtonEvt', props.event.buttonEvent!!)"
+              />
+              <div class="flex justify-content-center gap-2 flex-grow-1">
                 <Select
                     v-model="props.event.buttonEvent.trigger"
                     :options="getTriggers()"
                     placeholder="Trigger"
-                    class="input-item"
+                    class="w-3 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
-              </div>
-              <div class="col-4">
                 <Select
                     v-model="props.event.buttonEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
-                    class="input-item"
+                    class="w-3 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
-              </div>
-              <div class="col-3">
                 <MultiSelect
                     v-model="props.event.buttonEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
-                    class="input-item"
+                    class="w-3 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
               </div>
+            </div>
 
-              <div class="col-5">
-                <div class="flex flex-wrap justify-content-end gap-5">
-                  <div class="flex align-items-end gap-2">
-                    <label for="longPress">Long Press</label>
-                    <Checkbox :disabled="disabled" name="longPress" v-model="props.event.buttonEvent.longPress" binary
-                              @change="change"
-                              label="Long Press"/>
-                  </div>
-                </div>
+            <!-- Second Row: Checkbox + Select -->
+            <div class="flex justify-content-center align-items-center gap-2">
+              <div class="flex align-items-center gap-2">
+                <label for="longPress">Long Press</label>
+                <Checkbox
+                    :disabled="disabled"
+                    name="longPress"
+                    v-model="props.event.buttonEvent.longPress"
+                    binary
+                    @change="change"
+                />
               </div>
+              <Select
+                  v-model="props.event.nextSceneFk"
+                  :options="forcedAvailableRef"
+                  option-value="id"
+                  option-label="name"
+                  placeholder="Forced next scene"
+                  class="w-6 input-item"
+                  @change="change"
+                  :disabled="disabled"
+              />
+            </div>
 
-              <div class="col-7">
-                <div class="flex justify-content-center align-items-center justify-center gap-4">
+            <!-- Third Row: Button + Dynamic Select Rows -->
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center gap-2">
+                <Button
+                    v-if="!props.event.gestureEvent"
+                    class="p-button-success p-button-sm"
+                    icon="pi pi-plus"
+                    @click="addNewGesture(props.event)"
+                />
+                <Button
+                    v-if="props.event.gestureEvent"
+                    class="p-button-danger p-button-sm"
+                    icon="pi pi-trash"
+                    @click="removeGestureFromEvent(props.event)"
+                />
+                <div
+                    v-if="props.event.gestureEvent"
+                    class="flex justify-content-center align-items-center gap-2 flex-grow-1"
+                >
                   <Select
-                      v-model="props.event.nextSceneFk"
-                      :options="forcedAvailableRef"
+                      v-model="props.event.gestureEvent.leftStickGestureFk"
+                      :options="gestures"
                       option-value="id"
                       option-label="name"
-                      placeholder="Forced next scene"
-                      class="input-item"
-                      @change="change"
-                      :disabled="disabled"
+                      placeholder="Left Stick"
+                      class="w-3 input-item"
+                      @change="gestureChange"
+                      show-clear
+                  />
+                  <Select
+                      v-model="props.event.gestureEvent.rightStickGestureFk"
+                      :options="gestures"
+                      option-value="id"
+                      option-label="name"
+                      placeholder="Right Stick"
+                      class="w-3 input-item"
+                      @change="gestureChange"
+                      show-clear
                   />
                 </div>
               </div>
-
             </div>
           </div>
         </div>
 
-        <div class="col-6" style="min-width: 552px">
-          <XdoActionSection v-for="act in props.event.actions"
-                            :xdo-action="act"
-                            :disabled="disabled"
-                            @addKeyStroke="q => act?.keyStrokes?.push(q)"
-                            @remove="removeXdoAction"/>
-          <div class="flex justify-content-center align-items-center justify-center">
-            <Button :disabled="disabled" @click="addNewAction">Add Action</Button>
+        <!-- Right Section -->
+        <div class="col-6">
+          <div class="flex flex-column gap-2 align-items-center">
+            <XdoActionSection
+                v-for="act in props.event.actions"
+                :key="act.id"
+                :xdo-action="act"
+                :disabled="disabled"
+                @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
+                @remove="removeXdoAction"
+            />
+            <div class="flex justify-content-center">
+              <Button
+                  :disabled="disabled"
+                  label="Add Action"
+                  @click="addNewAction"
+              />
+            </div>
           </div>
         </div>
       </div>

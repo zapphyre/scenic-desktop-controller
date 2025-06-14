@@ -14,4 +14,8 @@ public class GestureEventDto {
 
     Long id;
 
+    GestureDto leftStickGesture;
+    GestureDto rightStickGesture;
+
+//    EventDto event;
 }

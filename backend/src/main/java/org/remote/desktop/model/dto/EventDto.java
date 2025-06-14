@@ -14,7 +14,6 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class EventDto {
 
-    @EqualsAndHashCode.Exclude
     Long id;
 
     GestureEventDto gestureEvent;
@@ -22,10 +21,8 @@ public class EventDto {
 
     SceneDto scene;
     @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     SceneDto nextScene;
 
     @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     List<XdoActionDto> actions;
 }

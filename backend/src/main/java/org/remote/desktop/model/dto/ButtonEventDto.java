@@ -17,7 +17,6 @@ import java.util.Set;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class ButtonEventDto implements Behavioral {
 
-    @EqualsAndHashCode.Exclude
     Long id;
 
     String trigger;
@@ -25,4 +24,5 @@ public class ButtonEventDto implements Behavioral {
     EMultiplicity multiplicity;
     Set<EButtonAxisMapping> modifiers;
 
+//    EventDto event; //makes mapstruct stack overflow
 }

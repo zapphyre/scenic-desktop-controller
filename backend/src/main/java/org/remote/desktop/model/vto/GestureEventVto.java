@@ -10,4 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 public class GestureEventVto {
 
     Long id;
+
+    Long leftStickGestureFk;
+    Long rightStickGestureFk;
 }

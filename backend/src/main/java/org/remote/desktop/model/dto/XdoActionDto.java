@@ -20,6 +20,5 @@ public class XdoActionDto {
     List<String> keyStrokes;
 
     @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     EventDto event;
 }

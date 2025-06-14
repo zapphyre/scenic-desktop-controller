@@ -1,25 +1,21 @@
 package org.remote.desktop.mapper;
 
-import org.mapstruct.Context;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.remote.desktop.db.entity.ButtonEvent;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.db.entity.GestureEvent;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.vto.EventVto;
+import org.remote.desktop.model.vto.GestureEventVto;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Mapper(componentModel = "spring", uses = XdoActionMapper.class)
-public interface GamepadEventMapper {
-
-    @Mapping(target = "multiplicity", defaultValue = "CLICK")
-    ButtonEventDto map(ButtonEvent entity);
+@Mapper(componentModel = "spring", uses = {GestureEventMapper.class, ButtonEventMapper.class, XdoActionMapper.class})
+public interface EventMapper {
 
     EventDto map(Event event, @Context CycleAvoidingMappingContext ctx);
 
@@ -33,6 +29,8 @@ public interface GamepadEventMapper {
         return q -> update(src, q, new CycleAvoidingMappingContext());
     }
 
+    // mapstruct can not pick up mapping for this field by itself, it has to be referenced by name `mapGestureEvent`
+    @Mapping(target = "gestureEvent", source = "gestureEvent", qualifiedByName = "mapGestureEvent")
     @Mapping(target = "nextSceneFk", source = "nextScene.id")
     @Mapping(target = "parentFk", source = "scene.id")
     EventVto map(Event evt);

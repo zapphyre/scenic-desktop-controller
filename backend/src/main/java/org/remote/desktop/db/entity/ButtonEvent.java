@@ -51,6 +51,6 @@ public class ButtonEvent {
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(event).ifPresent(q -> q.setScene(null));
+        Optional.ofNullable(event).ifPresent(q -> q.setButtonEvent(null));
     }
 }

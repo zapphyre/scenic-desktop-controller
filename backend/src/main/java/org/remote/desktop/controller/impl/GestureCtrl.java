@@ -39,7 +39,7 @@ public class GestureCtrl {
         gestureService.deletePath(id);
     }
 
-    @DeleteMapping("delete-gesture/{id}")
+    @DeleteMapping("{id}")
     public void deleteGestureById(@PathVariable("id") Long id) {
         gestureService.deleteGesture(id);
     }

@@ -5,6 +5,7 @@ import org.asmus.model.PolarCoords;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -33,7 +34,17 @@ public class FluxUtil {
         };
     }
 
-    public  <T> BinaryOperator<T> laterMerger() {
+    public <T> BinaryOperator<T> laterMerger() {
         return (q, p) -> p;
+    }
+
+    public <T, R> R optToNull(T id, Function<T, Optional<R>> function) {
+        return Optional.ofNullable(id)
+                .flatMap(function)
+                .orElse(null);
+    }
+
+    public <T> Function<Optional<T>, T> orNull() {
+        return opt -> opt.orElse(null);
     }
 }

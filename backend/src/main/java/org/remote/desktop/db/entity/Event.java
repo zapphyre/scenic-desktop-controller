@@ -24,10 +24,12 @@ public class Event {
 
     @JoinColumn
     @ManyToOne(cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
     private GestureEvent gestureEvent;
 
     @JoinColumn
     @ManyToOne(cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
     private ButtonEvent buttonEvent;
 
     @JoinColumn

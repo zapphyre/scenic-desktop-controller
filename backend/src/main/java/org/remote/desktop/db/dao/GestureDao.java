@@ -9,12 +9,15 @@ import org.remote.desktop.db.repository.GestureRepository;
 import org.remote.desktop.mapper.GestureMapper;
 import org.remote.desktop.model.vto.GesturePathVto;
 import org.remote.desktop.model.vto.GestureVto;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static org.remote.desktop.db.dao.SceneDao.*;
 
 @Slf4j
 @Component
@@ -39,6 +42,7 @@ public class GestureDao {
                 .orElseThrow();
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Function<String, GesturePathVto> addGesturePath(long gestureId) {
         return path -> gestureRepository.findById(gestureId)
                 .map(q -> GesturePath.builder()
@@ -51,6 +55,7 @@ public class GestureDao {
                 .orElseThrow();
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Long createNew() {
         return Optional.of(new Gesture())
                 .map(gestureRepository::save)
@@ -58,6 +63,7 @@ public class GestureDao {
                 .orElseThrow();
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void updatePathOn(Long id, String newPath) {
         gesturePathRepository.findById(id)
                 .ifPresent(q -> q.setPath(newPath));
@@ -72,10 +78,12 @@ public class GestureDao {
                 .ifPresent(q -> q.setName(name));
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void deletePath(Long id) {
         gesturePathRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void deleteGesture(Long id) {
         gestureRepository.deleteById(id);
     }

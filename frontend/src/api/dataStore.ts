@@ -1,12 +1,18 @@
 import apiClient from "@/api";
-// import Scene from "@/GpadOs.vue";
+import type {Gesture, NameId, Scene} from "@/model/gpadOs";
 import { ref } from "vue";
+
+const unset = {id: undefined, name: "[unset]"};
 
 // Singleton state
 const strokes = ref([]); // Initialize as empty array
-const scenes = ref([]);
+const scenes = ref<Scene[]>([]);
 const triggers = ref([]);
-const gestures = ref([]);
+const gestures = ref<Gesture[]>([]);
+
+const gesturesNameId = ref<NameId[]>([]);
+const sceneNameIdList = ref<NameId[]>([]);
+
 let isInitialized = false; // Track if data has been fetched
 
 // Fetch strokes from API (called only once)
@@ -66,6 +72,18 @@ export const useStrokesStore = () => {
 // Optional: Export strokes directly if you just want the array
 export const getStrokes = () => strokes.value;
 export const getScenes = () => scenes.value;
-export const getSceneNameIdList = () => scenes.value.map((s) => ({name: s.name, id: s.id}));
+export const getSceneNameIdList = () => !sceneNameIdList.value.length ?
+    scenes.value.map((s) => ({name: s.name, id: s.id})) :
+    sceneNameIdList.value;
+
 export const getTriggers = () => triggers.value;
 export const getGestures = () => gestures.value;
+
+export const getGesturesNameIdList = () => !gesturesNameId.value.length ?
+    gesturesNameId.value = gestures.value.map((s) => ({name: s.name, id: s.id})) :
+    gesturesNameId.value;
+
+export const addGesture = (g: Gesture) => {
+    gestures.value.push(g);
+    gesturesNameId.value.push({name: g.name, id: g.id});
+}

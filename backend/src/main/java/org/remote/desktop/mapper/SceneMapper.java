@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = GamepadEventMapper.class)
+@Mapper(componentModel = "spring", uses = EventMapper.class)
 public interface SceneMapper {
 
     RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();

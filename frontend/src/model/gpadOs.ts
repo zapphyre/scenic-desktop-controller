@@ -24,7 +24,9 @@ export interface EventVto {
 }
 
 export interface GestureEventVto {
-    id: number | null;
+    id: number | undefined;
+    leftStickGestureFk?: number;
+    rightStickGestureFk?: number;
 }
 
 export interface Gesture {

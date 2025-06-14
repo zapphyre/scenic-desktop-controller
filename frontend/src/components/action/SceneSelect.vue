@@ -4,7 +4,7 @@ import Button from 'primevue/button';
 import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
-import {getSceneNameIdList, getScenes, getTriggers} from "@/api/store";
+import {getSceneNameIdList, getScenes, getTriggers} from "@/api/dataStore";
 import {axisValues, ButtonEventVto, EAxisEvent, EventVto, GPadEvent, NameId, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
