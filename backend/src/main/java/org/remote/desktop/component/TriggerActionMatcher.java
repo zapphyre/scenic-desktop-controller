@@ -11,10 +11,7 @@ import org.remote.desktop.service.XdoSceneService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -31,7 +28,7 @@ public class TriggerActionMatcher {
 
             return Optional.ofNullable(nextSceneXdoAction)
                     .map(NextSceneXdoAction::getActions)
-                    .orElseGet(ArrayList::new).stream()
+                    .orElseGet(Collections::emptyList).stream()
                     .map(mapper.mapEvent(button, nextSceneXdoAction))
                     .toList();
         };
@@ -39,14 +36,11 @@ public class TriggerActionMatcher {
 
     // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier
     // that was isLong = false --which will match here the same way as unmodified release click would
-    NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef q) {
-        ActionMatch actionMatch = buttonPressMapper.map(q);
-
-        Map<ActionMatch, NextSceneXdoAction> actionMap = xdoSceneService.isSceneForced() ?
-                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
-                gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
-
-        return actionMap.get(actionMatch);
+    NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef button) {
+        return Optional.of(button)
+                .map(buttonPressMapper::map)
+                .map(actionMapForCurrentScene(xdoSceneService.isSceneForced())::get)
+                .orElse(null);
     }
 
     Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
