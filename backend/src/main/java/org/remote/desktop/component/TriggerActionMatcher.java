@@ -32,11 +32,13 @@ public class TriggerActionMatcher {
             return Optional.ofNullable(nextSceneXdoAction)
                     .map(NextSceneXdoAction::getActions)
                     .orElseGet(ArrayList::new).stream()
-                    .map(q -> mapper.mapEvent(button, nextSceneXdoAction, q))
+                    .map(mapper.mapEvent(button, nextSceneXdoAction))
                     .toList();
         };
     }
 
+    // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier
+    // that was isLong = false --which will match here the same way as unmodified release click would
     NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef q) {
         ActionMatch actionMatch = buttonPressMapper.map(q);
 
@@ -44,12 +46,13 @@ public class TriggerActionMatcher {
                 gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
                 gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
 
-        return getActionsForButtons(actionMatch).apply(actionMap);
+        return actionMap.get(actionMatch);
     }
 
-    // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier
-    // that was isLong = false --which will match here the same way as unmodified release click would
-    Function<Map<ActionMatch, NextSceneXdoAction>, NextSceneXdoAction> getActionsForButtons(ActionMatch def) {
-        return q -> q.get(def);
+    Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
+        return forced ?
+                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
+                gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
     }
+
 }

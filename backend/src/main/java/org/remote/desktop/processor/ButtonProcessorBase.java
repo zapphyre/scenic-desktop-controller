@@ -56,10 +56,10 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     }
 
     @Override
-    public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
-        return new  XdoCommandEvent(this,
-                xdoAction.getKeyEvt(),
-                xdoAction.getKeyStrokes(),
+    public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
+        return q -> new  XdoCommandEvent(this,
+                q.getKeyEvt(),
+                q.getKeyStrokes(),
                 sceneXdoAction.getNextScene(),
                 def.getTrigger(),
                 sceneXdoAction.getEventSourceScene().getWindowName(),

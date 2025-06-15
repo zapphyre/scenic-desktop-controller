@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.asmus.model.EButtonAxisMapping.LEFT_STICK_X;
@@ -44,9 +45,9 @@ public class ArrowsAdapter extends ButtonProcessorBase {
     }
 
     @Override
-    public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
-        return sceneXdoAction.getEventSourceScene().getName().equals(settingsDao.getSettings().getTextInputSceneName()) ?
+    public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
+        return q -> sceneXdoAction.getEventSourceScene().getName().equals(settingsDao.getSettings().getTextInputSceneName()) ?
                 new PredictionControlEvent(this, null, def.getLogicalEventType(), def.getTrigger(), def.getModifiers(), def.isLongPress()) :
-                super.mapEvent(def, sceneXdoAction, xdoAction);
+                super.mapEvent(def, sceneXdoAction).apply(q);
     }
 }

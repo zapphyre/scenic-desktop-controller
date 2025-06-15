@@ -25,6 +25,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -74,21 +75,18 @@ public class StickProcessor {
 
         GestureSupplier gs = motionMapper.pathComposeqa(polarCoords.map(polarCoordsMapper::map));
 
-        return gs.gestureCb(o -> {
-            log.info("Gesture cb {}", o);
-            stringMatcher.match(o).stream()
-                    .filter(q -> q.getMatchPercentage() >= 80d)
-                    .peek(q -> log.info("Gesture cb {}", q))
-                    .map(MatchResult::getKey)
-                    .map(buttonPressMapper::map)
-                    .forEach(buttonAdapter.actOnButtonPress());
-        });
+        return gs.gestureCb(o -> stringMatcher.match(o).stream()
+                .filter(q -> q.getMatchPercentage() >= 80d)
+                .peek(q -> log.info("Match: {}", q))
+                .map(MatchResult::getKey)
+                .map(buttonPressMapper::map)
+                .forEach(buttonAdapter.actOnButtonPress()));
     }
 
     List<MatchDef<ButtonEventDto>> setupMatcherOn(Function<? super GestureEventDto, GestureDto> stickSpecifier, String sceneName) {
         return Optional.ofNullable(sceneDao.getScene(sceneName))
                 .map(SceneDto::getEvents)
-                .orElseGet(ArrayList::new).stream()
+                .orElseGet(Collections::emptyList).stream()
                 .flatMap(q -> Optional.ofNullable(q)
                         .map(EventDto::getGestureEvent)
                         .map(stickSpecifier)

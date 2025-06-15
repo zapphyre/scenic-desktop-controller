@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.asmus.model.EQualificationType.PUSH;
@@ -39,17 +40,17 @@ public class CharacterInputAdapter extends ButtonProcessorBase {
     }
 
     /*
-    * at the end, this will produce only events for visual button change that mimics press
-    * all actual widget input control is done through regular path as 'keyboard' scene (configurable in properties)
-    * and set on UI so this way widget supports modifiers and long-press
-    * */
+     * at the end, this will produce only events for visual button change that mimics press
+     * all actual widget input control is done through regular path as 'keyboard' scene (configurable in properties)
+     * and set on UI so this way widget supports modifiers and long-press
+     * */
     @Override
     protected void process() {
         gamepadObserver.getButtonEventStream()
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
-                .map(q -> mapEvent(q, null, null))
+                .map(q -> mapEvent(q, null).apply(null))
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
@@ -64,7 +65,8 @@ public class CharacterInputAdapter extends ButtonProcessorBase {
     }
 
     @Override
-    public ApplicationEvent mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction, XdoActionDto xdoAction) {
-        return new ButtonEvent(this, EActionButton.valueOf(def.getTrigger()), def.getQualified(), def.getModifiers(), def.isLongPress());
+    public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
+        return q ->
+                new ButtonEvent(this, EActionButton.valueOf(def.getTrigger()), def.getQualified(), def.getModifiers(), def.isLongPress());
     }
 }

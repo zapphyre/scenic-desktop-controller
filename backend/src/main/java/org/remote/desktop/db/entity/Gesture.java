@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,13 +35,13 @@ public class Gesture {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(paths).orElseGet(ArrayList::new)
+        Optional.ofNullable(paths).orElseGet(Collections::emptyList)
                 .forEach(q -> q.setGesture(this));
     }
 
     @PreRemove
     public void detachEntity() {
-        Optional.ofNullable(paths).orElseGet(ArrayList::new)
+        Optional.ofNullable(paths).orElseGet(Collections::emptyList)
                 .forEach(path -> path.setGesture(null));
     }
 }
