@@ -32,6 +32,7 @@ public interface ButtonPressMapper {
         return def;
     }
 
+    // logical trigger is EButtonAxisMapping.mapping__ELogicalEventType
     @Named("logicalTriggerName")
     default String logicalTriggerName(GamepadEvent gamepadEvent) {
         return Optional.ofNullable(gamepadEvent.getLogicalEventType())

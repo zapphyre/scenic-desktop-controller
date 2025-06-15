@@ -21,7 +21,7 @@ public class StateService {
     @PostConstruct
     void init() {
         xdoSceneService.registerForcedSceneObserver(sceneStateStream::tryEmitNext);
-        xdoSceneService.registerRecognizedSceneObserver(sceneStateStream::tryEmitNext);
+        xdoSceneService.registerRecognizedSceneObserverChange(sceneStateStream::tryEmitNext);
         keyboardStateRepository.registerXdoCommandObserver(keydownStateStream::tryEmitNext);
     }
 

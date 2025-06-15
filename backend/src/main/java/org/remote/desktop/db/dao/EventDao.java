@@ -56,16 +56,5 @@ public class EventDao {
                 .map(Event::getGestureEvent)
                 .map(GestureEvent::getId)
                 .orElseThrow();
-
-//        return eventRepository.findById(id)
-//                .map(q -> GestureEvent.builder()
-//                        .event(q)
-//                        .build())
-//                .map(gestureEventRepository::save)
-//                .map(GestureEvent::getEvent)
-//                .map(eventRepository::save)
-//                .map(Event::getGestureEvent)
-//                .map(GestureEvent::getId)
-//                .orElseThrow();
     }
 }

@@ -2,11 +2,11 @@ package org.remote.desktop.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.mapper.PolarCoordsMapper;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.mapstruct.factory.Mappers;
 import org.remote.desktop.db.dao.GestureDao;
+import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.dto.rest.EStick;
 import org.remote.desktop.model.dto.rest.NewGestureRequestDto;
 import org.remote.desktop.model.vto.GesturePathVto;

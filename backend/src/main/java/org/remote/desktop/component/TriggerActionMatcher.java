@@ -10,11 +10,11 @@ import org.remote.desktop.service.GPadEventStreamService;
 import org.remote.desktop.service.XdoSceneService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
@@ -25,24 +25,26 @@ public class TriggerActionMatcher {
     private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
 
-    public Function<AppEventMapper,Function<ButtonActionDef, Flux<ApplicationEvent>>> actionPickPipeline = r -> p -> Flux.just(p)
-            .flatMap(this::getNextSceneButtonEvent)
-            .flatMap(q -> Flux.fromIterable(q.getActions())
-                    .map(x -> r.mapEvent(p, q, x))
-            );
+    public Function<ButtonActionDef, List<ApplicationEvent>> appEventMapper(AppEventMapper mapper) {
+        return button -> {
+            NextSceneXdoAction nextSceneXdoAction = getNextSceneButtonEventMapper(button);
 
-    Mono<NextSceneXdoAction> getNextSceneButtonEvent(ButtonActionDef q) {
-        return xdoSceneService.isSceneForced() ?
-                getActionsOn(GPadEventStreamService::extractInheritedActions, xdoSceneService.getForcedScene(), q) :
-                getActionsOn(GPadEventStreamService::relativeWindowNameActions, xdoSceneService.tryGetCurrentName(), q);
+            return Optional.ofNullable(nextSceneXdoAction)
+                    .map(NextSceneXdoAction::getActions)
+                    .orElseGet(ArrayList::new).stream()
+                    .map(q -> mapper.mapEvent(button, nextSceneXdoAction, q))
+                    .toList();
+        };
     }
 
-    <P> Mono<NextSceneXdoAction> getActionsOn(BiFunction<GPadEventStreamService, P, Map<ActionMatch, NextSceneXdoAction>> paramGetter,
-                                              P param,
-                                              ButtonActionDef buttons) {
-        return Mono.justOrEmpty(paramGetter.apply(gPadEventStreamService, param))
-                .mapNotNull(getActionsForButtons(buttonPressMapper.map(buttons)))
-                .map(q -> q.withButtonTrigger(buttons));
+    NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef q) {
+        ActionMatch actionMatch = buttonPressMapper.map(q);
+
+        Map<ActionMatch, NextSceneXdoAction> actionMap = xdoSceneService.isSceneForced() ?
+                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
+                gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
+
+        return getActionsForButtons(actionMatch).apply(actionMap);
     }
 
     // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier

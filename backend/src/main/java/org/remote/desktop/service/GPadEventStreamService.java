@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toMap;
+import static org.remote.desktop.util.FluxUtil.*;
 
 @Slf4j
 @Service
@@ -54,9 +55,12 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return scraper.scrapeActionsRecursive(sceneDto).stream()
+        return Optional.of(sceneDto)
+                .map(xdoSceneService::saveLastRecognizedScene)
+                .map(scraper::scrapeActionsRecursive)
+                .orElseThrow().stream()
                 .map(buttonPressMapper.map(sceneDto))
-                .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, FluxUtil.laterMerger()));
+                .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {

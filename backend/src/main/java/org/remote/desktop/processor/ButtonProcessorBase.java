@@ -17,7 +17,10 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor
@@ -40,9 +43,16 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
                 .doOnNext(this::qualificationExamine)
-                .flatMap(triggerActionMatcher.actionPickPipeline.apply(this))
                 .publishOn(Schedulers.fromExecutorService(executorService))
-                .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
+                .subscribe(actOnButtonPress(), Throwable::printStackTrace);
+    }
+
+    public Consumer<ButtonActionDef> actOnButtonPress() {
+        Function<ButtonActionDef, List<ApplicationEvent>> apedEventMapper = triggerActionMatcher.appEventMapper(this);
+
+        return q -> apedEventMapper.apply(q)
+                .forEach(eventPublisher::publishEvent);
+
     }
 
     @Override

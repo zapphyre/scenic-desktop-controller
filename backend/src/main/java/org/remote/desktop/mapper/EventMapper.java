@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Mapper(componentModel = "spring", uses = {GestureEventMapper.class, ButtonEventMapper.class, XdoActionMapper.class})
+@Mapper(componentModel = "spring", uses = {GestureEventMapper.class, ButtonEventMapper.class, XdoActionMapper.class, GestureMapper.class})
 public interface EventMapper {
 
     EventDto map(Event event, @Context CycleAvoidingMappingContext ctx);

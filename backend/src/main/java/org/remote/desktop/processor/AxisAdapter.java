@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
-import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseCtrl;
@@ -70,7 +69,7 @@ public class AxisAdapter {
 
     @PostConstruct
     void init() {
-        xdoSceneService.registerRecognizedSceneObserver(this::updateAxisConsumersByWindowName);
+        xdoSceneService.registerRecognizedSceneObserverChange(this::updateAxisConsumersByWindowName);
         xdoSceneService.registerForcedSceneObserver(this::updateAxisConsumersBySceneName);
 
         nodeMap = original = buildNodeMap(gestures);

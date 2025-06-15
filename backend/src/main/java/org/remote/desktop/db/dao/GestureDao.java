@@ -10,6 +10,7 @@ import org.remote.desktop.mapper.GestureMapper;
 import org.remote.desktop.model.vto.GesturePathVto;
 import org.remote.desktop.model.vto.GestureVto;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +26,14 @@ import static org.remote.desktop.db.dao.SceneDao.*;
 @RequiredArgsConstructor
 public class GestureDao {
 
+    public static final String GESTURES_CACHE_NAME = "gestures";
+
     private final GesturePathRepository gesturePathRepository;
     private final GestureRepository gestureRepository;
 
     private final GestureMapper gestureMapper;
 
+    @Cacheable(GESTURES_CACHE_NAME)
     public List<GestureVto> getAllGestures() {
         return gestureRepository.findAll().stream()
                 .map(gestureMapper::map)
@@ -42,7 +46,7 @@ public class GestureDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {GESTURES_CACHE_NAME, SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Function<String, GesturePathVto> addGesturePath(long gestureId) {
         return path -> gestureRepository.findById(gestureId)
                 .map(q -> GesturePath.builder()
@@ -55,7 +59,7 @@ public class GestureDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {GESTURES_CACHE_NAME, SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public Long createNew() {
         return Optional.of(new Gesture())
                 .map(gestureRepository::save)
@@ -63,14 +67,10 @@ public class GestureDao {
                 .orElseThrow();
     }
 
-    @CacheEvict(value = {SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
+    @CacheEvict(value = {GESTURES_CACHE_NAME, SCENE_CACHE_NAME, SCENE_ACTIONS_CACHE_NAME, SCENE_LIST_CACHE_NAME}, allEntries = true)
     public void updatePathOn(Long id, String newPath) {
         gesturePathRepository.findById(id)
                 .ifPresent(q -> q.setPath(newPath));
-    }
-
-    public void update(GestureVto gestureVto) {
-
     }
 
     public void updateName(Long id, String name) {

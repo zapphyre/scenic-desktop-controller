@@ -12,7 +12,7 @@ import org.remote.desktop.model.vto.XdoActionVto;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = GestureMapper.class)
 public interface XdoActionMapper {
 
     XdoAction map(XdoActionDto vto, @Context CycleAvoidingMappingContext ctx);

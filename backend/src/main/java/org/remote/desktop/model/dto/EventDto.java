@@ -10,10 +10,11 @@ import java.util.List;
 
 @Value
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class EventDto {
 
+    @EqualsAndHashCode.Include
     Long id;
 
     GestureEventDto gestureEvent;

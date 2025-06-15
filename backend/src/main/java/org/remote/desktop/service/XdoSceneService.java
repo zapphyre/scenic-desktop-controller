@@ -31,6 +31,11 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
 
     @Getter
     private SceneDto forcedScene;
+    private SceneDto lastRecognizedScene;
+
+    public SceneDto saveLastRecognizedScene(SceneDto sceneDto) {
+        return lastRecognizedScene = sceneDto;
+    }
 
     @Override
     public void onApplicationEvent(XdoCommandEvent event) {
@@ -45,11 +50,12 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     }
 
     public String tryGetCurrentName() {
-        String scene = sceneProvider.get();
+        String windowName = sceneProvider.get();
 
-        recognizedSceneObservers.forEach(p -> p.accept(scene));
+        if (!windowName.contains(Optional.ofNullable(lastRecognizedScene).map(SceneDto::getWindowName).orElse("Base")))
+            recognizedSceneObservers.forEach(p -> p.accept(windowName));
 
-        return scene;
+        return windowName;
     }
 
     public void nullifyForcedScene() {
@@ -60,7 +66,7 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
         return Objects.nonNull(forcedScene);
     }
 
-    public void registerRecognizedSceneObserver(Consumer<String> observer) {
+    public void registerRecognizedSceneObserverChange(Consumer<String> observer) {
         recognizedSceneObservers.add(observer);
     }
 
