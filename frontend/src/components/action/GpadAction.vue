@@ -92,10 +92,10 @@ onMounted(() => {
     <div class="card p-3 w-full">
       <div class="grid">
         <!-- Left Section -->
-        <div class="col-6" v-if="props.event.buttonEvent">
+        <div class="col-8" v-if="props.event.buttonEvent">
           <div class="flex flex-column gap-3">
             <!-- First Row: Button + 3 Selects -->
-            <div class="flex align-items-center gap-2">
+            <div class="flex align-items-center">
               <Button
                   :disabled="disabled"
                   class="p-button-danger p-button-sm"
@@ -107,7 +107,7 @@ onMounted(() => {
                     v-model="props.event.buttonEvent.trigger"
                     :options="getTriggers()"
                     placeholder="Trigger"
-                    class="w-3 input-item"
+                    class="w-4 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
@@ -115,7 +115,7 @@ onMounted(() => {
                     v-model="props.event.buttonEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
-                    class="w-3 input-item"
+                    class="w-2 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
@@ -123,7 +123,7 @@ onMounted(() => {
                     v-model="props.event.buttonEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
-                    class="w-3 input-item"
+                    class="w-4 input-item"
                     @change="change"
                     :disabled="disabled"
                 />
@@ -151,6 +151,7 @@ onMounted(() => {
                   class="w-6 input-item"
                   @change="change"
                   :disabled="disabled"
+                  show-clear
               />
             </div>
 
@@ -160,8 +161,9 @@ onMounted(() => {
                 <Button
                     v-if="!props.event.gestureEvent"
                     class="p-button-success p-button-sm"
-                    icon="pi pi-plus"
+                    icon="pi pi-bullseye"
                     @click="addNewGesture(props.event)"
+                    :disabled="disabled"
                 />
                 <Button
                     v-if="props.event.gestureEvent"
@@ -200,7 +202,7 @@ onMounted(() => {
         </div>
 
         <!-- Right Section -->
-        <div class="col-6">
+        <div class="col-4">
           <div class="flex flex-column gap-2 align-items-center">
             <XdoActionSection
                 v-for="act in props.event.actions"

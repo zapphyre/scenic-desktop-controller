@@ -10,7 +10,6 @@ import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.entity.GesturePath;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.mapper.PolarCoordsMapper;
-import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.dto.*;
 import org.remote.desktop.service.XdoSceneService;
 import org.springframework.stereotype.Component;
@@ -24,13 +23,13 @@ import org.zapphyre.fizzy.model.ToleranceConfig;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
+import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @Slf4j
 @Component
@@ -58,12 +57,11 @@ public class StickProcessor {
     @PostConstruct
     void init() {
         xdoSceneService.registerRecognizedSceneObserverChange(sceneName -> {
-
             Optional.ofNullable(left).ifPresent(Disposable::dispose);
             Optional.ofNullable(right).ifPresent(Disposable::dispose);
 
             left = hookOnStick(leftStickStream().polarProducer(worker), GestureEventDto::getLeftStickGesture, sceneName);
-//            right = hookOnStick(rightStickStream().polarProducer(worker), GestureEventDto::getRightStickGesture, sceneName);
+            right = hookOnStick(rightStickStream().polarProducer(worker), GestureEventDto::getRightStickGesture, sceneName);
         });
     }
 
@@ -80,6 +78,7 @@ public class StickProcessor {
             stringMatcher.match(o).stream()
                     .filter(q -> q.getMatchPercentage() >= 80d)
                     .peek(q -> log.info("Match: {}", q))
+                    .findFirst().stream()
                     .map(MatchResult::getKey)
                     .map(buttonPressMapper::map)
                     .forEach(buttonAdapter.actOnButtonPress());
@@ -87,7 +86,8 @@ public class StickProcessor {
     }
 
     List<MatchDef<ButtonEventDto>> setupMatcherOn(Function<? super GestureEventDto, GestureDto> stickSpecifier, String sceneName) {
-        return Optional.ofNullable(sceneDao.getScene(sceneName))
+        return Optional.ofNullable(sceneName)
+                .map(sceneDao::getScene)
                 .map(SceneDto::getEvents)
                 .orElseGet(Collections::emptyList).stream()
                 .flatMap(q -> Optional.ofNullable(q)
