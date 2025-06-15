@@ -39,9 +39,12 @@ public class TriggerActionMatcher {
     NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef button) {
         return Optional.of(button)
                 .map(buttonPressMapper::map)
-                .map(actionMapForCurrentScene(xdoSceneService.isSceneForced())::get)
+                .map(actionMatcher)
                 .orElse(null);
     }
+
+    Function<ActionMatch, NextSceneXdoAction> actionMatcher = q ->
+            actionMapForCurrentScene(xdoSceneService.isSceneForced()).get(q);
 
     Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
         return forced ?
