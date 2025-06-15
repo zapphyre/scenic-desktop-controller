@@ -39,12 +39,13 @@ public class TriggerActionMatcher {
     NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef button) {
         return Optional.of(button)
                 .map(buttonPressMapper::map)
-                .map(actionMatcher)
+                .map(getAction(xdoSceneService.isSceneForced()))
                 .orElse(null);
     }
 
-    Function<ActionMatch, NextSceneXdoAction> actionMatcher = q ->
-            actionMapForCurrentScene(xdoSceneService.isSceneForced()).get(q);
+    Function<ActionMatch, NextSceneXdoAction> getAction(boolean forced) {
+        return actionMatcher(actionMapForCurrentScene(forced));
+    }
 
     Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
         return forced ?
@@ -52,4 +53,7 @@ public class TriggerActionMatcher {
                 gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
     }
 
+    Function<ActionMatch, NextSceneXdoAction> actionMatcher(Map<ActionMatch, NextSceneXdoAction> definitions) {
+        return definitions::get;
+    }
 }
