@@ -5,9 +5,8 @@ import org.mapstruct.*;
 import org.remote.desktop.model.*;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.dto.EventDto;
-import org.remote.desktop.model.dto.GamepadEventDto;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.impl.GPadEventStreamService;
 
 import java.util.Optional;
 import java.util.function.Function;

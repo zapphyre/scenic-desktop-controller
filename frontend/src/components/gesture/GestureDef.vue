@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted} from "vue";
-import {getGestures, addGesture} from "@/api/dataStore";
+import {addGesture, getGestures} from "@/api/dataStore";
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import apiClient from '@/api';
@@ -17,7 +16,7 @@ const addNewGesture = async () => {
 
 // Add a path to a specific gesture
 const addPath = (gesture: Gesture) => {
-  const eventSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/gestures/newPath/${gesture.id}/LEFT`);
+  const eventSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/gestures/new-path/${gesture.id}/LEFT`);
   const gesturePath = {path: "[receiving path]"} as GesturePath;
 
   gesture.paths.push(gesturePath);
@@ -38,18 +37,17 @@ const addPath = (gesture: Gesture) => {
 
 // Handle name input changes
 const onNameChange = async (gesture: Gesture) => {
-  await apiClient.put(`gestures/update-name/${gesture.id}/${gesture.name}`);
+  await apiClient.put(`gestures/${gesture.id}/${gesture.name}`);
 };
 
 // Handle path input changes
 const onPathChange = async (path: GesturePath) => {
-  console.log("newPath", path.path);
-  await apiClient.put(`gestures/update-path/${path.id}/${path.path}`);
+  await apiClient.put(`path/${path.id}/${path.path}`);
 };
 
 // Remove a path from a specific gesture
 const removePath = async (gesture: Gesture, uiPath: GesturePath, idx: number) => {
-  await apiClient.delete(`gestures/delete-path/${uiPath.id}`)
+  await apiClient.delete(`path/${uiPath.id}`)
   gesture.paths.splice(idx, 1);
 };
 
@@ -62,9 +60,6 @@ const editPath = (uiPath: GesturePath) => {
   uiPath.edit = !uiPath.edit;
 };
 
-onMounted(() => {
-
-});
 </script>
 
 <template>

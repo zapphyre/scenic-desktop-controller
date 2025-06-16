@@ -32,7 +32,7 @@ const fetchStrokes = async () => {
 
 const fetchScenes = async () => {
     try {
-        scenes.value = (await apiClient.get("allScenes")).data;
+        scenes.value = (await apiClient.get("scene/all")).data;
     } catch (error) {
         console.error("Failed to fetch scenes:", error);
     }
@@ -40,7 +40,7 @@ const fetchScenes = async () => {
 
 const fetchTriggers = async () => {
     try {
-        triggers.value = (await apiClient.get("getTriggers")).data;
+        triggers.value = (await apiClient.get("scene/triggers")).data;
     } catch (error) {
         console.error("Failed to fetch triggers:", error);
     }

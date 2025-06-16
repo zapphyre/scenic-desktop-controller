@@ -10,7 +10,7 @@ import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;

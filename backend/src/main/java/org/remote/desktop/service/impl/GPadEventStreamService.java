@@ -1,4 +1,4 @@
-package org.remote.desktop.service;
+package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,6 @@ import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
-import org.remote.desktop.util.FluxUtil;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ import static org.remote.desktop.util.FluxUtil.*;
 @RequiredArgsConstructor
 public class GPadEventStreamService {
 
-    private final SceneDao sceneDao;
+    private final SceneService sceneService;
     private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
@@ -48,7 +47,7 @@ public class GPadEventStreamService {
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return Optional.ofNullable(windowName)
-                .map(sceneDao::getSceneForWindowNameOrBase)
+                .map(sceneService::getSceneForWindowNameOrBase)
                 .map(this::extractInheritedActions)
                 .orElse(Map.of());
     }
@@ -66,7 +65,7 @@ public class GPadEventStreamService {
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         SceneDto scene = xdoSceneService.isSceneForced() ?
                 xdoSceneService.getForcedScene() :
-                sceneDao.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
+                sceneService.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
 
         return sceneClickQualificationRelevant(click, scene);
     }

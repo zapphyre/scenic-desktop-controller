@@ -6,8 +6,8 @@ import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.service.GPadEventStreamService;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.GPadEventStreamService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package org.remote.desktop.service;
+package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.dto.rest.EStick;
 import org.remote.desktop.model.dto.rest.NewGestureRequestDto;
 import org.remote.desktop.model.vto.GesturePathVto;
-import org.remote.desktop.model.vto.GestureVto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import org.zapphyre.model.error.GestureTimeoutException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.function.Function;
 
 import static org.asmus.builder.AxisEventFactory.leftStickStream;
@@ -29,34 +27,21 @@ import static org.asmus.builder.AxisEventFactory.rightStickStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GestureService {
+public class PathService {
 
-    private final Gesturizer gesturizer = Gesturizer.withDefaults();
-    private final GestureDao gestureDao;
     private final JoyWorker worker;
-
-    private final PolarCoordsMapper polarCoordsMapper = Mappers.getMapper(PolarCoordsMapper.class);
-
-    public List<GestureVto> getAllGestures() {
-        return gestureDao.getAllGestures();
-    }
-
-    public Long createNew() {
-        return gestureDao.createNew();
-    }
+    private final GestureDao gestureDao;
+    private final Gesturizer gesturizer = Gesturizer.withDefaults();
 
     public void updatePathOn(Long id, String newPath) {
         gestureDao.updatePathOn(id, newPath);
-    }
-
-    public void updateName(Long id, String name) {
-        gestureDao.updateName(id, name);
     }
 
     public void deletePath(Long id) {
         gestureDao.deletePath(id);
     }
 
+    private final PolarCoordsMapper polarCoordsMapper = Mappers.getMapper(PolarCoordsMapper.class);
     public Mono<ResponseEntity<GesturePathVto>> catchGesture(NewGestureRequestDto req) {
         Flux<PolarCoords> coordsFlux = req.getStick() == EStick.RIGHT ?
                 rightStickStream().polarProducer(worker) : leftStickStream().polarProducer(worker);
@@ -75,9 +60,5 @@ public class GestureService {
                 .onErrorResume(GestureTimeoutException.class, _ ->
                         Mono.just(ResponseEntity.status(HttpStatus.GONE).build())
                 );
-    }
-
-    public void deleteGesture(Long id) {
-        gestureDao.deleteGesture(id);
     }
 }

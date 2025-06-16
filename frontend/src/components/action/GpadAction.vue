@@ -22,8 +22,6 @@ import {onMounted, ref} from "vue";
 
 const gestures = getGesturesNameIdList();
 
-console.log('gestures', gestures);
-
 const forcedAvailableRef = ref<NameId[]>();
 
 const props = defineProps<{
@@ -53,31 +51,46 @@ const removeXdoAction = async (action: XdoAction) => {
 
 const change = async () => {
   console.log("changed");
-  await apiClient.put("updateGamepadEvent", props.event);
+  await apiClient.put("event", props.event);
 }
 
-const addNewGesture = async (event: EventVto) => {
-  const id = (await apiClient.post(`event/${event.id}/gesture`)).data;
+const addNewGesture = async () => {
+  const id = (await apiClient.post(`event/${props.event.id}/gesture`)).data;
   const gestEvt = {id} as GestureEventVto;
 
-  event.gestureEvent = gestEvt;
+  props.event.gestureEvent = gestEvt;
 }
 
-const removeGestureFromEvent = async (event: EventVto) => {
-  await apiClient.delete(`event/gesture/${event.gestureEvent?.id}`);
+const removeGestureFromEvent = async () => {
+  await apiClient.delete(`event/${props.event.id}/gesture/${props.event.gestureEvent?.id}`);
 
-  event.gestureEvent = undefined;
+  props.event.gestureEvent = undefined;
 }
 
 const gestureChange = async () => {
-  await apiClient.put(`event/gesture`, props.event.gestureEvent);
+  await apiClient.put(`event/${props.event.id}/gesture`, props.event.gestureEvent);
+}
 
+const addButtonEvent = async  () => {
+  const id = (await apiClient.post(`event/${props.event.id}/button`)).data;
 
+  props.event.buttonEvent = {id} as ButtonEventVto;
+}
+
+const removeButtonEvent = async  () => {
+  await apiClient.delete(`event/${props.event.id}/button/${props.event.buttonEvent?.id}`);
+
+  props.event.buttonEvent = undefined;
+}
+
+const removeEvent = async  () => {
+  await apiClient.delete(`event/${props.event.id}`);
+
+  emit('removeEvent', props.event);
 }
 
 const emit = defineEmits<{
-  removeButtonEvt: [buttonEvent: ButtonEventVto],
-  removeGestureEvt: [gestureEvent: GestureEventVto]
+  removeEvent: [event: EventVto]
 }>();
 
 onMounted(() => {
@@ -88,21 +101,45 @@ onMounted(() => {
 <template>
   <hr />
 
-  <div class="grid w-full">
+  <div class="grid w-full gpad-action-container">
     <div class="card p-3 w-full">
       <div class="grid">
         <!-- Left Section -->
-        <div class="col-8" v-if="props.event.buttonEvent">
-          <div class="flex flex-column gap-3">
-            <!-- First Row: Button + 3 Selects -->
+        <div class="col-8">
+          <div class="flex flex-column gap-3 min-h-full">
+            <!-- First Row: Buttons + 3 Selects -->
             <div class="flex align-items-center">
               <Button
+                  v-if="props.event.buttonEvent"
                   :disabled="disabled"
                   class="p-button-danger p-button-sm"
                   icon="pi pi-trash"
-                  @click="() => emit('removeButtonEvt', props.event.buttonEvent!!)"
+                  @click="removeButtonEvent"
               />
-              <div class="flex justify-content-center gap-2 flex-grow-1">
+              <Button
+                  v-else
+                  :disabled="disabled"
+                  class="p-button-sm"
+                  icon="pi pi-th-large"
+                  @click="addButtonEvent"
+              />
+
+              <div
+                  v-if="!props.event.buttonEvent"
+                  class="flex justify-content-center gap-2 flex-grow-1"
+              >
+                <Button
+                    :disabled="disabled"
+                    class="p-button-sm p-button-danger"
+                    icon="pi pi-times-circle"
+                    @click="removeEvent"
+                />
+              </div>
+
+              <div
+                  class="flex justify-content-center gap-2 flex-grow-1"
+                  v-if="props.event.buttonEvent"
+              >
                 <Select
                     v-model="props.event.buttonEvent.trigger"
                     :options="getTriggers()"
@@ -131,7 +168,10 @@ onMounted(() => {
             </div>
 
             <!-- Second Row: Checkbox + Select -->
-            <div class="flex justify-content-center align-items-center gap-2">
+            <div
+                class="flex justify-content-center align-items-center gap-2"
+                v-if="props.event.buttonEvent"
+            >
               <div class="flex align-items-center gap-2">
                 <label for="longPress">Long Press</label>
                 <Checkbox
@@ -160,16 +200,16 @@ onMounted(() => {
               <div class="flex align-items-center gap-2">
                 <Button
                     v-if="!props.event.gestureEvent"
-                    class="p-button-success p-button-sm"
+                    class="p-button-sm"
                     icon="pi pi-bullseye"
-                    @click="addNewGesture(props.event)"
+                    @click="addNewGesture"
                     :disabled="disabled"
                 />
                 <Button
-                    v-if="props.event.gestureEvent"
+                    v-else
                     class="p-button-danger p-button-sm"
                     icon="pi pi-trash"
-                    @click="removeGestureFromEvent(props.event)"
+                    @click="removeGestureFromEvent"
                 />
                 <div
                     v-if="props.event.gestureEvent"
@@ -203,9 +243,9 @@ onMounted(() => {
 
         <!-- Right Section -->
         <div class="col-4">
-          <div class="flex flex-column gap-2 align-items-center">
+          <div class="flex flex-column gap-2 align-items-center min-h-full">
             <XdoActionSection
-                v-for="act in props.event.actions"
+                v-for="act in props.event.actions || []"
                 :key="act.id"
                 :xdo-action="act"
                 :disabled="disabled"
@@ -226,7 +266,13 @@ onMounted(() => {
   </div>
 </template>
 
+
 <style scoped>
+.gpad-action-container {
+  min-width: 100%;
+  width: 100%;
+}
+
 .input-container {
   display: flex;
   justify-content: center; /* Center horizontally */

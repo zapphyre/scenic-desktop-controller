@@ -16,7 +16,8 @@ import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.ELogicalTrigger;
 import org.remote.desktop.model.Node;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.SceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -37,7 +38,7 @@ import static org.remote.desktop.util.GestureUtil.gestures;
 @RequiredArgsConstructor
 public class AxisAdapter {
 
-    private final SceneDao sceneDao;
+    private final SceneService sceneService;
     private final SettingsDao settingsDao;
     private final XdoSceneService xdoSceneService;
     private final IntrospectedEventFactory gamepadObserver;
@@ -105,7 +106,7 @@ public class AxisAdapter {
         EAxisEvent leftAxisEvent = sceneDto.getLeftAxisEvent();
         EAxisEvent rightAxisEvent = sceneDto.getRightAxisEvent();
 
-        SceneDto base = sceneDao.getScene(settingsDao.getSettings().getBaseSceneName());
+        SceneDto base = sceneService.getScene(settingsDao.getSettings().getBaseSceneName());
 
         leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
         rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
@@ -121,7 +122,7 @@ public class AxisAdapter {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(sceneName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            SceneDto sceneByName = sceneDao.getScene(sceneName);
+            SceneDto sceneByName = sceneService.getScene(sceneName);
 
             setConsumersFor(sceneByName, sceneName);
         } else
@@ -134,7 +135,7 @@ public class AxisAdapter {
         Consumers consumers = cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(windowName, Consumers.class);
 
         if (Objects.isNull(consumers)) {
-            SceneDto sceneForWindowNameOrBase = sceneDao.getSceneForWindowNameOrBase(windowName);
+            SceneDto sceneForWindowNameOrBase = sceneService.getSceneForWindowNameOrBase(windowName);
 
             setConsumersFor(sceneForWindowNameOrBase, windowName);
         } else

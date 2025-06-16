@@ -2,7 +2,7 @@ package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.pojo.KeyPart;
-import org.remote.desktop.service.StateService;
+import org.remote.desktop.service.impl.StateService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 

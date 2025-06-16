@@ -12,7 +12,7 @@ import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.keyboard.ButtonEvent;
 import org.remote.desktop.processor.ButtonProcessorBase;
-import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;

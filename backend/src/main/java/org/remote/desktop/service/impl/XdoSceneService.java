@@ -1,4 +1,4 @@
-package org.remote.desktop.service;
+package org.remote.desktop.service.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

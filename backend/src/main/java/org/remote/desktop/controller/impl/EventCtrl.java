@@ -1,29 +1,39 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.vto.GestureEventVto;
-import org.remote.desktop.service.EventService;
+import org.remote.desktop.model.vto.EventVto;
+import org.remote.desktop.service.impl.EventService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("api/event")
+@RequestMapping("${api.prefix}/event")
 @RequiredArgsConstructor
 public class EventCtrl {
 
     private final EventService eventService;
 
-    @PutMapping("gesture")
-    public void updateGesture(@RequestBody GestureEventVto vto) {
-        eventService.updateEventGesture(vto);
+    @GetMapping("inherents/{sceneId}")
+    public List<EventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
+        return eventService.getInherentsRecurcivelyFor(sceneId);
     }
 
-    @PostMapping("{id}/gesture")
-    public Long createGestureEvent(@PathVariable("id") Long id) {
-        return eventService.createGestureEvent(id);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long saveGamepadEvent(@RequestBody EventVto gamepadEventVto) {
+        return eventService.create(gamepadEventVto);
     }
 
-    @DeleteMapping("gesture/{id}")
-    public void deleteGestureEvent(@PathVariable("id") Long id) {
-        eventService.deleteGestureEvent(id);
+    @PutMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
+        eventService.update(gamepadEventVto);
+    }
+
+    @DeleteMapping("{eventId}")
+    public void delete(@PathVariable("eventId") Long eventId) {
+        eventService.delete(eventId);
     }
 }

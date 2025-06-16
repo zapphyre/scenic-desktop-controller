@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.mapstruct.factory.Mappers;
-import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.entity.GesturePath;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.dto.*;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.SceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.stereotype.Component;
 import org.zapphyre.fizzy.Gesturizer;
 import org.zapphyre.fizzy.matcher.Matcher;
@@ -34,11 +34,11 @@ import static org.asmus.builder.AxisEventFactory.rightStickStream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StickProcessor {
+public class StickGestureProcessor {
 
     private final JoyWorker worker;
     private final XdoSceneService xdoSceneService;
-    private final SceneDao sceneDao;
+    private final SceneService sceneService;
     private final ButtonPressMapper buttonPressMapper;
     private final ButtonAdapter buttonAdapter;
 
@@ -74,7 +74,7 @@ public class StickProcessor {
         GestureSupplier gs = motionMapper.pathComposeqa(polarCoords.map(polarCoordsMapper::map));
 
         return gs.gestureCb(o -> {
-            log.info("we have a results");
+//            log.info("we have a results");
             stringMatcher.match(o).stream()
                     .filter(q -> q.getMatchPercentage() >= 80d)
                     .peek(q -> log.info("Match: {}", q))
@@ -87,7 +87,7 @@ public class StickProcessor {
 
     List<MatchDef<ButtonEventDto>> setupMatcherOn(Function<? super GestureEventDto, GestureDto> stickSpecifier, String sceneName) {
         return Optional.ofNullable(sceneName)
-                .map(sceneDao::getScene)
+                .map(sceneService::getSceneForWindowNameOrBase)
                 .map(SceneDto::getEvents)
                 .orElseGet(Collections::emptyList).stream()
                 .flatMap(q -> Optional.ofNullable(q)

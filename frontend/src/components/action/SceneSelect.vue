@@ -33,8 +33,8 @@ const fetchScenes = async () => {
 
 const changedScene = (event: SelectChangeEvent) => {
   selectedSceneRef.value = event.value;
-
   console.log("selectedSceneRef.value", selectedSceneRef.value);
+
   selectedSceneRef.value?.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
 
   inheritedAvailableRef.value = getSceneNameIdList()
@@ -51,18 +51,18 @@ const changedScene = (event: SelectChangeEvent) => {
 
 const changedLeftAxis = (event: any) => {
   selectedSceneRef!.value!.leftAxisEvent = event.value;
-  apiClient.put("updateScene", selectedSceneRef.value);
+  apiClient.put("scene", selectedSceneRef.value);
 }
 
 const changedRightAxis = (event: any) => {
   selectedSceneRef!.value!.rightAxisEvent = event.value;
-  apiClient.put("updateScene", selectedSceneRef.value);
+  apiClient.put("scene", selectedSceneRef.value);
 }
 
 const addNewGamepadEvent = async () => {
   const eventVto = {parentFk: selectedSceneRef.value?.id} as EventVto;
 
-  eventVto.id = (await apiClient.post("saveGamepadEvent", eventVto)).data;
+  eventVto.id = (await apiClient.post("event", eventVto)).data;
   console.log("eventVto.id", eventVto.id);
   if (!selectedSceneRef.value?.events) selectedSceneRef.value!.events = [];
 
@@ -73,18 +73,18 @@ const addNewGamepadEvent = async () => {
   //   // await apiClient.put("updateGamepadEvent", eventVto);
   // });
 }
+const removeEvent = async  (event: EventVto) => {
+  console.log('removing', event);
 
-const removeGpadEvent = async (buttonEvent: ButtonEventVto) => {
-  await apiClient.delete("removeGamepadEvent", {data: buttonEvent.id});
-  _.remove(selectedSceneRef?.value?.events ?? [], q => q.buttonEvent === buttonEvent);
+  _.remove(selectedSceneRef?.value?.events ?? [], q => q === event);
 }
 
 const changedInherents = async (q: any) => {
   selectedSceneRef.value!.inheritsIdFk = q.value.map((p: NameId) => p.id);
   // console.log("selectedSceneRef.value!.inheritsIdFk", selectedSceneRef.value!.inheritsIdFk);
-  await apiClient.put("updateScene", selectedSceneRef.value);
+  await apiClient.put("scene", selectedSceneRef.value);
 
-  apiClient.get(`inherents/${selectedSceneRef.value?.id}`)
+  apiClient.get(`events/inherents/${selectedSceneRef.value?.id}`)
       .then((res) => res.data)
       .then(q => {
         console.log('inheritedGamepadEvents', q);
@@ -103,15 +103,16 @@ const editScene = () => {
   dialogVisible.value = true;
   newSceneDialog = false;
 }
-const dialogDelete = () => apiClient.delete("removeScene", {data: dialogScene.value?.id})
+const dialogDelete = () => apiClient.delete(`scene/${dialogScene.value?.id}`)
+
 const dialogOk = async (q: Scene) => {
 
   if (newSceneDialog) {
-    dialogScene.value!!.id = (await apiClient.post("saveScene", q)).data;
+    dialogScene.value!!.id = (await apiClient.post("scene", q)).data;
     console.log("adding new scene to list", dialogScene.value);
     scenesRef.value.push(dialogScene.value!!);
   } else {
-    await apiClient.put("updateScene", q);
+    await apiClient.put("scene", q);
   }
 
   selectedSceneRef.value = q;
@@ -123,28 +124,32 @@ onMounted(fetchScenes);
 </script>
 
 <template>
-
   <div class="card grid nested-grid grid-nogutter">
     <div class="col-12">
       <div class="grid">
         <div class="col-12"></div>
         <div class="col-12">
-          <SelectDialog v-if="dialogScene"
-                        :is-edit="!newSceneDialog"
-                        v-model:visible="dialogVisible"
-                        @ok="dialogOk"
-                        @delete="dialogDelete"
-                        :inherits-avail="allSceneNames"
-                        :scene="dialogScene"/>
+          <SelectDialog
+              v-if="dialogScene"
+              :is-edit="!newSceneDialog"
+              v-model:visible="dialogVisible"
+              @ok="dialogOk"
+              @delete="dialogDelete"
+              :inherits-avail="allSceneNames"
+              :scene="dialogScene"
+          />
         </div>
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
-            <Select name="scene" @change="changedScene"
-                    v-model="selectedSceneRef"
-                    :options="scenesRef"
-                    optionLabel="name"
-                    class="input-item"
-                    placeholder="Select a scene"/>
+            <Select
+                name="scene"
+                @change="changedScene"
+                v-model="selectedSceneRef"
+                :options="scenesRef"
+                optionLabel="name"
+                class="input-item"
+                placeholder="Select a scene"
+            />
             <label for="scene">Scene</label>
           </FloatLabel>
         </div>
@@ -156,7 +161,6 @@ onMounted(fetchScenes);
 
         <div class="col-12 card"></div>
         <div class="col-12 card"></div>
-
       </div>
     </div>
     <div class="col-12">
@@ -176,22 +180,26 @@ onMounted(fetchScenes);
 
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
-            <Select name="leftAxis"
-                    @change="changedLeftAxis"
-                    v-model="leftAxisRef"
-                    :options="axisValues"
-                    class="w-full"/>
+            <Select
+                name="leftAxis"
+                @change="changedLeftAxis"
+                v-model="leftAxisRef"
+                :options="axisValues"
+                class="w-full"
+            />
             <label for="leftAxis">Left Axis</label>
           </FloatLabel>
         </div>
 
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
-            <Select name="rightAxis"
-                    @change="changedRightAxis"
-                    v-model="rightAxisRef"
-                    :options="axisValues"
-                    class="w-full"/>
+            <Select
+                name="rightAxis"
+                @change="changedRightAxis"
+                v-model="rightAxisRef"
+                :options="axisValues"
+                class="w-full"
+            />
             <label for="rightAxis">Right Axis</label>
           </FloatLabel>
         </div>
@@ -201,16 +209,24 @@ onMounted(fetchScenes);
       </div>
     </div>
 
-    <div class="grid grid-nogutter">
-      <div class="col" v-if="selectedSceneRef">
-        <div v-for="action in selectedSceneRef.events">
-          <GpadAction :selected-scene-id="selectedSceneRef.id!" :event="action" @removeButtonEvt="removeGpadEvent"/>
+    <div class="grid grid-nogutter full-width-container">
+      <div class="col w-full" v-if="selectedSceneRef">
+        <div v-for="action in selectedSceneRef.events" class="gpad-action-wrapper">
+          <GpadAction
+              :selected-scene-id="selectedSceneRef.id!"
+              :event="action"
+              @removeEvent="removeEvent"
+          />
         </div>
       </div>
       <div v-if="selectedSceneRef">
         <div class="col">
-          <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents">
-            <GpadAction :selected-scene-id="selectedSceneRef.id!" :disabled="true" :event="ihr"/>
+          <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents" class="gpad-action-wrapper">
+            <GpadAction
+                :selected-scene-id="selectedSceneRef.id!"
+                :disabled="true"
+                :event="ihr"
+            />
           </div>
         </div>
       </div>
@@ -218,7 +234,17 @@ onMounted(fetchScenes);
   </div>
 </template>
 
+
 <style scoped>
+.full-width-container {
+  width: 100%;
+  min-width: 100%;
+}
+.gpad-action-wrapper {
+  width: 100%;
+  min-width: 100%;
+}
+
 .input-item {
   width: 100%;
 }

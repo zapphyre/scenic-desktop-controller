@@ -1,4 +1,4 @@
-package org.remote.desktop.service;
+package org.remote.desktop.service.impl;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

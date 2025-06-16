@@ -6,7 +6,7 @@ import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
-import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 

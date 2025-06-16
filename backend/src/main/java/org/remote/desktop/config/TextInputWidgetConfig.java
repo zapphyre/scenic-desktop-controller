@@ -4,10 +4,10 @@ import com.arun.trie.base.Trie;
 import com.arun.trie.base.ValueFrequency;
 import javafx.scene.paint.Color;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.dto.SettingDto;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.SceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ import java.util.Optional;
 public class TextInputWidgetConfig {
 
     private final SettingsDao settingsDao;
-    private final SceneDao sceneDao;
+    private final SceneService sceneService;
     private final Trie<String> trie;
     private final XdoSceneService xdoSceneService;
 
@@ -45,7 +45,7 @@ public class TextInputWidgetConfig {
         Optional.of(settingsDao)
                 .map(SettingsDao::getSettings)
                 .map(SettingDto::getTextInputSceneName)
-                .map(sceneDao::getScene)
+                .map(sceneService::getScene)
                 .ifPresent(q -> widget.setKeyboardSceneActuator(() -> xdoSceneService.forceScene(q)));
     }
 }

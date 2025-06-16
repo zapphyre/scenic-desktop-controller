@@ -10,7 +10,7 @@ import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.TriggerAdapter;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.model.WebSourceDef;

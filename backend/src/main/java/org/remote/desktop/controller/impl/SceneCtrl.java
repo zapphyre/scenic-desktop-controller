@@ -1,99 +1,46 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.controller.SceneApi;
-import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
-import org.remote.desktop.model.vto.XdoActionVto;
-import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
-import org.remote.desktop.service.TriggerService;
+import org.remote.desktop.service.impl.SceneService;
+import org.remote.desktop.service.impl.TriggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}")
+@RequestMapping("${api.prefix}/scene")
 @RequiredArgsConstructor
-public class SceneCtrl implements SceneApi {
+public class SceneCtrl {
 
-    private final SceneDao sceneDao;
     private final TriggerService triggerService;
-    private final LocalXdoSceneProvider xdoSceneProvider;
+    private final SceneService sceneService;
 
-    @GetMapping("allScenes")
+    @GetMapping("all")
     public List<SceneVto> getAllScenes() {
-        return sceneDao.getAllSceneVtos();
+        return sceneService.getAllSceneVtos();
     }
 
-    @GetMapping("inherents/{sceneId}")
-    public List<EventVto> getInherentsForScene(@PathVariable("sceneId") long sceneId) {
-        return sceneDao.getInherentsRecurcivelyFor(sceneId);
-    }
-
-    public String getCurrentSceneName() {
-        return xdoSceneProvider.tryGetCurrentName();
-    }
-
-    @PostMapping("saveScene")
+    @PostMapping
     public Long saveScene(@RequestBody SceneVto sceneVto) {
-        return sceneDao.save(sceneVto);
+        return sceneService.create(sceneVto);
     }
 
-    @PutMapping("updateScene")
+    @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateScene(@RequestBody SceneVto sceneVto) {
-        sceneDao.update(sceneVto);
+        sceneService.update(sceneVto);
     }
 
-    @PutMapping("updateGamepadEvent")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
-        sceneDao.update(gamepadEventVto);
-    }
-
-    @PutMapping("updateXdoAction")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateGamepadAction(@RequestBody XdoActionVto xdoActionVto) {
-        sceneDao.update(xdoActionVto);
-    }
-
-    @PostMapping("saveXdoAction")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Long> saveXdoAction(@RequestBody XdoActionVto xdoActionVto) {
-        return sceneDao.save(xdoActionVto);
-    }
-
-    @PostMapping("saveGamepadEvent")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Long saveGamepadEvent(@RequestBody EventVto gamepadEventVto) {
-        return sceneDao.save(gamepadEventVto);
-    }
-
-    @GetMapping("xdoStrokes")
-    public List<String> getAllCurrentXdoStrokes() {
-        return sceneDao.getAllCurrentXdoStrokes();
-    }
-
-    @GetMapping("getTriggers")
+    @GetMapping("triggers")
     public List<String> getAllTriggers() {
         return triggerService.getAllLogicalTriggerNames();
     }
 
-    @DeleteMapping("removeXdoAction")
-    public void removeXdoAction(@RequestBody Long xdoActionId) {
-        sceneDao.removeXdoAction(xdoActionId);
-    }
-
-    @DeleteMapping("removeGamepadEvent")
-    public void removeGamepadEvent(@RequestBody Long gPadId) {
-        sceneDao.removeGamepadEvent(gPadId);
-    }
-
-    @DeleteMapping("removeScene")
-    public void removeScene(@RequestBody Long sceneId) {
-        sceneDao.removeScene(sceneId);
+    @DeleteMapping("{sceneId}")
+    public void removeScene(@PathVariable("sceneId") Long sceneId) {
+        sceneService.delete(sceneId);
     }
 }

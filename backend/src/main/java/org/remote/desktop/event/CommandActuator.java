@@ -8,7 +8,7 @@ import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.KeyboardWidgetMainActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
-import org.remote.desktop.service.XdoSceneService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;

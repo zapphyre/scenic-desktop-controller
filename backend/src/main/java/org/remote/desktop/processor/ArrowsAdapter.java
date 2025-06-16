@@ -9,7 +9,7 @@ import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
-import org.remote.desktop.service.GPadEventStreamService;
+import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
