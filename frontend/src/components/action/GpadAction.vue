@@ -37,7 +37,7 @@ const addNewAction = async () => {
     keyEvt: EKeyEvt.STROKE,
     keyStrokes: []
   };
-  toSave.id = (await apiClient.post("saveXdoAction", toSave)).data;
+  toSave.id = (await apiClient.post("action", toSave)).data;
 
   if (!props.event.actions) props.event.actions = [];
 
@@ -45,7 +45,7 @@ const addNewAction = async () => {
 }
 
 const removeXdoAction = async (action: XdoAction) => {
-  await apiClient.delete("removeXdoAction", {data: action.id});
+  await apiClient.delete("action", {data: action.id});
   _.remove(props.event.actions, q => q === action);
 }
 

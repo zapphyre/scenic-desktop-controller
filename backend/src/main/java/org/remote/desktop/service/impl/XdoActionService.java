@@ -22,7 +22,7 @@ public class XdoActionService {
         return xdoActionDao.getAllCurrentXdoStrokes();
     }
 
-    public Mono<Long> create(XdoActionVto xdoActionVto) {
+    public Long create(XdoActionVto xdoActionVto) {
         return xdoActionDao.create(xdoActionVto);
     }
 

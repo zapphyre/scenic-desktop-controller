@@ -16,24 +16,24 @@ public class XdoActionCtrl {
 
     private final XdoActionService xdoActionService;
 
-    @GetMapping("xdoStrokes")
+    @GetMapping("all")
     public List<String> getAllCurrentXdoStrokes() {
         return xdoActionService.getAllCurrentXdoStrokes();
     }
 
-    @PutMapping("updateXdoAction")
+    @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateGamepadAction(@RequestBody XdoActionVto xdoActionVto) {
         xdoActionService.update(xdoActionVto);
     }
 
-    @PostMapping("saveXdoAction")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Long> saveXdoAction(@RequestBody XdoActionVto xdoActionVto) {
+    public Long saveXdoAction(@RequestBody XdoActionVto xdoActionVto) {
         return xdoActionService.create(xdoActionVto);
     }
 
-    @DeleteMapping("removeXdoAction")
+    @DeleteMapping
     public void removeXdoAction(@RequestBody Long xdoActionId) {
         xdoActionService.delete(xdoActionId);
     }

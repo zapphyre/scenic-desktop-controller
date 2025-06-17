@@ -1,11 +1,13 @@
 package org.remote.desktop.db.dao;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.vto.XdoActionVto;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -13,9 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.remote.desktop.util.FluxUtil.optToNull;
-
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class XdoActionDao {
 
@@ -39,13 +40,14 @@ public class XdoActionDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
-                .ifPresent(xdoActionMapper.update(vto, optToNull(vto.getEventFk(), eventRepository::findById)));
+                .ifPresent(xdoActionMapper.update(vto, FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
-    public Mono<Long> create(XdoActionVto vto) {
-        return Mono.just(vto)
-                .map(xdoActionMapper.map(optToNull(vto.getEventFk(), eventRepository::findById)))
+    public Long create(XdoActionVto vto) {
+        return Optional.of(vto)
+                .map(xdoActionMapper.map(FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)))
                 .map(xdoActionRepository::save)
-                .map(XdoAction::getId);
+                .map(XdoAction::getId)
+                .orElseThrow();
     }
 }

@@ -35,10 +35,9 @@ public class XdoAction {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        // produces concurrent modification exception idk
-//        Optional.ofNullable(event)
-//                .map(Event::getActions)
-//                .ifPresent(q -> q.add(this));
+        Optional.ofNullable(event)
+                .map(Event::getActions)
+                .ifPresent(q -> q.add(this));
     }
 
     @PreRemove

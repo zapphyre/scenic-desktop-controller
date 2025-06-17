@@ -20,7 +20,7 @@ const fetchStrokes = async () => {
     if (isInitialized) return; // Skip if already fetched
 
     try {
-        const response = await apiClient.get("xdoStrokes");
+        const response = await apiClient.get("action/all");
         strokes.value = response.data; // Assuming response.data is an array of strings
         isInitialized = true;
     } catch (error) {

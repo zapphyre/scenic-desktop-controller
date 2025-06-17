@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/hb")
+@RequestMapping("${api.prefix}/hb")
 @RequiredArgsConstructor
 public class FeHeartbeatCtrl {
 

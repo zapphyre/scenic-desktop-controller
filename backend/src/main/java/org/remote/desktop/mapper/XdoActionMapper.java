@@ -37,9 +37,10 @@ public interface XdoActionMapper {
     }
 
     @Mapping(target = "id", source = "vto.id")
-    XdoAction map(XdoActionVto vto, Event gamepadEvent);
+    @Mapping(target = "event", source = "event")
+    XdoAction map(XdoActionVto vto, Event event);
 
-    default Function<XdoActionVto, XdoAction> map(Event gamepadEvent) {
-        return q -> map(q, gamepadEvent);
+    default Function<XdoActionVto, XdoAction> map(Event event) {
+        return q -> map(q, event);
     }
 }

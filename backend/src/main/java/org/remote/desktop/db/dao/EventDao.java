@@ -6,18 +6,15 @@ import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
-import org.remote.desktop.mapper.ButtonEventMapper;
 import org.remote.desktop.mapper.EventMapper;
-import org.remote.desktop.mapper.GestureEventMapper;
 import org.remote.desktop.model.vto.EventVto;
+import org.remote.desktop.util.FluxUtil;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static org.remote.desktop.util.FluxUtil.optToNull;
 
 @Service
 @Transactional
@@ -37,8 +34,8 @@ public class EventDao {
 
     public Long create(EventVto vto) {
         return Optional.of(vto)
-                .map(eventMapper.map(optToNull(vto.getParentFk(), sceneRepository::findById),
-                        optToNull(vto.getNextSceneFk(), sceneRepository::findById))
+                .map(eventMapper.map(FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
+                        FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById))
                 )
                 .map(eventRepository::save)
                 .map(Event::getId)
@@ -48,8 +45,8 @@ public class EventDao {
     public void update(EventVto vto) {
         eventRepository.findById(vto.getId())
                 .ifPresent(eventMapper.update(vto,
-                        optToNull(vto.getParentFk(), sceneRepository::findById),
-                        optToNull(vto.getNextSceneFk(), sceneRepository::findById)
+                        FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
+                        FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById)
                 ));
     }
 

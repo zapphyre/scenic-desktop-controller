@@ -39,7 +39,7 @@ const add = async () => {
   }
   filtered.value = undefined; // Clear filter
   filterChange(); // Update filtered options
-  await apiClient.put("updateXdoAction", props.xdoAction);
+  await apiClient.put("action", props.xdoAction);
 
   // changed();
 };
@@ -58,11 +58,11 @@ const filterChange = () => {
 
 const changed = async (e: any) => {
   props.xdoAction.keyStrokes = e.value;
-  await apiClient.put("updateXdoAction", props.xdoAction);
+  await apiClient.put("action", props.xdoAction);
 }
 
 const evtTypeChanged = async (e: any) => {
-  await apiClient.put("updateXdoAction", props.xdoAction);
+  await apiClient.put("action", props.xdoAction);
 }
 
 onMounted(() => {
