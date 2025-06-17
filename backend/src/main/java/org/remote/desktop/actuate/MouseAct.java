@@ -8,11 +8,10 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-import static org.remote.desktop.util.NumUtil.mapClamped;
 import static org.remote.desktop.util.NumUtil.mapVal;
 
 @UtilityClass
-public class MouseCtrl {
+public class MouseAct {
     double sensitivity = 0.004;
     final static Robot robot;
 

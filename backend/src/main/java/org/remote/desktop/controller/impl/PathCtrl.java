@@ -23,10 +23,11 @@ public class PathCtrl {
     }
 
     @CacheEvictAll
-    @GetMapping("new-path/{id}/{stick}")
-    public Mono<ResponseEntity<GesturePathVto>> addPath(@PathVariable("id") Long id, @PathVariable("stick") EStick stick) {
+    @GetMapping("new-path/{gestureId}/{stick}")
+    public Mono<ResponseEntity<GesturePathVto>> addPath(@PathVariable("gestureId") Long gestureId,
+                                                        @PathVariable("stick") EStick stick) {
         return pathService.catchGesture(NewGestureRequestDto.builder()
-                .id(id)
+                .id(gestureId)
                 .stick(stick)
                 .build());
     }

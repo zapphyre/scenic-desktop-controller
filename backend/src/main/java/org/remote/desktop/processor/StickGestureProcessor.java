@@ -39,8 +39,9 @@ public class StickGestureProcessor {
     private final JoyWorker worker;
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
-    private final ButtonPressMapper buttonPressMapper;
     private final ButtonAdapter buttonAdapter;
+    private final ButtonPressMapper buttonPressMapper;
+    private final PolarCoordsMapper polarCoordsMapper;
 
     ToleranceConfig toleranceConfig = ToleranceConfig.builder()
             .frequencyTolerancePercent(10.0)
@@ -49,7 +50,6 @@ public class StickGestureProcessor {
             .build();
 
     Gesturizer motionMapper = Gesturizer.withDefaults();
-    private final PolarCoordsMapper polarCoordsMapper = Mappers.getMapper(PolarCoordsMapper.class);
 
     private Disposable left;
     private Disposable right;
@@ -73,16 +73,14 @@ public class StickGestureProcessor {
 
         GestureSupplier gs = motionMapper.pathComposeqa(polarCoords.map(polarCoordsMapper::map));
 
-        return gs.gestureCb(o -> {
-//            log.info("we have a results");
-            stringMatcher.match(o).stream()
-                    .filter(q -> q.getMatchPercentage() >= 80d)
-                    .peek(q -> log.info("Match: {}", q))
-                    .findFirst().stream()
-                    .map(MatchResult::getKey)
-                    .map(buttonPressMapper::map)
-                    .forEach(buttonAdapter.actOnButtonPress());
-        });
+        return gs.gestureCb(o -> stringMatcher.match(o).stream()
+                .filter(q -> q.getMatchPercentage() >= 80d)
+                .peek(q -> log.info("Match: {}", q))
+                .findFirst().stream()
+                .map(MatchResult::getKey)
+                .map(buttonPressMapper::map)
+                .forEach(buttonAdapter.actOnButtonPress())
+        );
     }
 
     List<MatchDef<ButtonEventDto>> setupMatcherOn(Function<? super GestureEventDto, GestureDto> stickSpecifier, String sceneName) {

@@ -4,7 +4,7 @@ import org.asmus.model.PolarCoords;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface PolarCoordsMapper {
 
     PolarCoords map(org.zapphyre.model.PolarCoords polarCoords);

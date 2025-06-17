@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
-import org.mapstruct.factory.Mappers;
 import org.remote.desktop.db.dao.GestureDao;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.dto.rest.EStick;
@@ -31,6 +30,7 @@ public class PathService {
 
     private final JoyWorker worker;
     private final GestureDao gestureDao;
+    private final PolarCoordsMapper polarCoordsMapper;
     private final Gesturizer gesturizer = Gesturizer.withDefaults();
 
     public void updatePathOn(Long id, String newPath) {
@@ -41,7 +41,6 @@ public class PathService {
         gestureDao.deletePath(id);
     }
 
-    private final PolarCoordsMapper polarCoordsMapper = Mappers.getMapper(PolarCoordsMapper.class);
     public Mono<ResponseEntity<GesturePathVto>> catchGesture(NewGestureRequestDto req) {
         Flux<PolarCoords> coordsFlux = req.getStick() == EStick.RIGHT ?
                 rightStickStream().polarProducer(worker) : leftStickStream().polarProducer(worker);

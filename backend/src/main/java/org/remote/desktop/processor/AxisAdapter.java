@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.GamepadEvent;
 import org.asmus.model.PolarCoords;
-import org.remote.desktop.actuate.MouseCtrl;
+import org.remote.desktop.actuate.MouseAct;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -49,18 +49,18 @@ public class AxisAdapter {
     private Map<ELogicalTrigger, Node> nodeMap, original;
 
     @Getter
-    private Consumer<PolarCoords> leftStickConsumer = MouseCtrl::moveMouse;
+    private Consumer<PolarCoords> leftStickConsumer = MouseAct::moveMouse;
     //    private Consumer<PolarCoords> leftStickConsumer = (q) -> {
 //    };
     @Getter
-    private Consumer<PolarCoords> rightStickConsumer = MouseCtrl::scroll;
+    private Consumer<PolarCoords> rightStickConsumer = MouseAct::scroll;
 //    private Consumer<PolarCoords> rightStickConsumer = (q) -> {
 //    };
 
 
     private final Map<EAxisEvent, Consumer<PolarCoords>> axisEventMap = Map.of(
-            EAxisEvent.MOUSE, MouseCtrl::moveMouse,
-            EAxisEvent.SCROLL, MouseCtrl::scroll,
+            EAxisEvent.MOUSE, MouseAct::moveMouse,
+            EAxisEvent.SCROLL, MouseAct::scroll,
             EAxisEvent.VOL, e -> {
             },
             EAxisEvent.NOOP, e -> {
