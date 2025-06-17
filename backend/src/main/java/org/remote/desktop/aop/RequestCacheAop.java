@@ -31,6 +31,9 @@ public class RequestCacheAop {
     public void getMappingMethods() {
     }
 
+    @Pointcut("@annotation(org.remote.desktop.mark.CacheEvictAll)")
+    public void evictAll() {}
+
     // Pointcut for methods with POST, PUT, PATCH, DELETE annotations
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) || " +
             "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
@@ -44,7 +47,7 @@ public class RequestCacheAop {
     public void nonGetControllerMethods() {
     }
 
-    @AfterReturning(pointcut = "nonGetControllerMethods()", returning = "result")
+    @AfterReturning(pointcut = "nonGetControllerMethods() || evictAll()", returning = "result")
     public void clearAllCaches(Object result) {
         // Handle both Mono/Flux and synchronous returns
         if (result instanceof Mono<?> mono) {

@@ -15,8 +15,8 @@ const addNewGesture = async () => {
 };
 
 // Add a path to a specific gesture
-const addPath = (gesture: Gesture) => {
-  const eventSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/gestures/new-path/${gesture.id}/LEFT`);
+const addPath = (gesture: Gesture, side: string) => {
+  const eventSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/path/new-path/${gesture.id}/${side}`);
   const gesturePath = {path: "[receiving path]"} as GesturePath;
 
   gesture.paths.push(gesturePath);
@@ -95,11 +95,23 @@ const editPath = (uiPath: GesturePath) => {
                       @input="onNameChange(gesture)"
                   />
                 </div>
-                <Button
-                    label="Add Path"
-                    icon="pi pi-plus"
-                    @click="addPath(gesture)"
-                />
+                <div class="flex flex-column gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <Button
+                        label="Left Stick"
+                        icon="pi pi-plus"
+                        class="w-full"
+                        @click="addPath(gesture, 'LEFT')"
+                    />
+                    <Button
+                        label="Right Stick"
+                        icon="pi pi-plus"
+                        class="w-full"
+                        @click="addPath(gesture, 'RIGHT')"
+                    />
+                  </div>
+                </div>
+
               </div>
             </div>
 

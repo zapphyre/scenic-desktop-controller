@@ -1,6 +1,7 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.mark.CacheEvictAll;
 import org.remote.desktop.model.dto.rest.EStick;
 import org.remote.desktop.model.dto.rest.NewGestureRequestDto;
 import org.remote.desktop.model.vto.GesturePathVto;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("api/path")
+@RequestMapping("${api.prefix}/path")
 @RequiredArgsConstructor
 public class PathCtrl {
 
@@ -21,6 +22,7 @@ public class PathCtrl {
         pathService.updatePathOn(id, newPath);
     }
 
+    @CacheEvictAll
     @GetMapping("new-path/{id}/{stick}")
     public Mono<ResponseEntity<GesturePathVto>> addPath(@PathVariable("id") Long id, @PathVariable("stick") EStick stick) {
         return pathService.catchGesture(NewGestureRequestDto.builder()

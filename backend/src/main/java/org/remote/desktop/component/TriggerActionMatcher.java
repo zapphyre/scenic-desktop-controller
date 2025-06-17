@@ -44,7 +44,10 @@ public class TriggerActionMatcher {
     }
 
     Function<ActionMatch, NextSceneXdoAction> getAction(boolean forced) {
-        return actionMatcher(actionMapForCurrentScene(forced));
+        return Optional.of(forced)
+                .map(this::actionMapForCurrentScene)
+                .map(this::actionMatcher)
+                .orElseThrow();
     }
 
     Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
