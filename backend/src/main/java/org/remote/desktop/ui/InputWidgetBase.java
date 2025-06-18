@@ -313,7 +313,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void clearAllWords() {
-        Platform.runLater(() -> wordsContainer.clear());
+        Platform.runLater(wordsContainer::clear);
     }
 
     public void clearAllLetters() {

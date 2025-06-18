@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.function.Function;
 
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
+
 @Component
 @RequiredArgsConstructor
 public class TriggerActionMatcher {
@@ -26,7 +29,7 @@ public class TriggerActionMatcher {
         return button -> {
             NextSceneXdoAction nextSceneXdoAction = getNextSceneButtonEventMapper(button);
 
-            return Optional.ofNullable(nextSceneXdoAction)
+            return ofNullable(nextSceneXdoAction)
                     .map(NextSceneXdoAction::getActions)
                     .orElseGet(Collections::emptyList).stream()
                     .map(mapper.mapEvent(button, nextSceneXdoAction))
@@ -37,14 +40,14 @@ public class TriggerActionMatcher {
     // ActionMatch doesn't take in consideration qualifier; therefore filter might pass click for 'long' qualifier
     // that was isLong = false --which will match here the same way as unmodified release click would
     NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef button) {
-        return Optional.of(button)
+        return of(button)
                 .map(buttonPressMapper::map)
                 .map(getAction(xdoSceneService.isSceneForced()))
                 .orElse(null);
     }
 
     Function<ActionMatch, NextSceneXdoAction> getAction(boolean forced) {
-        return Optional.of(forced)
+        return of(forced)
                 .map(this::actionMapForCurrentScene)
                 .map(this::actionMatcher)
                 .orElseThrow();

@@ -18,8 +18,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static java.util.Optional.*;
 import static java.util.stream.Collectors.toMap;
 import static org.remote.desktop.util.FluxUtil.*;
 
@@ -46,7 +48,7 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
-        return Optional.ofNullable(windowName)
+        return ofNullable(windowName)
                 .map(sceneService::getSceneForWindowNameOrBase)
                 .map(this::extractInheritedActions)
                 .orElse(Map.of());
@@ -54,7 +56,7 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return Optional.of(sceneDto)
+        return of(sceneDto)
                 .map(xdoSceneService::saveLastRecognizedScene)
                 .map(scraper::scrapeActionsRecursive)
                 .orElseThrow().stream()
@@ -62,17 +64,20 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));
     }
 
-    public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        SceneDto scene = xdoSceneService.isSceneForced() ?
+    public SceneDto relevantSceneNow() {
+        return xdoSceneService.isSceneForced() ?
                 xdoSceneService.getForcedScene() :
                 sceneService.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
-
-        return sceneClickQualificationRelevant(click, scene);
     }
 
-    //    @Cacheable("qwer")
-    public boolean sceneClickQualificationRelevant(ButtonActionDef click, SceneDto scene) {
-        return Arrays.stream(EQualifiedSceneDict.values())
+    public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
+        return of(relevantSceneNow())
+                .map(sceneClickQualificationRelevant(click))
+                .orElse(false);
+    }
+
+    public Function<SceneDto, Boolean> sceneClickQualificationRelevant(ButtonActionDef click) {
+        return scene -> Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
                         .map(EventDto::getButtonEvent)
                         .filter(triggerAndModifiersSameAsClick(click))
