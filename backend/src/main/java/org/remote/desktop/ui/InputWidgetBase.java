@@ -338,6 +338,10 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void selectBottomRow() {
+        Platform.runLater(() -> {
+            lettersContainer.requestFocus();
+            lettersContainer.positionCaret(lettersContainer.getText().length());
+        });
         activeRowControls = new RowControls(this::moveSentenceCursorLeft, this::moveSentenceCursorRight);
     }
 

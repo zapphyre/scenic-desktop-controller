@@ -57,7 +57,7 @@ public class RequestCacheAop {
             clearCaches();
     }
 
-    private void clearCaches() {
+    void clearCaches() {
         Optional.ofNullable(cacheManager)
                 .map(CacheManager::getCacheNames)
                 .orElseGet(Collections::emptyList).stream()

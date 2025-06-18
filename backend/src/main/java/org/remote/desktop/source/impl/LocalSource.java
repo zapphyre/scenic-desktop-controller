@@ -43,8 +43,6 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-        connectAndRemember(rightStickStream().polarProducer(worker)::subscribe, axisAdapter::getRightStickConsumer);
-
         /*
          *   consumer in .subscribe(..) -=can not=- be interchanged for method reference b/c it's being re-assigned
          *   in runtime on the instance;
@@ -53,6 +51,17 @@ public class LocalSource extends BaseSource {
         connectAndRemember(_ ->
                 FluxUtil.repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
                         .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
+
+        // same...
+        connectAndRemember(_ ->
+                        rightStickStream().polarProducer(worker)
+                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
+                () -> null);
+
+        connectAndRemember(_ ->
+                        leftStickStream().polarProducer(worker)
+                                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)),
+                () -> null);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 

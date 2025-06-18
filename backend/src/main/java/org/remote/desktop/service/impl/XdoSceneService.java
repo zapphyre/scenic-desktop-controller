@@ -33,6 +33,8 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     private SceneDto forcedScene;
     private SceneDto lastRecognizedScene;
 
+    private String lastRecognizedSceneName = "";
+
     public SceneDto saveLastRecognizedScene(SceneDto sceneDto) {
         return lastRecognizedScene = sceneDto;
     }
@@ -41,25 +43,39 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     public void onApplicationEvent(XdoCommandEvent event) {
         Optional.of(event)
                 .map(XdoCommandEvent::getNextScene)
-                .map(q -> forcedScene = q)
+                .map(q -> {
+                    lastRecognizedSceneName = q.getWindowName();
+                    return forcedScene = q;
+                })
                 .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
     public void forceScene(SceneDto scene) {
-        forcedScene = scene;
+        lastRecognizedSceneName = scene.getWindowName();
+
+        forcedScene = lastRecognizedScene = scene;
     }
 
     public String tryGetCurrentName() {
         String windowName = sceneProvider.get();
 
-        if (!windowName.contains(Optional.ofNullable(lastRecognizedScene).map(SceneDto::getWindowName).orElse("Base")))
-            recognizedSceneObservers.forEach(p -> p.accept(windowName));
+        System.out.println("Current name: " + windowName);
+        if (lastRecognizedSceneName != null)
+            System.out.println("last recognized scene: " + lastRecognizedSceneName);
 
-        return windowName;
+        if (!windowName.equals(lastRecognizedSceneName))
+            recognizedSceneObservers.forEach(p -> {
+                System.out.println("notifying obs");
+                p.accept(windowName);
+            });
+
+        return lastRecognizedSceneName = windowName;
     }
 
     public void nullifyForcedScene() {
+        System.out.println("nullifyForcedScene");
         forcedScene = null;
+        tryGetCurrentName();
     }
 
     public boolean isSceneForced() {

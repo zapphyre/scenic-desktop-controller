@@ -18,7 +18,7 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
     @Getter
     private LetterCircle groupWidget;
-    public static String[] letterGroups = new String[]{"◑", "༶", "◐", "Ⲯ"};
+    public static String[] letterGroups = new String[]{"◑", "༶", "◑", "Ⲯ"};
 
     private StringBuilder middleText = new StringBuilder();
 
