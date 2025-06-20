@@ -65,6 +65,7 @@ export interface XdoAction {
     keyEvt: EKeyEvt | undefined;
     keyStrokes: string[];
     eventFk: number | undefined;
+    activator: EButtonAxisMapping | undefined;
 }
 
 export interface KeyPart {

@@ -3,7 +3,9 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
-import {actionValues, XdoAction} from "@/model/gpadOs";
+import {actionValues,
+  buttonValues,
+  XdoAction} from "@/model/gpadOs";
 import {onMounted, ref, watch} from "vue";
 import {getStrokes, useStrokesStore} from "@/api/dataStore";
 import apiClient from '@/api';
@@ -85,12 +87,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex justify-content-center align-items-center gap-2">
+  <div class="flex justify-content-center align-items-center gap-1">
+    <Select
+        v-model="props.xdoAction.activator"
+        :options="buttonValues"
+        placeholder="Activator"
+        class="w-5"
+        :disabled="disabled"
+        @change="evtTypeChanged"
+        show-clear
+    />
     <Select
         v-model="props.xdoAction.keyEvt"
         :options="actionValues"
         placeholder="XdoActionType"
-        class="w-4 input-item"
+        class="w-5"
         :disabled="disabled"
         @change="evtTypeChanged"
     />
@@ -99,7 +110,7 @@ onMounted(() => {
         v-model="strokes"
         :options="filteredStrokes"
         placeholder="Select key strokes"
-        class="w-4 input-item"
+        class="w-3"
         @change="changed"
     >
       <template #header>

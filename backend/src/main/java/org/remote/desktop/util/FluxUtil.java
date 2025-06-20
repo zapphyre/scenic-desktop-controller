@@ -34,7 +34,7 @@ public class FluxUtil {
         };
     }
 
-    public <T> BinaryOperator<T> laterMerger() {
+    public static <T> BinaryOperator<T> laterMerger() {
         return (q, p) -> p;
     }
 

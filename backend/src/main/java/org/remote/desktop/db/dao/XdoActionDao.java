@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
-import org.remote.desktop.mapper.XdoActionMapper;
+import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class XdoActionDao {
 
     private final XdoActionRepository xdoActionRepository;
     private final EventRepository eventRepository;
-    private final XdoActionMapper xdoActionMapper;
+    private final EventMapper eventMapper;
 
     public void delete(Long xdoActionId) {
         xdoActionRepository.deleteById(xdoActionId);
@@ -39,12 +39,12 @@ public class XdoActionDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
-                .ifPresent(xdoActionMapper.update(vto, FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)));
+                .ifPresent(eventMapper.update(vto, FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
     public Long create(XdoActionVto vto) {
         return Optional.of(vto)
-                .map(xdoActionMapper.map(FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)))
+                .map(eventMapper.mapXdoEvent(FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId)
                 .orElseThrow();

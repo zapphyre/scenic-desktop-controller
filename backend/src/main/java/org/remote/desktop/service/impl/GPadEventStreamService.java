@@ -2,8 +2,10 @@ package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.mapper.ActivatorGroupingEventMapper;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
@@ -21,9 +23,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.Optional.*;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.remote.desktop.util.FluxUtil.*;
+import static org.remote.desktop.util.FluxUtil.laterMerger;
 
 @Slf4j
 @Service
@@ -33,6 +36,8 @@ public class GPadEventStreamService {
     private final SceneService sceneService;
     private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
+    private final ActivatorGroupingEventMapper activatorGroupingEventMapper;
+
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
 
     public Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
@@ -54,12 +59,25 @@ public class GPadEventStreamService {
                 .orElse(Map.of());
     }
 
-    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
+//    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        return of(sceneDto)
+        List<List<EventDto>> list = of(sceneDto)
                 .map(xdoSceneService::saveLastRecognizedScene)
                 .map(scraper::scrapeActionsRecursive)
                 .orElseThrow().stream()
+                .map(activatorGroupingEventMapper::groupByActivator)
+                .toList();
+        return list.stream()
+//                .flatMap((EventDto) q -> q.getActions().stream()
+//                        .filter(Objects::nonNull)
+//                        .map(p -> Objects.isNull(p.getActivator()) ?
+//                                List.of(q) :
+//                                List.of(
+//                                        buttonPressMapper.concatModifiers(q, q.getButtonEvent().getModifiers(), p.getActivator())
+//                                )
+//                        )
+//                )
+                .flatMap(Collection::stream)
                 .map(buttonPressMapper.map(sceneDto))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));
     }

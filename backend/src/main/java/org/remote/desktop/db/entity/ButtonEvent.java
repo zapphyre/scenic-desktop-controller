@@ -2,6 +2,7 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import org.asmus.model.EMultiplicity;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Optional;
 @Data
 @Entity
 @Builder
+@Jacksonized
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)

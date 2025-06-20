@@ -60,6 +60,6 @@ public class TriggerActionMatcher {
     }
 
     Function<ActionMatch, NextSceneXdoAction> actionMatcher(Map<ActionMatch, NextSceneXdoAction> definitions) {
-        return definitions::get;
+        return key -> definitions.get(key);
     }
 }

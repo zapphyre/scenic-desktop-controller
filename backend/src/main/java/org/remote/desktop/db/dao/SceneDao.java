@@ -4,19 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
-import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.mapper.SceneMapper;
-import org.remote.desktop.mapper.XdoActionMapper;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.util.RecursiveScraper;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Component

@@ -26,6 +26,8 @@ public class XdoAction {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Event event;
+    
+    private String activator;
 
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "key_stroked", joinColumns = @JoinColumn(name = "xdo_action_id"))
