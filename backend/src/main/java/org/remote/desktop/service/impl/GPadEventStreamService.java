@@ -2,7 +2,6 @@ package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.EQualificationType;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.mapper.ActivatorGroupingEventMapper;
@@ -59,24 +58,13 @@ public class GPadEventStreamService {
                 .orElse(Map.of());
     }
 
-//    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
+    @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        List<List<EventDto>> list = of(sceneDto)
+        return of(sceneDto)
                 .map(xdoSceneService::saveLastRecognizedScene)
                 .map(scraper::scrapeActionsRecursive)
                 .orElseThrow().stream()
                 .map(activatorGroupingEventMapper::groupByActivator)
-                .toList();
-        return list.stream()
-//                .flatMap((EventDto) q -> q.getActions().stream()
-//                        .filter(Objects::nonNull)
-//                        .map(p -> Objects.isNull(p.getActivator()) ?
-//                                List.of(q) :
-//                                List.of(
-//                                        buttonPressMapper.concatModifiers(q, q.getButtonEvent().getModifiers(), p.getActivator())
-//                                )
-//                        )
-//                )
                 .flatMap(Collection::stream)
                 .map(buttonPressMapper.map(sceneDto))
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));

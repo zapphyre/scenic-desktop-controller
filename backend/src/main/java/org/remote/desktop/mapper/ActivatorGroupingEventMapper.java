@@ -28,12 +28,6 @@ public interface ActivatorGroupingEventMapper {
 
     Predicate<XdoActionDto> nullActivator = xdoActionDto -> xdoActionDto.getActivator() == null;
 
-    default EventDto createNullEvent(List<XdoActionDto> actions) {
-        EventDto copy = new EventDto();
-        copy.setActions(new ArrayList<>(actions));
-        return copy;
-    }
-
     default Map<String, Integer> collectActivatorIndices(EventDto dto) {
         return IntStream.range(0, dto.getActions().size())
                 .boxed()
@@ -91,7 +85,6 @@ public interface ActivatorGroupingEventMapper {
 
         EventDto nullEvent = copyEventDto(source);
         nullEvent.setActions(new ArrayList<>(nullActions));
-//        EventDto nullEvent = createNullEvent(nullActions);
 
         return Stream.concat(
                         nullEvent.getActions().isEmpty() ? Stream.empty() : Stream.of(nullEvent),
