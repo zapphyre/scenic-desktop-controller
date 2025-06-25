@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -51,10 +50,7 @@ public class RequestCacheAop {
     @AfterReturning(pointcut = "nonGetControllerMethods() || evictAll()", returning = "result")
     public void clearAllCaches(Object result) {
         // Handle both Mono/Flux and synchronous returns
-        if (result instanceof Mono<?> mono)
-            mono.doOnSuccess(_ -> clearCaches()).subscribe();
-        else
-            clearCaches();
+        clearCaches();
     }
 
     void clearCaches() {

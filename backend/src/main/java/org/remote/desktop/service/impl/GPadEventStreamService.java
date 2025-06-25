@@ -61,7 +61,6 @@ public class GPadEventStreamService {
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return of(sceneDto)
-                .map(xdoSceneService::saveLastRecognizedScene)
                 .map(scraper::scrapeActionsRecursive)
                 .orElseThrow().stream()
                 .map(activatorGroupingEventMapper::groupByActivator)
@@ -70,19 +69,19 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));
     }
 
-    public SceneDto relevantSceneNow() {
+    public SceneDto sceneNow() {
         return xdoSceneService.isSceneForced() ?
                 xdoSceneService.getForcedScene() :
                 sceneService.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        return of(relevantSceneNow())
-                .map(sceneClickQualificationRelevant(click))
+        return of(sceneNow())
+                .map(isIncomingQualificatorRelevantForCurrentScene(click))
                 .orElse(false);
     }
 
-    public Function<SceneDto, Boolean> sceneClickQualificationRelevant(ButtonActionDef click) {
+    public Function<SceneDto, Boolean> isIncomingQualificatorRelevantForCurrentScene(ButtonActionDef click) {
         return scene -> Arrays.stream(EQualifiedSceneDict.values())
                 .filter(q -> scraper.scrapeActionsRecursive(scene).stream()
                         .map(EventDto::getButtonEvent)

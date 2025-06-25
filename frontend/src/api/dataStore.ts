@@ -1,5 +1,5 @@
 import apiClient from "@/api";
-import type {Gesture, NameId, Scene} from "@/model/gpadOs";
+import type {Gesture, Lang, NameId, Scene} from "@/model/gpadOs";
 import { ref } from "vue";
 
 const unset = {id: undefined, name: "[unset]"};
@@ -9,6 +9,7 @@ const strokes = ref([]); // Initialize as empty array
 const scenes = ref<Scene[]>([]);
 const triggers = ref([]);
 const gestures = ref<Gesture[]>([]);
+const languages = ref<Lang[]>([]);
 
 const gesturesNameId = ref<NameId[]>([]);
 const sceneNameIdList = ref<NameId[]>([]);
@@ -54,11 +55,20 @@ const fetchGestures = async () => {
     }
 }
 
+const fetchLanguages = async () => {
+    try {
+        languages.value = (await apiClient.get("languages/all")).data;
+    } catch (e) {
+        console.error("Failed to fetch gestures:", e);
+    }
+}
+
 // Initialize the data immediately when the module is imported
 await fetchStrokes();
 await fetchScenes();
 await fetchTriggers();
 await fetchGestures();
+await fetchLanguages();
 
 // Export a function to access the strokes
 export const useStrokesStore = () => {
@@ -87,3 +97,6 @@ export const addGesture = (g: Gesture) => {
     gestures.value.push(g);
     gesturesNameId.value.push({name: g.name, id: g.id});
 }
+
+export const getLanguages = () => languages.value
+export const addLanguage = languages.value.push;

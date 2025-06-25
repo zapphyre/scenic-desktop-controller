@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@Mapper(componentModel = "spring") // Use "spring" if using Spring, or "default" otherwise
+@Mapper(componentModel = "spring")
 public interface ActivatorGroupingEventMapper {
 
     @Mapping(target = "buttonEvent.event", ignore = true)
@@ -87,8 +87,9 @@ public interface ActivatorGroupingEventMapper {
         nullEvent.setActions(new ArrayList<>(nullActions));
 
         return Stream.concat(
-                        nullEvent.getActions().isEmpty() ? Stream.empty() : Stream.of(nullEvent),
-                        nonNullEvents.stream()
+                        nonNullEvents.stream(),
+                        nullEvent.getActions().isEmpty() ?
+                                Stream.empty() : Stream.of(nullEvent)
                 )
                 .toList();
     }

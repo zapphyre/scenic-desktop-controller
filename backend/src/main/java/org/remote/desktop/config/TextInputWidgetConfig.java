@@ -28,7 +28,7 @@ public class TextInputWidgetConfig {
     public CircleButtonsInputWidget inputWidget() {
         CircleButtonsInputWidget variableGroupingInputWidget = new CircleButtonsInputWidget(90, 2,
                 Color.BURLYWOOD, 0.4, Color.ORANGE, Color.BLACK,
-                6, settingsDao.getSettings().getTextInputSceneName(), trie::incrementFrequency,
+                6, settingsDao.getSettings().getTextInputSceneName(), q -> trie.insert(q, q),
                 settingsDao.getSettings().isPersistentPreciseInput(), settingsDao::setPersistentInputMode
         );
 

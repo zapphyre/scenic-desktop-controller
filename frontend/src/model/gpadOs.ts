@@ -68,6 +68,23 @@ export interface XdoAction {
     activator: EButtonAxisMapping | undefined;
 }
 
+export interface TrieResult {
+    trie: ValueFrequency[];
+    encoded: string;
+}
+
+export interface ValueFrequency {
+    value: string;
+    frequency: number;
+}
+
+export interface Lang {
+    id: number | undefined;
+    code: string;
+    name: string;
+    size: number;
+}
+
 export interface KeyPart {
     keyEvt: EKeyEvt;
     keyPress: string | undefined;

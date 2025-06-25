@@ -7,6 +7,7 @@ import Settings from "./components/setting/Settings.vue";
 
 import {ref} from "vue";
 import GestureDef from "@/components/gesture/GestureDef.vue";
+import TrieDef from "@/components/trie/TrieDef.vue";
 
 const selected = ref(ActionSettings)
 
@@ -20,6 +21,11 @@ const menu = ref([
     label: 'Gesture',
     icon: 'pi pi-bullseye',
     command: () => selected.value = GestureDef
+  },
+  {
+    label: 'Writing (Trie)',
+    icon: 'pi pi-book',
+    command: () => selected.value = TrieDef
   },
   {
     label: 'State Control',
