@@ -51,12 +51,19 @@ const totalPages = computed(() =>
 );
 
 const onUp = (item: ValueFrequency) => {
-  console.log("UP:", item);
+  emit('freqIncrement', item.value);
+  item.frequency = item.frequency + 1;
 };
 
 const onDown = (item: ValueFrequency) => {
-  console.log("DOWN:", item);
+  emit('freqDecrement', item.value);
+  item.frequency = item.frequency - 1;
 };
+
+const emit = defineEmits<{
+  (e: 'freqIncrement', value: string): void;
+  (e: 'freqDecrement', value: string): void;
+}>();
 </script>
 
 <style scoped>

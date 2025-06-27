@@ -10,7 +10,8 @@ import java.util.List;
 @Value
 @Builder
 @Jacksonized
-public class TrieResult {
+public class TrieResult  {
     List<ValueFrequency<String>> trie;
     String encoded;
+
 }

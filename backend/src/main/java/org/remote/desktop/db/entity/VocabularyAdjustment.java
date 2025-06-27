@@ -5,33 +5,36 @@ import lombok.*;
 
 import java.util.Optional;
 
+@With
 @Data
-//@Entity
-@Builder
+@Entity
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(onlyExplicitlyIncluded = true)
+@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Vocabulary {
+public class VocabularyAdjustment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @ToString.Include
     private Long id;
 
+    @EqualsAndHashCode.Include
     private String word;
 
-    private int frequency;
+    @EqualsAndHashCode.Include
+    private Integer frequencyAdjustment;
 
     @ManyToOne
     @JoinColumn
+    @ToString.Exclude
     private Language language;
 
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-//        Optional.ofNullable(language)
-//                .map(Language::getVocabulary)
-//                .ifPresent(q -> q.add(this));
+        Optional.ofNullable(language)
+                .map(Language::getVocabularyAdjustments)
+                .ifPresent(q -> q.add(this));
     }
 }

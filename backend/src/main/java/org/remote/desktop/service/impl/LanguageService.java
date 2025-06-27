@@ -4,20 +4,21 @@ import com.arun.trie.base.Trie;
 import com.arun.trie.base.ValueFrequency;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.LanguageDao;
-import org.remote.desktop.db.entity.Vocabulary;
+import org.remote.desktop.db.dao.VocabularyDao;
+import org.remote.desktop.db.entity.VocabularyAdjustment;
 import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.model.dto.rest.TrieResult;
 import org.remote.desktop.model.vto.LanguageVto;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.remote.desktop.service.impl.VocabAdjustmentsService.concatTextDocs;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 
 @Service
@@ -25,25 +26,31 @@ import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 public class LanguageService {
 
     private final LanguageDao languageDao;
+    private final VocabularyDao vocabularyDao;
+    private final VocabAdjustmentsService vocabAdjustmentsService;
+
     private final TrieService trieService;
+    public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
 
-    private final Sinks.Many<String> suggestions = Sinks.many().multicast().directBestEffort();
-
-    public WordNote addToVocabulary(String language) {
-        Function<String, Vocabulary> vocabularyCreator = Optional.ofNullable(language)
-                .map(languageDao::getLanguageIdByAbbreviation)
-                .map(languageDao::insertWordForLanguageId)
-                .orElseThrow();
-
-        return word -> {
-            Vocabulary vocabulary = Optional.ofNullable(languageDao.getVocabularyByWord(word))
-                    .orElseGet(() -> vocabularyCreator.apply(word));
-
-            vocabulary.setFrequency(vocabulary.getFrequency() + 1);
-
-            languageDao.saveVocabulary(vocabulary);
-        };
+    public Consumer<String> propVocabularyFreq(Long languageId,
+                                               Function<VocabularyAdjustment, VocabularyAdjustment> propFun) {
+        return word -> vocabularyDao.findByLangAndWord(languageId)
+                .andThen(propFun)
+                .andThen(vocabularyDao::save)
+                .apply(word);
     }
+
+    static Function<Integer, Integer> nonNullInt = q -> Optional.ofNullable(q).orElse(0);
+
+    public static Function<VocabularyAdjustment, VocabularyAdjustment> increment = q ->
+            nonNullInt.andThen(a -> ++a)
+                    .andThen(q::withFrequencyAdjustment)
+                    .apply(q.getFrequencyAdjustment());
+
+    public static Function<VocabularyAdjustment, VocabularyAdjustment> decrement = q ->
+            nonNullInt.andThen(a -> --a)
+                    .andThen(q::withFrequencyAdjustment)
+                    .apply(q.getFrequencyAdjustment());
 
     public List<LanguageVto> getAll() {
         return languageDao.readAll();
@@ -65,23 +72,25 @@ public class LanguageService {
         return newVocab -> Optional.ofNullable(langId)
                 .map(languageDao::getLanguageById)
                 .map(LanguageDto::getTrieDump)
-                .map(concatTextTextDocs(newVocab))
+                .map(concatTextDocs(newVocab))
+                .map(bytesToLines)
+                .map(vocabAdjustmentsService.concatMaterializedAdjustments(langId))
                 .map(languageDao.setVocabulary(langId))
-                .map(trieService.insertReturning(langId))
+                .map(trieService.loadVocabularyToTrie(langId))
                 .map(Trie::size)
                 .map(languageDao.setVocabularySize(langId))
                 .orElseThrow();
     }
 
-    public Flux<String> suggest() {
-        return suggestions.asFlux();
-    }
+    public static Function<byte[], List<String>> bytesToLines = q ->
+            new String(q, StandardCharsets.UTF_8).lines().toList();
 
     public TrieResult suggestFor(Long langId, String term) {
-        String encoded = createCharacterMapper(trieDict).apply(term);
-
+        String encoded = wordToTrieEncoder.apply(term);
         List<ValueFrequency<String>> results = trieService.getTrie(langId)
-                .getValueFreqSuggestions(encoded);
+                .getValueFreqSuggestions(encoded).stream()
+                .sorted()
+                .toList();
 
         return TrieResult.builder()
                 .encoded(encoded)
@@ -97,25 +106,6 @@ public class LanguageService {
                 result.append(mappedChar);
             }
             return result.toString();
-        };
-    }
-
-    public interface WordNote {
-        void createOrProp(String word);
-    }
-
-    public static Function<byte[], byte[]> concatTextTextDocs(byte[] first) {
-        return second -> {
-
-            String str1 = new String(first, StandardCharsets.UTF_8);
-            String str2 = new String(second, StandardCharsets.UTF_8);
-
-            // Ensure proper line break between blocks
-            String merged = str1.endsWith("\n") || str1.isEmpty()
-                    ? str1 + str2
-                    : str1 + "\n" + str2;
-
-            return merged.getBytes(StandardCharsets.UTF_8);
         };
     }
 }

@@ -3,10 +3,14 @@ package org.remote.desktop.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @With
 @Data
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
@@ -25,4 +29,17 @@ public class Language {
 
     @Lob
     private byte[] trieDump;
+
+    @Singular("vocabulary")
+    @OneToMany(mappedBy = "language", orphanRemoval = true,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    private List<VocabularyAdjustment> vocabularyAdjustments;
+
+    @PreUpdate
+    @PrePersist
+    public void relinkEntities() {
+        Optional.ofNullable(vocabularyAdjustments)
+                .orElseGet(ArrayList::new)
+                .forEach(q -> q.setLanguage(this));
+    }
 }

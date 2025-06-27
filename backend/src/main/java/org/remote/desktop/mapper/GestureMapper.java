@@ -7,9 +7,6 @@ import org.remote.desktop.model.dto.GestureDto;
 import org.remote.desktop.model.vto.GesturePathVto;
 import org.remote.desktop.model.vto.GestureVto;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Mapper(componentModel = "spring")
 public interface GestureMapper {
 

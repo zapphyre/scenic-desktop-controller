@@ -1,6 +1,5 @@
 package org.remote.desktop.controller.impl;
 
-import com.arun.trie.base.ValueFrequency;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.mark.CacheEvictAll;
 import org.remote.desktop.model.dto.rest.TrieResult;
@@ -11,11 +10,9 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.function.Function;
 
 @RestController
 @RequestMapping("${api.prefix}/languages")
@@ -34,7 +31,7 @@ public class LanguageCtrl {
             value = "init/{langId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public Mono<Integer> handleUpload(@PathVariable("langId") Long langId,
+    public Mono<Integer> handleUpload(@PathVariable("langId") Long languageId,
                                       @RequestPart("file") Mono<FilePart> filePartMono) {
         return filePartMono.flatMap(filePart ->
                 DataBufferUtils.join(filePart.content()) // joins all data buffers
@@ -45,18 +42,13 @@ public class LanguageCtrl {
 
                             return bytes;
                         })
-                        .map(languageService.addVocabulary(langId))
+                        .map(languageService.addVocabulary(languageId))
         );
     }
 
     @GetMapping("{langId}/suggest/{term}")
-    public TrieResult suggestFor(@PathVariable("langId") Long langId, @PathVariable("term") String term) {
-        return languageService.suggestFor(langId, term);
-    }
-
-    @GetMapping("suggestions")
-    public Flux<String> getTrieSuggestions() {
-        return languageService.suggest();
+    public TrieResult suggestFor(@PathVariable("langId") Long languageId, @PathVariable("term") String term) {
+        return languageService.suggestFor(languageId, term);
     }
 
     @GetMapping("all")
