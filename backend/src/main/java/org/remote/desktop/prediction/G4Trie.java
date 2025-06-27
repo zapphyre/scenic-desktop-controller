@@ -13,12 +13,7 @@ public class G4Trie extends VariTrie<String> {
     Map<Character, Character> vocabulary;
 
     public boolean canTranslate(char c) {
-        boolean can = vocabulary.containsKey(Character.toUpperCase(c));
-
-        if (!can)
-            System.out.println("Can't translate: " + c);
-
-        return can;
+        return vocabulary.containsKey(Character.toUpperCase(c));
     }
 
     @Override

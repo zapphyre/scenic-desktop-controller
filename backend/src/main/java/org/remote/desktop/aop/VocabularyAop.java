@@ -36,6 +36,7 @@ public class VocabularyAop {
 
     @AfterReturning(value = "newLanguageBaseLoad(languageId)", argNames = "languageId")
     void afterNewLanguageBaseLoad(Long languageId) {
+        // b/c adjustments has been materialized in the process
         vocabularyDao.deleteAllForLanguage(languageId);
 
         log.info("purged vocabulary for language {}", languageId);

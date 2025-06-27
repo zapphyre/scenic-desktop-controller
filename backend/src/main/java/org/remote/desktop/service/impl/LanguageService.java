@@ -27,9 +27,10 @@ public class LanguageService {
 
     private final LanguageDao languageDao;
     private final VocabularyDao vocabularyDao;
-    private final VocabAdjustmentsService vocabAdjustmentsService;
 
     private final TrieService trieService;
+    private final VocabAdjustmentsService vocabAdjustmentsService;
+
     public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
 
     public Consumer<String> propVocabularyFreq(Long languageId,
@@ -42,15 +43,13 @@ public class LanguageService {
 
     static Function<Integer, Integer> nonNullInt = q -> Optional.ofNullable(q).orElse(0);
 
-    public static Function<VocabularyAdjustment, VocabularyAdjustment> increment = q ->
-            nonNullInt.andThen(a -> ++a)
-                    .andThen(q::withFrequencyAdjustment)
-                    .apply(q.getFrequencyAdjustment());
+    public static Function<Integer, Integer> increment = q -> ++q;
+    public static Function<Integer, Integer> decrement = q -> --q;
 
-    public static Function<VocabularyAdjustment, VocabularyAdjustment> decrement = q ->
-            nonNullInt.andThen(a -> --a)
-                    .andThen(q::withFrequencyAdjustment)
-                    .apply(q.getFrequencyAdjustment());
+    public static Function<Function<Integer, Integer>, Function<VocabularyAdjustment, VocabularyAdjustment>> changeFrequency =
+            q -> p -> nonNullInt.andThen(q)
+                    .andThen(p::withFrequencyAdjustment)
+                    .apply(p.getFrequencyAdjustment());
 
     public List<LanguageVto> getAll() {
         return languageDao.readAll();
@@ -99,13 +98,11 @@ public class LanguageService {
     }
 
     public static Function<String, String> createCharacterMapper(Map<Character, Character> charMap) {
-        return input -> {
-            StringBuilder result = new StringBuilder();
-            for (char c : input.toCharArray()) {
-                Character mappedChar = charMap.get(Character.toUpperCase(c));
-                result.append(mappedChar);
-            }
-            return result.toString();
-        };
+        return input -> input.chars()
+                .map(Character::toUpperCase)
+                .mapToObj(q -> (char) q)
+                .map(charMap::get)
+                .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+                .toString();
     }
 }

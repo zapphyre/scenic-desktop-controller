@@ -30,7 +30,6 @@ public class VocabAdjustmentsService {
 
     public static Function<byte[], byte[]> concatTextDocs(byte[] first) {
         return second -> {
-
             String str1 = new String(first, StandardCharsets.UTF_8);
             String str2 = new String(second, StandardCharsets.UTF_8);
 

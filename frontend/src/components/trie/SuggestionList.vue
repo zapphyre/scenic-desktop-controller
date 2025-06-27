@@ -5,35 +5,60 @@
         :key="index"
         class="grid align-items-center mb-1 suggestion-row"
     >
-      <!-- Frequency -->
-      <div class="col-2 text-right text-xs text-gray-400 pr-1">{{ item.frequency }}</div>
+      <!-- Buttons (Up/Down) and Frequency -->
+      <div class="col-3 flex align-items-center gap-1">
+        <Button
+            icon="pi pi-arrow-up"
+            class="p-button-sm p-button-text"
+            @click="onUp(item)"
+        />
+        <span class="text-xs text-gray-400">{{ item.frequency }}</span>
+        <Button
+            icon="pi pi-arrow-down"
+            class="p-button-sm p-button-text"
+            @click="onDown(item)"
+        />
+      </div>
 
       <!-- Word -->
-      <div class="col-6 text-sm text-white overflow-hidden text-ellipsis">{{ item.value }}</div>
+      <div class="col-6 text-sm text-white overflow-hidden text-ellipsis">
+        {{ item.value }}
+      </div>
 
-      <!-- Buttons -->
-      <div class="col-4 flex justify-end gap-1">
-        <Button icon="pi pi-arrow-up" class="p-button-sm p-button-text" @click="onUp(item)" />
-        <Button icon="pi pi-arrow-down" class="p-button-sm p-button-text" @click="onDown(item)" />
+      <!-- Delete Button -->
+      <div class="col-3 flex justify-end">
+        <Button
+            icon="pi pi-times"
+            class="p-button-sm p-button-text p-button-danger"
+            @click="onRemove(item)"
+        />
       </div>
     </div>
 
     <!-- Pagination -->
     <div class="flex justify-content-center items-center gap-3 mt-2">
-      <Button icon="pi pi-angle-left" class="p-button-sm p-button-text" :disabled="page === 0" @click="page--" />
-
+      <Button
+          icon="pi pi-angle-left"
+          class="p-button-sm p-button-text"
+          :disabled="page === 0"
+          @click="page--"
+      />
       <span class="text-xs text-gray-400">
-    Page {{ page + 1 }} / {{ totalPages }}
-  </span>
-
-      <Button icon="pi pi-angle-right" class="p-button-sm p-button-text" :disabled="end >= suggestions.length" @click="page++" />
+        Page {{ page + 1 }} / {{ totalPages }}
+      </span>
+      <Button
+          icon="pi pi-angle-right"
+          class="p-button-sm p-button-text"
+          :disabled="end >= suggestions.length"
+          @click="page++"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, defineProps } from 'vue';
-import {ValueFrequency} from "@/model/gpadOs";
+import { ValueFrequency } from '@/model/gpadOs';
 import Button from 'primevue/button';
 
 const props = defineProps<{
@@ -60,9 +85,14 @@ const onDown = (item: ValueFrequency) => {
   item.frequency = item.frequency - 1;
 };
 
+const onRemove = (item: ValueFrequency) => {
+  emit('remove', item.value);
+};
+
 const emit = defineEmits<{
   (e: 'freqIncrement', value: string): void;
   (e: 'freqDecrement', value: string): void;
+  (e: 'remove', value: string): void;
 }>();
 </script>
 

@@ -17,6 +17,7 @@ import java.util.function.Function;
 
 import static java.util.function.Predicate.not;
 import static org.remote.desktop.service.impl.LanguageService.bytesToLines;
+import static org.remote.desktop.util.FluxUtil.laterMerger;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 
 @Service
@@ -54,6 +55,6 @@ public class TrieService {
         return bytes -> new String(bytes, StandardCharsets.UTF_8).lines()
                 .map(String::trim)
                 .filter(not(String::isEmpty))
-                .reduce(trie, (p, q) -> p.insert(q, q), FluxUtil.laterMerger());
+                .reduce(trie, (p, q) -> p.insert(q, q), laterMerger());
     }
 }
