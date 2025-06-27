@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.remote.desktop.service.impl.LanguageService.*;
 
 @RestController
-@RequestMapping("${api.prefix}/adjust/{langId}")
+@RequestMapping("${api.prefix}/adjust/{langId}/{word}")
 @RequiredArgsConstructor
 public class VocabAdjCtrl {
 
     private final LanguageService languageService;
 
-    @PutMapping("increment/{word}")
+    @PutMapping("increment")
     public void adjustVocabUp(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
         languageService.propVocabularyFreq(langId, changeFrequency.apply(increment)).accept(word);
     }
 
-    @PutMapping("decrement/{word}")
+    @PutMapping("decrement")
     public void adjustVocabDown(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
         languageService.propVocabularyFreq(langId, changeFrequency.apply(decrement)).accept(word);
     }

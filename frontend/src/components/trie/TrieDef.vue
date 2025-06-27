@@ -81,11 +81,11 @@ const onUpload = (event: FileUploadUploadEvent) => {
 }
 
 const propUpWord = async (word: string) => {
-  await apiClient.put(`adjust/${selected.value.id}/increment/${word}`);
+  await apiClient.put(`adjust/${selected.value.id}/${word}/increment`);
 }
 
 const propDownWord = async (word: string) => {
-  await apiClient.put(`adjust/${selected.value.id}/decrement/${word}`);
+  await apiClient.put(`adjust/${selected.value.id}/${word}/decrement`);
 }
 
 </script>
