@@ -39,6 +39,7 @@ public class TrieService {
                         .andThen(LanguageDto::getTrieDump)
                         .andThen(bytesToLines)
                         .andThen(vocabAdjustmentsService.concatMaterializedAdjustments(languageId))
+                        .andThen(languageDao.updateTrieDumpOn(languageId))
                         .andThen(insert(new G4Trie(trieDict)))
         );
     }

@@ -2,16 +2,16 @@ package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.VocabularyDao;
-import org.remote.desktop.db.entity.VocabularyAdjustment;
 import org.remote.desktop.mapper.VocabularyMapper;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.remote.desktop.util.FluxUtil.laterMerger;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +20,11 @@ public class VocabAdjustmentsService {
     private final VocabularyDao vocabularyDao;
     private final VocabularyMapper vocabularyMapper;
 
-//    public byte[] materializeAdjustments(Long langId) {
-//        return vocabularyDao.getAllForLanguageRemoving(langId).stream()
-//                .map(vocabularyMapper::map)
-//                .collect(Collectors.joining(System.lineSeparator()))
-//                .getBytes(StandardCharsets.UTF_8);
-//    }
-
     public Function<List<String>, byte[]> concatMaterializedAdjustments(Long langId) {
         return lines -> vocabularyDao.getAllForLanguageRemoving(langId).stream()
                 .map(vocabularyMapper::map)
-                .reduce(lines, (p, q) -> q.adjust(p), FluxUtil.laterMerger())
-                .stream()
-                .collect(Collectors.joining(System.lineSeparator()))
+                .reduce(lines, (p, q) -> q.adjust(p), laterMerger())
+                .stream().collect(Collectors.joining(System.lineSeparator()))
                 .getBytes(StandardCharsets.UTF_8);
     }
 

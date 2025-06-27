@@ -37,4 +37,11 @@ public class VocabularyAdjustment {
                 .map(Language::getVocabularyAdjustments)
                 .ifPresent(q -> q.add(this));
     }
+
+    @PreRemove
+    public void detachEntity() {
+        Optional.ofNullable(language)
+                .map(Language::getVocabularyAdjustments)
+                .ifPresent(q -> q.remove(this));
+    }
 }

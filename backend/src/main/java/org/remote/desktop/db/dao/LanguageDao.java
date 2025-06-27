@@ -45,6 +45,14 @@ public class LanguageDao {
         languageRepository.deleteById(languageId);
     }
 
+    public Function<byte[], byte[]> updateTrieDumpOn(Long langId) {
+        return newVocabulary -> languageRepository.findById(langId)
+                .map(q -> q.withTrieDump(newVocabulary))
+                .map(languageRepository::save)
+                .map(Language::getTrieDump)
+                .orElseThrow();
+    }
+
     public Function<byte[], byte[]> setVocabulary(Long langId) {
         return bytes -> languageRepository.findById(langId)
                 .map(language -> language.withTrieDump(bytes))
