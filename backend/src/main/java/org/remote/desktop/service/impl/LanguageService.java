@@ -37,18 +37,17 @@ public class LanguageService {
     public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
 
     public Function<String, VocabularyAdjustment> propVocabularyFreq(Long languageId,
-                                               Function<VocabularyAdjustment, VocabularyAdjustment> propFun) {
-        return word -> vocabularyDao.findByLangAndWordOrCreate(languageId)
+                                                                     Function<VocabularyAdjustment, VocabularyAdjustment> propFun) {
+        return vocabularyDao.findByLangAndWordOrCreate(languageId)
                 .andThen(propFun)
-                .andThen(vocabularyDao::save)
-                .apply(word);
+                .andThen(vocabularyDao::save);
     }
 
     static Function<Integer, Integer> nonNullInt = q -> Optional.ofNullable(q).orElse(0);
 
     public static Function<Integer, Integer> increment = q -> q + 1;
     public static Function<Integer, Integer> decrement = q -> q - 1;
-    public static Function<Integer, Integer> remove = q -> Integer.MAX_VALUE;
+    public static Function<Integer, Integer> remove = q -> Integer.MIN_VALUE;
 
     public static Function<Function<Integer, Integer>, Function<VocabularyAdjustment, VocabularyAdjustment>> changeFrequency =
             q -> p -> nonNullInt.andThen(q)
@@ -111,7 +110,7 @@ public class LanguageService {
     }
 
     public Function<String, VocabularyAdjustmentDto> insertOrPropUp(Long langId) {
-        return word -> trieService.getTrie(langId).insert(word, word)
+        return word -> trieService.getTrie(langId)
                 .getValueFreqSuggestions(wordToTrieEncoder.apply(word)).stream()
                 .filter(q -> q.getValue().equals(word))
                 .map(ValueFrequency::getValue)

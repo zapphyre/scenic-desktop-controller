@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,15 +14,11 @@ import java.util.stream.IntStream;
 public class NegativeVocabularyAdjustment extends VocabularyAdjustmentDto {
 
     public List<String> adjust(List<String> lines) {
-        System.out.println("Adjusting vocabulary");
-
         int cycles = Math.abs(frequencyAdjustment);
-        List<String> stateFilter = IntStream.range(0, cycles)
-                .mapToObj(i -> word)
-                .collect(Collectors.toCollection(LinkedList::new));
+        AtomicInteger i = new AtomicInteger(cycles);
 
         return lines.stream()
-                .filter(q -> !q.equals(word) || !stateFilter.remove(q))
+                .filter(q -> !q.equals(word) || i.decrementAndGet() < 0)
                 .toList();
     }
 }

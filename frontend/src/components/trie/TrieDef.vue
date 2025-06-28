@@ -108,10 +108,6 @@ const showEmbeddedMessage = computed(() =>
     suggestTerm.value.trim().length > 0 && suggestions.value.length === 0,
 );
 
-const onButtonClick = () => {
-  console.log('User clicked the "no results" button');
-};
-
 const onUpload = (event: FileUploadUploadEvent) => {
   const responseText = event.xhr.response;
   try {
@@ -130,6 +126,8 @@ const propDownWord = async (word: string) => {
 };
 
 const removeWord = async (word: string) => {
+  await apiClient.delete(`adjust/${selected.value.id}/${word}/remove`);
+
   suggestions.value = suggestions.value.filter(item => item.value !== word);
 };
 </script>

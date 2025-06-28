@@ -74,4 +74,12 @@ public class LanguageDao {
                 .map(languageMapper::mapDto)
                 .orElseThrow();
     }
+
+    public LanguageDto save(LanguageDto dto) {
+        return Optional.ofNullable(dto)
+                .map(languageMapper::map)
+                .map(languageRepository::save)
+                .map(languageMapper::mapDto)
+                .orElseThrow();
+    }
 }

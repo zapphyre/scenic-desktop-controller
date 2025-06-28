@@ -21,4 +21,5 @@ public interface VocabularyMapper {
                         .build();
 
     }
+
 }

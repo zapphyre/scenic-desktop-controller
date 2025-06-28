@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 
@@ -20,5 +21,6 @@ public abstract class VocabularyAdjustmentDto {
     String word;
     int frequencyAdjustment;
 
+    @Transient
     public abstract List<String> adjust(List<String> lines);
 }
