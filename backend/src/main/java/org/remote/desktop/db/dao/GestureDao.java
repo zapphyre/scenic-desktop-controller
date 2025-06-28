@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Slf4j
@@ -67,8 +68,8 @@ public class GestureDao {
                 .ifPresent(q -> q.setPath(newPath));
     }
 
-    public void updateName(Long id, String name) {
-        gestureRepository.findById(id)
+    public Consumer<String> updateName(Long id) {
+        return name -> gestureRepository.findById(id)
                 .ifPresent(q -> q.setName(name));
     }
 

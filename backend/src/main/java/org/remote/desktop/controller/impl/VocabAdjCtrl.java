@@ -25,4 +25,9 @@ public class VocabAdjCtrl {
     public void adjustVocabDown(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
         languageService.propVocabularyFreq(langId, changeFrequency.apply(decrement)).accept(word);
     }
+
+    @PutMapping("remove")
+    public void adjustVocabRemove(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
+        languageService.propVocabularyFreq(langId, changeFrequency.apply(remove)).accept(word);
+    }
 }

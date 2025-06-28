@@ -43,13 +43,13 @@ public class StickGestureProcessor {
     private final ButtonPressMapper buttonPressMapper;
     private final PolarCoordsMapper polarCoordsMapper;
 
-    ToleranceConfig toleranceConfig = ToleranceConfig.builder()
+    private final ToleranceConfig toleranceConfig = ToleranceConfig.builder()
             .frequencyTolerancePercent(10.0)
             .orderEditDistanceRatio(0.3)
             .maxConsecutiveDrop(2)
             .build();
 
-    Gesturizer motionMapper = Gesturizer.withDefaults();
+    private final Gesturizer motionMapper = Gesturizer.withDefaults();
 
     private Disposable left;
     private Disposable right;
@@ -71,7 +71,7 @@ public class StickGestureProcessor {
         ToleranceConfigurer<ButtonEventDto> forKnownValuesMatcher = Matcher.create(leftMatchDefs);
         Matcher<ButtonEventDto> stringMatcher = forKnownValuesMatcher.withTolerances(toleranceConfig);
 
-        GestureSupplier gs = motionMapper.pathComposeqa(polarCoords.map(polarCoordsMapper::map));
+        GestureSupplier gs = motionMapper.pathCompose(polarCoords.map(polarCoordsMapper::map));
 
         return gs.gestureCb(o -> stringMatcher.match(o).stream()
                 .filter(q -> q.getMatchPercentage() >= 80d)

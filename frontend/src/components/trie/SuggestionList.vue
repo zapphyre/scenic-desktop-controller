@@ -1,3 +1,48 @@
+<script setup lang="ts">
+import {computed, ref, defineProps, watch} from 'vue';
+import { ValueFrequency } from '@/model/gpadOs';
+import Button from 'primevue/button';
+
+const props = defineProps<{
+  suggestions: ValueFrequency[];
+  rows: number;
+}>();
+
+const page = ref(0);
+const start = computed(() => page.value * props.rows);
+const end = computed(() => start.value + props.rows);
+const paginated = computed(() => props.suggestions.slice(start.value, end.value));
+
+const totalPages = computed(() =>
+    Math.max(1, Math.ceil(props.suggestions.length / props.rows))
+);
+
+// Watch for changes in suggestions and reset page to 0
+watch(() => props.suggestions, () => {
+  page.value = 0;
+}, { deep: true });
+
+const onUp = (item: ValueFrequency) => {
+  emit('freqIncrement', item.value);
+  item.frequency = item.frequency + 1;
+};
+
+const onDown = (item: ValueFrequency) => {
+  emit('freqDecrement', item.value);
+  item.frequency = item.frequency - 1;
+};
+
+const onRemove = (item: ValueFrequency) => {
+  emit('remove', item.value);
+};
+
+const emit = defineEmits<{
+  (e: 'freqIncrement', value: string): void;
+  (e: 'freqDecrement', value: string): void;
+  (e: 'remove', value: string): void;
+}>();
+</script>
+
 <template>
   <div class="suggestion-list-container p-2">
     <div
@@ -55,46 +100,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, defineProps } from 'vue';
-import { ValueFrequency } from '@/model/gpadOs';
-import Button from 'primevue/button';
-
-const props = defineProps<{
-  suggestions: ValueFrequency[];
-  rows: number;
-}>();
-
-const page = ref(0);
-const start = computed(() => page.value * props.rows);
-const end = computed(() => start.value + props.rows);
-const paginated = computed(() => props.suggestions.slice(start.value, end.value));
-
-const totalPages = computed(() =>
-    Math.max(1, Math.ceil(props.suggestions.length / props.rows))
-);
-
-const onUp = (item: ValueFrequency) => {
-  emit('freqIncrement', item.value);
-  item.frequency = item.frequency + 1;
-};
-
-const onDown = (item: ValueFrequency) => {
-  emit('freqDecrement', item.value);
-  item.frequency = item.frequency - 1;
-};
-
-const onRemove = (item: ValueFrequency) => {
-  emit('remove', item.value);
-};
-
-const emit = defineEmits<{
-  (e: 'freqIncrement', value: string): void;
-  (e: 'freqDecrement', value: string): void;
-  (e: 'remove', value: string): void;
-}>();
-</script>
 
 <style scoped>
 .suggestion-list-container {

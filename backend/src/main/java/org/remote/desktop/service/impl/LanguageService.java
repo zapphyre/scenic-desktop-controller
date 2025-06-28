@@ -45,6 +45,7 @@ public class LanguageService {
 
     public static Function<Integer, Integer> increment = q -> ++q;
     public static Function<Integer, Integer> decrement = q -> --q;
+    public static Function<Integer, Integer> remove = q -> Integer.MAX_VALUE;
 
     public static Function<Function<Integer, Integer>, Function<VocabularyAdjustment, VocabularyAdjustment>> changeFrequency =
             q -> p -> nonNullInt.andThen(q)

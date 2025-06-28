@@ -88,6 +88,11 @@ const propDownWord = async (word: string) => {
   await apiClient.put(`adjust/${selected.value.id}/${word}/decrement`);
 }
 
+const removeWord = async (word: string) => {
+  // await apiClient.put(`adjust/${selected.value.id}/${word}/remove`);
+  suggestions.value = suggestions.value.filter(item => item.value !== word);
+}
+
 </script>
 
 <template>
@@ -219,6 +224,7 @@ const propDownWord = async (word: string) => {
             <div class="col-4">
               <SuggestionList @freq-increment="propUpWord"
                               @freq-decrement="propDownWord"
+                              @remove="removeWord"
                               :suggestions="suggestions" :rows="5"/>
             </div>
           </div>

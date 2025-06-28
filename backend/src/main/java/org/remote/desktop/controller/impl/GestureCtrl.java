@@ -36,6 +36,6 @@ public class GestureCtrl {
 
     @PutMapping("{id}/{name}")
     public void updateName(@PathVariable("id") Long id, @PathVariable("name") String name) {
-        gestureService.updateName(id, name);
+        gestureService.updateName(id).accept(name);
     }
 }
