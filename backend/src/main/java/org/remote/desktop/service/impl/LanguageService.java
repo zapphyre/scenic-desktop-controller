@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.LanguageDao;
 import org.remote.desktop.db.dao.VocabularyDao;
 import org.remote.desktop.db.entity.VocabularyAdjustment;
+import org.remote.desktop.mapper.VocabularyMapper;
 import org.remote.desktop.model.dto.LanguageDto;
+import org.remote.desktop.model.dto.VocabularyAdjustmentDto;
 import org.remote.desktop.model.dto.rest.TrieResult;
 import org.remote.desktop.model.vto.LanguageVto;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.remote.desktop.service.impl.VocabAdjustmentsService.concatTextDocs;
@@ -31,11 +32,13 @@ public class LanguageService {
     private final TrieService trieService;
     private final VocabAdjustmentsService vocabAdjustmentsService;
 
+    private final VocabularyMapper vocabularyMapper;
+
     public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
 
-    public Consumer<String> propVocabularyFreq(Long languageId,
+    public Function<String, VocabularyAdjustment> propVocabularyFreq(Long languageId,
                                                Function<VocabularyAdjustment, VocabularyAdjustment> propFun) {
-        return word -> vocabularyDao.findByLangAndWord(languageId)
+        return word -> vocabularyDao.findByLangAndWordOrCreate(languageId)
                 .andThen(propFun)
                 .andThen(vocabularyDao::save)
                 .apply(word);
@@ -43,8 +46,8 @@ public class LanguageService {
 
     static Function<Integer, Integer> nonNullInt = q -> Optional.ofNullable(q).orElse(0);
 
-    public static Function<Integer, Integer> increment = q -> ++q;
-    public static Function<Integer, Integer> decrement = q -> --q;
+    public static Function<Integer, Integer> increment = q -> q + 1;
+    public static Function<Integer, Integer> decrement = q -> q - 1;
     public static Function<Integer, Integer> remove = q -> Integer.MAX_VALUE;
 
     public static Function<Function<Integer, Integer>, Function<VocabularyAdjustment, VocabularyAdjustment>> changeFrequency =
@@ -105,5 +108,16 @@ public class LanguageService {
                 .map(charMap::get)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
+    }
+
+    public Function<String, VocabularyAdjustmentDto> insertOrPropUp(Long langId) {
+        return word -> trieService.getTrie(langId).insert(word, word)
+                .getValueFreqSuggestions(wordToTrieEncoder.apply(word)).stream()
+                .filter(q -> q.getValue().equals(word))
+                .map(ValueFrequency::getValue)
+                .map(propVocabularyFreq(langId, changeFrequency.apply(increment)))
+                .map(vocabularyMapper::map)
+                .findFirst()
+                .orElseThrow();
     }
 }

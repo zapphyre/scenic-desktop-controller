@@ -13,6 +13,8 @@ import java.util.stream.IntStream;
 public class NegativeVocabularyAdjustment extends VocabularyAdjustmentDto {
 
     public List<String> adjust(List<String> lines) {
+        System.out.println("Adjusting vocabulary");
+
         int cycles = Math.abs(frequencyAdjustment);
         List<String> stateFilter = IntStream.range(0, cycles)
                 .mapToObj(i -> word)

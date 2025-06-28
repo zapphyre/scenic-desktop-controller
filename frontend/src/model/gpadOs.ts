@@ -78,6 +78,12 @@ export interface ValueFrequency {
     frequency: number;
 }
 
+export interface VocabularyAdjustmentDto {
+    id: number | undefined;
+    word: string;
+    frequencyAdjustment: number;
+}
+
 export interface Lang {
     id: number | undefined;
     code: string;

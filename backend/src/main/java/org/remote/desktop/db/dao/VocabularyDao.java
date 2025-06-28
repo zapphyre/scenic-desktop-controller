@@ -1,7 +1,6 @@
 package org.remote.desktop.db.dao;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.entity.Language;
 import org.remote.desktop.db.entity.VocabularyAdjustment;
 import org.remote.desktop.db.repository.LanguageRepository;
 import org.remote.desktop.db.repository.VocabularyRepository;
@@ -18,7 +17,7 @@ public class VocabularyDao {
     private final VocabularyRepository vocabularyRepository;
     private final LanguageRepository languageRepository;
 
-    public Function<String, VocabularyAdjustment> findByLangAndWord(Long langId) {
+    public Function<String, VocabularyAdjustment> findByLangAndWordOrCreate(Long langId) {
         return word -> vocabularyRepository.findByLanguageIdAndWord(langId, word)
                 .orElseGet(() -> createVocabulary(langId).apply(word));
     }

@@ -1,11 +1,10 @@
 package org.remote.desktop.controller.impl;
 
+import com.arun.trie.base.ValueFrequency;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.dto.VocabularyAdjustmentDto;
 import org.remote.desktop.service.impl.LanguageService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.remote.desktop.service.impl.LanguageService.*;
 
@@ -16,18 +15,23 @@ public class VocabAdjCtrl {
 
     private final LanguageService languageService;
 
+    @PostMapping
+    public VocabularyAdjustmentDto insertOrPropUp(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
+        return languageService.insertOrPropUp(langId).apply(word);
+    }
+
     @PutMapping("increment")
     public void adjustVocabUp(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
-        languageService.propVocabularyFreq(langId, changeFrequency.apply(increment)).accept(word);
+        languageService.propVocabularyFreq(langId, changeFrequency.apply(increment)).apply(word);
     }
 
     @PutMapping("decrement")
     public void adjustVocabDown(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
-        languageService.propVocabularyFreq(langId, changeFrequency.apply(decrement)).accept(word);
+        languageService.propVocabularyFreq(langId, changeFrequency.apply(decrement)).apply(word);
     }
 
     @PutMapping("remove")
     public void adjustVocabRemove(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
-        languageService.propVocabularyFreq(langId, changeFrequency.apply(remove)).accept(word);
+        languageService.propVocabularyFreq(langId, changeFrequency.apply(remove)).apply(word);
     }
 }
