@@ -2,11 +2,12 @@ package org.remote.desktop.ui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -14,16 +15,18 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Value;
+import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.TextContainer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
@@ -41,6 +44,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final Color highlightedColor;
     protected final Color textColor;
     private final boolean persistentPreciseInputInit;
+    private final List<LanguageDto> languages;
 
     protected boolean persistentPreciseInput;
     double scaleFactor = 1.5;
@@ -49,7 +53,9 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected int fittingCharacters;
     protected TextField lettersContainer;
     //    Text inputMode = new Text("asdf");
-    ToggleButton inputMode;
+    private ToggleButton inputMode;
+    private ComboBox<LanguageDto> languagesComboBox;
+
 
     @Setter
     protected Function<String, List<String>> predictor = List::of;
@@ -60,7 +66,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     abstract Pane createRightWidget();
 
-    abstract  void persistentInputChange(Boolean persistent);
+    abstract void persistentInputChange(Boolean persistent);
 
     Function<Boolean, String> precisionToggleText = q -> q ? "Persistent" : "Timely";
 
@@ -69,12 +75,37 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         this.primaryStage = primaryStage;
 
         inputMode = new ToggleButton("Input");
+        languagesComboBox = new ComboBox<>();
+        languagesComboBox.setPrefWidth(69);
+        languagesComboBox.getItems().addAll(languages);
+        languagesComboBox.getSelectionModel().select(0);
+        languagesComboBox.setCellFactory(listView -> new ListCell<LanguageDto>() {
+            @Override
+            protected void updateItem(LanguageDto item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getCode());
+            }
+        });
+
+        languagesComboBox.valueProperty().addListener((ov, t, t1) ->
+                languagesComboBox.setValue(t1)
+        );
+
+        languagesComboBox.setButtonCell(new ListCell<LanguageDto>() {
+            @Override
+            protected void updateItem(LanguageDto item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "" : item.getCode());
+            }
+        });
+
 
         HBox horiz = new HBox();
         VBox vert = new VBox();
         vert.setAlignment(Pos.CENTER);
 
-        HBox hBox = new HBox(inputMode);
+        VBox settings = new VBox(inputMode, languagesComboBox);
+        HBox hBox = new HBox(settings);
 //        hBox.setBackground(Background.fill(Paint.valueOf("yellow")));
         vert.getChildren().add(hBox);
 

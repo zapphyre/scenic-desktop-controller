@@ -82,4 +82,10 @@ public class LanguageDao {
                 .map(languageMapper::mapDto)
                 .orElseThrow();
     }
+
+    public List<LanguageDto> getAllDto() {
+        return languageRepository.findAll().stream()
+                .map(languageMapper::mapDto)
+                .toList();
+    }
 }

@@ -1,12 +1,10 @@
 package org.remote.desktop.model.dto;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 
 @With
 @Value
+@Builder
 @ToString
 @EqualsAndHashCode
 public class LanguageDto {

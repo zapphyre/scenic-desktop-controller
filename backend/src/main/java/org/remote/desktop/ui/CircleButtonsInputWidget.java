@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.UiButtonBase;
+import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.ButtonsSettings;
@@ -40,10 +41,11 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor,
                                     double arcDefaultAlpha, Color highlightedColor, Color textColor,
                                     int letterGroupCount, String title, Consumer<String> importantor,
-                                    boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode
+                                    boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode,
+                                    List<LanguageDto> languages
     ) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title,
-                importantor, persistentPreciseInput);
+                importantor, persistentPreciseInput, languages);
         this.persistentPrecisionMode = persistentPrecisionMode;
 
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()

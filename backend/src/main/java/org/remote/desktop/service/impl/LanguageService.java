@@ -58,6 +58,10 @@ public class LanguageService {
         return languageDao.readAll();
     }
 
+    public List<LanguageDto> getAllDto() {
+        return languageDao.getAllDto();
+    }
+
     public Long create(LanguageVto language) {
         return languageDao.create(language);
     }
@@ -100,7 +104,7 @@ public class LanguageService {
                 .build();
     }
 
-    public static Function<String, String> createCharacterMapper(Map<Character, Character> charMap) {
+    static Function<String, String> createCharacterMapper(Map<Character, Character> charMap) {
         return input -> input.chars()
                 .map(Character::toUpperCase)
                 .mapToObj(q -> (char) q)

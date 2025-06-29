@@ -5,9 +5,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.asmus.model.EButtonAxisMapping;
+import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.LetterCircle;
 import org.remote.desktop.ui.model.EActionButton;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -25,8 +27,8 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor,
                                            double arcDefaultAlpha, Color highlightedColor, Color textColor,
                                            String title, Consumer<String> importantor,
-                                           boolean persistentPreciseInput) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput);
+                                           boolean persistentPreciseInput, List<LanguageDto> languages) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput, languages);
     }
 
     @Override

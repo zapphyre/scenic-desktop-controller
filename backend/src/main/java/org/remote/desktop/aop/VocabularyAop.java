@@ -86,7 +86,7 @@ public class VocabularyAop {
         String encoded = wordToTrieEncoder.apply(word);
 
         updateTrieSize(trieService.getTrie(languageId), t -> t.deleteKey(encoded))
-                .apply(languageId);
+               .apply(languageId);
 
         log.info("removed key for word '{}' encoded as trie '{}' ", word, encoded);
     }
@@ -99,10 +99,13 @@ public class VocabularyAop {
                 .apply(languageId);
     }
 
-    Function<Long, LanguageDto> languageById = languageDao::getLanguageById;
+    Function<Long, LanguageDto> languageById() {
+        return languageDao::getLanguageById;
+    }
+
     Function<Long, LanguageDto> updateTrieSize(Trie<String> trie, Consumer<Trie<String>> trieAction) {
         trieAction.accept(trie);
-        return languageById
+        return languageById()
                 .andThen(q -> q.withSize(trie.size()))
                 .andThen(languageDao::save);
     }
