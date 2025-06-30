@@ -9,7 +9,7 @@ import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.processor.TriggerAdapter;
+import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,7 +24,7 @@ public class WebSource extends BaseSource {
 
     private final ButtonAdapter buttonAdapter;
     private final ArrowsAdapter arrowsAdapter;
-    private final TriggerAdapter triggerAdapter;
+    private final DigitizedTriggerAdapter digitizedTriggerAdapter;
     private final AxisAdapter axisAdapter;
 
     private final WebClient.RequestHeadersUriSpec<?> spec;
@@ -58,12 +58,12 @@ public class WebSource extends BaseSource {
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, triggerAdapter::getLeftTriggerProcessor);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getLeftTriggerProcessor);
 
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, triggerAdapter::getRightTriggerProcessor);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getRightTriggerProcessor);
 
         connectAndRemember(spec.uri("left-stick")
                 .accept(MediaType.TEXT_EVENT_STREAM)

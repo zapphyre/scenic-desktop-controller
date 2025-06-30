@@ -10,7 +10,7 @@ import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.processor.TriggerAdapter;
+import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
@@ -40,7 +40,7 @@ public class GpadHostRepository  {
     private final ButtonAdapter buttonAdapter;
     private final AxisAdapter axisAdapter;
     private final ArrowsAdapter arrowsAdapter;
-    private final TriggerAdapter triggerAdapter;
+    private final DigitizedTriggerAdapter digitizedTriggerAdapter;
     private final SettingsDao settingsDao;
     private final ReactiveWebServerApplicationContext serverContext;
     private final XdoSceneService xdoSceneService;
@@ -74,7 +74,7 @@ public class GpadHostRepository  {
                 .axisAdapter(axisAdapter)
                 .buttonAdapter(buttonAdapter)
                 .arrowsAdapter(arrowsAdapter)
-                .triggerAdapter(triggerAdapter)
+                .digitizedTriggerAdapter(digitizedTriggerAdapter)
                 .localSource(localSource)
                 .settingsDao(settingsDao)
                 .description(def.getName())

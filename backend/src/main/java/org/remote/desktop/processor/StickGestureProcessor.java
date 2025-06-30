@@ -6,12 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.mapstruct.factory.Mappers;
+import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.entity.GesturePath;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.dto.*;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.zapphyre.fizzy.Gesturizer;
 import org.zapphyre.fizzy.matcher.Matcher;
@@ -23,6 +25,7 @@ import org.zapphyre.fizzy.model.ToleranceConfig;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +43,8 @@ public class StickGestureProcessor {
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
     private final ButtonAdapter buttonAdapter;
+    protected final TriggerActionMatcher triggerActionMatcher;
+    protected final ApplicationEventPublisher eventPublisher;
     private final ButtonPressMapper buttonPressMapper;
     private final PolarCoordsMapper polarCoordsMapper;
 
@@ -79,7 +84,9 @@ public class StickGestureProcessor {
                 .findFirst().stream()
                 .map(MatchResult::getKey)
                 .map(buttonPressMapper::map)
-                .forEach(buttonAdapter.actOnButtonPress())
+                .map(triggerActionMatcher.appEventMapper(buttonAdapter))
+                .flatMap(Collection::stream)
+                .forEach(eventPublisher::publishEvent)
         );
     }
 

@@ -6,6 +6,7 @@ import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
+import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -18,19 +19,24 @@ import java.util.function.Predicate;
 import static org.remote.desktop.util.ETriggerFilter.triggerByOf;
 
 @Component
-public class TriggerAdapter extends ButtonProcessorBase {
+public class DigitizedTriggerAdapter extends ButtonProcessorBase {
 
-    public TriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao) {
+    public DigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
     }
 
     public Consumer<Map<String, Integer>> getLeftTriggerProcessor() {
-        return gamepadObserver.leftTriggerStream()::processArrowEvents;
+        return gamepadObserver.leftTriggerDigitizedProcessor()::processArrowEvents;
     }
 
     public Consumer<Map<String, Integer>> getRightTriggerProcessor() {
-        return gamepadObserver.rightTriggerStream()::processArrowEvents;
+        return gamepadObserver.rightTriggerDigitizedProcessor()::processArrowEvents;
     }
+
+//    @Override
+//    protected Predicate<ButtonActionDef> purgingFilter() {
+//        return q -> q.getLogicalEventType() == null;
+//    }
 
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {

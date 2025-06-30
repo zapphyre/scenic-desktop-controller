@@ -15,13 +15,18 @@ import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public abstract class ButtonProcessorBase implements AppEventMapper {
@@ -39,20 +44,21 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     @PostConstruct
     protected void process() {
         gamepadObserver.getButtonEventStream()
+                .publishOn(Schedulers.fromExecutorService(executorService))
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
                 .doOnNext(this::qualificationExamine)
-                .publishOn(Schedulers.fromExecutorService(executorService))
-                .subscribe(actOnButtonPress(), Throwable::printStackTrace);
+                .map(ease())
+                .flatMap(Flux::fromIterable)
+                .map(triggerActionMatcher.appEventMapper(this))
+                .flatMap(Flux::fromIterable)
+                .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
-    public Consumer<ButtonActionDef> actOnButtonPress() {
-        Function<ButtonActionDef, List<ApplicationEvent>> apedEventMapper = triggerActionMatcher.appEventMapper(this);
-
-        return q -> apedEventMapper.apply(q)
-                .forEach(eventPublisher::publishEvent);
-
+    Function<ButtonActionDef, List<ButtonActionDef>> ease() {
+        AtomicInteger emissionCounter = new AtomicInteger(0);
+        return List::of;
     }
 
     @Override

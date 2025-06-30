@@ -13,7 +13,7 @@ import java.util.Set;
 
 @With
 @Value
-@Builder
+@Builder(toBuilder = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ButtonActionDef {
 
@@ -31,4 +31,6 @@ public class ButtonActionDef {
     EQualificationType qualified;
 
     EMultiplicity multiplicity;
+
+    int position;
 }
