@@ -12,17 +12,8 @@ public class JavaFxApplication extends Application {
 
     InputWidgetBase widget = new CircleButtonsInputWidget(90, 2, Color.BURLYWOOD,
             0.4, Color.ORANGE, Color.BLACK,
-            6, "title", q -> {
-    }, false, q -> {
-    }, List.of(LanguageDto.builder()
-                    .code("SK")
-                    .name("slovak")
-                    .build(),
-            LanguageDto.builder()
-                    .code("EN")
-                    .name("english")
-                    .build()
-    )
+            6, "title", false,
+            q -> {}, q -> null, () -> null, q -> null
     );
 
     @Override

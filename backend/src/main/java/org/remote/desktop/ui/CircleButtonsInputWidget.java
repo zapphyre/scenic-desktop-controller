@@ -1,5 +1,7 @@
 package org.remote.desktop.ui;
 
+import com.arun.trie.base.Trie;
+import com.arun.trie.base.ValueFrequency;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.buttonDict;
@@ -40,12 +43,18 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
     public CircleButtonsInputWidget(double widgetSize, double letterSize, Color arcDefaultFillColor,
                                     double arcDefaultAlpha, Color highlightedColor, Color textColor,
-                                    int letterGroupCount, String title, Consumer<String> importantor,
+                                    int letterGroupCount, String title,
                                     boolean persistentPreciseInput, Consumer<Boolean> persistentPrecisionMode,
-                                    List<LanguageDto> languages
+                                    Function<Long, Trie<String>> trieGetter,
+                                    Supplier<List<LanguageDto>> languagesGet,
+                                    Function<Long, Consumer<String>> langFrqIncrement
     ) {
         super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, title,
-                importantor, persistentPreciseInput, languages);
+                persistentPreciseInput,
+                trieGetter,
+                languagesGet,
+                langFrqIncrement
+        );
         this.persistentPrecisionMode = persistentPrecisionMode;
 
         ButtonsSettings.ButtonsSettingsBuilder bs = ButtonsSettings.builder()
@@ -254,7 +263,10 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
         Platform.runLater(() -> {
             wordsContainer.clear();
-            predictions = new LinkedList<>(predictor.apply(key.toString()));
+            predictions = trie.getValueFreqSuggestions(key.toString()).stream()
+                    .sorted()
+                    .map(ValueFrequency::getValue)
+                    .collect(Collectors.toCollection(ArrayList::new));
 
             limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
 //            long count = limitedPredictions.stream().mapToInt(String::length).sum();

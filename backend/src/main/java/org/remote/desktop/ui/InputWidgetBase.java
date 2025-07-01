@@ -1,13 +1,15 @@
 package org.remote.desktop.ui;
 
+import com.arun.trie.base.Trie;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -15,19 +17,19 @@ import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.Value;
+import org.mapstruct.ap.internal.util.Strings;
 import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.TextContainer;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
 import static org.remote.desktop.util.TextUtil.findNextWordStart;
@@ -44,7 +46,11 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     protected final Color highlightedColor;
     protected final Color textColor;
     private final boolean persistentPreciseInputInit;
-    private final List<LanguageDto> languages;
+
+    private final Supplier<List<LanguageDto>> languages;
+    protected final Function<Long, Trie<String>> trieGetter;
+    private final Function<Long, Consumer<String>> langFrqIncrement;
+    private Consumer<String> currentFrequencyPropper;
 
     protected boolean persistentPreciseInput;
     double scaleFactor = 1.5;
@@ -55,10 +61,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     //    Text inputMode = new Text("asdf");
     private ToggleButton inputMode;
     private ComboBox<LanguageDto> languagesComboBox;
-
-
-    @Setter
-    protected Function<String, List<String>> predictor = List::of;
+    protected Trie<String> trie;
 
     protected final TextContainer wordsContainer = new TextContainer();
 
@@ -77,8 +80,8 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         inputMode = new ToggleButton("Input");
         languagesComboBox = new ComboBox<>();
         languagesComboBox.setPrefWidth(69);
-        languagesComboBox.getItems().addAll(languages);
-        languagesComboBox.getSelectionModel().select(0);
+        languagesComboBox.getItems().addAll(languages.get());
+
         languagesComboBox.setCellFactory(listView -> new ListCell<LanguageDto>() {
             @Override
             protected void updateItem(LanguageDto item, boolean empty) {
@@ -87,17 +90,21 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
             }
         });
 
-        languagesComboBox.valueProperty().addListener((ov, t, t1) ->
-                languagesComboBox.setValue(t1)
+        languagesComboBox.valueProperty().addListener((ov, t, t1) -> {
+                    languagesComboBox.setValue(t1);
+                    trie = trieGetter.apply(t1.getId());
+                    currentFrequencyPropper = langFrqIncrement.apply(t1.getId());
+                }
         );
 
-        languagesComboBox.setButtonCell(new ListCell<LanguageDto>() {
+        languagesComboBox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(LanguageDto item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? "" : item.getCode());
             }
         });
+        languagesComboBox.getSelectionModel().select(0);
 
 
         HBox horiz = new HBox();
@@ -222,13 +229,16 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     @Override
     public void addWordToSentence() {
         Platform.runLater(() -> {
-            if (!lettersContainer.getText().isEmpty() || !lettersContainer.getText().isBlank())
+            if (Strings.isNotEmpty(lettersContainer.getText()))
                 lettersContainer.appendText(" ");
 
             if (wordIdx.get() == 0 && limitedPredictions.isEmpty())
                 lettersContainer.appendText(" ");
-            else
-                lettersContainer.appendText(limitedPredictions.get(wordIdx.get()));
+            else {
+                String word = limitedPredictions.get(wordIdx.get());
+                lettersContainer.appendText(word);
+                currentFrequencyPropper.accept(word);
+            }
 
             resetStateClean();
         });

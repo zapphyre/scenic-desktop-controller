@@ -14,7 +14,7 @@ import java.util.List;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 
 @Slf4j
-@Configuration
+//@Configuration
 public class TrieConfig {
 
     private final String vocabulary = "words.lajf";

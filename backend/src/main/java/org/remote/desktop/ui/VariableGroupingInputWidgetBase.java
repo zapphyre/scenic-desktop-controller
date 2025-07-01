@@ -1,5 +1,6 @@
 package org.remote.desktop.ui;
 
+import com.arun.trie.base.Trie;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -12,6 +13,8 @@ import org.remote.desktop.ui.model.EActionButton;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class VariableGroupingInputWidgetBase extends InputWidgetBase {
 
@@ -22,13 +25,17 @@ public class VariableGroupingInputWidgetBase extends InputWidgetBase {
     private LetterCircle groupWidget;
     public static String[] letterGroups = new String[]{"◑", "༶", "◑", "Ⲯ"};
 
-    private StringBuilder middleText = new StringBuilder();
-
     public VariableGroupingInputWidgetBase(double widgetSize, double letterSize, Color arcDefaultFillColor,
                                            double arcDefaultAlpha, Color highlightedColor, Color textColor,
-                                           String title, Consumer<String> importantor,
-                                           boolean persistentPreciseInput, List<LanguageDto> languages) {
-        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput, languages);
+                                           String title,
+                                           boolean persistentPreciseInput,
+                                           Function<Long, Trie<String>> trieGetter,
+                                           Supplier<List<LanguageDto>> languagesGet, Function<Long, Consumer<String>> langFrqIncrement) {
+        super(widgetSize, letterSize, arcDefaultFillColor, arcDefaultAlpha, highlightedColor, textColor, persistentPreciseInput,
+                languagesGet,
+                trieGetter,
+                langFrqIncrement
+        );
     }
 
     @Override
