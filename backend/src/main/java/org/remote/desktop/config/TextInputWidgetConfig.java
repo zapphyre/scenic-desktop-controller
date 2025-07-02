@@ -1,7 +1,5 @@
 package org.remote.desktop.config;
 
-import com.arun.trie.base.Trie;
-import com.arun.trie.base.ValueFrequency;
 import javafx.scene.paint.Color;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -16,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Optional;
 
+import static org.remote.desktop.util.FluxUtil.asConsumer;
+
 @Configuration
 @RequiredArgsConstructor
 public class TextInputWidgetConfig {
@@ -26,7 +26,6 @@ public class TextInputWidgetConfig {
     private final LanguageService languageService;
     private final XdoSceneService xdoSceneService;
 
-
     @Bean
     public CircleButtonsInputWidget inputWidget() {
         CircleButtonsInputWidget variableGroupingInputWidget = new CircleButtonsInputWidget(90, 2,
@@ -35,9 +34,8 @@ public class TextInputWidgetConfig {
                 settingsDao.getSettings().isPersistentPreciseInput(), settingsDao::setPersistentInputMode,
                 trieService::getTrie,
                 languageService::getAllDto,
-                q -> languageService.insertOrPropUp(q)::apply
+                q -> asConsumer(languageService.insertOrPropNonCommiting(q))
         );
-
 
         forceScene(variableGroupingInputWidget);
 

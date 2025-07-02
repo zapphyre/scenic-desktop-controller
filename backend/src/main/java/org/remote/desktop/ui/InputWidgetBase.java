@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
 import static org.remote.desktop.util.TextUtil.findNextWordStart;
@@ -50,7 +51,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     private final Supplier<List<LanguageDto>> languages;
     protected final Function<Long, Trie<String>> trieGetter;
     private final Function<Long, Consumer<String>> langFrqIncrement;
-    private Consumer<String> currentFrequencyPropper;
+    protected Consumer<String> currentFrequencyPropper;
 
     protected boolean persistentPreciseInput;
     double scaleFactor = 1.5;
@@ -234,11 +235,12 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
             if (wordIdx.get() == 0 && limitedPredictions.isEmpty())
                 lettersContainer.appendText(" ");
-            else {
-                String word = limitedPredictions.get(wordIdx.get());
-                lettersContainer.appendText(word);
-                currentFrequencyPropper.accept(word);
-            }
+            else
+                Stream.of(wordIdx)
+                        .map(AtomicInteger::get)
+                        .map(limitedPredictions::get)
+                        .peek(lettersContainer::appendText)
+                        .forEach(currentFrequencyPropper);
 
             resetStateClean();
         });

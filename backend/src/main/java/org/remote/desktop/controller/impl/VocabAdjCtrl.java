@@ -1,6 +1,5 @@
 package org.remote.desktop.controller.impl;
 
-import com.arun.trie.base.ValueFrequency;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.model.dto.VocabularyAdjustmentDto;
 import org.remote.desktop.service.impl.LanguageService;
@@ -17,7 +16,7 @@ public class VocabAdjCtrl {
 
     @PostMapping
     public VocabularyAdjustmentDto insertOrPropUp(@PathVariable("langId") Long langId, @PathVariable("word") String word) {
-        return languageService.insertOrPropUp(langId).apply(word);
+        return languageService.insertOrPropCommiting(langId).apply(word);
     }
 
     @PutMapping("increment")

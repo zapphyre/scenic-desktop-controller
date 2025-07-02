@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -42,6 +43,16 @@ public class FluxUtil {
         return Optional.ofNullable(id)
                 .flatMap(function)
                 .orElse(null);
+    }
+    public static <T, R> Consumer<T> asConsumer(Function<T, R> mapper) {
+        return mapper::apply;
+    }
+
+    public static <T> Function<T, T> asFun(Consumer<T> consumer) {
+        return q -> Optional.ofNullable(q).stream()
+                .peek(consumer)
+                .findFirst()
+                .orElse(q);
     }
 
     public <T> Function<Optional<T>, T> orNull() {

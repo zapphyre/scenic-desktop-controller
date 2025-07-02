@@ -92,7 +92,7 @@ public class VocabularyAop {
     }
 
     // before, b/c i need to refer to the real size of valueFreqSuggestions in the service
-    @Before(value = "adjustVocabInsert(languageId, word)", argNames = "languageId,word")
+//    @Before(value = "adjustVocabInsert(languageId, word)", argNames = "languageId,word")
     void insertOrPropUp(Long languageId, String word) {
 
         updateTrieSize(trieService.getTrie(languageId), t -> t.insert(word, word))

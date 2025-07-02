@@ -153,6 +153,23 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     @Override
+    public void nextPredictionsFrame() {
+        if (persistentPreciseInput) {
+            super.resetStateClean();
+            if (pendingResetTask != null)
+                pendingResetTask.run();
+
+            pendingResetTask = null;
+            persistentPreciseInput = false;
+            String[] s = lettersContainer.getText().split(" ");
+            String text = s[s.length - 1];
+            currentFrequencyPropper.accept(text);
+        }
+
+        super.nextPredictionsFrame();
+    }
+
+    @Override
     public void toggleVisual(EActionButton index) {
         this.modifiers = Set.of();
         Platform.runLater(() -> activeButtonGroup.toggleButtonVisual(index));
@@ -268,7 +285,13 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                     .map(ValueFrequency::getValue)
                     .collect(Collectors.toCollection(ArrayList::new));
 
-            limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
+            if (predictions.isEmpty()) {
+                lettersContainer.appendText(" ");
+                activatePrecisionMode(EActionButton.Y);
+            }
+
+            limitedPredictions = (persistentPreciseInput = predictions.isEmpty()) ?
+                    List.of("[no suggestions]") : filterWordsByCharLimit(predictions, fittingCharacters);
 //            long count = limitedPredictions.stream().mapToInt(String::length).sum();
 
             predictions.removeAll(limitedPredictions);

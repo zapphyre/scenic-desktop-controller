@@ -27,7 +27,7 @@ public class TrieService {
 
     private final Map<Long, Trie<String>> langIdTrieMap = new ConcurrentHashMap<>();
 
-    Function<Long, Trie<String>> trieDictForLanguage = this::getTrie;
+    public Function<Long, Trie<String>> trieDictForLanguage = this::getTrie;
     Function<Long, LanguageDto> languageById() {
         return languageDao::getLanguageById;
     }
