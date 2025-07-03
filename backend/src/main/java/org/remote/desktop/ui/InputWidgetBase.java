@@ -50,7 +50,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     private final Supplier<List<LanguageDto>> languages;
     protected final Function<Long, Trie<String>> trieGetter;
-    private final Function<Long, Consumer<String>> langFrqIncrement;
+    private final Function<Long, Consumer<String>> forLangFreqAdjuster;
     protected Consumer<String> currentFrequencyPropper;
 
     protected boolean persistentPreciseInput;
@@ -94,7 +94,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         languagesComboBox.valueProperty().addListener((ov, t, t1) -> {
                     languagesComboBox.setValue(t1);
                     trie = trieGetter.apply(t1.getId());
-                    currentFrequencyPropper = langFrqIncrement.apply(t1.getId());
+                    currentFrequencyPropper = forLangFreqAdjuster.apply(t1.getId());
                 }
         );
 

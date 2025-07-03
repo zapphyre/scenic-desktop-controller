@@ -5,12 +5,14 @@ import org.asmus.model.PolarCoords;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @UtilityClass
 public class FluxUtil {
@@ -49,7 +51,7 @@ public class FluxUtil {
     }
 
     public static <T> Function<T, T> asFun(Consumer<T> consumer) {
-        return q -> Optional.ofNullable(q).stream()
+        return q -> Stream.of(q)
                 .peek(consumer)
                 .findFirst()
                 .orElse(q);
