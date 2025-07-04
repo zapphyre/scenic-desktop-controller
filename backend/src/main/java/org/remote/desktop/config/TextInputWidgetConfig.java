@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Optional;
 
-import static org.remote.desktop.util.FluxUtil.asConsumer;
+import static org.remote.desktop.util.FluxUtil.eat;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class TextInputWidgetConfig {
                 settingsDao.getSettings().isPersistentPreciseInput(), settingsDao::setPersistentInputMode,
                 trieService::getTrie,
                 languageService::getAllDto,
-                q -> asConsumer(languageService.insertOrPropNonCommiting(q))
+                q -> eat(languageService.insertOrPropNonCommiting(q))
         );
 
         forceScene(variableGroupingInputWidget);

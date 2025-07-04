@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
@@ -24,6 +25,7 @@ import org.mapstruct.ap.internal.util.Strings;
 import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.TextContainer;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,6 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
+import static org.remote.desktop.util.FluxUtil.funky;
 import static org.remote.desktop.util.TextUtil.findNextWordStart;
 import static org.remote.desktop.util.TextUtil.findPreviousWordStart;
 
@@ -58,11 +61,13 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     private Stage primaryStage;
     protected int fittingCharacters;
-    protected TextField lettersContainer;
+    protected TextField sentence;
     //    Text inputMode = new Text("asdf");
     private ToggleButton inputMode;
     private ComboBox<LanguageDto> languagesComboBox;
     protected Trie<String> trie;
+
+    protected Text currPage, slash, allPages;
 
     protected final TextContainer wordsContainer = new TextContainer();
 
@@ -136,19 +141,32 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
         double secondaryTextHeight = 42; //new Text("Sample").getBoundsInLocal().getHeight() * secondaryTextScale;
 
+        currPage = slash = allPages = new Text("0");
+        slash = new Text("/");
+        allPages = new Text("0");
+
+        HBox pagingInfo = new HBox();
+        pagingInfo.setAlignment(Pos.CENTER_RIGHT);
+
         HBox wordsLayout = createContentLayout(secondaryTextHeight, scaleFactor);
         HBox lettersLayout = createContentLayout(secondaryTextHeight, scaleFactor);
-        lettersContainer = new TextField();
+        sentence = new TextField();
         HBox.setHgrow(wordsContainer, Priority.ALWAYS); // Grow to fill HBox width
-        HBox.setHgrow(lettersContainer, Priority.ALWAYS); // Grow to fill HBox width
+        HBox.setHgrow(sentence, Priority.ALWAYS); // Grow to fill HBox width
+
+        Stream.of(currPage, slash, allPages)
+                .map(funky(p -> p.setStroke(Paint.valueOf("white"))))
+                .forEach(pagingInfo.getChildren()::add);
+
+//        pagingInfo.getChildren().addAll(currPage, slash, currPage);
 
         wordsLayout.getChildren().addAll(wordsContainer);
-        lettersLayout.getChildren().addAll(lettersContainer);
+        lettersLayout.getChildren().addAll(sentence);
 
-        lettersContainer.setFont(Font.font(32));
-        lettersContainer.setBackground(Background.EMPTY);
+        sentence.setFont(Font.font(32));
+        sentence.setBackground(Background.EMPTY);
 
-        textLayouts.getChildren().addAll(wordsLayout, lettersLayout);
+        textLayouts.getChildren().addAll(pagingInfo, wordsLayout, lettersLayout);
         textLayouts.setSpacing(3);
         textLayouts.setPrefWidth(690);
 
@@ -216,7 +234,14 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     public void resetStateClean() {
         clearAllWords();
         resetPredictionStack();
+        resetPageIndicators();
         wordIdx.set(0);
+    }
+
+    protected void resetPageIndicators() {
+        currPage.setText("-");
+        allPages.setText("-");
+        pageIdx.set(1);
     }
 
     protected StringBuilder key = new StringBuilder();
@@ -230,35 +255,67 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     @Override
     public void addWordToSentence() {
         Platform.runLater(() -> {
-            if (Strings.isNotEmpty(lettersContainer.getText()))
-                lettersContainer.appendText(" ");
+            if (Strings.isNotEmpty(sentence.getText()))
+                sentence.appendText(" ");
 
             if (wordIdx.get() == 0 && limitedPredictions.isEmpty())
-                lettersContainer.appendText(" ");
+                sentence.appendText(" ");
             else
                 Stream.of(wordIdx)
                         .map(AtomicInteger::get)
                         .map(limitedPredictions::get)
-                        .peek(lettersContainer::appendText)
+                        .peek(sentence::appendText)
                         .forEach(currentFrequencyPropper);
 
             resetStateClean();
         });
     }
 
-    AtomicInteger wordIdx = new AtomicInteger(0);
+    AtomicInteger wordIdx = new AtomicInteger();
+    AtomicInteger pageIdx = new AtomicInteger();
     protected List<String> predictions = new LinkedList<>();
+    List<List<String>> predictionsHistory = new LinkedList<>(); // acts like a stack (use add/removeLast)
     protected List<String> limitedPredictions = new LinkedList<>();
 
     public void nextPredictionsFrame() {
+        System.out.println("going forward");
+        if (predictions.isEmpty())
+            return;
+
+        // Save current frame before moving forward
+        if (!limitedPredictions.isEmpty())
+            predictionsHistory.add(new ArrayList<>(limitedPredictions));
+
+        // Get next frame
         limitedPredictions = filterWordsByCharLimit(predictions, fittingCharacters);
 
+        // Remove from predictions list
         predictions.removeAll(limitedPredictions);
         wordIdx.set(0);
 
-        System.out.println("Predictions: " + limitedPredictions);
+        currPage.setText(pageIdx.incrementAndGet() + 1 + "");
         setWordsAvailable(limitedPredictions);
     }
+
+    public void prevPredictionsFrame() {
+        if (predictionsHistory.isEmpty())
+            return;
+
+        System.out.println("going backward");
+
+        // Put current frame back to predictions
+        if (!limitedPredictions.isEmpty())
+            predictions.addAll(0, limitedPredictions);
+
+        // Load the previous frame
+        limitedPredictions = predictionsHistory.removeLast();
+
+        wordIdx.set(0);
+        currPage.setText(pageIdx.decrementAndGet() + 1 + "");
+
+        setWordsAvailable(limitedPredictions);
+    }
+
 
     private int calculateTextItemsEmpirically(HBox hbox, String textContent, Font font) {
         int count = 0;
@@ -313,7 +370,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     @Override
     public String getSentenceAndReset() {
-        String text = lettersContainer.getText();
+        String text = sentence.getText();
         close();
         clearAllWords();
         clearAllLetters();
@@ -340,11 +397,11 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void moveSentenceCursorLeft() {
-        lettersContainer.backward();
+        sentence.backward();
     }
 
     public void moveSentenceCursorRight() {
-        lettersContainer.forward();
+        sentence.forward();
     }
 
     public void moveCursorLeft() {
@@ -360,7 +417,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
     }
 
     public void clearAllLetters() {
-        Platform.runLater(() -> lettersContainer.clear());
+        Platform.runLater(() -> sentence.clear());
     }
 
     public void close() {
@@ -382,20 +439,20 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
 
     public void selectBottomRow() {
         Platform.runLater(() -> {
-            lettersContainer.requestFocus();
-            lettersContainer.positionCaret(lettersContainer.getText().length());
+            sentence.requestFocus();
+            sentence.positionCaret(sentence.getText().length());
         });
         activeRowControls = new RowControls(this::moveSentenceCursorLeft, this::moveSentenceCursorRight);
     }
 
     public void moveCursorWordLeft() {
-        int previousWordStart = findPreviousWordStart(lettersContainer.getText(), lettersContainer.getCaretPosition());
-        lettersContainer.positionCaret(previousWordStart);
+        int previousWordStart = findPreviousWordStart(sentence.getText(), sentence.getCaretPosition());
+        sentence.positionCaret(previousWordStart);
     }
 
     public void moveCursorWordRight() {
-        int nextWordStart = findNextWordStart(lettersContainer.getText(), lettersContainer.getCaretPosition());
-        lettersContainer.positionCaret(nextWordStart);
+        int nextWordStart = findNextWordStart(sentence.getText(), sentence.getCaretPosition());
+        sentence.positionCaret(nextWordStart);
     }
 
     @Value

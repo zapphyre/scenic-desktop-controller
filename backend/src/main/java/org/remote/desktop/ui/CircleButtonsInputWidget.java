@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
+import org.mapstruct.ap.internal.util.Strings;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.FourButtonWidget;
@@ -91,6 +92,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     private final Function<Double, Function<Consumer<Double>, Runnable>> resetTask =
             q -> p -> () -> p.accept(q);
 
+    String precisedWord;
     IndexLetterAction groupTxFun;
     Future<?> pendingReset;
     Runnable pendingResetTask;
@@ -118,8 +120,13 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
                     pendingResetTask.run();
                     pendingResetTask = null;
+
                     // -1 b/c incrementation is post-applied, therefore has to be lowered at the end
-                    Platform.runLater(() -> groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1));
+                    Platform.runLater(() -> {
+                        groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1);
+                        lastSentenceWordDo(System.out::println);
+                        lastSentenceWordDo(w -> precisedWord = w);
+                    });
 
                     if (Objects.nonNull(sceneForce))
                         sceneForce.run();
@@ -145,28 +152,31 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         Platform.runLater(() -> {
             rightPane.getChildren().clear();
             rightPane.getChildren().add(activeButtonGroup = groupWidgetMap.get(index));
+            getGroupWidget().selectSegment(groupActiveIndex = index);
         });
-
-        getGroupWidget().selectSegment(groupActiveIndex = index);
 
         return index + 1;
     }
 
     @Override
     public void nextPredictionsFrame() {
-        if (persistentPreciseInput) {
+        if (persistentPreciseInput) { // just end precision input when right trigger engaged
             super.resetStateClean();
             if (pendingResetTask != null)
                 pendingResetTask.run();
 
             pendingResetTask = null;
             persistentPreciseInput = false;
-            String[] s = lettersContainer.getText().split(" ");
-            String text = s[s.length - 1];
-            currentFrequencyPropper.accept(text);
+            lastSentenceWordDo(currentFrequencyPropper);
         }
 
         super.nextPredictionsFrame();
+    }
+
+    void lastSentenceWordDo(Consumer<String> wc) {
+        String[] s = sentence.getText().split(" ");
+        if (s.length > 0)
+            wc.accept(s[s.length - 1]);
     }
 
     @Override
@@ -236,14 +246,31 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             asDeletingLong("");
     }
 
+    void tryPropLastPrecised() {
+        if (Strings.isEmpty(precisedWord))
+            return;
+
+        currentFrequencyPropper.accept(precisedWord);
+        System.out.println("precisedWord: " + precisedWord + " propped");
+        precisedWord = "";
+    }
+
     @Override // in case precision mode is active, add current character (speedup)
     public void addWordToSentence() {
+        tryPropLastPrecised();
+
         if (pendingResetTask == null) {
             super.addWordToSentence();
             return;
         }
 
         groupTxFun.actOnIndexLetter(letterIndex.get() - 1);
+    }
+
+    @Override
+    public String getSentenceAndReset() {
+        tryPropLastPrecised();
+        return super.getSentenceAndReset();
     }
 
     @Override
@@ -285,37 +312,56 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                     .map(ValueFrequency::getValue)
                     .collect(Collectors.toCollection(ArrayList::new));
 
+            pageIdx.set(0);
+            currPage.setText("1");
+            Executors.newSingleThreadExecutor()
+                    .submit(() -> allPages.setText(chunkWordsByCharLimit(predictions, fittingCharacters).size() + 1 + ""));
+
             if (predictions.isEmpty()) {
-                lettersContainer.appendText(" ");
+                sentence.appendText(" ");
                 activatePrecisionMode(EActionButton.Y);
             }
 
             limitedPredictions = (persistentPreciseInput = predictions.isEmpty()) ?
                     List.of("[no suggestions]") : filterWordsByCharLimit(predictions, fittingCharacters);
-//            long count = limitedPredictions.stream().mapToInt(String::length).sum();
 
             predictions.removeAll(limitedPredictions);
 
-//            System.out.println("Predictions: " + limitedPredictions);
             setWordsAvailable(limitedPredictions);
         });
     }
 
+    public static List<List<String>> chunkWordsByCharLimit(List<String> words, int maxChars) {
+        List<List<String>> result = new ArrayList<>();
+        List<String> remaining = new ArrayList<>(words);
+
+        while (!remaining.isEmpty()) {
+            List<String> chunk = filterWordsByCharLimit(remaining, maxChars);
+            if (chunk.isEmpty())
+                chunk.add(remaining.getFirst());
+
+            result.add(chunk);
+            remaining = remaining.stream().skip(chunk.size()).toList();
+        }
+
+        return result;
+    }
+
     @Override
     public void asLetter(String letter) {
-        Platform.runLater(() -> lettersContainer.appendText(letter.toLowerCase()));
+        sentence.appendText(letter.toLowerCase());
     }
 
     @Override
     public void asFunction(IdxWordTx fx) {
-        fx.transforIdxWord(lettersContainer.getCaretPosition(), modifiers).transform(lettersContainer);
+        fx.transforIdxWord(sentence.getCaretPosition(), modifiers).transform(sentence);
     }
 
     @Override
     public void asDeletingLong(String letter) {
         Platform.runLater(() -> {
-            lettersContainer.deletePreviousChar();
-            lettersContainer.appendText(letter);
+            sentence.deletePreviousChar();
+            sentence.appendText(letter);
         });
     }
 

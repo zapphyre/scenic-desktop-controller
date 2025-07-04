@@ -41,8 +41,8 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getLeftContinuousTriggerProcessor);
-        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getRightContinuousTriggerProcessor);
+//        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getLeftContinuousTriggerProcessor);
+//        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getRightContinuousTriggerProcessor);
 
 
         /*
@@ -60,10 +60,10 @@ public class LocalSource extends BaseSource {
                                 .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
                 () -> null);
 
-        connectAndRemember(_ ->
-                        leftStickStream().polarProducer(worker)
-                                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)),
-                () -> null);
+//        connectAndRemember(_ ->
+//                        leftStickStream().polarProducer(worker)
+//                                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)),
+//                () -> null);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 

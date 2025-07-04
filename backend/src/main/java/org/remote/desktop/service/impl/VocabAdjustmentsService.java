@@ -36,8 +36,7 @@ public class VocabAdjustmentsService {
             (dto.getFrequencyAdjustment() > 0 ? adjustPositive(dto) : adjustNegative(dto)).apply(acc);
 
     Function<List<String>, List<String>> adjustNegative(VocabularyAdjustmentDto dto) {
-        int cycles = Math.abs(dto.getFrequencyAdjustment());
-        AtomicInteger i = new AtomicInteger(cycles);
+        AtomicInteger i = new AtomicInteger(Math.abs(dto.getFrequencyAdjustment()));
 
         return lines -> lines.stream()
                 .filter(q -> !q.equals(dto.getWord()) || i.decrementAndGet() < 0)

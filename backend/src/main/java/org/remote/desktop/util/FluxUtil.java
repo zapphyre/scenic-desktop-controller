@@ -5,7 +5,6 @@ import org.asmus.model.PolarCoords;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
@@ -46,14 +45,14 @@ public class FluxUtil {
                 .flatMap(function)
                 .orElse(null);
     }
-    public static <T, R> Consumer<T> asConsumer(Function<T, R> mapper) {
+    public static <T, R> Consumer<T> eat(Function<T, R> mapper) {
         return mapper::apply;
     }
 
-    public static <T> Function<T, T> asFun(Consumer<T> consumer) {
+    public static <T> Function<T, T> funky(Consumer<T> consumer) {
         return q -> Stream.of(q)
                 .peek(consumer)
-                .findFirst()
+                .findAny()
                 .orElse(q);
     }
 

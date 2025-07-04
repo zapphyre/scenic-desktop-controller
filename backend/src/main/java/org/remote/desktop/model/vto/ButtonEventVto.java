@@ -19,5 +19,6 @@ public class ButtonEventVto {
     String trigger;
     boolean longPress;
     EMultiplicity multiplicity;
+
     List<String> modifiers;
 }

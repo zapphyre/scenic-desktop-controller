@@ -91,14 +91,6 @@ public class VocabularyAop {
         log.info("removed key for word '{}' encoded as trie '{}' ", word, encoded);
     }
 
-    // before, b/c i need to refer to the real size of valueFreqSuggestions in the service
-//    @Before(value = "adjustVocabInsert(languageId, word)", argNames = "languageId,word")
-    void insertOrPropUp(Long languageId, String word) {
-
-        updateTrieSize(trieService.getTrie(languageId), t -> t.insert(word, word))
-                .apply(languageId);
-    }
-
     Function<Long, LanguageDto> languageById() {
         return languageDao::getLanguageById;
     }

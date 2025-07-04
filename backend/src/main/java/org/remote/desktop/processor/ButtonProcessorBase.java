@@ -48,6 +48,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
+                .log()
                 .doOnNext(this::qualificationExamine)
                 .map(ease())
                 .flatMap(Flux::fromIterable)
@@ -57,7 +58,6 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     }
 
     Function<ButtonActionDef, List<ButtonActionDef>> ease() {
-        AtomicInteger emissionCounter = new AtomicInteger(0);
         return List::of;
     }
 

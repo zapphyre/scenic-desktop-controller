@@ -19,7 +19,6 @@ public class EventVto {
     Long parentFk;
     Long nextSceneFk;
 
-    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     List<XdoActionVto> actions;

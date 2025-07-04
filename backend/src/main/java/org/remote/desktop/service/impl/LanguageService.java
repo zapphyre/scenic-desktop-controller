@@ -5,7 +5,6 @@ import com.arun.trie.base.ValueFrequency;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.LanguageDao;
 import org.remote.desktop.db.dao.VocabularyDao;
-import org.remote.desktop.mapper.VocabularyMapper;
 import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.model.dto.VocabularyAdjustmentDto;
 import org.remote.desktop.model.dto.rest.TrieResult;
@@ -20,7 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static org.remote.desktop.service.impl.VocabAdjustmentsService.concatTextDocs;
-import static org.remote.desktop.util.FluxUtil.asFun;
+import static org.remote.desktop.util.FluxUtil.funky;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
 
 @Service
@@ -33,32 +32,20 @@ public class LanguageService {
     private final TrieService trieService;
     private final VocabAdjustmentsService vocabAdjustmentsService;
 
-    private final VocabularyMapper vocabularyMapper;
-
     public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
     private final List<VocabularyAdjustmentDto> vocabularyAdjustments = new LinkedList<>();
 
 
-    Function<String, VocabularyAdjustmentDto> propVocabularyFreq(Long languageId,
-                                                              Function<Long, Function<String, VocabularyAdjustmentDto>> creatorFun,
-                                                              Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> propFun,
-                                                              Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> storeFun) {
-        return creatorFun.apply(languageId)
-                .andThen(propFun)
-                .andThen(storeFun);
-    }
-
     public Function<String, VocabularyAdjustmentDto> propVocabularyFreq(Long languageId,
-                                                                     Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> propFun) {
+                                                                        Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> propFun) {
         return propVocabularyFreq(languageId, vocabularyDao::findByLangAndWordOrCreate, propFun, vocabularyDao::save);
     }
-
 
     static Function<Integer, Integer> nonNullInt = q -> Optional.ofNullable(q).orElse(0);
 
     public static Function<Integer, Integer> increment = q -> q + 1;
     public static Function<Integer, Integer> decrement = q -> q - 1;
-    public static Function<Integer, Integer> remove = q -> Integer.MIN_VALUE;
+    public static Function<Integer, Integer> remove = _ -> Integer.MIN_VALUE;
 
     public static Function<Function<Integer, Integer>, Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto>> changeFrequency =
             q -> p -> nonNullInt.andThen(q)
@@ -132,15 +119,15 @@ public class LanguageService {
                 .toString();
     }
 
-    Function<String, VocabularyAdjustmentDto> unCommitedPropper(Long langId) {
-        return propVocabularyFreq(langId, idVocabBuilder, changeFrequency.apply(increment), asFun(vocabularyAdjustments::add));
-    }
-
-    Function<Long, Function<String, VocabularyAdjustmentDto>> idVocabBuilder = q -> p ->
+    Function<Long, Function<String, VocabularyAdjustmentDto>> idVocaBuilder = q -> p ->
             VocabularyAdjustmentDto.builder()
                     .langIdFk(q)
                     .word(p)
                     .build();
+
+    Function<String, VocabularyAdjustmentDto> unCommitedPropper(Long langId) {
+        return propVocabularyFreq(langId, idVocaBuilder, changeFrequency.apply(increment), funky(vocabularyAdjustments::add));
+    }
 
     Function<String, VocabularyAdjustmentDto> commitingPropper(Long langId) {
         return propVocabularyFreq(langId, vocabularyDao::findByLangAndWordOrCreate, changeFrequency.apply(increment), vocabularyDao::save);
@@ -160,7 +147,7 @@ public class LanguageService {
                 .orElseThrow();
     }
 
-    public Function<Long, Trie<String>> trieDictForLanguage() {
+    Function<Long, Trie<String>> trieDictForLanguage() {
         return trieService::getTrie;
     }
 
@@ -171,5 +158,14 @@ public class LanguageService {
                 .andThen(q -> q.getValueFreqSuggestions(wordToTrieEncoder.apply(word)))
                 .andThen(incrementStoreAndMap(word, upStore))
                 .apply(langId);
+    }
+
+    Function<String, VocabularyAdjustmentDto> propVocabularyFreq(Long languageId,
+                                                                 Function<Long, Function<String, VocabularyAdjustmentDto>> creatorFun,
+                                                                 Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> propFun,
+                                                                 Function<VocabularyAdjustmentDto, VocabularyAdjustmentDto> storeFun) {
+        return creatorFun.apply(languageId)
+                .andThen(propFun)
+                .andThen(storeFun);
     }
 }
