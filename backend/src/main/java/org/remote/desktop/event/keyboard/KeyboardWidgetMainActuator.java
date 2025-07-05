@@ -54,7 +54,7 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
             widget.nextPredictionsFrame();
 
 //        if (event.getType().equals("LEFTTRIGGER_ENGAGE"))
-        if (event.getType().equals("RIGHTTRIGGER_STEP_NEGATIVE"))
+        if (event.getType().equals("RIGHTTRIGGER_EDGING_NEGATIVE"))
             widget.prevPredictionsFrame();
 
         if (event.getType().equals("LEFTTRIGGER_ENGAGE"))

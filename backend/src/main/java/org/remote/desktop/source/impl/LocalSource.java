@@ -41,8 +41,8 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-//        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getLeftContinuousTriggerProcessor);
-//        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getRightContinuousTriggerProcessor);
+        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getLeftStepTriggerProcessor);
+        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getRightStepTriggerProcessor);
 
 
         /*

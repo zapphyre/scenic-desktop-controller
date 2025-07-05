@@ -124,7 +124,6 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                     // -1 b/c incrementation is post-applied, therefore has to be lowered at the end
                     Platform.runLater(() -> {
                         groupTxFun.actOnIndexLetter(letterIndex.getAndSet(0) - 1);
-                        lastSentenceWordDo(System.out::println);
                         lastSentenceWordDo(w -> precisedWord = w);
                     });
 

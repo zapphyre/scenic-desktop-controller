@@ -44,19 +44,32 @@ public class ContinuousTriggerAdapter extends ButtonProcessorBase {
         return gamepadObserver.leftTriggerContinuousProcessor()::processArrowEvents;
     }
 
+    public Consumer<Map<String, Integer>> getLeftStepTriggerProcessor() {
+        return gamepadObserver.leftDigitizedRangeTriggerStream()::processArrowEvents;
+    }
+
     public Consumer<Map<String, Integer>> getRightContinuousTriggerProcessor() {
         return gamepadObserver.rightTriggerContinuousProcessor()::processArrowEvents;
+    }
+
+    public Consumer<Map<String, Integer>> getRightStepTriggerProcessor() {
+        return gamepadObserver.rightDigitizedRangeTriggerStream()::processArrowEvents;
     }
 
     @Override
     protected Predicate<ButtonActionDef> purgingFilter() {
         return q -> {
-            return q.getTrigger().equals("RIGHTTRIGGER_STEP_POSITIVE") ||
-                    q.getTrigger().equals("LEFTTRIGGER_STEP_POSITIVE");
-//            return q.getLogicalEventType() != null &&
-//                    (q.getLogicalEventType().equals(ELogicalEventType.STEP_NEGATIVE) ||
-//                            q.getLogicalEventType().equals(ELogicalEventType.STEP_POSITIVE));
+//            return q.getTrigger().equals("RIGHTTRIGGER_STEP_POSITIVE") ||
+//                    q.getTrigger().equals("LEFTTRIGGER_STEP_POSITIVE");
+            return q.getLogicalEventType() != null &&
+                    (q.getLogicalEventType().equals(ELogicalEventType.STEP_NEGATIVE) ||
+                            q.getLogicalEventType().equals(ELogicalEventType.STEP_POSITIVE));
         };
+    }
+
+    @Override
+    public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
+        return super.mapEvent(def, sceneXdoAction);
     }
 
     Function<ButtonActionDef, List<ButtonActionDef>> ease() {
