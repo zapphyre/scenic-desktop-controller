@@ -22,20 +22,6 @@ public class FluxUtil {
                         .map(i -> p));
     }
 
-    public Function<PolarCoords, Flux<PolarCoords>> repeat(Predicate<PolarCoords> stopWhen) {
-        AtomicReference<Double> prev = new AtomicReference<>(0D);
-
-        return q -> {
-            double delta = Math.abs(q.getRadius() - prev.get());
-            Double pre = prev.getAndSet(delta);
-            //                stopWhen.test(q) ? Flux.just(q) : // pass (0,0) once, then complete
-//            return Flux.interval(Duration.ofMillis((long) mapClamped(delta, 0, pre + delta, 15, 3)))
-               return Flux.interval(Duration.ofMillis(3))
-                    .map(i -> q.withRadius(delta))
-                    .takeUntil(stopWhen);
-        };
-    }
-
     public static <T> BinaryOperator<T> laterMerger() {
         return (q, p) -> p;
     }

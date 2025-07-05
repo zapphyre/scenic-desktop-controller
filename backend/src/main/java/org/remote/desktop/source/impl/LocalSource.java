@@ -22,7 +22,6 @@ public class LocalSource extends BaseSource {
     private final JoyWorker worker;
     private final ButtonAdapter buttonAdapter;
     private final DigitizedTriggerAdapter digitizedTriggerAdapter;
-    private final ContinuousTriggerAdapter continuousTriggerAdapter;
     private final ArrowsAdapter arrowsAdapter;
     private final AxisAdapter axisAdapter;
 
@@ -41,8 +40,8 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
 
-        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getLeftStepTriggerProcessor);
-        connectAndRemember(worker.getAxisStream()::subscribe, continuousTriggerAdapter::getRightStepTriggerProcessor);
+        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
+        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
 
 
         /*

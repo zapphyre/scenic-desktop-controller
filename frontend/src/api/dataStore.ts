@@ -64,11 +64,11 @@ const fetchLanguages = async () => {
 }
 
 // Initialize the data immediately when the module is imported
-await fetchStrokes();
-await fetchScenes();
-await fetchTriggers();
-await fetchGestures();
-await fetchLanguages();
+fetchStrokes();
+fetchScenes();
+fetchTriggers();
+fetchGestures();
+fetchLanguages();
 
 // Export a function to access the strokes
 export const useStrokesStore = () => {

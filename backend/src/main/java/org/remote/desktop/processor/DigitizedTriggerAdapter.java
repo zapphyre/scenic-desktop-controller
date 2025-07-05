@@ -33,6 +33,14 @@ public class DigitizedTriggerAdapter extends ButtonProcessorBase {
         return gamepadObserver.rightTriggerDigitizedProcessor()::processArrowEvents;
     }
 
+    public Consumer<Map<String, Integer>> getLeftStepTriggerProcessor() {
+        return gamepadObserver.leftDigitizedRangeTriggerStream()::processArrowEvents;
+    }
+
+    public Consumer<Map<String, Integer>> getRightStepTriggerProcessor() {
+        return gamepadObserver.rightDigitizedRangeTriggerStream()::processArrowEvents;
+    }
+
 //    @Override
 //    protected Predicate<ButtonActionDef> purgingFilter() {
 //        return q -> q.getLogicalEventType() == null;
