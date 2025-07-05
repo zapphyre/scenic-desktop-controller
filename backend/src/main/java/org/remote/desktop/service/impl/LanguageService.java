@@ -144,7 +144,13 @@ public class LanguageService {
                 .map(ValueFrequency::getValue)
                 .map(freqUpStore)
                 .findFirst()
-                .orElseThrow();
+                .orElseGet(() -> {
+                    System.out.println("===============================");
+                    System.out.println("was trying to find word " + word);
+                    System.out.println("===============================");
+
+                    return VocabularyAdjustmentDto.builder().build();
+                });
     }
 
     Function<Long, Trie<String>> trieDictForLanguage() {

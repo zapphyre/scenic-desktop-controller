@@ -50,15 +50,9 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
                 .filter(purgingFilter())
                 .log()
                 .doOnNext(this::qualificationExamine)
-                .map(ease())
-                .flatMap(Flux::fromIterable)
                 .map(triggerActionMatcher.appEventMapper(this))
                 .flatMap(Flux::fromIterable)
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
-    }
-
-    Function<ButtonActionDef, List<ButtonActionDef>> ease() {
-        return List::of;
     }
 
     @Override
