@@ -41,11 +41,6 @@ public class DigitizedTriggerAdapter extends ButtonProcessorBase {
         return gamepadObserver.rightDigitizedRangeTriggerStream()::processArrowEvents;
     }
 
-//    @Override
-//    protected Predicate<ButtonActionDef> purgingFilter() {
-//        return q -> q.getLogicalEventType() == null;
-//    }
-
     @Override
     protected Predicate<GamepadEvent> triggerFilter() {
         return triggerByOf(EButtonAxisMapping.TRIGGER_LEFT);

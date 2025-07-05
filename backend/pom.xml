@@ -111,7 +111,7 @@
             <artifactId>api</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/api-winder-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/lib/api-winder.jar</systemPath>
         </dependency>
 
 <!--        <dependency>-->
@@ -208,6 +208,31 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>unpack-api-winder</id>
+                        <phase>process-resources</phase>
+                        <goals><goal>unpack</goal></goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.winder</groupId>
+                                    <artifactId>api</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Add Spring Boot plugin for executable JAR -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -248,7 +273,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> <!--why do i have this-->
         </plugins>
     </build>
 </project>
