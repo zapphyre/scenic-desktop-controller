@@ -1,6 +1,7 @@
 package org.remote.desktop.source.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -28,6 +29,8 @@ public class LocalSource extends BaseSource {
     private final SettingsDao settingsDao;
     private final XdoSceneService xdoSceneService;
     private final LocalXdoSceneProvider localXdoSceneProvider;
+    private final AxisEventProcessorFactory axisEventProcessorFactory;
+
 
     @Override
     public ESourceEvent connect() {
@@ -37,11 +40,13 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftTriggerProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightTriggerProcessor);
 
-        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getLeftStickProcessor);
-        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::getRightStickProcessor);
-
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
+
+        connectAndRemember(worker.getAxisStream()::subscribe, () -> axisEventProcessorFactory::leftStickStream);
+        connectAndRemember(worker.getAxisStream()::subscribe, () -> axisEventProcessorFactory::reightStickStream);
+
+
 
 
         /*
@@ -49,15 +54,15 @@ public class LocalSource extends BaseSource {
          *   in runtime on the instance;
          *   still, i want to use `connectAndRemember` for it manages disposable the standard way
          */
-        connectAndRemember(_ ->
-                FluxUtil.repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
-                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
-
-        // same...
-        connectAndRemember(_ ->
-                        rightStickStream().polarProducer(worker)
-                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
-                () -> null);
+//        connectAndRemember(_ ->
+//                FluxUtil.repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
+//                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
+//
+//        // same...
+//        connectAndRemember(_ ->
+//                        rightStickStream().polarProducer(worker)
+//                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
+//                () -> null);
 
 //        connectAndRemember(_ ->
 //                        leftStickStream().polarProducer(worker)

@@ -1,15 +1,17 @@
 package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
-import org.mapstruct.factory.Mappers;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.entity.GesturePath;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.mapper.PolarCoordsMapper;
+import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.dto.*;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
@@ -24,15 +26,13 @@ import org.zapphyre.fizzy.model.MatchResult;
 import org.zapphyre.fizzy.model.ToleranceConfig;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static org.asmus.builder.AxisEventFactory.leftStickStream;
-import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @Slf4j
 @Component
@@ -47,6 +47,10 @@ public class StickGestureProcessor {
     protected final ApplicationEventPublisher eventPublisher;
     private final ButtonPressMapper buttonPressMapper;
     private final PolarCoordsMapper polarCoordsMapper;
+    private final AxisEventProcessorFactory axisEventProcessorFactory;
+
+    @Getter
+    private final Sinks.Many<SourceEvent> axis = Sinks.many().multicast().directBestEffort();
 
     private final ToleranceConfig toleranceConfig = ToleranceConfig.builder()
             .frequencyTolerancePercent(10.0)
@@ -65,8 +69,8 @@ public class StickGestureProcessor {
             Optional.ofNullable(left).ifPresent(Disposable::dispose);
             Optional.ofNullable(right).ifPresent(Disposable::dispose);
 
-            left = hookOnStick(leftStickStream().polarProducer(worker), GestureEventDto::getLeftStickGesture, sceneName);
-            right = hookOnStick(rightStickStream().polarProducer(worker), GestureEventDto::getRightStickGesture, sceneName);
+            left = hookOnStick(axisEventProcessorFactory.leftPolarFlux(), GestureEventDto::getLeftStickGesture, sceneName);
+            right = hookOnStick(axisEventProcessorFactory.rightPolarFlux(), GestureEventDto::getRightStickGesture, sceneName);
         });
     }
 

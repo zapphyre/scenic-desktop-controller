@@ -17,10 +17,11 @@ import static org.asmus.builder.AxisEventFactory.leftStickStream;
 import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @RestController
-@RequestMapping("api/raw-event")
+@RequestMapping("${api.prefix}/raw-event")
 @RequiredArgsConstructor
 public class RawSourceCtrl {
 
+    public static final String RAW_EVT_BASE = "polarCoords";
     private final JoyWorker worker;
     private final LocalSource source;
 

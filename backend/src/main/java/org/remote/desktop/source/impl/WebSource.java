@@ -12,12 +12,16 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.asmus.builder.AxisEventFactory.leftStickStream;
+import static org.asmus.builder.AxisEventFactory.rightStickStream;
 
 @Builder
 public class WebSource extends BaseSource {
@@ -65,15 +69,30 @@ public class WebSource extends BaseSource {
                 .retrieve()
                 .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getRightTriggerProcessor);
 
-        connectAndRemember(spec.uri("left-stick")
+        connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(PolarCoords.class)::subscribe, axisAdapter::getLeftStickConsumer);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
 
-        connectAndRemember(spec.uri("right-stick")
+        connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(PolarCoords.class)::subscribe, axisAdapter::getRightStickConsumer);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
+
+        connectAndRemember(_ ->
+                FluxUtil.repeat(spec.uri("left-stick")
+                                .accept(MediaType.TEXT_EVENT_STREAM)
+                                .retrieve()
+                                .bodyToFlux(PolarCoords.class), PolarCoords::isZero, 4)
+                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
+
+        connectAndRemember(_ ->
+                        spec.uri("right-stick")
+                                .accept(MediaType.TEXT_EVENT_STREAM)
+                                .retrieve()
+                                .bodyToFlux(PolarCoords.class)
+                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
+                () -> null);
 
         if (settingsDao.disconnectOnRemoteConnect())
             localSource.disconnect();

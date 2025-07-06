@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
@@ -29,7 +30,10 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     Set<SceneDto> inheritsFrom;
 
     EAxisEvent leftAxisEvent;
+    EAxisEaser leftAxisEaser;
+
     EAxisEvent rightAxisEvent;
+    EAxisEaser rightAxisEaser;
 
     List<EventDto> events = new LinkedList<>();
 }

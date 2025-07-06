@@ -53,10 +53,11 @@ public class WinderHostRepository implements JmAutoRegistry {
     }
 
     public JmDnsProperties getJmDnsProperties() {
+        String winderInstanceName = settingsDao.getSettings().getWinderInstanceName();
         return JmDnsProperties.builder()
                 .greetingMessage("hi")
                 .group(WinderConstants.JM_GROUP)
-                .instanceName("zbook_gpad")
+                .instanceName(winderInstanceName)
                 .build();
     }
 }

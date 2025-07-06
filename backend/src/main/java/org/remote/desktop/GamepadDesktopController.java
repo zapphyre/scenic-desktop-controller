@@ -6,12 +6,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 @Transactional
-@PropertySource(
-        value = {"classpath:settings.properties", "file:./settings.properties"},
-        ignoreResourceNotFound = true
-)
+@PropertySources({
+        @PropertySource(
+                value = {"file:./settings.properties", "classpath:settings.properties"},
+                ignoreResourceNotFound = true
+        )})
 @SpringBootApplication
 @RequiredArgsConstructor
 @EnableConfigurationProperties

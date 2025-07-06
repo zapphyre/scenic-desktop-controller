@@ -18,6 +18,7 @@ import org.remote.desktop.source.impl.WebSource;
 import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
@@ -30,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GpadHostRepository  {
+public class GpadHostRepository implements JmAutoRegistry {
 
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 
@@ -85,14 +86,14 @@ public class GpadHostRepository  {
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
     }
 
-    public void sourceLost(String name) {
+    public void sourceLost(WebSourceDef lost) {
         WebSourceDef webSourceDef = connectableSources.keySet().stream()
-                .filter(webSource -> webSource.getName().equals(name))
+                .filter(webSource -> webSource.getName().equals(lost.getName()))
                 .findFirst()
                 .orElseThrow();
 
         connectableSources.remove(webSourceDef);
-        log.info("Source lost: " + name);
+        log.info("Source lost: " + lost.getName());
         sourceStateStream.tryEmitNext(new SourceEvent(webSourceDef, ESourceEvent.LOST));
     }
 
@@ -110,20 +111,23 @@ public class GpadHostRepository  {
 
     WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
         return WebClient.builder()
-                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/%s/", "event"))
+                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/%s/", "raw-event"))
                 .build()
                 .get();
     }
 
     public static String createUrl(String baseUrl, int port) {
-        return String.format("http://%s:%d", baseUrl, port);
+        return String.format("http://%s:%d", baseUrl, 8081);
     }
 
     public JmDnsProperties getJmDnsProperties() {
+        String instanceName = settingsDao.getInstanceName();
+        System.out.println("===============registering settings instanceName: " + instanceName);
+
         return JmDnsProperties.builder()
                 .greetingMessage("hi")
                 .group("gevt")
-                .instanceName("zbook")
+                .instanceName(settingsDao.getInstanceName())
                 .build();
     }
 }

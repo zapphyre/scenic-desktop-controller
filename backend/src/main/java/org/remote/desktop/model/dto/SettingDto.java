@@ -10,6 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 public class SettingDto {
     Long id;
     String instanceName;
+    String winderInstanceName;
     boolean allowNetworkDiscovery;
     String baseSceneName;
     boolean disconnectLocalOnRemoteConnection;

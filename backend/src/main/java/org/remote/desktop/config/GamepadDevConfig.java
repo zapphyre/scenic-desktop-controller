@@ -3,6 +3,7 @@ package org.remote.desktop.config;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.builder.EventProducer;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
@@ -27,6 +28,11 @@ public class GamepadDevConfig {
     @Bean
     public IntrospectedEventFactory introspectedEventFactory() {
         return new IntrospectedEventFactory();
+    }
+
+    @Bean
+    public AxisEventProcessorFactory axisEventProcessorFactory() {
+        return new AxisEventProcessorFactory();
     }
 
     @PreDestroy

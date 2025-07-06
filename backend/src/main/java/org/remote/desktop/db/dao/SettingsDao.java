@@ -29,10 +29,10 @@ public class SettingsDao {
 
     @PostConstruct
     void deleteAll() {
-        Setting current = settingsRepository.findBySettingsInstance(INST_NAME)
-                .orElseGet(() -> settingsRepository.save(settingMapper.map(settingsProperties)));
-
-//        settingsRepository.deleteAll();
+//        Setting current = settingsRepository.findBySettingsInstance(INST_NAME)
+//                .orElseGet(() -> settingsRepository.save(settingMapper.map(settingsProperties)));
+//
+        settingsRepository.deleteAll();
     }
 
     public void update(SettingDto dto) {

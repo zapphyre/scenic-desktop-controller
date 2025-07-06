@@ -6,7 +6,6 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,6 +14,10 @@ import java.util.stream.Stream;
 
 @UtilityClass
 public class FluxUtil {
+
+    public Flux<PolarCoords> repeat(Flux<PolarCoords> flux) {
+        return repeat(flux, PolarCoords::isZero, 4);
+    }
 
     public <T> Flux<T> repeat(Flux<T> flux, Predicate<T> stopWhen, int interval) {
         return flux.switchMap(p -> stopWhen.test(p) ? Flux.just(p) : // pass (0,0) once, then complete
@@ -31,8 +34,13 @@ public class FluxUtil {
                 .flatMap(function)
                 .orElse(null);
     }
+
     public static <T, R> Consumer<T> eat(Function<T, R> mapper) {
         return mapper::apply;
+    }
+
+    public static <T, R> Consumer<T> chew(Function<T, R> mapper, Consumer<R> sink) {
+        return t -> sink.accept(mapper.apply(t));
     }
 
     public static <T> Function<T, T> funky(Consumer<T> consumer) {

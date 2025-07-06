@@ -2,6 +2,7 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
@@ -44,9 +45,13 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
 
     @Enumerated(EnumType.STRING)
     private EAxisEvent leftAxisEvent = EAxisEvent.DEFAULT;
+    @Enumerated(EnumType.STRING)
+    private EAxisEaser leftAxisEaser = EAxisEaser.NONE;
 
     @Enumerated(EnumType.STRING)
     private EAxisEvent rightAxisEvent = EAxisEvent.DEFAULT;
+    @Enumerated(EnumType.STRING)
+    private EAxisEaser rightAxisEaser = EAxisEaser.NONE;
 
     @PreUpdate
     @PrePersist
