@@ -1,36 +1,24 @@
 package org.remote.desktop.source.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.asmus.builder.AxisEventProcessorFactory;
-import org.asmus.model.PolarCoords;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.processor.*;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.impl.XdoSceneService;
-import org.remote.desktop.util.FluxUtil;
-import org.springframework.stereotype.Component;
-import org.zapphyre.discovery.model.WebSourceDef;
 
-import static org.asmus.builder.AxisEventFactory.leftStickStream;
-import static org.asmus.builder.AxisEventFactory.rightStickStream;
-
-@Component
-@RequiredArgsConstructor
+@Value
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class LocalSource extends BaseSource {
 
-    private final JoyWorker worker;
-    private final ButtonAdapter buttonAdapter;
-    private final DigitizedTriggerAdapter digitizedTriggerAdapter;
-    private final ArrowsAdapter arrowsAdapter;
-    private final AxisAdapter axisAdapter;
+    JoyWorker worker;
 
-    private final SettingsDao settingsDao;
-    private final XdoSceneService xdoSceneService;
-    private final LocalXdoSceneProvider localXdoSceneProvider;
-    private final AxisEventProcessorFactory axisEventProcessorFactory;
-
+    SettingsDao settingsDao;
+    XdoSceneService xdoSceneService;
+    LocalXdoSceneProvider localXdoSceneProvider;
 
     @Override
     public ESourceEvent connect() {
@@ -43,31 +31,8 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
         connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
 
-        connectAndRemember(worker.getAxisStream()::subscribe, () -> axisEventProcessorFactory::leftStickStream);
-        connectAndRemember(worker.getAxisStream()::subscribe, () -> axisEventProcessorFactory::reightStickStream);
-
-
-
-
-        /*
-         *   consumer in .subscribe(..) -=can not=- be interchanged for method reference b/c it's being re-assigned
-         *   in runtime on the instance;
-         *   still, i want to use `connectAndRemember` for it manages disposable the standard way
-         */
-//        connectAndRemember(_ ->
-//                FluxUtil.repeat(leftStickStream().polarProducer(worker), PolarCoords::isZero, 4)
-//                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
-//
-//        // same...
-//        connectAndRemember(_ ->
-//                        rightStickStream().polarProducer(worker)
-//                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
-//                () -> null);
-
-//        connectAndRemember(_ ->
-//                        leftStickStream().polarProducer(worker)
-//                                .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)),
-//                () -> null);
+        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::leftAxis);
+        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::rightAxis);
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 
@@ -75,25 +40,7 @@ public class LocalSource extends BaseSource {
     }
 
     @Override
-    public String describe() {
-        return "local source";
-    }
-
-    @Override
     public boolean isConnected() {
         return state == ESourceEvent.CONNECTED;
-    }
-
-    @Override
-    public boolean isLocal() {
-        return true;
-    }
-
-    public WebSourceDef getDef() {
-        return WebSourceDef.builder()
-                .name(describe())
-                .baseUrl("127.0.0.1")
-                .port(settingsDao.getPort())
-                .build();
     }
 }

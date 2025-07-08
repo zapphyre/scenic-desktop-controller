@@ -1,49 +1,32 @@
 package org.remote.desktop.source.impl;
 
-import lombok.Builder;
-import org.asmus.model.PolarCoords;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 import org.asmus.model.TimedValue;
-import org.remote.desktop.controller.SceneApi;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.processor.ArrowsAdapter;
-import org.remote.desktop.processor.AxisAdapter;
-import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.processor.DigitizedTriggerAdapter;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
-import org.remote.desktop.util.FluxUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import static org.asmus.builder.AxisEventFactory.leftStickStream;
-import static org.asmus.builder.AxisEventFactory.rightStickStream;
-
-@Builder
+@Value
+@SuperBuilder
 public class WebSource extends BaseSource {
 
-    private final ButtonAdapter buttonAdapter;
-    private final ArrowsAdapter arrowsAdapter;
-    private final DigitizedTriggerAdapter digitizedTriggerAdapter;
-    private final AxisAdapter axisAdapter;
+     WebClient.RequestHeadersUriSpec<?> spec;
 
-    private final WebClient.RequestHeadersUriSpec<?> spec;
-    private final String description;
+     ConnectableSource localSource;
+     SettingsDao settingsDao;
 
-    private final ConnectableSource localSource;
-    private final SettingsDao settingsDao;
-
-    private final XdoSceneService xdoSceneService;
-    private final SceneApi sceneApi;
-
-    private final ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
+     ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
-    private final ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
+     ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
 
@@ -57,42 +40,7 @@ public class WebSource extends BaseSource {
         connectAndRemember(spec.uri("axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, arrowsAdapter::getArrowConsumer);
-
-        connectAndRemember(spec.uri("axis")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getLeftTriggerProcessor);
-
-        connectAndRemember(spec.uri("axis")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getRightTriggerProcessor);
-
-        connectAndRemember(spec.uri("axis")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
-
-        connectAndRemember(spec.uri("axis")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
-
-        connectAndRemember(_ ->
-                FluxUtil.repeat(spec.uri("left-stick")
-                                .accept(MediaType.TEXT_EVENT_STREAM)
-                                .retrieve()
-                                .bodyToFlux(PolarCoords.class), PolarCoords::isZero, 4)
-                        .subscribe(q -> axisAdapter.getLeftStickConsumer().accept(q)), () -> null);
-
-        connectAndRemember(_ ->
-                        spec.uri("right-stick")
-                                .accept(MediaType.TEXT_EVENT_STREAM)
-                                .retrieve()
-                                .bodyToFlux(PolarCoords.class)
-                                .subscribe(q -> axisAdapter.getRightStickConsumer().accept(q)),
-                () -> null);
+                .bodyToFlux(AXIS_RAW_DATA)::subscribe, this::chainConsumers);
 
         if (settingsDao.disconnectOnRemoteConnect())
             localSource.disconnect();
@@ -102,9 +50,16 @@ public class WebSource extends BaseSource {
         return state = ESourceEvent.CONNECTED;
     }
 
-    @Override
-    public String describe() {
-        return description;
+    Consumer<Map<String, Integer>> chainConsumers() {
+        return q -> {
+            arrowsAdapter.getArrowConsumer().accept(q);
+            digitizedTriggerAdapter.getLeftTriggerProcessor().accept(q);
+            digitizedTriggerAdapter.getRightTriggerProcessor().accept(q);
+            digitizedTriggerAdapter.getLeftStepTriggerProcessor().accept(q);
+            digitizedTriggerAdapter.getRightStepTriggerProcessor().accept(q);
+            axisAdapter.leftAxis().accept(q);
+            axisAdapter.rightAxis().accept(q);
+        };
     }
 
     @Override

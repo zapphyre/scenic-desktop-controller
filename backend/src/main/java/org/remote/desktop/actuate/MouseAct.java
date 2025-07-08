@@ -53,6 +53,20 @@ public class MouseAct {
         robot.mouseMove(currentX + xMovement, currentY + yMovement);
     }
 
+    double sen = 0.0136D;
+    public static void scrollR(PolarCoords coords) {
+        double radius = coords.getRadius(); // Example value within your range
+        double mappedRadius = mapVal(radius, -0, 32768, 0, 2_000_000); // One third of the range
+
+        double y = radius * Math.sin(coords.getTheta());
+        double sensitivityFactor = Math.abs(y) / Math.abs(mappedRadius); // Use mapped radius for sensitivity calculation
+
+        int scrollAmount = (int) (Math.abs(radius) * sensitivityFactor * sen); // Adjust the 0.01 to fine-tune sensitivity
+
+        int scrollDirection = (int) Math.signum(y); // -1 for up, 1 for down, 0 if y is 0
+        robot.mouseWheel(scrollDirection * scrollAmount); // Adjust scroll amount based on sensitivity
+    }
+
     int delay = 3; // milliseconds between each scroll step
     @SneakyThrows
     public static void scroll(PolarCoords coords) {

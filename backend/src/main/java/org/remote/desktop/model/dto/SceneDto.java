@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
+
 @Value
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

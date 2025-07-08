@@ -8,12 +8,5 @@ public interface ConnectableSource {
 
     ESourceEvent disconnect();
 
-    String describe();
-
     boolean isConnected();
-
-    default boolean isLocal() {
-        return false;
-    };
-
 }

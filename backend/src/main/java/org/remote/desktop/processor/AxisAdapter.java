@@ -18,14 +18,17 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
+import static org.remote.desktop.model.EAxisEaser.NONE;
 import static org.remote.desktop.util.FluxUtil.chew;
 
 @Component
@@ -36,6 +39,7 @@ public class AxisAdapter {
     private final SettingsDao settingsDao;
     private final XdoSceneService xdoSceneService;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
+    protected final ScheduledExecutorService executorService;
     private final CacheManager cacheManager;
 
     @Getter
@@ -47,9 +51,18 @@ public class AxisAdapter {
     private Disposable rightStick;
 
 
+    public Consumer<Map<String, Integer>> leftAxis() {
+        return axisEventProcessorFactory.leftStickStream()::processArrowEvents;
+    }
+
+    public Consumer<Map<String, Integer>> rightAxis() {
+        return axisEventProcessorFactory.reightStickStream()::processArrowEvents;
+    }
+
     private final Map<EAxisEvent, Consumer<PolarCoords>> axisEventConsumerMap = Map.of(
             EAxisEvent.MOUSE, MouseAct::moveMouse,
-            EAxisEvent.SCROLL, MouseAct::scroll,
+//            EAxisEvent.SCROLL, MouseAct::scroll,
+            EAxisEvent.SCROLL, MouseAct::scrollR,
             EAxisEvent.VOL, e -> {
             },
             EAxisEvent.NOOP, e -> {
@@ -57,7 +70,8 @@ public class AxisAdapter {
     );
 
     private final Map<EAxisEaser, Function<Flux<PolarCoords>, Flux<PolarCoords>>> easerMap = Map.of(
-            CONTINUOUS, FluxUtil::repeat
+            CONTINUOUS, FluxUtil::repeat,
+            NONE, Function.identity()
     );
 
     @PostConstruct
@@ -74,6 +88,7 @@ public class AxisAdapter {
         Stream.of(leftStick, rightStick).filter(Objects::nonNull).forEach(Disposable::dispose);
 
         leftStick = consumers.leftEasing.apply(axisEventProcessorFactory.leftPolarFlux())
+                .publishOn(Schedulers.fromExecutorService(executorService))
                 .subscribe(consumers.leftStickConsumer);
 
         rightStick = consumers.rightEasing.apply(axisEventProcessorFactory.rightPolarFlux())
@@ -103,8 +118,9 @@ public class AxisAdapter {
         Consumers consumers = new Consumers(
                 axisEventConsumerMap.get(rightAxisEvent),
                 axisEventConsumerMap.get(leftAxisEvent),
-                easerMap.getOrDefault(rightAxisEaser, Function.identity()),
+                FluxUtil::adaptForScroll,
                 easerMap.get(CONTINUOUS)
+//                easerMap.get(leftAxisEaser)
         );
 
         cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)

@@ -13,11 +13,9 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
-import org.remote.desktop.source.impl.LocalSource;
+import org.remote.desktop.source.impl.EventSourceFactory;
 import org.remote.desktop.source.impl.WebSource;
-import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
@@ -33,25 +31,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GpadHostRepository implements JmAutoRegistry {
 
-    private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
+    private final SettingsDao settingsDao;
+    private final EventSourceFactory eventSourceFactory;
 
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
-
-    private final LocalSource localSource;
-    private final ButtonAdapter buttonAdapter;
-    private final AxisAdapter axisAdapter;
-    private final ArrowsAdapter arrowsAdapter;
-    private final DigitizedTriggerAdapter digitizedTriggerAdapter;
-    private final SettingsDao settingsDao;
-    private final ReactiveWebServerApplicationContext serverContext;
-    private final XdoSceneService xdoSceneService;
-    private final FeignBuilder feignBuilder;
+    private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
 
     @PostConstruct
     void init() {
-        ConnectableSource local = connectableSources.computeIfAbsent(localSource.getDef(), q -> localSource);
-
-        local.connect();
+        connectableSources.computeIfAbsent(EventSourceFactory.getLocalDef(), eventSourceFactory::produceLocalSource)
+                .connect();
     }
 
     public void toggleSourceConnection(WebSourceDef def) {
@@ -60,28 +49,19 @@ public class GpadHostRepository implements JmAutoRegistry {
         ESourceEvent event = connectableSource.isConnected() ?
                 connectableSource.disconnect() : connectableSource.connect();
 
-        if (!def.equals(localSource.getDef()))
-            if (event == ESourceEvent.CONNECTED)
-                localSource.disconnect();
-            else
-                localSource.connect();
+        if (connectableSource instanceof WebSource ws) {
+            ESourceEvent localState = ws.isConnected() ?
+                    eventSourceFactory.getLocalSource().disconnect() :
+                    eventSourceFactory.getLocalSource().connect();
+
+            sourceStateStream.tryEmitNext(new SourceEvent(EventSourceFactory.getLocalDef(), localState));
+        }
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, event));
     }
 
     public void sourceDiscovered(WebSourceDef def) {
-        connectableSources.put(def, WebSource.builder()
-                .spec(getWebclient(def.getBaseUrl(), def.getPort()))
-                .axisAdapter(axisAdapter)
-                .buttonAdapter(buttonAdapter)
-                .arrowsAdapter(arrowsAdapter)
-                .digitizedTriggerAdapter(digitizedTriggerAdapter)
-                .localSource(localSource)
-                .settingsDao(settingsDao)
-                .description(def.getName())
-                .xdoSceneService(xdoSceneService)
-                .sceneApi(feignBuilder.buildGpadApiClient(createUrl(def.getBaseUrl(), def.getPort())))
-                .build());
+        connectableSources.computeIfAbsent(def, eventSourceFactory::produceSource);
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
     }
@@ -97,10 +77,6 @@ public class GpadHostRepository implements JmAutoRegistry {
         sourceStateStream.tryEmitNext(new SourceEvent(webSourceDef, ESourceEvent.LOST));
     }
 
-    public Flux<SourceEvent> getConnectedFlux() {
-        return sourceStateStream.asFlux();
-    }
-
     public List<SourceEvent> getOverallSourceStates() {
         return connectableSources.entrySet().stream()
                 .map(q -> new SourceEvent(q.getKey(), q.getValue().isConnected() ?
@@ -109,25 +85,17 @@ public class GpadHostRepository implements JmAutoRegistry {
                 .toList();
     }
 
-    WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
-        return WebClient.builder()
-                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/%s/", "raw-event"))
-                .build()
-                .get();
-    }
-
-    public static String createUrl(String baseUrl, int port) {
-        return String.format("http://%s:%d", baseUrl, 8081);
-    }
-
     public JmDnsProperties getJmDnsProperties() {
         String instanceName = settingsDao.getInstanceName();
-        System.out.println("===============registering settings instanceName: " + instanceName);
 
         return JmDnsProperties.builder()
                 .greetingMessage("hi")
                 .group("gevt")
                 .instanceName(settingsDao.getInstanceName())
                 .build();
+    }
+
+    public Flux<SourceEvent> getConnectedFlux() {
+        return sourceStateStream.asFlux();
     }
 }

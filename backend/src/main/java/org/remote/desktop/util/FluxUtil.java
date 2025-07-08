@@ -25,6 +25,27 @@ public class FluxUtil {
                         .map(i -> p));
     }
 
+    public Flux<PolarCoords> adaptForScroll(Flux<PolarCoords> flux) {
+        return flux.map(adjustRadiusForScroll);
+    }
+
+    private Function<PolarCoords, PolarCoords> adjustRadiusForScroll = polar -> {
+        double originalRadius = polar.getRadius();
+        double theta = polar.getTheta();
+
+        // Normalize theta to [0, 2π)
+        double normalizedTheta = ((theta % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+        // Calculate scroll speed factor: max at θ = π/2 (up) and θ = 3π/2 (down), min at θ = 0 or π
+        double scrollFactor = Math.abs(Math.sin(normalizedTheta));
+
+        // Scale the original radius by the scroll factor
+        double newRadius = originalRadius * scrollFactor;
+
+        // Return new PolarCoords with adjusted radius
+        return new PolarCoords(newRadius, theta);
+    };
+
     public static <T> BinaryOperator<T> laterMerger() {
         return (q, p) -> p;
     }
