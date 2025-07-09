@@ -3,7 +3,7 @@ package org.remote.desktop.text.translator;
 public class PolarSectionTranslatorFactory {
 
     public static PolarCoordsSectionTranslator createTranslator(PolarSettings settings) {
-        return coords -> {
+        return coords -> {  
             // Convert theta from radians (-π to π) to degrees (0° to 360°)
             double thetaDegrees = Math.toDegrees(coords.getTheta());
             if (thetaDegrees < 0) thetaDegrees += 360.0;

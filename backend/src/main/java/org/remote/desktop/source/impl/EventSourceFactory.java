@@ -2,6 +2,7 @@ package org.remote.desktop.source.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.AxisAdapter;
@@ -23,6 +24,7 @@ public class EventSourceFactory {
     private final ArrowsAdapter arrowsAdapter;
     private final DigitizedTriggerAdapter digitizedTriggerAdapter;
     private final AxisAdapter axisAdapter;
+    private final JoyWorker worker;
 
     private final SettingsDao settingsDao;
     private final XdoSceneService xdoSceneService;
@@ -36,6 +38,7 @@ public class EventSourceFactory {
             return localSource;
 
         return localSource = LocalSource.builder()
+                .worker(worker)
                 .buttonAdapter(buttonAdapter)
                 .arrowsAdapter(arrowsAdapter)
                 .digitizedTriggerAdapter(digitizedTriggerAdapter)

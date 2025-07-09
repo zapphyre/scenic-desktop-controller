@@ -5,6 +5,7 @@ import org.asmus.model.PolarCoords;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -22,14 +23,18 @@ public class FluxUtil {
     public <T> Flux<T> repeat(Flux<T> flux, Predicate<T> stopWhen, int interval) {
         return flux.switchMap(p -> stopWhen.test(p) ? Flux.just(p) : // pass (0,0) once, then complete
                 Flux.interval(Duration.ofMillis(interval))
-                        .map(i -> p));
+                        .map(_ -> p));
+    }
+
+    public Flux<PolarCoords> temperedAngularScrolling(Flux<PolarCoords> flux) {
+        return repeat(adaptForScroll(flux), PolarCoords::isZero, 21);
     }
 
     public Flux<PolarCoords> adaptForScroll(Flux<PolarCoords> flux) {
         return flux.map(adjustRadiusForScroll);
     }
 
-    private Function<PolarCoords, PolarCoords> adjustRadiusForScroll = polar -> {
+    Function<PolarCoords, PolarCoords> adjustRadiusForScroll = polar -> {
         double originalRadius = polar.getRadius();
         double theta = polar.getTheta();
 
@@ -69,6 +74,11 @@ public class FluxUtil {
                 .peek(consumer)
                 .findAny()
                 .orElse(q);
+    }
+
+    @SafeVarargs
+    public static <T> Consumer<T> pipe(Consumer<T> ...consumer) {
+        return q -> Arrays.stream(consumer).forEach(p -> p.accept(q));
     }
 
     public <T> Function<Optional<T>, T> orNull() {

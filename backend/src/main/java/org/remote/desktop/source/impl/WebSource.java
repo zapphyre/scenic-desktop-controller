@@ -14,19 +14,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.remote.desktop.util.FluxUtil.pipe;
+
 @Value
 @SuperBuilder
 public class WebSource extends BaseSource {
 
-     WebClient.RequestHeadersUriSpec<?> spec;
+    WebClient.RequestHeadersUriSpec<?> spec;
 
-     ConnectableSource localSource;
-     SettingsDao settingsDao;
+    ConnectableSource localSource;
+    SettingsDao settingsDao;
 
-     ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
+    ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
-     ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
+    ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
 
@@ -51,15 +53,16 @@ public class WebSource extends BaseSource {
     }
 
     Consumer<Map<String, Integer>> chainConsumers() {
-        return q -> {
-            arrowsAdapter.getArrowConsumer().accept(q);
-            digitizedTriggerAdapter.getLeftTriggerProcessor().accept(q);
-            digitizedTriggerAdapter.getRightTriggerProcessor().accept(q);
-            digitizedTriggerAdapter.getLeftStepTriggerProcessor().accept(q);
-            digitizedTriggerAdapter.getRightStepTriggerProcessor().accept(q);
-            axisAdapter.leftAxis().accept(q);
-            axisAdapter.rightAxis().accept(q);
-        };
+        Consumer<Map<String, Integer>> arrowConsumer = arrowsAdapter.getArrowConsumer();
+        Consumer<Map<String, Integer>> leftTriggerProcessor = digitizedTriggerAdapter.getLeftTriggerProcessor();
+        Consumer<Map<String, Integer>> rightTriggerProcessor = digitizedTriggerAdapter.getRightTriggerProcessor();
+        Consumer<Map<String, Integer>> leftStepTriggerProcessor = digitizedTriggerAdapter.getLeftStepTriggerProcessor();
+        Consumer<Map<String, Integer>> rightStepTriggerProcessor = digitizedTriggerAdapter.getRightStepTriggerProcessor();
+        Consumer<Map<String, Integer>> leftAxisConsumer = axisAdapter.leftAxis();
+        Consumer<Map<String, Integer>> rightAxisConsumer = axisAdapter.rightAxis();
+
+        return pipe(arrowConsumer, leftTriggerProcessor, rightTriggerProcessor, leftStepTriggerProcessor,
+                rightStepTriggerProcessor, leftAxisConsumer, rightAxisConsumer);
     }
 
     @Override

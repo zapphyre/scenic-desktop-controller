@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import org.asmus.builder.AxisEventFactory;
+import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -24,7 +25,7 @@ import static org.remote.desktop.text.translator.PolarSectionTranslatorFactory.c
 public class StickTextAdapter {
 
     private final JoyWorker worker;
-    private final IntrospectedEventFactory gamepadObserver;
+    private final AxisEventProcessorFactory axisProcessors;
     protected final ButtonPressMapper buttonPressMapper;
 
     private final InputWidgetBase widget;
@@ -37,7 +38,7 @@ public class StickTextAdapter {
 
         PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
-        AxisEventFactory.leftStickStream().polarProducer(worker)
+        axisProcessors.leftPolarFlux()
                 .filter(q -> q.getRadius() > 12_000)
                 .map(groupsTranslator::translate)
                 .distinctUntilChanged()

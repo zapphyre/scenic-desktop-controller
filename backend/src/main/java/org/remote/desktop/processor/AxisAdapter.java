@@ -13,6 +13,7 @@ import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.ui.model.EasingFluxEventDef;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -84,27 +85,28 @@ public class AxisAdapter {
         return chew(sceneGetter.andThen(getCachedOrFreshConsumers()), this::constructEasedPipeline);
     }
 
-    void constructEasedPipeline(Consumers consumers) {
+    void constructEasedPipeline(EasingFluxEventDef<PolarCoords> easingFluxEventDef) {
         Stream.of(leftStick, rightStick).filter(Objects::nonNull).forEach(Disposable::dispose);
 
-        leftStick = consumers.leftEasing.apply(axisEventProcessorFactory.leftPolarFlux())
+        leftStick = easingFluxEventDef.leftEasing().apply(axisEventProcessorFactory.leftPolarFlux())
                 .publishOn(Schedulers.fromExecutorService(executorService))
-                .subscribe(consumers.leftStickConsumer);
+                .subscribe(easingFluxEventDef.leftStickConsumer());
 
-        rightStick = consumers.rightEasing.apply(axisEventProcessorFactory.rightPolarFlux())
-                .subscribe(consumers.rightStickConsumer);
+        rightStick = easingFluxEventDef.rightEasing().apply(axisEventProcessorFactory.rightPolarFlux())
+                .publishOn(Schedulers.fromExecutorService(executorService))
+                .subscribe(easingFluxEventDef.rightStickConsumer());
     }
 
-    Function<SceneDto, Consumers> getCachedOrFreshConsumers() {
-        return q -> getAxisCachedConsumers(q.getName()) instanceof Consumers c ?
+    Function<SceneDto, EasingFluxEventDef> getCachedOrFreshConsumers() {
+        return q -> getAxisCachedConsumers(q.getName()) instanceof EasingFluxEventDef c ?
                 c : getConsumersAndCache(q);
     }
 
-    Consumers getAxisCachedConsumers(String key) {
-        return cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(key, Consumers.class);
+    EasingFluxEventDef getAxisCachedConsumers(String key) {
+        return cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(key, EasingFluxEventDef.class);
     }
 
-    Consumers getConsumersAndCache(SceneDto sceneDto) {
+    EasingFluxEventDef getConsumersAndCache(SceneDto sceneDto) {
         EAxisEvent leftAxisEvent = sceneDto.getLeftAxisEvent();
         EAxisEvent rightAxisEvent = sceneDto.getRightAxisEvent();
         EAxisEaser leftAxisEaser = sceneDto.getLeftAxisEaser();
@@ -115,22 +117,19 @@ public class AxisAdapter {
         leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
         rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
 
-        Consumers consumers = new Consumers(
+        EasingFluxEventDef<PolarCoords> easingFluxEventDef = new EasingFluxEventDef<>(
                 axisEventConsumerMap.get(rightAxisEvent),
                 axisEventConsumerMap.get(leftAxisEvent),
-                FluxUtil::adaptForScroll,
+                FluxUtil::temperedAngularScrolling,
                 easerMap.get(CONTINUOUS)
 //                easerMap.get(leftAxisEaser)
         );
 
         cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
-                .put(sceneDto.getName(), consumers);
+                .put(sceneDto.getName(), easingFluxEventDef);
 
-        return consumers;
+        return easingFluxEventDef;
     }
 
-    record Consumers(Consumer<PolarCoords> rightStickConsumer, Consumer<PolarCoords> leftStickConsumer,
-                     Function<Flux<PolarCoords>, Flux<PolarCoords>> rightEasing,
-                     Function<Flux<PolarCoords>, Flux<PolarCoords>> leftEasing) {
-    }
+
 }

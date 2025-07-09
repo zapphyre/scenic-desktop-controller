@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.component.GpadHostRepository;
+import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.LocalSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +25,15 @@ public class RawSourceCtrl {
 
     public static final String RAW_EVT_BASE = "polarCoords";
     private final JoyWorker worker;
-    private final LocalSource source;
+    private final GpadHostRepository repository;
 
     @GetMapping("button")
     public Flux<List<TimedValue>> getGpadButtonStateStream() {
+        ConnectableSource localSource = repository.getLocalSource();
+
         return worker.getButtonStream()
-                .doOnSubscribe(q -> source.disconnect())
-                .doOnTerminate(source::connect);
+                .doOnSubscribe(q -> localSource.disconnect())
+                .doOnTerminate(localSource::connect);
     }
 
     @GetMapping("axis")

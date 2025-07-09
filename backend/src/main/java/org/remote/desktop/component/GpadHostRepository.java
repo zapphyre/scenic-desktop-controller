@@ -14,6 +14,7 @@ import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.EventSourceFactory;
+import org.remote.desktop.source.impl.LocalSource;
 import org.remote.desktop.source.impl.WebSource;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
@@ -41,6 +42,10 @@ public class GpadHostRepository implements JmAutoRegistry {
     void init() {
         connectableSources.computeIfAbsent(EventSourceFactory.getLocalDef(), eventSourceFactory::produceLocalSource)
                 .connect();
+    }
+
+    public ConnectableSource getLocalSource() {
+        return connectableSources.get(EventSourceFactory.getLocalDef());
     }
 
     public void toggleSourceConnection(WebSourceDef def) {
