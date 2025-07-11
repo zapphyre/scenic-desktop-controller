@@ -20,8 +20,8 @@ public interface SceneMapper {
     RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
     @Mapping(target = "inheritsFromSafe", ignore = true)
-    @Mapping(target = "leftAxisEaser", defaultValue = "NONE")
-    @Mapping(target = "rightAxisEaser", defaultValue = "NONE")
+    @Mapping(target = "leftAxisEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "rightAxisEaser", defaultValue = "CONTINUOUS")
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
     List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);

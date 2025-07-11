@@ -34,7 +34,7 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     EAxisEvent leftAxisEvent;
     EAxisEaser leftAxisEaser;
 
-    EAxisEvent rightAxisEvent;
+    EAxisEvent rightAxisEvent = EAxisEvent.SCROLL;
     EAxisEaser rightAxisEaser;
 
     List<EventDto> events = new LinkedList<>();

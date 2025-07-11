@@ -81,7 +81,16 @@ public class FluxUtil {
         return q -> Arrays.stream(consumer).forEach(p -> p.accept(q));
     }
 
+    @SafeVarargs
+    public static Handover<String> glob(Consumer<Consumer<String>>... delegates) {
+        return consumer -> Arrays.stream(delegates).forEach(delegate -> delegate.accept(consumer));
+    }
+
     public <T> Function<Optional<T>, T> orNull() {
         return opt -> opt.orElse(null);
+    }
+
+    public interface Handover<T> {
+        void to(Consumer<T> consumer);
     }
 }

@@ -1,39 +1,34 @@
 package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseAct;
-import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.component.FluxRepeater;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
-import org.remote.desktop.ui.model.EasingFluxEventDef;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
 import static org.remote.desktop.model.EAxisEaser.NONE;
-import static org.remote.desktop.util.FluxUtil.chew;
+import static org.remote.desktop.util.FluxUtil.glob;
+import static org.remote.desktop.util.FluxUtil.pipe;
 
 @Component
-@RequiredArgsConstructor
 public class AxisAdapter {
 
     private final SceneService sceneService;
@@ -41,16 +36,34 @@ public class AxisAdapter {
     private final XdoSceneService xdoSceneService;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
     protected final ScheduledExecutorService executorService;
+
+    private final FluxRepeater<PolarCoords> leftRepeater;
+    private final FluxRepeater<PolarCoords> rightRepeater;
     private final CacheManager cacheManager;
 
-    @Getter
     private Consumer<PolarCoords> leftStickConsumer = MouseAct::moveMouse;
-    @Getter
     private Consumer<PolarCoords> rightStickConsumer = MouseAct::scroll;
 
     private Disposable leftStick;
     private Disposable rightStick;
 
+    public AxisAdapter(SceneService sceneService, SettingsDao settingsDao, XdoSceneService xdoSceneService,
+                       AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,
+                       CacheManager cacheManager) {
+        this.sceneService = sceneService;
+        this.settingsDao = settingsDao;
+        this.xdoSceneService = xdoSceneService;
+        this.axisEventProcessorFactory = axisEventProcessorFactory;
+        this.executorService = executorService;
+        this.cacheManager = cacheManager;
+
+        this.leftRepeater = new FluxRepeater<>(
+                cacheManager, axisEventProcessorFactory.leftPolarFlux(), easerMap, SceneDto::getLeftAxisEaser
+        );
+        this.rightRepeater = new FluxRepeater<>(
+                cacheManager, axisEventProcessorFactory.rightPolarFlux(), easerMap, SceneDto::getRightAxisEaser
+        );
+    }
 
     public Consumer<Map<String, Integer>> leftAxis() {
         return axisEventProcessorFactory.leftStickStream()::processArrowEvents;
@@ -75,61 +88,45 @@ public class AxisAdapter {
             NONE, Function.identity()
     );
 
+
     @PostConstruct
     void init() {
-        xdoSceneService.registerRecognizedSceneObserverChange(forKeyOnScene(sceneService::getSceneForWindowNameOrBase));
-        xdoSceneService.registerForcedSceneObserver(forKeyOnScene(sceneService::getScene));
+        Consumer<String> left = repeatingStreamConsumer(leftRepeater).apply(SceneDto::getLeftAxisEvent);
+        Consumer<String> right = repeatingStreamConsumer(rightRepeater).apply(SceneDto::getRightAxisEvent);
+
+        glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
+                .to(pipe(left, right));
     }
 
-    Consumer<String> forKeyOnScene(Function<String, SceneDto> sceneGetter) {
-        return chew(sceneGetter.andThen(getCachedOrFreshConsumers()), this::constructEasedPipeline);
+    Function<SceneAxisGetter, Consumer<String>> repeatingStreamConsumer(FluxRepeater<PolarCoords> repeater) {
+        AxisSpecifier specify = decorateConsumer().source(repeater);
+        return p -> repeater.forKeyOnScene(sceneService::getSceneForWindowNameOrBase, specify.axis(p));
     }
 
-    void constructEasedPipeline(EasingFluxEventDef<PolarCoords> easingFluxEventDef) {
-        Stream.of(leftStick, rightStick).filter(Objects::nonNull).forEach(Disposable::dispose);
+    DecoratingConsumer<PolarCoords> decorateConsumer() {
+        AtomicReference<Disposable> disposable = new AtomicReference<>();
+        return repeater -> axisGetter -> scene -> {
+//            if (disposable.get() != null) disposable.get().dispose();
 
-        leftStick = easingFluxEventDef.leftEasing().apply(axisEventProcessorFactory.leftPolarFlux())
-                .publishOn(Schedulers.fromExecutorService(executorService))
-                .subscribe(easingFluxEventDef.leftStickConsumer());
-
-        rightStick = easingFluxEventDef.rightEasing().apply(axisEventProcessorFactory.rightPolarFlux())
-                .publishOn(Schedulers.fromExecutorService(executorService))
-                .subscribe(easingFluxEventDef.rightStickConsumer());
+            disposable.set(repeater.getRepeatingStream()
+                    .subscribe(axisEventConsumerMap.get(axisGetter.axisGetter(scene))));
+        };
     }
 
-    Function<SceneDto, EasingFluxEventDef> getCachedOrFreshConsumers() {
-        return q -> getAxisCachedConsumers(q.getName()) instanceof EasingFluxEventDef c ?
-                c : getConsumersAndCache(q);
+    @FunctionalInterface
+    interface SceneAxisGetter {
+        EAxisEvent axisGetter(SceneDto sceneDto);
+
     }
 
-    EasingFluxEventDef getAxisCachedConsumers(String key) {
-        return cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME).get(key, EasingFluxEventDef.class);
+    @FunctionalInterface
+    interface AxisSpecifier {
+        Consumer<SceneDto> axis(SceneAxisGetter getter);
     }
 
-    EasingFluxEventDef getConsumersAndCache(SceneDto sceneDto) {
-        EAxisEvent leftAxisEvent = sceneDto.getLeftAxisEvent();
-        EAxisEvent rightAxisEvent = sceneDto.getRightAxisEvent();
-        EAxisEaser leftAxisEaser = sceneDto.getLeftAxisEaser();
-        EAxisEaser rightAxisEaser = sceneDto.getRightAxisEaser();
-
-        SceneDto base = sceneService.getScene(settingsDao.getSettings().getBaseSceneName());
-
-        leftAxisEvent = leftAxisEvent == EAxisEvent.DEFAULT ? base.getLeftAxisEvent() : leftAxisEvent;
-        rightAxisEvent = rightAxisEvent == EAxisEvent.DEFAULT ? base.getRightAxisEvent() : rightAxisEvent;
-
-        EasingFluxEventDef<PolarCoords> easingFluxEventDef = new EasingFluxEventDef<>(
-                axisEventConsumerMap.get(rightAxisEvent),
-                axisEventConsumerMap.get(leftAxisEvent),
-                FluxUtil::temperedAngularScrolling,
-                easerMap.get(CONTINUOUS)
-//                easerMap.get(leftAxisEaser)
-        );
-
-        cacheManager.getCache(SceneDao.SCENE_AXIS_CACHE_NAME)
-                .put(sceneDto.getName(), easingFluxEventDef);
-
-        return easingFluxEventDef;
+    @FunctionalInterface
+    interface DecoratingConsumer<T> {
+        AxisSpecifier source(FluxRepeater<T> repeater);
     }
-
 
 }
