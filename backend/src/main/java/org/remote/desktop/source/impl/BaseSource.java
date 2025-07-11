@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.processor.ArrowsAdapter;
-import org.remote.desktop.processor.AxisAdapter;
-import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.processor.DigitizedTriggerAdapter;
+import org.remote.desktop.processor.*;
 import org.remote.desktop.source.ConnectableSource;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.Disposable;
@@ -28,7 +25,7 @@ public abstract class BaseSource implements ConnectableSource {
     protected ButtonAdapter buttonAdapter;
     protected ArrowsAdapter arrowsAdapter;
     protected DigitizedTriggerAdapter digitizedTriggerAdapter;
-    protected AxisAdapter axisAdapter;
+    protected RepeatingAxisAdapter axisAdapter;
 
     @EqualsAndHashCode.Include
     protected WebSourceDef definition;

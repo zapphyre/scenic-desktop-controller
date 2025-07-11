@@ -28,7 +28,7 @@ import static org.remote.desktop.model.EAxisEaser.NONE;
 import static org.remote.desktop.util.FluxUtil.glob;
 import static org.remote.desktop.util.FluxUtil.pipe;
 
-@Component
+//@Component
 public class AxisAdapter {
 
     private final SceneService sceneService;
@@ -106,7 +106,7 @@ public class AxisAdapter {
     DecoratingConsumer<PolarCoords> decorateConsumer() {
         AtomicReference<Disposable> disposable = new AtomicReference<>();
         return repeater -> axisGetter -> scene -> {
-//            if (disposable.get() != null) disposable.get().dispose();
+            if (disposable.get() != null) disposable.get().dispose();
 
             disposable.set(repeater.getRepeatingStream()
                     .subscribe(axisEventConsumerMap.get(axisGetter.axisGetter(scene))));

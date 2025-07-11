@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
-import org.remote.desktop.processor.ArrowsAdapter;
-import org.remote.desktop.processor.AxisAdapter;
-import org.remote.desktop.processor.ButtonAdapter;
-import org.remote.desktop.processor.DigitizedTriggerAdapter;
+import org.remote.desktop.processor.*;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.stereotype.Component;
@@ -23,7 +20,7 @@ public class EventSourceFactory {
     private final ButtonAdapter buttonAdapter;
     private final ArrowsAdapter arrowsAdapter;
     private final DigitizedTriggerAdapter digitizedTriggerAdapter;
-    private final AxisAdapter axisAdapter;
+    private final RepeatingAxisAdapter axisAdapter;
     private final JoyWorker worker;
 
     private final SettingsDao settingsDao;

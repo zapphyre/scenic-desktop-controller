@@ -77,8 +77,12 @@ public class FluxUtil {
     }
 
     @SafeVarargs
-    public static <T> Consumer<T> pipe(Consumer<T> ...consumer) {
+    public static <T> Consumer<T> pipe(Consumer<T>... consumer) {
         return q -> Arrays.stream(consumer).forEach(p -> p.accept(q));
+    }
+
+    public static <T, R> Function<T, Consumer<Consumer<R>>> spit(Function<T, R> mapper) {
+        return q -> p -> p.accept(mapper.apply(q));
     }
 
     @SafeVarargs
