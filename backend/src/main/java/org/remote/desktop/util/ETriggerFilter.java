@@ -22,4 +22,8 @@ public class ETriggerFilter {
                 q.getType().ordinal() < excl.ordinal();
     }
 
+    public static Predicate<GamepadEvent> trigger(EButtonAxisMapping just) {
+        return q -> q.getType() == just;
+    }
+
 }

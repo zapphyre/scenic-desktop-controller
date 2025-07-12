@@ -53,6 +53,11 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
     @Enumerated(EnumType.STRING)
     private EAxisEaser rightAxisEaser = EAxisEaser.NONE;
 
+    @Enumerated(EnumType.STRING)
+    private EAxisEaser rightTriggerEaser;
+    @Enumerated(EnumType.STRING)
+    private EAxisEaser leftTriggerEaser;
+
     @PreUpdate
     @PrePersist
     public void relinkEntities() {

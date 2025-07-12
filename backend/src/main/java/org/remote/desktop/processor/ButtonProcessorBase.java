@@ -18,15 +18,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 public abstract class ButtonProcessorBase implements AppEventMapper {
@@ -43,20 +37,25 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
 
     @PostConstruct
     protected void process() {
-        gamepadObserver.getButtonEventStream()
+        easy(gamepadObserver.getButtonEventStream()
                 .publishOn(Schedulers.fromExecutorService(executorService))
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
                 .doOnNext(this::qualificationExamine)
+        )
                 .map(triggerActionMatcher.appEventMapper(this))
                 .flatMap(Flux::fromIterable)
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);
     }
 
+    protected Flux<ButtonActionDef> easy(Flux<ButtonActionDef> gamepadEvents) {
+        return gamepadEvents;
+    }
+
     @Override
     public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
-        return q -> new  XdoCommandEvent(this,
+        return q -> new XdoCommandEvent(this,
                 q.getKeyEvt(),
                 q.getKeyStrokes(),
                 sceneXdoAction.getNextScene(),

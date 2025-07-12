@@ -60,12 +60,9 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
         String windowName = sceneProvider.get();
 
         System.out.println("Current name: " + windowName);
-        if (lastRecognizedSceneName != null)
-            System.out.println("last recognized scene: " + lastRecognizedSceneName);
 
         if (!windowName.equals(lastRecognizedSceneName))
             recognizedSceneObservers.forEach(p -> {
-                System.out.println("notifying obs");
                 p.accept(windowName);
             });
 
@@ -73,7 +70,6 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     }
 
     public void nullifyForcedScene() {
-        System.out.println("nullifyForcedScene");
         forcedScene = null;
         tryGetCurrentName();
     }

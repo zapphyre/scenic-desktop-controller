@@ -53,4 +53,8 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
         }
     }
 
+    @Override
+    public boolean supportsAsyncExecution() {
+        return true;
+    }
 }

@@ -22,6 +22,8 @@ public interface SceneMapper {
     @Mapping(target = "inheritsFromSafe", ignore = true)
     @Mapping(target = "leftAxisEaser", defaultValue = "CONTINUOUS")
     @Mapping(target = "rightAxisEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "rightTriggerEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "leftTriggerEaser", defaultValue = "NONE")
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
     List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);
