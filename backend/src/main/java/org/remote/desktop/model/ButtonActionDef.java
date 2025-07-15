@@ -15,7 +15,7 @@ import java.util.Set;
 @Value
 @Builder(toBuilder = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class ButtonActionDef {
+public class ButtonActionDef implements Repeatable {
 
     @EqualsAndHashCode.Include
     String trigger;
@@ -33,4 +33,10 @@ public class ButtonActionDef {
     EMultiplicity multiplicity;
 
     int position;
+
+    @Override
+    public boolean isRepeatable() {
+        return logicalEventType.equals(ELogicalEventType.STEP_POSITIVE) ||
+                logicalEventType.equals(ELogicalEventType.STEP_NEGATIVE);
+    }
 }

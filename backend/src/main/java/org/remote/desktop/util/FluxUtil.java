@@ -2,18 +2,15 @@ package org.remote.desktop.util;
 
 import lombok.experimental.UtilityClass;
 import org.asmus.model.ELogicalEventType;
-import org.asmus.model.GamepadEvent;
-import org.asmus.model.NamingConstants;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.actuate.MouseAct;
-import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.EAxisEaser;
-import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.*;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -27,40 +24,40 @@ import static org.remote.desktop.model.EAxisEaser.NONE;
 @UtilityClass
 public class FluxUtil {
 
-    int TRIGGER_EASING_INTERVAL  = 141;
+    int TRIGGER_EASING_INTERVAL = 141;
 
-    public Flux<PolarCoords> repeat(Flux<PolarCoords> flux) {
-        return repeat(flux, PolarCoords::isZero, 4);
+    public Flux<RepeatablePolarCoords> repeat(Flux<RepeatablePolarCoords> flux) {
+        return repeat(flux, 4);
     }
 
     public Flux<ButtonActionDef> repeatGE(Flux<ButtonActionDef> flux) {
-        return repeat(flux.filter(onlySteps), q -> q.getPosition() == NamingConstants.MIN, TRIGGER_EASING_INTERVAL);
+        return repeat(flux, TRIGGER_EASING_INTERVAL);
     }
 
     Predicate<ButtonActionDef> onlySteps = q -> q.getLogicalEventType() == ELogicalEventType.STEP_NEGATIVE ||
             q.getLogicalEventType() == ELogicalEventType.STEP_POSITIVE;
 
-    public <T> Flux<T> repeat(Flux<T> flux, Predicate<T> stopWhen, int interval) {
+    public <T extends Repeatable> Flux<T> repeat(Flux<T> flux, int interval) {
         return flux
                 .switchMap(p -> {
                     long period = p instanceof ButtonActionDef e && interval == TRIGGER_EASING_INTERVAL ?
                             (interval - e.getPosition() * 12L) : interval;
 
-                    return stopWhen.test(p) ? Flux.just(p) : // pass (0,0) once, then complete
+                    return !p.isRepeatable() ? Flux.just(p) : // pass (0,0) once, then complete
                             Flux.interval(Duration.ofMillis(period))
                                     .map(_ -> p);
                 });
     }
 
-    public Flux<PolarCoords> temperedAngularScrolling(Flux<PolarCoords> flux) {
-        return repeat(adaptForScroll(flux), PolarCoords::isZero, 21);
+    public Flux<RepeatablePolarCoords> temperedAngularScrolling(Flux<RepeatablePolarCoords> flux) {
+        return repeat(adaptForScroll(flux), 21);
     }
 
-    public Flux<PolarCoords> adaptForScroll(Flux<PolarCoords> flux) {
+    public Flux<RepeatablePolarCoords> adaptForScroll(Flux<RepeatablePolarCoords> flux) {
         return flux.map(adjustRadiusForScroll);
     }
 
-    public static final Map<EAxisEvent, Consumer<PolarCoords>> axisEventConsumerMap = Map.of(
+    public static final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap = Map.of(
             EAxisEvent.MOUSE, MouseAct::moveMouse,
 //            EAxisEvent.SCROLL, MouseAct::scroll,
             EAxisEvent.SCROLL, MouseAct::scrollR,
@@ -70,17 +67,18 @@ public class FluxUtil {
             }
     );
 
-    public static final Map<EAxisEaser, Function<Flux<PolarCoords>, Flux<PolarCoords>>> easerMap = Map.of(
-            CONTINUOUS, FluxUtil::repeat,
-            NONE, Function.identity()
-    );
+    public static final Map<EAxisEaser, Function<Flux<RepeatablePolarCoords>, Flux<RepeatablePolarCoords>>> easerMap =
+            Map.of(
+                    CONTINUOUS, FluxUtil::repeat,
+                    NONE, Function.identity()
+            );
 
     public static final Map<EAxisEaser, Function<Flux<ButtonActionDef>, Flux<ButtonActionDef>>> GEeaserMap = Map.of(
             CONTINUOUS, FluxUtil::repeatGE,
             NONE, Function.identity()
     );
 
-    Function<PolarCoords, PolarCoords> adjustRadiusForScroll = polar -> {
+    Function<RepeatablePolarCoords, RepeatablePolarCoords> adjustRadiusForScroll = polar -> {
         double originalRadius = polar.getRadius();
         double theta = polar.getTheta();
 
@@ -94,7 +92,7 @@ public class FluxUtil {
         double newRadius = originalRadius * scrollFactor;
 
         // Return new PolarCoords with adjusted radius
-        return new PolarCoords(newRadius, theta);
+        return new RepeatablePolarCoords(newRadius, theta);
     };
 
     public static <T> BinaryOperator<T> laterMerger() {
@@ -117,6 +115,7 @@ public class FluxUtil {
 
     public static <T> Function<T, T> funky(Consumer<T> consumer) {
         return q -> Stream.of(q)
+                .filter(Objects::nonNull)
                 .peek(consumer)
                 .findAny()
                 .orElse(q);

@@ -2,6 +2,7 @@ package org.remote.desktop.component;
 
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.Repeatable;
 import org.remote.desktop.model.dto.SceneDto;
 import org.springframework.cache.CacheManager;
 import reactor.core.publisher.Flux;
@@ -13,7 +14,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class GrokFluxRepeater<T> {
+import static org.remote.desktop.util.FluxUtil.funky;
+
+public class GrokFluxRepeater<T extends Repeatable> {
 
     private final CacheManager cacheManager;
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
@@ -34,14 +37,14 @@ public class GrokFluxRepeater<T> {
         this.easerMap = easerMap;
         this.easerGetter = easerGetter;
 
-        // Set up the pipeline to switch flux transformations and consumers based on scene changes
         sceneSink.asFlux()
                 .map(this::getCachedOrFreshEaser)
                 .switchMap(repeaterDef -> repeaterDef.repeater()
                         .apply(sourceFlux)
-                        .doOnNext(consumerMap.getOrDefault(axisActionGetter.apply(repeaterDef.scene()), q -> {
-                            System.out.println(q);
-                        }))
+                        .mapNotNull(funky(axisActionGetter
+                                .andThen(q -> consumerMap.getOrDefault(q, p -> {
+                                }))
+                                .apply(repeaterDef.scene)))
                 )
                 .subscribe(outputSink::tryEmitNext, outputSink::tryEmitError, outputSink::tryEmitComplete);
     }
@@ -53,15 +56,13 @@ public class GrokFluxRepeater<T> {
     public Flux<T> getRepeatingStream() {
         return outputSink
                 .asFlux()
-                .publish().autoConnect()
+//                .publish().autoConnect()
                 ;
     }
 
     SceneAndRepeater<T> getCachedOrFreshEaser(SceneDto scene) {
-//        return tryGetCachedEaser(scene.getName()) instanceof SceneAndRepeater<T> c ?
-//                c : getEaserAndCache(scene);
-
-        return getEaserAndCache(scene);
+        return tryGetCachedEaser(scene.getName()) instanceof SceneAndRepeater<T> c ?
+                c : getEaserAndCache(scene);
     }
 
     private SceneAndRepeater<T> tryGetCachedEaser(String key) {
@@ -78,7 +79,7 @@ public class GrokFluxRepeater<T> {
         return easerGetter
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
-//                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene))))
+                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene))))
                 .apply(scene);
     }
 

@@ -5,6 +5,8 @@ import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.component.GrokFluxRepeater;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.mapper.PolarCoordsMapper;
+import org.remote.desktop.model.RepeatablePolarCoords;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
@@ -24,19 +26,19 @@ public class RepeatingAxisAdapter {
     private final XdoSceneService xdoSceneService;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
 
-    private final GrokFluxRepeater<PolarCoords> leftRepeater;
-    private final GrokFluxRepeater<PolarCoords> rightRepeater;
+    private final GrokFluxRepeater<RepeatablePolarCoords> leftRepeater;
+    private final GrokFluxRepeater<RepeatablePolarCoords> rightRepeater;
 
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,
-                                CacheManager cacheManager) {
+                                CacheManager cacheManager, PolarCoordsMapper polarCoordsMapper) {
         this.sceneService = sceneService;
         this.xdoSceneService = xdoSceneService;
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
         this.leftRepeater = new GrokFluxRepeater<>(
                 cacheManager,
-                axisEventProcessorFactory.leftPolarFlux(),
+                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
                 SceneDto::getLeftAxisEaser,
                 axisEventConsumerMap,
@@ -45,7 +47,7 @@ public class RepeatingAxisAdapter {
 
         this.rightRepeater = new GrokFluxRepeater<>(
                 cacheManager,
-                axisEventProcessorFactory.rightPolarFlux(),
+                axisEventProcessorFactory.rightPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
                 SceneDto::getRightAxisEaser,
                 axisEventConsumerMap,
