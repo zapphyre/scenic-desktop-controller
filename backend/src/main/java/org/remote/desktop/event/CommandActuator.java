@@ -8,6 +8,7 @@ import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.KeyboardWidgetMainActuator;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
+import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +27,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final ApplicationEventPublisher eventPublisher;
     private final KeyboardWidgetMainActuator widgetActuator;
     private final WinderHostRepository winderHostRepository;
+    private final ModeService  modeService;
 
     @Override
     @SneakyThrows
@@ -48,8 +50,7 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())
             );
-            case WINDER_FF -> winderHostRepository.ff();
-            case WINDER_RW -> winderHostRepository.rw();
+            case MODE -> modeService.setMode(xdoKeyPart);
         }
     }
 

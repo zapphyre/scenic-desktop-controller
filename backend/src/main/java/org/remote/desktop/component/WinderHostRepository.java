@@ -7,8 +7,8 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.springframework.stereotype.Component;
 import org.winder.api.WinderConstants;
 import org.winder.api.WinderNativeConnectorApi;
+import org.winder.common.model.EWinderCommand;
 import org.winder.common.model.EWinderOp;
-import org.winder.common.model.WinderCommand;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
@@ -33,7 +33,7 @@ public class WinderHostRepository implements JmAutoRegistry {
         log.info("ff");
 
         if (Objects.nonNull(winderApi))
-            winderApi.command(WinderCommand.builder()
+            winderApi.command(EWinderCommand.builder()
                     .operation(EWinderOp.FF)
                     .build());
     }
@@ -42,7 +42,7 @@ public class WinderHostRepository implements JmAutoRegistry {
         log.info("rw");
 
         if (Objects.nonNull(winderApi))
-            winderApi.command(WinderCommand.builder()
+            winderApi.command(EWinderCommand.builder()
                     .operation(EWinderOp.RW)
                     .build());
     }

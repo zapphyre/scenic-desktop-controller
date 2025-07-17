@@ -6,13 +6,16 @@ import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.EventMapper;
+import org.remote.desktop.model.EMode;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -28,11 +31,11 @@ public class XdoActionDao {
     }
 
     public List<String> getAllCurrentXdoStrokes() {
-        return xdoActionRepository.findAll().stream()
+        return Stream.concat(xdoActionRepository.findAll().stream()
                 .map(XdoAction::getKeyStrokes)
                 .flatMap(Collection::stream)
-                .distinct()
-                .toList();
+                .distinct(), Arrays.stream(EMode.values()).map(Enum::name)
+        ).toList();
     }
 
     public void update(XdoActionVto vto) {

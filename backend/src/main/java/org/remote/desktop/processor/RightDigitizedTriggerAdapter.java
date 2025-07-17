@@ -12,6 +12,7 @@ import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
+import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.cache.CacheManager;
@@ -32,8 +33,8 @@ import static org.remote.desktop.util.FluxUtil.GEeaserMap;
 @Component
 public class RightDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
 
-    public RightDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao, cacheManager, sceneService, xdoSceneService);
+    public RightDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService, ModeService modeService) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao, cacheManager, sceneService, xdoSceneService, modeService);
     }
 
     @Override

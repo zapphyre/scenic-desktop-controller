@@ -33,6 +33,7 @@ public class LanguageService {
     private final VocabAdjustmentsService vocabAdjustmentsService;
 
     public static final Function<String, String> wordToTrieEncoder = createCharacterMapper(trieDict);
+    // still need to save them
     private final List<VocabularyAdjustmentDto> vocabularyAdjustments = new LinkedList<>();
 
 

@@ -10,6 +10,7 @@ import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
+import org.remote.desktop.service.impl.ModeService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -31,8 +32,8 @@ public class ArrowsAdapter extends ButtonProcessorBase {
     public ArrowsAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
                          TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
-                         SettingsDao settingsDao) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
+                         SettingsDao settingsDao, ModeService modeService) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, modeService, settingsDao);
     }
 
     public Consumer<Map<String, Integer>> getArrowConsumer() {

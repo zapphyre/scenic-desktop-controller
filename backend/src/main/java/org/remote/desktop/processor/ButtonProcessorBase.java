@@ -9,10 +9,12 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.EMode;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
+import org.remote.desktop.service.impl.ModeService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
@@ -31,14 +33,24 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     protected final IntrospectedEventFactory gamepadObserver;
     protected final TriggerActionMatcher triggerActionMatcher;
     protected final ScheduledExecutorService executorService;
+    private final ModeService  modeService;
     protected final SettingsDao settingsDao;
 
     protected abstract Predicate<GamepadEvent> triggerFilter();
+
+    protected EMode mode() {
+        return EMode.DESKTOP;
+    }
+
+    protected Predicate<GamepadEvent> modeFilter() {
+        return q -> EMode.valueOf(modeService.getMode()) == mode();
+    }
 
     @PostConstruct
     protected void process() {
         easy(gamepadObserver.getButtonEventStream()
                 .publishOn(Schedulers.fromExecutorService(executorService))
+                .filter(modeFilter())
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())

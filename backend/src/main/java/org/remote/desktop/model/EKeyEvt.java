@@ -13,8 +13,6 @@ public enum EKeyEvt {
     KEYBOARD_ON,
     KEYBOARD_OFF,
     KEYBOARD_LONG,
-    WINDER_FF,
-    WINDER_RW,
-
+    MODE
     ;
 }

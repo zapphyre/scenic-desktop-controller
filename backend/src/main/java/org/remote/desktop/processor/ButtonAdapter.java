@@ -9,6 +9,7 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.service.impl.GPadEventStreamService;
+import org.remote.desktop.service.impl.ModeService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +29,9 @@ public class ButtonAdapter extends ButtonProcessorBase {
 
     public ButtonAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
-                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao) {
-        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
+                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao,
+                         ModeService modeService) {
+        super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, modeService, settingsDao);
     }
 
     public Consumer<List<TimedValue>> getButtonConsumer() {

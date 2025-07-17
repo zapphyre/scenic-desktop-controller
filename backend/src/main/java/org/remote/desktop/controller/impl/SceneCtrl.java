@@ -1,7 +1,6 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.TriggerService;
