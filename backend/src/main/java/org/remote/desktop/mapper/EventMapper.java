@@ -49,6 +49,13 @@ public interface EventMapper {
     List<EventVto> map(Iterable<Event> events);
 
     @Mapping(target = "id", source = "src.id")
+
+    /*
+    * I ignore actions here, b/c i want them to be PERSIST cascading on event, b/c I want event to be able
+    * to save when winder scene initializes; it throws detached entity exception when I update EventVto and it comes with
+    * actions on it and PERSIST cascading on event is enabled
+    * */
+    @Mapping(target = "actions", ignore = true)
     void update(@MappingTarget Event tgt, EventVto src, Scene scene, Scene nextScene);
 
     default Consumer<Event> update(EventVto src, Scene parent, Scene next) {

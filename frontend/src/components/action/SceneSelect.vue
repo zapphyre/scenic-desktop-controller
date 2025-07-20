@@ -24,23 +24,23 @@ const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
 
 const fetchScenes = async () => {
-  scenesRef.value = getScenes();
-  allSceneNames.value = getScenes().map((q: Scene) => q.name);
+  scenesRef.value = await getScenes();
+  allSceneNames.value = (await getScenes()).map((q: Scene) => q.name);
 
   const triggers = getTriggers();
   console.log("triggers", triggers);
 }
 
-const changedScene = (event: SelectChangeEvent) => {
+const changedScene = async (event: SelectChangeEvent) => {
   selectedSceneRef.value = event.value;
   console.log("selectedSceneRef.value", selectedSceneRef.value);
 
   selectedSceneRef.value?.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
 
-  inheritedAvailableRef.value = getSceneNameIdList()
+  inheritedAvailableRef.value = (await getSceneNameIdList())
       .filter(s => s.id !== event.value?.id)
 
-  inheritedRef.value = getSceneNameIdList().filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id));
+  inheritedRef.value = (await getSceneNameIdList()).filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id));
 
   console.log("inheritedAvailableRef.value", inheritedAvailableRef.value);
   console.log("inheritedRef.value", inheritedRef.value);
@@ -216,6 +216,7 @@ onMounted(fetchScenes);
               :selected-scene-id="selectedSceneRef.id!"
               :event="action"
               @removeEvent="removeEvent"
+              :render-action="true"
           />
         </div>
       </div>
@@ -226,6 +227,7 @@ onMounted(fetchScenes);
                 :selected-scene-id="selectedSceneRef.id!"
                 :disabled="true"
                 :event="ihr"
+                :render-action="true"
             />
           </div>
         </div>

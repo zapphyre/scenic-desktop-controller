@@ -15,11 +15,15 @@ import java.util.List;
 @Builder
 @Jacksonized
 @RequiredArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class XdoActionDto {
     Long id;
+
+    @ToString.Include
     EKeyEvt keyEvt;
 
+    @ToString.Include
     List<String> keyStrokes;
 
     String activator;

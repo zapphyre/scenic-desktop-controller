@@ -19,7 +19,6 @@ public interface SceneMapper {
 
     RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
-    @Mapping(target = "inheritsFromSafe", ignore = true)
     @Mapping(target = "leftAxisEaser", defaultValue = "CONTINUOUS")
     @Mapping(target = "rightAxisEaser", defaultValue = "CONTINUOUS")
     @Mapping(target = "rightTriggerEaser", defaultValue = "CONTINUOUS")
@@ -60,11 +59,11 @@ public interface SceneMapper {
     }
 
     @Mapping(target = "inheritsFrom", ignore = true)
-    @Mapping(target = "events", ignore = true)
+    @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
     void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits);
 
     @Mapping(target = "inheritsFrom", ignore = true)
-    @Mapping(target = "events", ignore = true) // i'm setting them by id
+//    @Mapping(target = "events", ignore = true) // i'm setting them by id
     Scene map(SceneVto vto, @Context List<Scene> inherits);
 
     @AfterMapping

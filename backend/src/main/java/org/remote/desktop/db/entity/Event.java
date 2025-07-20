@@ -41,7 +41,7 @@ public class Event {
     @ManyToOne(cascade = {CascadeType.DETACH})
     private Scene nextScene;
 
-    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.DETACH, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE})
     private List<XdoAction> actions = new ArrayList<>();
 
     @PreUpdate
@@ -50,9 +50,9 @@ public class Event {
         Optional.ofNullable(actions).orElse(List.of())
                 .forEach(p -> p.setEvent(this));
 
-        Optional.ofNullable(scene)
-                .map(Scene::getEvents)
-                .ifPresent(q -> q.add(this));
+//        Optional.ofNullable(scene)
+//                .map(Scene::getEvents)
+//                .ifPresent(q -> q.add(this));
 
         Optional.ofNullable(buttonEvent)
                 .ifPresent(p -> p.setEvent(this));
@@ -63,7 +63,7 @@ public class Event {
 
     @PreRemove
     public void detachEntity() {
-        scene.getEvents().remove(this);
+        Optional.ofNullable(scene).map(Scene::getEvents).ifPresent(q -> q.remove(this));
         Optional.ofNullable(actions).orElse(List.of()).forEach(q -> q.setEvent(null));
         Optional.ofNullable(gestureEvent).ifPresent(q -> q.setEvent(null));
         Optional.ofNullable(buttonEvent).ifPresent(q -> q.setEvent(null));

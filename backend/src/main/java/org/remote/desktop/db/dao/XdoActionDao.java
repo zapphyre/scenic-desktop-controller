@@ -7,6 +7,7 @@ import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.EMode;
+import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.stereotype.Service;

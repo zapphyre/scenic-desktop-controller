@@ -4,9 +4,10 @@ import {addGesture, getGestures} from "@/api/dataStore";
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import apiClient from '@/api';
-import type {Gesture, GesturePath} from "@/model/gpadOs";
+import {EAxisEvent, Gesture, GesturePath} from "@/model/gpadOs";
+import {onMounted, ref} from "vue";
 
-const gestures = getGestures();
+const gestures = ref<Gesture[]>([]);
 
 // Add a new gesture
 const addNewGesture = async () => {
@@ -53,12 +54,16 @@ const removePath = async (gesture: Gesture, uiPath: GesturePath, idx: number) =>
 
 const removeGesture = async (gesture: Gesture) => {
   await apiClient.delete(`gestures/${gesture.id}`)
-  gestures.splice(gestures.indexOf(gesture), 1);
+  gestures.value.splice(gestures.value.indexOf(gesture), 1);
 }
 // Edit a path (toggle receiving state)
 const editPath = (uiPath: GesturePath) => {
   uiPath.edit = !uiPath.edit;
 };
+
+onMounted(async () => {
+  gestures.value = await getGestures()
+});
 
 </script>
 

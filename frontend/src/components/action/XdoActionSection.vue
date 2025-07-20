@@ -46,11 +46,11 @@ const add = async () => {
   // changed();
 };
 
-const filterChange = () => {
+const filterChange = async () => {
   // filteredStrokes.value = getStrokes().filter((p: string) =>
   //     filtered.value ? p.includes(filtered.value) : true
   // );
-  filteredStrokes.value = getStrokes().filter((p: string) => p.includes(filtered.value || ""));
+  filteredStrokes.value = (await getStrokes()).filter((p: string) => p.includes(filtered.value || ""));
 
   if (filtered.value)
     filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);

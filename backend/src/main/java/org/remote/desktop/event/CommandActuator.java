@@ -6,8 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.actuate.MouseAct;
 import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.KeyboardWidgetMainActuator;
+import org.remote.desktop.model.EMode;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
+import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.InputWidgetBase;
@@ -26,8 +28,8 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final InputWidgetBase inputWidgetBase;
     private final ApplicationEventPublisher eventPublisher;
     private final KeyboardWidgetMainActuator widgetActuator;
-    private final WinderHostRepository winderHostRepository;
     private final ModeService  modeService;
+    private final GPadEventStreamService  gpadEventStreamService;
 
     @Override
     @SneakyThrows
@@ -50,12 +52,15 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())
             );
-            case MODE -> modeService.setMode(xdoKeyPart);
+            case MODE -> {
+                log.info("SETTING MODE '{}'", xdoKeyPart);
+                modeService.setMode(EMode.valueOf(xdoKeyPart));
+            }
         }
     }
 
     @Override
     public boolean supportsAsyncExecution() {
-        return true;
+        return false;
     }
 }

@@ -16,17 +16,18 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class EventDto {
 
-    @EqualsAndHashCode.Include
     Long id;
 
     GestureEventDto gestureEvent;
+    @ToString.Include
+    @EqualsAndHashCode.Include
     ButtonEventDto buttonEvent;
 
     SceneDto scene;
     @ToString.Exclude
     SceneDto nextScene;
 
-    @ToString.Exclude
+    @ToString.Include
     List<XdoActionDto> actions;
 
 }

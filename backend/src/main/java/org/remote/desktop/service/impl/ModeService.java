@@ -3,6 +3,7 @@ package org.remote.desktop.service.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.remote.desktop.model.EMode;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,6 +11,6 @@ import org.springframework.stereotype.Service;
 public class ModeService {
 
     @Getter @Setter
-    private String mode;
+    private EMode mode = EMode.DESKTOP;
 
 }

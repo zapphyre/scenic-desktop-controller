@@ -28,13 +28,17 @@ public class SceneService {
         return sceneDao.getScene(sceneName);
     }
 
+    public SceneDto getSystemScene() {
+        return sceneDao.getScene("system");
+    }
+
     @Cacheable(SCENE_CACHE_NAME_CONTAINING)
     public SceneDto getSceneForWindowNameOrBase(String sceneName) {
         return sceneDao.getSceneForWindowNameOrBase(sceneName);
     }
 
     public Long create(SceneVto sceneVto) {
-        return sceneDao.create(sceneVto);
+        return sceneDao.createForId(sceneVto);
     }
 
     public void update(SceneVto sceneVto) {

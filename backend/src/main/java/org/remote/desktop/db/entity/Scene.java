@@ -67,6 +67,6 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
 
     @PreRemove
     public void preremove() {
-        events.forEach(p -> p.setScene(null));
+        Optional.ofNullable(events).orElseGet(LinkedList::new).forEach(p -> p.setScene(null));
     }
 }

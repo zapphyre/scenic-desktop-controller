@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Scene;
+import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.collectingAndThen;
@@ -45,7 +48,7 @@ public class SceneDao {
     public SceneDto getScene(String sceneName) {
         return sceneRepository.findByName(sceneName)
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
-                .orElseThrow();
+                .orElse(null);
     }
 
     public SceneDto getSceneForWindowNameOrBase(String sceneName) {
@@ -70,25 +73,35 @@ public class SceneDao {
         return sceneRepository.findAll().stream()
                 .map(sceneMapper::map)
                 .map(q -> sceneRepository.findAllById(q.getInheritsIdFk()).stream()
-                        .map(scraper::scrapeActionsRecursive)
+                        .map(scraper::scrapeActionsRecursiveWithCurrent)
                         .map(eventMapper::map)
                         .flatMap(Collection::stream)
                         .collect(collectingAndThen(toList(), q::withInheritedGamepadEvents)))
                 .toList();
     }
 
+    public SceneVto getSceneVtoBy(String sceneName) {
+        return sceneRepository.findByName(sceneName)
+                .map(sceneMapper::map)
+                .orElse(null);
+    }
+
     public void update(SceneVto vto) {
         Optional.of(vto)
                 .map(SceneVto::getId)
                 .flatMap(sceneRepository::findById)
-                .ifPresent(sceneMapper.update(vto, sceneRepository.findAllById(vto.getInheritsIdFk())));
+                .ifPresent(sceneMapper.update(vto, vto.getInheritsIdFk() == null ? List.of() : sceneRepository.findAllById(vto.getInheritsIdFk())));
     }
 
-    public Long create(SceneVto vto) {
+    public Long createForId(SceneVto vto) {
+        return create(vto).getId();
+    }
+
+    public SceneVto create(SceneVto vto) {
         return Optional.of(vto)
                 .map(sceneMapper.mapWithInherents(safeRepo(sceneRepository::findAllById, vto.getInheritsIdFk())))
-                .map(sceneRepository::save)
-                .map(Scene::getId)
+                .map(entity1 -> sceneRepository.save(entity1))
+                .map(entity -> sceneMapper.map(entity))
                 .orElseThrow();
     }
 

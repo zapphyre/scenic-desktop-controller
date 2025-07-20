@@ -11,22 +11,27 @@ import org.remote.desktop.model.Behavioral;
 import java.util.Set;
 
 @With
-@Data()
-@ToString
+@Data
 @Builder(toBuilder = true)
 @Jacksonized
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class ButtonEventDto implements Behavioral {
 
     Long id;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
     String trigger;
     boolean longPress;
+    @EqualsAndHashCode.Include
     EMultiplicity multiplicity;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
     Set<EButtonAxisMapping> modifiers;
 
     EventDto event;

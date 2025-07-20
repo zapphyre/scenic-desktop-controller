@@ -59,7 +59,7 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     public String tryGetCurrentName() {
         String windowName = sceneProvider.get();
 
-        System.out.println("Current name: " + windowName);
+//        System.out.println("Current name: " + windowName);
 
         if (!windowName.equals(lastRecognizedSceneName))
             recognizedSceneObservers.forEach(p -> {

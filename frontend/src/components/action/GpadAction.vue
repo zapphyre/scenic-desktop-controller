@@ -20,14 +20,15 @@ import apiClient from "@/api";
 import {getGestures, getGesturesNameIdList, getSceneNameIdList, getTriggers} from "@/api/dataStore";
 import {onMounted, ref} from "vue";
 
-const gestures = getGesturesNameIdList();
-
+const gestures = ref<NameId[]>([]);
 const forcedAvailableRef = ref<NameId[]>();
+const triggers = ref([]);
 
 const props = defineProps<{
   event: EventVto;
   disabled?: boolean | false;
   selectedSceneId: number
+  renderAction?: boolean | true;
 }>();
 
 const addNewAction = async () => {
@@ -35,7 +36,8 @@ const addNewAction = async () => {
     eventFk: props.event.id,
     id: undefined,
     keyEvt: EKeyEvt.STROKE,
-    keyStrokes: []
+    keyStrokes: [],
+    activator: undefined,
   };
   toSave.id = (await apiClient.post("action", toSave)).data;
 
@@ -93,19 +95,21 @@ const emit = defineEmits<{
   removeEvent: [event: EventVto]
 }>();
 
-onMounted(() => {
-  forcedAvailableRef.value = getSceneNameIdList().filter(q => q.id !== props.selectedSceneId)
+onMounted(async () => {
+  gestures.value = await getGesturesNameIdList();
+  forcedAvailableRef.value = (await getSceneNameIdList()).filter(q => q.id !== props.selectedSceneId)
+  triggers.value = await getTriggers();
 })
 </script>
 
 <template>
-  <hr />
+  <hr v-if="renderAction" />
 
   <div class="grid w-full gpad-action-container">
     <div class="card p-3 w-full">
       <div class="grid">
         <!-- Left Section -->
-        <div class="col-8">
+        <div :class="props.renderAction ? 'col-7' : 'col-12'">
           <div class="flex flex-column gap-3 min-h-full">
             <!-- First Row: Buttons + 3 Selects -->
             <div class="flex align-items-center">
@@ -142,7 +146,7 @@ onMounted(() => {
               >
                 <Select
                     v-model="props.event.buttonEvent.trigger"
-                    :options="getTriggers()"
+                    :options="triggers"
                     placeholder="Trigger"
                     class="w-4 input-item"
                     @change="change"
@@ -242,7 +246,7 @@ onMounted(() => {
         </div>
 
         <!-- Right Section -->
-        <div class="col-4">
+        <div v-if="renderAction" class="col-5">
           <div class="flex flex-column gap-2 align-items-center min-h-full">
             <XdoActionSection
                 v-for="act in props.event.actions || []"

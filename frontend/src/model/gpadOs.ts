@@ -125,6 +125,23 @@ export enum ESourceEvent {
     CONNECTED = "CONNECTED"
 }
 
+export type WinderOpEventMap = Record<WinderOp, EventVto>;
+
+export type WinderOp = 'FF' | 'RW' | 'FN' | 'FP' | 'PP' | 'NT' | 'ET' | 'EX'| 'CS' | 'FS'
+
+export const WinderActions: Record<WinderOp, string> = {
+    FF: 'Fast Forward',
+    RW: 'Rewind',
+    FN: 'Next Frame',
+    FP: 'Previous Frame',
+    PP: 'Play/Pause',
+    NT: 'New Tab',
+    ET: 'Enter',
+    EX: 'Exit',
+    CS: 'Close',
+    FS: 'Full Screen',
+};
+
 export enum EMultiplicity {
     CLICK,
     DOUBLE,
@@ -147,6 +164,7 @@ export enum EKeyEvt {
     KEYBOARD_LONG = "KEYBOARD_LONG",
     WINDER_FF = "WINDER_FF",
     WINDER_RW = "WINDER_RW",
+    MODE = "MODE",
 }
 
 export enum EButtonAxisMapping {

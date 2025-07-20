@@ -20,6 +20,8 @@ import static org.remote.desktop.db.entity.Setting.INST_NAME;
 @RequiredArgsConstructor
 public class SettingsDao {
 
+    public static final String WINDER_SCENE_NAME = "winder_scene";
+
     private final SettingsRepository settingsRepository;
     private final SettingsProperties settingsProperties;
     private final SettingMapper settingMapper;

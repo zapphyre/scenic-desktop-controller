@@ -41,5 +41,6 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     EAxisEaser leftTriggerEaser;
     EAxisEaser rightTriggerEaser;
 
+    @ToString.Include
     List<EventDto> events = new LinkedList<>();
 }

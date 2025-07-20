@@ -111,7 +111,7 @@
             <artifactId>api</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/api-winder.jar</systemPath>
+            <systemPath>${project.basedir}/lib/api-winder-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
 <!--        <dependency>-->

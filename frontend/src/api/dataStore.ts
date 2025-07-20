@@ -2,10 +2,9 @@ import apiClient from "@/api";
 import type {Gesture, Lang, NameId, Scene} from "@/model/gpadOs";
 import { ref } from "vue";
 
-const unset = {id: undefined, name: "[unset]"};
+// ========== STATE ==========
 
-// Singleton state
-const strokes = ref([]); // Initialize as empty array
+const strokes = ref<string[]>([]);
 const scenes = ref<Scene[]>([]);
 const triggers = ref([]);
 const gestures = ref<Gesture[]>([]);
@@ -14,22 +13,19 @@ const languages = ref<Lang[]>([]);
 const gesturesNameId = ref<NameId[]>([]);
 const sceneNameIdList = ref<NameId[]>([]);
 
-let isInitialized = false; // Track if data has been fetched
+const unset = { id: undefined, name: "[unset]" };
 
-// Fetch strokes from API (called only once)
+// ========== FETCH METHODS ==========
+
 const fetchStrokes = async () => {
-    if (isInitialized) return; // Skip if already fetched
-
     try {
         const response = await apiClient.get("action/all");
-        strokes.value = response.data; // Assuming response.data is an array of strings
-        isInitialized = true;
+        strokes.value = response.data;
     } catch (error) {
         console.error("Failed to fetch strokes:", error);
-        strokes.value = []; // Fallback to empty array on error
+        strokes.value = [];
     }
 };
-
 
 const fetchScenes = async () => {
     try {
@@ -45,7 +41,7 @@ const fetchTriggers = async () => {
     } catch (error) {
         console.error("Failed to fetch triggers:", error);
     }
-}
+};
 
 const fetchGestures = async () => {
     try {
@@ -53,50 +49,82 @@ const fetchGestures = async () => {
     } catch (e) {
         console.error("Failed to fetch gestures:", e);
     }
-}
+};
 
 const fetchLanguages = async () => {
     try {
         languages.value = (await apiClient.get("languages/all")).data;
     } catch (e) {
-        console.error("Failed to fetch gestures:", e);
+        console.error("Failed to fetch languages:", e);
     }
-}
+};
 
-// Initialize the data immediately when the module is imported
-fetchStrokes();
-fetchScenes();
-fetchTriggers();
-fetchGestures();
-fetchLanguages();
+// ========== PUBLIC API ==========
 
-// Export a function to access the strokes
 export const useStrokesStore = () => {
     return {
-        strokes: strokes.value, // Synchronous access to the array
-        strokesRef: strokes, // Optional: expose the ref for reactivity if needed
-        reloadStrokes: fetchStrokes, // Optional: allow manual reload
+        strokes: strokes.value,
+        strokesRef: strokes,
+        reloadStrokes: fetchStrokes,
     };
 };
 
-// Optional: Export strokes directly if you just want the array
-export const getStrokes = () => strokes.value;
-export const getScenes = () => scenes.value;
-export const getSceneNameIdList = () => !sceneNameIdList.value.length ?
-    scenes.value.map((s) => ({name: s.name, id: s.id})) :
-    sceneNameIdList.value;
+export const getStrokes = async () => {
+    if (!strokes.value.length) {
+        await fetchStrokes();
+    }
+    return strokes.value;
+};
 
-export const getTriggers = () => triggers.value;
-export const getGestures = () => gestures.value;
+export const getScenes = async () => {
+    if (!scenes.value.length) {
+        await fetchScenes();
+    }
+    return scenes.value;
+};
 
-export const getGesturesNameIdList = () => !gesturesNameId.value.length ?
-    gesturesNameId.value = gestures.value.map((s) => ({name: s.name, id: s.id})) :
-    gesturesNameId.value;
+export const getSceneNameIdList = async () => {
+    const sc = await getScenes();
+    if (!sceneNameIdList.value.length) {
+        sceneNameIdList.value = sc.map((s) => ({ name: s.name, id: s.id }));
+    }
+    return sceneNameIdList.value;
+};
+
+export const getTriggers = async () => {
+    if (!triggers.value.length) {
+        await fetchTriggers();
+    }
+    return triggers.value;
+};
+
+export const getGestures = async () => {
+    if (!gestures.value.length) {
+        await fetchGestures();
+    }
+    return gestures.value;
+};
+
+export const getGesturesNameIdList = async () => {
+    const list = await getGestures();
+    if (!gesturesNameId.value.length) {
+        gesturesNameId.value = list.map((g) => ({ name: g.name, id: g.id }));
+    }
+    return gesturesNameId.value;
+};
+
+export const getLanguages = async () => {
+    if (!languages.value.length) {
+        await fetchLanguages();
+    }
+    return languages.value;
+};
 
 export const addGesture = (g: Gesture) => {
     gestures.value.push(g);
-    gesturesNameId.value.push({name: g.name, id: g.id});
-}
+    gesturesNameId.value.push({ name: g.name, id: g.id });
+};
 
-export const getLanguages = () => languages.value
-export const addLanguage = languages.value.push;
+export const addLanguage = (l: Lang) => {
+    languages.value.push(l);
+};

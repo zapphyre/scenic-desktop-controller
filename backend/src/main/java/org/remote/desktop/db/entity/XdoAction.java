@@ -37,9 +37,9 @@ public class XdoAction {
     @PreUpdate
     @PrePersist
     public void relinkEntities() {
-        Optional.ofNullable(event)
-                .map(Event::getActions)
-                .ifPresent(q -> q.add(this));
+//        Optional.ofNullable(event)
+//                .map(Event::getActions)
+//                .ifPresent(q -> q.add(this));
     }
 
     @PreRemove
