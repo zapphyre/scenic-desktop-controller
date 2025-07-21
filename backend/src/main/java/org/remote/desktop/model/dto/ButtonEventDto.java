@@ -26,6 +26,7 @@ public class ButtonEventDto implements Behavioral {
     @ToString.Include
     @EqualsAndHashCode.Include
     String trigger;
+    @EqualsAndHashCode.Include
     boolean longPress;
     @EqualsAndHashCode.Include
     EMultiplicity multiplicity;

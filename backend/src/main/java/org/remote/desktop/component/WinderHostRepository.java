@@ -118,9 +118,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
     public void onApplicationEvent(WinderCommandEvent event) {
         log.info("winder event: " + event);
 
-        if (Objects.isNull(winderApi)) return;
-
-        if (event.getWinderOp().equals(EWinderOp.EX))
+        if (event.getWinderOp().equals(EWinderOp.EX) || Objects.isNull(winderApi))
             stateService.nullifyForced();
         else
             winderApi.command(EWinderCommand.builder()

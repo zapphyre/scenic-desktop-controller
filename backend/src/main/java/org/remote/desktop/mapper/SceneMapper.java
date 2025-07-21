@@ -19,10 +19,10 @@ public interface SceneMapper {
 
     RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
-    @Mapping(target = "leftAxisEaser", defaultValue = "CONTINUOUS")
-    @Mapping(target = "rightAxisEaser", defaultValue = "CONTINUOUS")
-    @Mapping(target = "rightTriggerEaser", defaultValue = "CONTINUOUS")
-    @Mapping(target = "leftTriggerEaser", defaultValue = "NONE")
+    @Mapping(target = "leftAxisEaser", source = "leftAxisEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "rightAxisEaser", source = "rightAxisEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "rightTriggerEaser", source = "rightTriggerEaser", defaultValue = "CONTINUOUS")
+    @Mapping(target = "leftTriggerEaser", source = "leftTriggerEaser", defaultValue = "NONE")
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
     List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);

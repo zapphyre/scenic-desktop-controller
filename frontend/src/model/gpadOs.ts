@@ -4,6 +4,10 @@ export interface Scene {
     windowName: string;
     leftAxisEvent: EAxisEvent;
     rightAxisEvent: EAxisEvent;
+    leftAxisEaser: EAxisEaser;
+    rightAxisEaser: EAxisEvent;
+    leftTriggerEaser: EAxisEaser;
+    rightTriggerEaser: EAxisEaser;
     inheritsIdFk: number[] | undefined;
     events: EventVto[];
     inheritedGamepadEvents: EventVto[];
@@ -127,7 +131,7 @@ export enum ESourceEvent {
 
 export type WinderOpEventMap = Record<WinderOp, EventVto>;
 
-export type WinderOp = 'FF' | 'RW' | 'FN' | 'FP' | 'PP' | 'NT' | 'ET' | 'EX'| 'CS' | 'FS'
+export type WinderOp = 'FF' | 'RW' | 'FN' | 'FP' | 'PP' | 'NT' | 'ET' | 'EX' | 'CS' | 'FS'
 
 export const WinderActions: Record<WinderOp, string> = {
     FF: 'Fast Forward',
@@ -141,6 +145,11 @@ export const WinderActions: Record<WinderOp, string> = {
     CS: 'Close',
     FS: 'Full Screen',
 };
+
+export enum EAxisEaser {
+    NONE,
+    CONTINUOUS,
+}
 
 export enum EMultiplicity {
     CLICK,
@@ -209,5 +218,9 @@ export const multiplicityValues = Object.values(EMultiplicity)
     .map(key => (key));
 
 export const axisValues = Object.values(EAxisEvent)
+    .filter(key => isNaN(Number(key)))
+    .map(key => (key));
+
+export const axisEaserValues = Object.values(EAxisEaser)
     .filter(key => isNaN(Number(key)))
     .map(key => (key));

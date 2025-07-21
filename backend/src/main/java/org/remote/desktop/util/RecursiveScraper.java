@@ -36,14 +36,9 @@ public class RecursiveScraper<T, S extends GamepadEventContainer<T, S>> {
         if (!sceneDto.getInheritsFromSafe().isEmpty())
             sceneDto.getInheritsFrom().forEach(q -> scrapeActionsRecursive(q, gamepadEventDtos));
 
-        for (S inh : sceneDto.getInheritsFromSafe()) {
-            gamepadEventDtos.addAll(inh.getEvents());
-        }
-
-//
-//        Optional.of(sceneDto)
-//                .map(GamepadEventContainer::getEvents)
-//                .ifPresent(gamepadEventDtos::addAll);
+        sceneDto.getInheritsFromSafe().stream()
+                .map(GamepadEventContainer::getEvents)
+                .forEach(gamepadEventDtos::addAll);
 
         return gamepadEventDtos;
     }

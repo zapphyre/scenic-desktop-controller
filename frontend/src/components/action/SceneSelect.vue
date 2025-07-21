@@ -5,7 +5,16 @@ import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
 import {getSceneNameIdList, getScenes, getTriggers} from "@/api/dataStore";
-import {axisValues, ButtonEventVto, EAxisEvent, EventVto, GPadEvent, NameId, Scene} from '@/model/gpadOs'
+import {
+  axisEaserValues,
+  axisValues,
+  ButtonEventVto,
+  EAxisEvent,
+  EventVto,
+  GPadEvent,
+  NameId,
+  Scene
+} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
@@ -13,7 +22,7 @@ import {onMounted, ref, watch} from "vue";
 import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);
-const selectedSceneRef = ref<Scene>();
+const selectedSceneRef = ref<Scene | undefined>()
 const inheritedAvailableRef = ref<NameId[]>();
 const inheritedRef = ref<NameId[]>();
 const allSceneNames = ref<string[]>([]);
@@ -37,8 +46,7 @@ const changedScene = async (event: SelectChangeEvent) => {
 
   selectedSceneRef.value?.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
 
-  inheritedAvailableRef.value = (await getSceneNameIdList())
-      .filter(s => s.id !== event.value?.id)
+  inheritedAvailableRef.value = (await getSceneNameIdList()).filter(s => s.id !== event.value?.id)
 
   inheritedRef.value = (await getSceneNameIdList()).filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id));
 
@@ -49,15 +57,7 @@ const changedScene = async (event: SelectChangeEvent) => {
   rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
 }
 
-const changedLeftAxis = (event: any) => {
-  selectedSceneRef!.value!.leftAxisEvent = event.value;
-  apiClient.put("scene", selectedSceneRef.value);
-}
-
-const changedRightAxis = (event: any) => {
-  selectedSceneRef!.value!.rightAxisEvent = event.value;
-  apiClient.put("scene", selectedSceneRef.value);
-}
+const saveScene = (event: any) => apiClient.put("scene", selectedSceneRef.value);
 
 const addNewGamepadEvent = async () => {
   const eventVto = {parentFk: selectedSceneRef.value?.id} as EventVto;
@@ -106,7 +106,6 @@ const editScene = () => {
 const dialogDelete = () => apiClient.delete(`scene/${dialogScene.value?.id}`)
 
 const dialogOk = async (q: Scene) => {
-
   if (newSceneDialog) {
     dialogScene.value!!.id = (await apiClient.post("scene", q)).data;
     console.log("adding new scene to list", dialogScene.value);
@@ -163,7 +162,8 @@ onMounted(fetchScenes);
         <div class="col-12 card"></div>
       </div>
     </div>
-    <div class="col-12">
+
+    <div v-if="selectedSceneRef" class="col-12">
       <div class="grid">
         <div class="col-4">
           <FloatLabel class="w-full md:w-56" variant="on">
@@ -178,57 +178,131 @@ onMounted(fetchScenes);
           </FloatLabel>
         </div>
 
+        <!-- Left Axis + Smoothing -->
         <div class="col-4">
-          <FloatLabel class="w-full md:w-56" variant="on">
-            <Select
-                name="leftAxis"
-                @change="changedLeftAxis"
-                v-model="leftAxisRef"
-                :options="axisValues"
-                class="w-full"
-            />
-            <label for="leftAxis">Left Axis</label>
-          </FloatLabel>
+          <div class="grid grid-nogutter">
+            <div class="col-6">
+              <FloatLabel class="w-full" variant="on">
+                <Select
+                    name="leftAxis"
+                    @change="saveScene"
+                    v-model="selectedSceneRef.leftAxisEvent"
+                    :options="axisValues"
+                    class="w-full"
+                />
+                <label for="leftAxis">Left Axis</label>
+              </FloatLabel>
+            </div>
+            <div class="col-6">
+              <FloatLabel class="w-full" variant="on">
+                <Select
+                    name="leftSmoothing"
+                    @change="saveScene"
+                    v-model="selectedSceneRef.leftAxisEaser"
+                    :options="axisEaserValues"
+                    class="w-full"
+                />
+                <label for="leftSmoothing">Smoothing</label>
+              </FloatLabel>
+            </div>
+          </div>
         </div>
 
+        <!-- Right Axis + Smoothing -->
         <div class="col-4">
-          <FloatLabel class="w-full md:w-56" variant="on">
-            <Select
-                name="rightAxis"
-                @change="changedRightAxis"
-                v-model="rightAxisRef"
-                :options="axisValues"
-                class="w-full"
-            />
-            <label for="rightAxis">Right Axis</label>
-          </FloatLabel>
+          <div class="grid grid-nogutter">
+            <div class="col-6">
+              <FloatLabel class="w-full" variant="on">
+                <Select
+                    name="rightAxis"
+                    @change="saveScene"
+                    v-model="selectedSceneRef.rightAxisEvent"
+                    :options="axisValues"
+                    class="w-full"
+                />
+                <label for="rightAxis">Right Axis</label>
+              </FloatLabel>
+            </div>
+            <div class="col-6">
+              <FloatLabel class="w-full" variant="on">
+                <Select
+                    name="rightSmoothing"
+                    @change="saveScene"
+                    v-model="selectedSceneRef.rightAxisEaser"
+                    :options="axisEaserValues"
+                    class="w-full"
+                />
+                <label for="rightSmoothing">Smoothing</label>
+              </FloatLabel>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-4">
-        <Button v-if="selectedSceneRef" @click="addNewGamepadEvent">Add Gamepad Event</Button>
-      </div>
-    </div>
 
-    <div class="grid grid-nogutter full-width-container">
-      <div class="col w-full" v-if="selectedSceneRef">
-        <div v-for="action in selectedSceneRef.events" class="gpad-action-wrapper">
-          <GpadAction
-              :selected-scene-id="selectedSceneRef.id!"
-              :event="action"
-              @removeEvent="removeEvent"
-              :render-action="true"
-          />
+      <!-- Add Gamepad Event + Centered New Selects -->
+      <div class="col-12">
+        <div class="grid align-items-center">
+          <!-- Button on left -->
+          <div class="col-4">
+            <Button v-if="selectedSceneRef" @click="addNewGamepadEvent">Add Gamepad Event</Button>
+          </div>
+
+          <!-- Two centered select boxes -->
+          <!-- Centered selects, nudged right with margin -->
+          <div class="col-7 col-offset-1">
+            <div class="grid grid-nogutter">
+              <div class="col-4 pr-1">
+                <FloatLabel class="w-full" variant="on">
+                  <Select
+                      name="leftTriggerEase"
+                      @change="saveScene"
+                      class="w-full"
+                      :options="axisEaserValues"
+                      v-model="selectedSceneRef.leftTriggerEaser"
+                  />
+                  <label for="leftTriggerEase">Left Trigger Ease</label>
+                </FloatLabel>
+              </div>
+              <div class="col-4 col-offset-2">
+                <FloatLabel class="w-full" variant="on">
+                  <Select
+                      name="rightTriggerEase"
+                      @change="saveScene"
+                      class="w-full"
+                      :options="axisEaserValues"
+                      v-model="selectedSceneRef.rightTriggerEaser"
+                  />
+                  <label for="rightTriggerEase">Right Trigger Ease</label>
+                </FloatLabel>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-      <div v-if="selectedSceneRef">
-        <div class="col">
-          <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents" class="gpad-action-wrapper">
+
+      <!-- Gamepad Actions -->
+      <div class="grid grid-nogutter full-width-container">
+        <div class="col w-full" v-if="selectedSceneRef">
+          <div v-for="action in selectedSceneRef.events" class="gpad-action-wrapper">
             <GpadAction
                 :selected-scene-id="selectedSceneRef.id!"
-                :disabled="true"
-                :event="ihr"
+                :event="action"
+                @removeEvent="removeEvent"
                 :render-action="true"
             />
+          </div>
+        </div>
+        <div v-if="selectedSceneRef">
+          <div class="col">
+            <div v-for="ihr in selectedSceneRef.inheritedGamepadEvents" class="gpad-action-wrapper">
+              <GpadAction
+                  :selected-scene-id="selectedSceneRef.id!"
+                  :disabled="true"
+                  :event="ihr"
+                  :render-action="true"
+              />
+            </div>
           </div>
         </div>
       </div>

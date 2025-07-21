@@ -100,8 +100,8 @@ public class SceneDao {
     public SceneVto create(SceneVto vto) {
         return Optional.of(vto)
                 .map(sceneMapper.mapWithInherents(safeRepo(sceneRepository::findAllById, vto.getInheritsIdFk())))
-                .map(entity1 -> sceneRepository.save(entity1))
-                .map(entity -> sceneMapper.map(entity))
+                .map(sceneRepository::save)
+                .map(sceneMapper::map)
                 .orElseThrow();
     }
 

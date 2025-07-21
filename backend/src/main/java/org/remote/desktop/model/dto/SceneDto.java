@@ -37,7 +37,6 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     EAxisEvent rightAxisEvent;
     EAxisEaser rightAxisEaser;
 
-    @ToString.Include
     EAxisEaser leftTriggerEaser;
     EAxisEaser rightTriggerEaser;
 
