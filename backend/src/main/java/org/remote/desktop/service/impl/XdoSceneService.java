@@ -33,7 +33,7 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     private SceneDto forcedScene;
     private SceneDto lastRecognizedScene;
 
-    private String lastRecognizedSceneName = "";
+    private String lastRecognizedWindowName = "";
 
     public SceneDto saveLastRecognizedScene(SceneDto sceneDto) {
         return lastRecognizedScene = sceneDto;
@@ -44,14 +44,14 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
         Optional.of(event)
                 .map(XdoCommandEvent::getNextScene)
                 .map(q -> {
-                    lastRecognizedSceneName = q.getWindowName();
+                    lastRecognizedWindowName = q.getWindowName();
                     return forcedScene = q;
                 })
                 .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
     public void forceScene(SceneDto scene) {
-        lastRecognizedSceneName = scene.getWindowName();
+        lastRecognizedWindowName = scene.getWindowName();
 
         forcedScene = lastRecognizedScene = scene;
     }
@@ -59,14 +59,14 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     public String tryGetCurrentName() {
         String windowName = sceneProvider.get();
 
-//        System.out.println("Current name: " + windowName);
+        System.out.println("Current name: " + windowName);
 
-        if (!windowName.equals(lastRecognizedSceneName))
+        if (!windowName.equals(lastRecognizedWindowName))
             recognizedSceneObservers.forEach(p -> {
                 p.accept(windowName);
             });
 
-        return lastRecognizedSceneName = windowName;
+        return lastRecognizedWindowName = windowName;
     }
 
     public void nullifyForcedScene() {

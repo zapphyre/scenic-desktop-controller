@@ -12,14 +12,15 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
-import static org.remote.desktop.model.EAxisEaser.NONE;
+import static org.remote.desktop.model.EAxisEaser.*;
 
 @UtilityClass
 public class FluxUtil {
@@ -32,6 +33,14 @@ public class FluxUtil {
 
     public Flux<ButtonActionDef> repeatGE(Flux<ButtonActionDef> flux) {
         return repeat(flux, TRIGGER_EASING_INTERVAL);
+    }
+
+    public Flux<ButtonActionDef> repeatGEdge(Flux<ButtonActionDef> flux) {
+        AtomicReference<ButtonActionDef> prev = new AtomicReference<>();
+        return repeat(flux.mapNotNull(q -> q.getLogicalEventType() == ELogicalEventType.ENGAGE ?
+                prev.get() : prev.getAndSet(q)
+
+        ), TRIGGER_EASING_INTERVAL);
     }
 
     Predicate<ButtonActionDef> onlySteps = q -> q.getLogicalEventType() == ELogicalEventType.STEP_NEGATIVE ||
@@ -75,6 +84,7 @@ public class FluxUtil {
 
     public static final Map<EAxisEaser, Function<Flux<ButtonActionDef>, Flux<ButtonActionDef>>> GEeaserMap = Map.of(
             CONTINUOUS, FluxUtil::repeatGE,
+            EDGE_STEPPER, FluxUtil::repeatGEdge,
             NONE, Function.identity()
     );
 
@@ -122,8 +132,8 @@ public class FluxUtil {
     }
 
     @SafeVarargs
-    public static <T> Consumer<T> pipe(Consumer<T>... consumer) {
-        return q -> Arrays.stream(consumer).forEach(p -> p.accept(q));
+    public static <T> Consumer<T> pipe(Consumer<T> ...consumers) {
+        return q -> Arrays.stream(consumers).forEach(p -> p.accept(q));
     }
 
     public static <T, R> Function<T, Consumer<Consumer<R>>> spit(Function<T, R> mapper) {

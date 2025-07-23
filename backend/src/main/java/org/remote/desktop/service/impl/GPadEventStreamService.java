@@ -60,8 +60,9 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
+        Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
         return of(sceneDto)
-                .map(scraper::scrapeActionsRecursiveWithCurrent)
+                .map(scrape)
                 .orElseThrow().stream()
                 .map(activatorGroupingEventMapper::groupByActivator)
                 .flatMap(Collection::stream)
@@ -82,8 +83,10 @@ public class GPadEventStreamService {
     }
 
     public Function<SceneDto, Boolean> isIncomingQualificatorRelevantForCurrentScene(ButtonActionDef click) {
+        Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
+
         return scene -> Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q -> scraper.scrapeActionsRecursiveWithCurrent(scene).stream()
+                .filter(q -> scrape.apply(scene).stream()
                         .map(EventDto::getButtonEvent)
                         .filter(Objects::nonNull)
                         .filter(triggerAndModifiersSameAsClick(click))

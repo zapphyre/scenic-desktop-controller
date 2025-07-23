@@ -3,7 +3,6 @@ package org.remote.desktop.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

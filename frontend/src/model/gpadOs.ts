@@ -149,6 +149,7 @@ export const WinderActions: Record<WinderOp, string> = {
 export enum EAxisEaser {
     NONE,
     CONTINUOUS,
+    EDGE_STEPPER,
 }
 
 export enum EMultiplicity {
