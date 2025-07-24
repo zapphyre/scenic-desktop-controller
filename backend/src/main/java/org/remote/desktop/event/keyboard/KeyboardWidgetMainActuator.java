@@ -3,6 +3,7 @@ package org.remote.desktop.event.keyboard;
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.remote.desktop.ui.model.EActionButton;
 import org.springframework.context.ApplicationListener;
@@ -18,6 +19,7 @@ import java.util.List;
 public class KeyboardWidgetMainActuator implements ApplicationListener<PredictionControlEvent> {
 
     private final CircleButtonsInputWidget widget;
+    private final XdoSceneService xdoSceneService;
     private final List<String> regularButtons = List.of("A", "X", "Y", "B");
 
     public void longClick(String trigger) {
@@ -57,8 +59,10 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
         if (event.getType().equals("RIGHTTRIGGER_EDGING_NEGATIVE"))
             widget.prevPredictionsFrame();
 
-        if (event.getType().equals("LEFTTRIGGER_ENGAGE"))
+        if (event.getType().equals("LEFTTRIGGER_ENGAGE")) {
             copyToClipboard(widget.getSentenceAndReset());
+            xdoSceneService.tryGetCurrentName();
+        }
 
         if (regularButtons.contains(event.getType()))
             widget.setActiveAndType(EActionButton.valueOf(event.getType()), event.getModifiers());

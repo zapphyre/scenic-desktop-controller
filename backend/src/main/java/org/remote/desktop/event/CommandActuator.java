@@ -29,7 +29,6 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final ApplicationEventPublisher eventPublisher;
     private final KeyboardWidgetMainActuator widgetActuator;
     private final ModeService  modeService;
-    private final GPadEventStreamService  gpadEventStreamService;
 
     @Override
     @SneakyThrows
@@ -61,6 +60,6 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
 
     @Override
     public boolean supportsAsyncExecution() {
-        return false;
+        return true;
     }
 }
