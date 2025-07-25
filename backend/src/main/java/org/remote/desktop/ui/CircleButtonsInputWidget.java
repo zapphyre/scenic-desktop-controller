@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EButtonAxisMapping;
 import org.mapstruct.ap.internal.util.Strings;
@@ -254,6 +255,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
         precisedWord = "";
     }
 
+    @SneakyThrows
     @Override // in case precision mode is active, add current character (speedup)
     public void addWordToSentence() {
         tryPropLastPrecised();
@@ -263,6 +265,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
             return;
         }
 
+        pendingReset.get();
+        pendingResetTask.run();
         groupTxFun.actOnIndexLetter(letterIndex.get() - 1);
     }
 
