@@ -7,6 +7,7 @@ import org.remote.desktop.model.EKeyEvt;
 import java.util.List;
 import java.util.Optional;
 
+@With
 @Data
 @Entity
 @Builder
@@ -33,6 +34,10 @@ public class XdoAction {
     @CollectionTable(name = "key_stroked", joinColumns = @JoinColumn(name = "xdo_action_id"))
     @Column(name = "key_stroke", nullable = false)
     private List<String> keyStrokes;
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Mode mode;
 
     @PreUpdate
     @PrePersist

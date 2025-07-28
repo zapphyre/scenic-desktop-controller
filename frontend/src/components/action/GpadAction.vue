@@ -7,18 +7,20 @@ import Button from 'primevue/button';
 import {
   ButtonEventVto,
   buttonValues,
+  EAdapterMode,
   EKeyEvt,
-  EventVto, Gesture,
+  EventVto,
   GestureEventVto,
   multiplicityValues,
   NameId,
   XdoAction
 } from "@/model/gpadOs";
-import XdoActionSection from "@/components/action/XdoActionSection.vue";
+import XdoActionUi from "@/components/action/XdoActionUi.vue";
 import _ from "lodash";
 import apiClient from "@/api";
-import {getGestures, getGesturesNameIdList, getSceneNameIdList, getTriggers} from "@/api/dataStore";
+import {getGesturesNameIdList, getSceneNameIdList, getTriggers} from "@/api/dataStore";
 import {onMounted, ref} from "vue";
+import WinderAction from "@/components/action/WinderAction.vue";
 
 const gestures = ref<NameId[]>([]);
 const forcedAvailableRef = ref<NameId[]>();
@@ -31,13 +33,14 @@ const props = defineProps<{
   renderAction?: boolean | true;
 }>();
 
-const addNewAction = async () => {
+const addNewAction = (mode: EAdapterMode) => async () => {
   const toSave: XdoAction = {
     eventFk: props.event.id,
     id: undefined,
     keyEvt: EKeyEvt.STROKE,
     keyStrokes: [],
     activator: undefined,
+    mode: mode,
   };
   toSave.id = (await apiClient.post("action", toSave)).data;
 
@@ -73,19 +76,19 @@ const gestureChange = async () => {
   await apiClient.put(`event/${props.event.id}/gesture`, props.event.gestureEvent);
 }
 
-const addButtonEvent = async  () => {
+const addButtonEvent = async () => {
   const id = (await apiClient.post(`event/${props.event.id}/button`)).data;
 
   props.event.buttonEvent = {id} as ButtonEventVto;
 }
 
-const removeButtonEvent = async  () => {
+const removeButtonEvent = async () => {
   await apiClient.delete(`event/${props.event.id}/button/${props.event.buttonEvent?.id}`);
 
   props.event.buttonEvent = undefined;
 }
 
-const removeEvent = async  () => {
+const removeEvent = async () => {
   await apiClient.delete(`event/${props.event.id}`);
 
   emit('removeEvent', props.event);
@@ -103,7 +106,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <hr v-if="renderAction" />
+  <hr v-if="renderAction"/>
 
   <div class="grid w-full gpad-action-container">
     <div class="card p-3 w-full">
@@ -248,19 +251,31 @@ onMounted(async () => {
         <!-- Right Section -->
         <div v-if="renderAction" class="col-5">
           <div class="flex flex-column gap-2 align-items-center min-h-full">
-            <XdoActionSection
-                v-for="act in props.event.actions || []"
-                :key="act.id"
-                :xdo-action="act"
-                :disabled="disabled"
-                @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
-                @remove="removeXdoAction"
-            />
+            <div v-for="(act, i) in props.event.actions || []">
+              <XdoActionUi v-if="act.mode === EAdapterMode.DESKTOP"
+                           :key="act.id ? `desktop-${act.id}` : `desktop-no-${i}`"
+                           :xdo-action="act"
+                           :disabled="disabled"
+                           @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
+                           @remove="removeXdoAction"/>
+              <WinderAction v-else
+                            :key="act.id ? `winder-${act.id}` : `winder-no-${i}`"
+                            :xdo-action="act"
+                            :disabled="disabled"
+                            @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
+                            @remove="removeXdoAction"/>
+            </div>
+
             <div class="flex justify-content-center">
               <Button
                   :disabled="disabled"
-                  label="Add Action"
-                  @click="addNewAction"
+                  label="Add Desktop Action"
+                  @click="q => addNewAction(EAdapterMode.DESKTOP)()"
+              />
+              <Button
+                  :disabled="disabled"
+                  label="Add Winder Action"
+                  @click="q => addNewAction(EAdapterMode.WINDER)()"
               />
             </div>
           </div>

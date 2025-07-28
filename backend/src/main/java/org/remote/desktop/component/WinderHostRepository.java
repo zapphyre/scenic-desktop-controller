@@ -7,6 +7,7 @@ import org.remote.desktop.config.FeignBuilder;
 import org.remote.desktop.db.dao.EventDao;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.event.WinderCommandEvent;
@@ -53,6 +54,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
 
         scenery.getEvents().stream()
                 .flatMap(q -> q.getActions().stream())
+                .filter(q -> q.getMode() == EAdapterMode.WINDER)
                 .flatMap(event -> event.getKeyStrokes().stream())
                 .map(EWinderOp::valueOf)
                 .forEach(allOps::remove);
@@ -68,7 +70,11 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
         Map<EWinderOp, EventVto> opEventMap = new HashMap<>();
 
         for (EventVto event : getWinderScenery().getEvents())
-            opEventMap.put(EWinderOp.valueOf(event.getActions().getFirst().getKeyStrokes().getFirst()), event);
+            try {
+                opEventMap.put(EWinderOp.valueOf(event.getActions().getFirst().getKeyStrokes().getFirst()), event);
+            } catch (Exception e) {
+                System.out.println("bad value for EOp enum" + event.getActions().getFirst().getKeyStrokes().getFirst());
+            }
 
         return opEventMap;
     }
@@ -87,6 +93,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
         return ops.stream()
                 .map(q -> EventVto.builder()
                         .actions(List.of(XdoActionVto.builder()
+                                .mode(EAdapterMode.WINDER)
                                 .keyEvt(EKeyEvt.STROKE)
                                 .keyStrokes(List.of(q.name()))
                                 .build())

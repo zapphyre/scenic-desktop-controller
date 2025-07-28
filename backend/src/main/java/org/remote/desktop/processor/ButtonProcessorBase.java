@@ -9,13 +9,12 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.EMode;
+import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.WinderCommandEvent;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
-import org.remote.desktop.service.impl.ModeService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.winder.common.model.EWinderOp;
@@ -35,24 +34,14 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     protected final IntrospectedEventFactory gamepadObserver;
     protected final TriggerActionMatcher triggerActionMatcher;
     protected final ScheduledExecutorService executorService;
-    private final ModeService modeService;
     protected final SettingsDao settingsDao;
 
     protected abstract Predicate<GamepadEvent> triggerFilter();
-
-    protected EMode mode() {
-        return EMode.DESKTOP;
-    }
-
-    protected Predicate<GamepadEvent> modeFilter() {
-        return q -> modeService.getMode() == mode();
-    }
 
     @PostConstruct
     protected void process() {
         easy(gamepadObserver.getButtonEventStream()
                 .publishOn(Schedulers.fromExecutorService(executorService))
-//                .filter(modeFilter())
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())
@@ -69,21 +58,18 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
 
     @Override
     public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
-        return q ->
-                switch (modeService.getMode()) {
-                    case DESKTOP -> new XdoCommandEvent(this,
-                            q.getKeyEvt(),
-                            q.getKeyStrokes(),
-                            sceneXdoAction.getNextScene(),
-                            def.getTrigger(),
-                            sceneXdoAction.getEventSourceScene().getWindowName(),
-                            def.getModifiers(),
-                            def.isLongPress()
-                    );
-                    case WINDER -> new WinderCommandEvent(this,
-                            EWinderOp.valueOf(q.getEvent().getActions().getFirst().getKeyStrokes().getFirst())
-                    );
-                };
+        return q -> q.getMode() == EAdapterMode.DESKTOP ?
+                new XdoCommandEvent(this,
+                        q.getKeyEvt(),
+                        q.getKeyStrokes(),
+                        sceneXdoAction.getNextScene(),
+                        def.getTrigger(),
+                        sceneXdoAction.getEventSourceScene().getWindowName(),
+                        def.getModifiers(),
+                        def.isLongPress()) :
+                new WinderCommandEvent(this,
+                        EWinderOp.valueOf(q.getEvent().getActions().getFirst().getKeyStrokes().getFirst())
+                );
     }
 
     protected Predicate<ButtonActionDef> purgingFilter() {

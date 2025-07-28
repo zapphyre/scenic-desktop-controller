@@ -3,10 +3,13 @@ package org.remote.desktop.mapper;
 import org.asmus.model.EButtonAxisMapping;
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.ButtonEvent;
+import org.remote.desktop.db.entity.Mode;
+import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.vto.ButtonEventVto;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring", uses = {}, builder = @Builder(disableBuilder = true))
 public interface ButtonEventMapper {
@@ -25,5 +28,16 @@ public interface ButtonEventMapper {
 
     default EButtonAxisMapping map(String val) {
         return EButtonAxisMapping.valueOf(val);
+    }
+
+    // duplicity and i don't know why it want me to delare it anyway
+    default EAdapterMode map(Mode value) {
+        return Optional.ofNullable(value)
+                .map(Mode::getAdapterMode)
+                .orElse(EAdapterMode.DESKTOP);
+    }
+
+    default Mode eAdapterModeToMode(EAdapterMode eAdapterMode) {
+        return Mode.builder().adapterMode(eAdapterMode).build();
     }
 }

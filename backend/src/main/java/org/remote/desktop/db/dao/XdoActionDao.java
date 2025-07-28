@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.EventRepository;
+import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.EMode;
@@ -25,6 +26,7 @@ public class XdoActionDao {
 
     private final XdoActionRepository xdoActionRepository;
     private final EventRepository eventRepository;
+    private final ModeRepository modeRepository;
     private final EventMapper eventMapper;
 
     public void delete(Long xdoActionId) {
@@ -43,12 +45,14 @@ public class XdoActionDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
+                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .ifPresent(eventMapper.update(vto, FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
     public Long create(XdoActionVto vto) {
         return Optional.of(vto)
                 .map(eventMapper.mapXdoEvent(FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)))
+                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId)
                 .orElseThrow();

@@ -18,7 +18,6 @@ public class StateService {
 
     private final KeyboardStateRepository keyboardStateRepository;
     private final XdoSceneService xdoSceneService;
-    private final ModeService  modeService;
 
     @PostConstruct
     void init() {
@@ -40,7 +39,6 @@ public class StateService {
     }
 
     public void nullifyForced() {
-        modeService.setMode(EMode.DESKTOP);
         xdoSceneService.nullifyForcedScene();
         keyboardStateRepository.releaseAllPressedKeys();
     }

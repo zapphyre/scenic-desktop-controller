@@ -70,6 +70,12 @@ export interface XdoAction {
     keyStrokes: string[];
     eventFk: number | undefined;
     activator: EButtonAxisMapping | undefined;
+    mode?: EAdapterMode | EAdapterMode.DESKTOP
+}
+
+export enum EAdapterMode {
+    DESKTOP = "DESKTOP",
+    WINDER =  "WINDER"
 }
 
 export interface TrieResult {
@@ -172,9 +178,7 @@ export enum EKeyEvt {
     KEYBOARD_ON = "KEYBOARD_ON",
     KEYBOARD_OFF = "KEYBOARD_OFF",
     KEYBOARD_LONG = "KEYBOARD_LONG",
-    WINDER_FF = "WINDER_FF",
-    WINDER_RW = "WINDER_RW",
-    MODE = "MODE",
+    WINDER = "WINDER",
 }
 
 export enum EButtonAxisMapping {

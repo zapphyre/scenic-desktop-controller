@@ -2,8 +2,10 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.entity.XdoAction;
+import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.EventVto;
@@ -14,12 +16,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Mapper(componentModel = "spring",
-        uses = {GestureEventMapper.class, ButtonEventMapper.class, GestureMapper.class, GestureMapper.class},
+        uses = {GestureEventMapper.class, ButtonEventMapper.class, GestureMapper.class},
         builder = @Builder(disableBuilder = true)
 )
 public interface EventMapper {
 
     @Mapping(target = "buttonEvent", source = "buttonEvent", qualifiedByName = "map")
+    @Mapping(target = "actions", source = "actions", qualifiedByName = "maptoDto")
     EventDto map(Event event, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "scene", ignore = true)
@@ -36,7 +39,12 @@ public interface EventMapper {
     @Mapping(target = "gestureEvent", source = "gestureEvent", qualifiedByName = "mapGestureEvent")
     @Mapping(target = "nextSceneFk", source = "nextScene.id")
     @Mapping(target = "parentFk", source = "scene.id")
+//    @Mapping(target = "actions", source = "actions", qualifiedByName = "map")
     EventVto map(Event evt);
+
+//    default EAdapterMode map(Mode value) {
+//        return value.getAdapterMode();
+//    }
 
     @Mapping(target = "id", source = "vto.id")
     @Mapping(target = "event", source = "event")
@@ -71,14 +79,20 @@ public interface EventMapper {
 
     XdoAction map(XdoActionDto dto, @Context CycleAvoidingMappingContext ctx);
 
+    @Mapping(target = "mode", source = "mode.adapterMode")
     XdoActionDto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
 
-    List<XdoActionDto> map(Iterable<XdoAction> entities, @Context CycleAvoidingMappingContext ctx);
+    @Named("maptoDto")
+    List<XdoActionDto> maptoDto(Iterable<XdoAction> entities, @Context CycleAvoidingMappingContext ctx);
 
     List<XdoAction> mapDtos(Iterable<XdoActionDto> entities, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "eventFk", source = "event.id")
-    XdoActionVto mapToVto(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
+    @Mapping(target = "mode", source = "mode.adapterMode")
+    XdoActionVto mapToVto(XdoAction entity);
+
+    @Named("map")
+    List<XdoActionVto> map(List<XdoAction> entities);
 
     void update(XdoActionDto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);
 
@@ -88,6 +102,7 @@ public interface EventMapper {
 
     @Mapping(target = "id", source = "source.id")
     @Mapping(target = "event", source = "gEvt")
+    @Mapping(target = "mode", ignore = true)
     void update(@MappingTarget XdoAction target, XdoActionVto source, Event gEvt, @Context CycleAvoidingMappingContext ctx);
 
     default Consumer<XdoAction> update(XdoActionVto source, Event gEvt) {

@@ -3,13 +3,10 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
-import {actionValues,
-  buttonValues,
-  XdoAction} from "@/model/gpadOs";
+import {actionValues, buttonValues, EKeyEvt, XdoAction} from "@/model/gpadOs";
 import {onMounted, ref, watch} from "vue";
 import {getStrokes, useStrokesStore} from "@/api/dataStore";
 import apiClient from '@/api';
-import _ from "lodash";
 
 const filteredStrokes = ref<string[]>();
 const strokes = ref<string[]>([]);
@@ -18,6 +15,7 @@ const filtered = ref<string>();
 const props = defineProps<{
   xdoAction: XdoAction;
   disabled?: boolean;
+  strokes: string[];
 }>();
 
 const emit = defineEmits<{
@@ -30,14 +28,14 @@ const {strokesRef} = useStrokesStore();
 
 const add = async () => {
   console.log("add invoked");
-  if (filtered.value && !strokesRef.value.includes(filtered.value)) {
+  if (filtered.value && !props.strokes.includes(filtered.value)) {
     // Add to all available strokes (store)
     strokesRef.value.push(filtered.value);
   }
   if (filtered.value && !strokes.value.includes(filtered.value)) {
     // Add to selected strokes
     strokes.value.push(filtered.value);
-    // emit('addKeyStroke', filtered.value); // Notify parent
+    emit('addKeyStroke', filtered.value); // Notify parent
   }
   filtered.value = undefined; // Clear filter
   filterChange(); // Update filtered options
@@ -50,7 +48,7 @@ const filterChange = async () => {
   // filteredStrokes.value = getStrokes().filter((p: string) =>
   //     filtered.value ? p.includes(filtered.value) : true
   // );
-  filteredStrokes.value = (await getStrokes()).filter((p: string) => p.includes(filtered.value || ""));
+  filteredStrokes.value = props.strokes.filter((p: string) => p.includes(filtered.value || ""));
 
   if (filtered.value)
     filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);
@@ -64,10 +62,12 @@ const changed = async (e: any) => {
 }
 
 const evtTypeChanged = async (e: any) => {
+  console.log("props.xdoAction", props.xdoAction);
   await apiClient.put("action", props.xdoAction);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // filteredStrokes.value = props.strokes;
   strokes.value = [...props.xdoAction.keyStrokes]; // Sync initial strokes
   filterChange();
   // console.log("Initial strokes:", strokes.value);

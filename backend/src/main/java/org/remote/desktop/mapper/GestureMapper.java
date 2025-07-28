@@ -12,8 +12,6 @@ public interface GestureMapper {
 
     GestureVto map(Gesture gesture);
 
-//    GestureDto mapDto(Gesture gesture);
-
     GesturePathVto map(GesturePath gesturePath);
 
     GestureDto mapDto(Gesture entity);

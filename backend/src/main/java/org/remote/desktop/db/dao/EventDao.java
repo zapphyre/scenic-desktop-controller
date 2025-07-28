@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.repository.EventRepository;
+import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.vto.EventVto;
@@ -23,6 +24,7 @@ public class EventDao {
 
     private final EventRepository eventRepository;
     private final SceneRepository sceneRepository;
+    private final ModeRepository modeRepository;
 
     private final EventMapper eventMapper;
 
@@ -36,7 +38,8 @@ public class EventDao {
         return Optional.of(vto)
                 .map(eventMapper.map(FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
                         FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById))
-                )
+                )// yes i regret it already
+                .map(q -> q.withActions(q.getActions().stream().map(p -> p.withMode(modeRepository.findByAdapterMode(p.getMode().getAdapterMode()))).toList()))
                 .map(eventRepository::save)
                 .map(Event::getId)
                 .orElseThrow();

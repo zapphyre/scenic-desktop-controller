@@ -5,6 +5,7 @@ import { ref } from "vue";
 // ========== STATE ==========
 
 const strokes = ref<string[]>([]);
+const winderActions = ref<string[]>([]);
 const scenes = ref<Scene[]>([]);
 const triggers = ref([]);
 const gestures = ref<Gesture[]>([]);
@@ -13,17 +14,25 @@ const languages = ref<Lang[]>([]);
 const gesturesNameId = ref<NameId[]>([]);
 const sceneNameIdList = ref<NameId[]>([]);
 
-const unset = { id: undefined, name: "[unset]" };
-
 // ========== FETCH METHODS ==========
 
 const fetchStrokes = async () => {
     try {
-        const response = await apiClient.get("action/all");
+        const response = await apiClient.get("action/all/STROKE");
         strokes.value = response.data;
     } catch (error) {
-        console.error("Failed to fetch strokes:", error);
+        console.error("Failed to fetch desktop_actions:", error);
         strokes.value = [];
+    }
+};
+
+const fetchWinderActions = async () => {
+    try {
+        const response = await apiClient.get("action/all/WINDER");
+        winderActions.value = response.data;
+    } catch (error) {
+        console.error("Failed to fetch winder_actions:", error);
+        winderActions.value = [];
     }
 };
 
@@ -74,6 +83,13 @@ export const getStrokes = async () => {
         await fetchStrokes();
     }
     return strokes.value;
+};
+
+export const getWinderActions = async () => {
+    if (!winderActions.value.length) {
+        await fetchWinderActions();
+    }
+    return winderActions.value;
 };
 
 export const getScenes = async () => {

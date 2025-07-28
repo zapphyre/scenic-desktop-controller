@@ -1,6 +1,7 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.EKeyEvt;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.remote.desktop.service.impl.XdoActionService;
 import org.springframework.http.HttpStatus;
@@ -15,9 +16,9 @@ public class XdoActionCtrl {
 
     private final XdoActionService xdoActionService;
 
-    @GetMapping("all")
-    public List<String> getAllCurrentXdoStrokes() {
-        return xdoActionService.getAllCurrentXdoStrokes();
+    @GetMapping("all/{eKeyEvt}")
+    public List<String> getAllCurrentXdoStrokes(@PathVariable("eKeyEvt") EKeyEvt eKeyEvt) {
+        return xdoActionService.getAllCurrentXdoStrokes(eKeyEvt);
     }
 
     @PutMapping

@@ -4,18 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.actuate.MouseAct;
-import org.remote.desktop.component.WinderHostRepository;
 import org.remote.desktop.event.keyboard.KeyboardWidgetMainActuator;
-import org.remote.desktop.model.EMode;
+import org.remote.desktop.model.event.WinderCommandEvent;
 import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
-import org.remote.desktop.service.impl.GPadEventStreamService;
-import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+import org.winder.common.model.EWinderOp;
 
 import static jxdotool.xDoToolUtil.*;
 
@@ -28,7 +26,6 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
     private final InputWidgetBase inputWidgetBase;
     private final ApplicationEventPublisher eventPublisher;
     private final KeyboardWidgetMainActuator widgetActuator;
-    private final ModeService  modeService;
 
     @Override
     @SneakyThrows
@@ -51,10 +48,13 @@ public class CommandActuator implements ApplicationListener<XdoCommandEvent> {
             case BUTTON -> eventPublisher.publishEvent(
                     new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress())
             );
-            case MODE -> {
-                log.info("SETTING MODE '{}'", xdoKeyPart);
-                modeService.setMode(EMode.valueOf(xdoKeyPart));
-            }
+            case WINDER -> new WinderCommandEvent(this,
+                    EWinderOp.valueOf(e.getKeyPart().getKeyStrokes().getFirst())
+            );
+//            case MODE -> {
+//                log.info("SETTING MODE '{}'", xdoKeyPart);
+//                modeService.setMode(EMode.valueOf(xdoKeyPart));
+//            }
         }
     }
 
