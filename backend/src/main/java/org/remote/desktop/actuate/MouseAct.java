@@ -7,7 +7,9 @@ import org.asmus.model.PolarCoords;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.asmus.model.NamingConstants.MAX;
 import static org.remote.desktop.util.NumUtil.mapVal;
 
 @UtilityClass
@@ -65,6 +67,42 @@ public class MouseAct {
 
         int scrollDirection = (int) Math.signum(y); // -1 for up, 1 for down, 0 if y is 0
         robot.mouseWheel(scrollDirection * scrollAmount); // Adjust scroll amount based on sensitivity
+    }
+
+    AtomicInteger drop = new  AtomicInteger(0);
+    public static void scrollWithStick(PolarCoords coords) {
+
+        if (drop.incrementAndGet() < 12) {
+            return;
+        }
+
+        drop.set(0);
+
+        // Convert polar to Cartesian for easier interpretation
+        double x = coords.getRadius() * Math.cos(coords.getTheta());
+        double y = coords.getRadius() * Math.sin(coords.getTheta());
+
+        // Normalize x to [-1, 1] range (max r = 32767)
+        double normalizedX = x / MAX;
+        double normalizedY = y / MAX;
+
+        // Determine scroll direction based on y-axis
+        // Positive y (stick up) = scroll up (negative wheel amount)
+        // Negative y (stick down) = scroll down (positive wheel amount)
+//        int scrollDirection = normalizedY < 0.1 ? -1 : (normalizedY > -0.1 ? 1 : 0);
+        int scrollDirection = (int) Math.signum(y); // -1 for up, 1 for down, 0 if y is 0
+
+        // Map x-axis to wheelAmount (1 to 7)
+        // Left (x < 0) -> lower intensity, Right (x > 0) -> higher intensity
+        double absNormalizedX = Math.abs(normalizedX);
+        // Linearly map absNormalizedX [0, 1] to wheelAmount [1, 7]
+        int wheelAmount = (int) Math.round(1 + (absNormalizedX * 4));
+        wheelAmount = Math.max(1, Math.min(4, wheelAmount)); // Clamp to [1, 7]
+
+        // Apply scroll if there's a direction
+        if (scrollDirection != 0) {
+            robot.mouseWheel(scrollDirection * wheelAmount);
+        }
     }
 
     int delay = 3; // milliseconds between each scroll step

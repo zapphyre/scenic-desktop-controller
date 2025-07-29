@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LangDialog from "@/components/trie/LangDialog.vue";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {Lang, TrieResult, ValueFrequency, VocabularyAdjustmentDto} from "@/model/gpadOs";
 import {getLanguages} from "@/api/dataStore";
 import InputText from "primevue/inputtext";
@@ -14,8 +14,8 @@ import SuggestionList from "@/components/trie/SuggestionList.vue";
 import GamepadButton from "@/components/trie/GamepadButton.vue";
 
 const dialogVisible = ref(false);
-const langs = getLanguages();
-const selected = ref<Lang>(langs[0]);
+const langs = ref<Lang[]>([]);
+const selected = ref<Lang>();
 
 const base = import.meta.env.VITE_API_BASE_URL;
 console.log("base", base);
@@ -75,7 +75,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 // Placeholder for custom action on second Enter
 const triggerCustomAction = async () => {
-  const adj = (await apiClient.post(`adjust/${selected.value.id}/${suggestTerm.value}`)).data as VocabularyAdjustmentDto;
+  const adj = (await apiClient.post(`adjust/${selected?.value?.id}/${suggestTerm.value}`)).data as VocabularyAdjustmentDto;
   const existing = suggestions.value.find(
       item => item.value.toLowerCase() === adj.word.toLowerCase(),
   );
@@ -92,7 +92,7 @@ const triggerCustomAction = async () => {
 const dialogOk = async (q: Lang) => {
   selected.value = q;
   selected.value.id = (await apiClient.post(`languages`, q)).data;
-  langs.push(selected.value);
+  langs.value.push(selected.value);
 };
 
 const changed = async () => {
@@ -100,8 +100,9 @@ const changed = async () => {
 };
 
 const remove = async () => {
-  await apiClient.delete(`languages/${selected.value.id}`);
-  langs.splice(langs.indexOf(selected.value), 1);
+  await apiClient.delete(`languages/${selected?.value?.id}`);
+  if (selected.value)
+    langs?.value.splice(langs?.value.indexOf(selected.value), 1);
 };
 
 const showEmbeddedMessage = computed(() =>
@@ -111,25 +112,31 @@ const showEmbeddedMessage = computed(() =>
 const onUpload = (event: FileUploadUploadEvent) => {
   const responseText = event.xhr.response;
   try {
-    selected.value.size = responseText;
+    if (selected.value)
+      selected.value.size = responseText;
   } catch (e) {
     console.error("Invalid JSON in upload response", e);
   }
 };
 
 const propUpWord = async (word: string) => {
-  await apiClient.put(`adjust/${selected.value.id}/${word}/increment`);
+  await apiClient.put(`adjust/${selected?.value?.id}/${word}/increment`);
 };
 
 const propDownWord = async (word: string) => {
-  await apiClient.put(`adjust/${selected.value.id}/${word}/decrement`);
+  await apiClient.put(`adjust/${selected?.value?.id}/${word}/decrement`);
 };
 
 const removeWord = async (word: string) => {
-  await apiClient.delete(`adjust/${selected.value.id}/${word}/remove`);
+  await apiClient.delete(`adjust/${selected?.value?.id}/${word}/remove`);
 
   suggestions.value = suggestions.value.filter(item => item.value !== word);
 };
+
+onMounted(async () => {
+  langs.value = (await getLanguages());
+  selected.value = langs.value[0]
+})
 </script>
 
 <template>
@@ -175,7 +182,7 @@ const removeWord = async (word: string) => {
             <div class="col-2">
               <FileUpload
                   name="file"
-                  :url="base + `/languages/init/${selected.id}`"
+                  :url="base + `/languages/init/${selected?.id}`"
                   accept="*"
                   :auto="true"
                   mode="basic"

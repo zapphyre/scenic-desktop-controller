@@ -17,7 +17,7 @@ public class SceneService {
 
     private final SceneDao sceneDao;
 
-//    @Cacheable(SCENE_LIST_CACHE_NAME)
+    @Cacheable(SCENE_LIST_CACHE_NAME)
     public List<SceneVto> getAllSceneVtos() {
         return sceneDao.getAllSceneVtos();
     }

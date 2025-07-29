@@ -43,9 +43,6 @@ public class FluxUtil {
         ), TRIGGER_EASING_INTERVAL);
     }
 
-    Predicate<ButtonActionDef> onlySteps = q -> q.getLogicalEventType() == ELogicalEventType.STEP_NEGATIVE ||
-            q.getLogicalEventType() == ELogicalEventType.STEP_POSITIVE;
-
     public <T extends Repeatable> Flux<T> repeat(Flux<T> flux, int interval) {
         return flux
                 .switchMap(p -> {
@@ -69,7 +66,8 @@ public class FluxUtil {
     public static final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap = Map.of(
             EAxisEvent.MOUSE, MouseAct::moveMouse,
 //            EAxisEvent.SCROLL, MouseAct::scroll,
-            EAxisEvent.SCROLL, MouseAct::scrollR,
+//            EAxisEvent.SCROLL, MouseAct::scrollR,
+            EAxisEvent.SCROLL, MouseAct::scrollWithStick,
             EAxisEvent.VOL, e -> {
             },
             EAxisEvent.NOOP, e -> {

@@ -43,7 +43,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
 
     public SceneVto getWinderScenery() {
         return Optional.ofNullable(sceneDao.getSceneVtoBy(WINDER_SCENE_NAME))
-                .orElseGet(() -> sceneDao.create(createPresetWinderScene(Arrays.asList(EWinderOp.FF, EWinderOp.RW))));
+                .orElseGet(() -> sceneDao.create(createPresetWinderScene(Arrays.asList(EWinderOp.values()))));
     }
 
     @PostConstruct
