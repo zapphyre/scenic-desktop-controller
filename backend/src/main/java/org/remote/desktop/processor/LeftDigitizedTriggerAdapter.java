@@ -3,12 +3,11 @@ package org.remote.desktop.processor;
 import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.GamepadEvent;
-import org.remote.desktop.component.GrokFluxRepeater;
+import org.remote.desktop.component.InlineEasingFluxDecorator;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
@@ -22,7 +21,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.remote.desktop.util.ETriggerFilter.trigger;
@@ -37,8 +35,8 @@ public class LeftDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
     }
 
     @Override
-    protected GrokFluxRepeater<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents) {
-        return  new GrokFluxRepeater<>(
+    protected InlineEasingFluxDecorator<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents) {
+        return  new InlineEasingFluxDecorator<>(
                 cacheManager,
                 gamepadEvents,
                 GEeaserMap,

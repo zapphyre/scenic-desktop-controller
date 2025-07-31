@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
-import org.remote.desktop.db.entity.GesturePath;
 
 import java.util.List;
 
 @Value
-@ToString(onlyExplicitlyIncluded = true)
+@ToString
 @EqualsAndHashCode
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
 public class GestureDto {
@@ -18,7 +17,7 @@ public class GestureDto {
     Long id;
 
     String name;
-    List<GesturePath> paths;
+    List<GesturePathDto> paths;
 
 //    GestureEventDto event;
 }

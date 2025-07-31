@@ -1,7 +1,7 @@
 package org.remote.desktop.processor;
 
 import org.asmus.builder.IntrospectedEventFactory;
-import org.remote.desktop.component.GrokFluxRepeater;
+import org.remote.desktop.component.InlineEasingFluxDecorator;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -36,11 +36,11 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
         this.xdoSceneService = xdoSceneService;
     }
 
-    protected abstract GrokFluxRepeater<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents);
+    protected abstract InlineEasingFluxDecorator<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents);
 
     @Override
     protected Flux<ButtonActionDef> easy(Flux<ButtonActionDef> gamepadEvents) {
-        GrokFluxRepeater<ButtonActionDef> repeater = getGrokFluxRepeater(gamepadEvents);
+        InlineEasingFluxDecorator<ButtonActionDef> repeater = getGrokFluxRepeater(gamepadEvents);
 
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
                 .to(chew(sceneService::getSceneForWindowNameOrBase, repeater::setScene));

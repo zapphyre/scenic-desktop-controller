@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 import static org.remote.desktop.util.FluxUtil.funky;
 
-public class GrokFluxRepeater<T extends Repeatable> {
+public class InlineEasingFluxDecorator<T extends Repeatable> {
 
     private final CacheManager cacheManager;
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
@@ -27,12 +27,12 @@ public class GrokFluxRepeater<T extends Repeatable> {
     private final Sinks.Many<SceneDto> sceneSink = Sinks.many().unicast().onBackpressureBuffer();
     private final Sinks.Many<T> outputSink = Sinks.many().unicast().onBackpressureBuffer();
 
-    public GrokFluxRepeater(CacheManager cacheManager,
-                            Flux<T> sourceFlux,
-                            Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
-                            Function<SceneDto, EAxisEaser> easerGetter,
-                            Map<EAxisEvent, Consumer<T>> consumerMap,
-                            Function<SceneDto, EAxisEvent> axisActionGetter) {
+    public InlineEasingFluxDecorator(CacheManager cacheManager,
+                                     Flux<T> sourceFlux,
+                                     Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
+                                     Function<SceneDto, EAxisEaser> easerGetter,
+                                     Map<EAxisEvent, Consumer<T>> consumerMap,
+                                     Function<SceneDto, EAxisEvent> axisActionGetter) {
         this.cacheManager = cacheManager;
         this.easerMap = easerMap;
         this.easerGetter = easerGetter;

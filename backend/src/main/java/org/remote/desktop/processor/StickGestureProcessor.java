@@ -8,15 +8,21 @@ import org.asmus.builder.AxisEventProcessorFactory;
 import org.asmus.model.PolarCoords;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.component.TriggerActionMatcher;
-import org.remote.desktop.db.entity.GesturePath;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.mapper.PolarCoordsMapper;
+import org.remote.desktop.model.AppEventMapper;
+import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.dto.*;
+import org.remote.desktop.model.event.NoopCommandEvent;
+import org.remote.desktop.model.event.WinderCommandEvent;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import org.winder.common.model.EWinderOp;
 import org.zapphyre.fizzy.Gesturizer;
 import org.zapphyre.fizzy.matcher.Matcher;
 import org.zapphyre.fizzy.matcher.build.GestureSupplier;
@@ -28,16 +34,16 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StickGestureProcessor {
+public class StickGestureProcessor implements AppEventMapper {
 
     private final JoyWorker worker;
     private final XdoSceneService xdoSceneService;
@@ -88,7 +94,7 @@ public class StickGestureProcessor {
                 .findFirst().stream()
                 .map(MatchResult::getKey)
                 .map(buttonPressMapper::map)
-                .map(triggerActionMatcher.appEventMapper(buttonAdapter))
+                .map(triggerActionMatcher.appEventMapper(this))
                 .flatMap(Collection::stream)
                 .forEach(eventPublisher::publishEvent)
         );
@@ -103,10 +109,35 @@ public class StickGestureProcessor {
                         .map(EventDto::getGestureEvent)
                         .map(stickSpecifier)
                         .map(p -> MatchDef.<ButtonEventDto>builder()
-                                .knownValues(p.getPaths().stream().map(GesturePath::getPath).toList())
+                                .knownValues(p.getPaths().stream().map(GesturePathDto::getPath).toList())
                                 .key(q.getButtonEvent())
                                 .build()).stream()
                 )
                 .toList();
+    }
+
+    private final List<GestureEventDto> buffer = new LinkedList<>();
+
+    @Override
+    public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
+        return q -> {
+            GestureEventDto gestureEvent = q.getEvent().getGestureEvent();
+
+            long cnt = Stream.of(gestureEvent.getRightStickGesture(), gestureEvent.getLeftStickGesture())
+                    .filter(Objects::nonNull)
+                    .count();
+
+            if (cnt < 2)
+                return buttonAdapter.mapEvent(def, sceneXdoAction).apply(q);
+
+            if (buffer.remove(gestureEvent))
+                return buttonAdapter.mapEvent(def, sceneXdoAction).apply(q);
+            else
+                buffer.add(gestureEvent);
+
+            Executors.newSingleThreadScheduledExecutor().schedule(buffer::clear, 960, TimeUnit.MILLISECONDS);
+
+            return new NoopCommandEvent(this);
+        };
     }
 }

@@ -2,9 +2,7 @@ package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
 import org.asmus.builder.AxisEventProcessorFactory;
-import org.asmus.model.PolarCoords;
-import org.remote.desktop.component.GrokFluxRepeater;
-import org.remote.desktop.db.dao.SettingsDao;
+import org.remote.desktop.component.InlineEasingFluxDecorator;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.RepeatablePolarCoords;
 import org.remote.desktop.model.dto.SceneDto;
@@ -26,8 +24,8 @@ public class RepeatingAxisAdapter {
     private final XdoSceneService xdoSceneService;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
 
-    private final GrokFluxRepeater<RepeatablePolarCoords> leftRepeater;
-    private final GrokFluxRepeater<RepeatablePolarCoords> rightRepeater;
+    private final InlineEasingFluxDecorator<RepeatablePolarCoords> leftRepeater;
+    private final InlineEasingFluxDecorator<RepeatablePolarCoords> rightRepeater;
 
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,
@@ -36,7 +34,7 @@ public class RepeatingAxisAdapter {
         this.xdoSceneService = xdoSceneService;
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
-        this.leftRepeater = new GrokFluxRepeater<>(
+        this.leftRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
                 axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
@@ -45,7 +43,7 @@ public class RepeatingAxisAdapter {
                 SceneDto::getLeftAxisEvent
         );
 
-        this.rightRepeater = new GrokFluxRepeater<>(
+        this.rightRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
                 axisEventProcessorFactory.rightPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
