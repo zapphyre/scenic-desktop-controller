@@ -3,12 +3,14 @@ package org.remote.desktop.source.impl;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.impl.XdoSceneService;
 
+@Slf4j
 @Value
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
@@ -22,6 +24,8 @@ public class LocalSource extends BaseSource {
 
     @Override
     public ESourceEvent connect() {
+        log.info("connecting local source");
+
         connectAndRemember(worker.getButtonStream()::subscribe, buttonAdapter::getButtonConsumer);
         connectAndRemember(worker.getAxisStream()::subscribe, arrowsAdapter::getArrowConsumer);
 

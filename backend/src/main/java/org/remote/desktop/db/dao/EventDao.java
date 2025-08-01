@@ -14,6 +14,7 @@ import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +39,8 @@ public class EventDao {
         return Optional.of(vto)
                 .map(eventMapper.map(FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
                         FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById))
-                )// yes i regret it already
-                .map(q -> q.withActions(q.getActions().stream().map(p -> p.withMode(modeRepository.findByAdapterMode(p.getMode().getAdapterMode()))).toList()))
+                )
+                .map(eventMapper.rebindMode(modeRepository))
                 .map(eventRepository::save)
                 .map(Event::getId)
                 .orElseThrow();

@@ -5,15 +5,19 @@ import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.entity.XdoAction;
+import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.XdoActionVto;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
         uses = {GestureEventMapper.class, ButtonEventMapper.class, GestureMapper.class},
@@ -42,9 +46,21 @@ public interface EventMapper {
 //    @Mapping(target = "actions", source = "actions", qualifiedByName = "map")
     EventVto map(Event evt);
 
-//    default EAdapterMode map(Mode value) {
-//        return value.getAdapterMode();
-//    }
+
+    @Named("mapActionsWithMode")
+    default List<XdoAction> mapActionsWithMode(List<XdoAction> actions, @Context ModeRepository modeRepository) {
+        return Optional.ofNullable(actions)
+                .orElseGet(Collections::emptyList).stream()
+                .map(action -> action.withMode(modeRepository.findByAdapterMode(action.getMode().getAdapterMode())))
+                .collect(Collectors.toList());
+    }
+
+    @Mapping(target = "actions", source = "entity.actions", qualifiedByName = "mapActionsWithMode")
+    Event rebindMode(Event entity, @Context ModeRepository modeRepository);
+
+    default Function<Event, Event> rebindMode(ModeRepository modeRepository) {
+        return q -> rebindMode(q, modeRepository);
+    }
 
     @Mapping(target = "id", source = "vto.id")
     @Mapping(target = "event", source = "event")

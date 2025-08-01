@@ -3,19 +3,25 @@ package org.remote.desktop.component;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.model.SourceState;
+import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.model.GpadSourceConnectionState;
 import org.remote.desktop.model.SourceEvent;
+import org.remote.desktop.service.impl.SourcesService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.EventSourceFactory;
 import org.remote.desktop.source.impl.WebSource;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
+import org.zapphyre.discovery.intf.RegistryController;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +33,8 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     private final SettingsDao settingsDao;
     private final EventSourceFactory eventSourceFactory;
+    private final SourcesService  sourcesService;
+    private final JoyWorker  joyWorker;
 
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
@@ -59,9 +67,12 @@ public class GpadHostRepository implements JmAutoRegistry {
     }
 
     public void sourceDiscovered(WebSourceDef def) {
-        connectableSources.computeIfAbsent(def, eventSourceFactory::produceSource);
+        connectableSources.computeIfAbsent(def, q -> eventSourceFactory.produceSource(q, sourcesService));
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
+
+        if (settingsDao.getSettings().getAutoConnectHost().equals(InetAddress.ofLiteral(def.getBaseUrl())))
+            toggleSourceConnection(def);
     }
 
     public void sourceLost(WebSourceDef lost) {
@@ -84,8 +95,6 @@ public class GpadHostRepository implements JmAutoRegistry {
     }
 
     public JmDnsProperties getJmDnsProperties() {
-        String instanceName = settingsDao.getInstanceName();
-
         return JmDnsProperties.builder()
                 .greetingMessage("hi")
                 .group("gevt")
@@ -95,5 +104,13 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     public Flux<SourceEvent> getConnectedFlux() {
         return sourceStateStream.asFlux();
+    }
+
+    public Flux<GpadSourceConnectionState> getSourceStateFlux() {
+        return joyWorker.getSourceStateStream()
+                .map(q -> GpadSourceConnectionState.builder()
+                        .jmDnsProperties(getJmDnsProperties())
+                        .sourceState(q)
+                        .build());
     }
 }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.net.InetAddress;
+
 @Data
 @Entity
 @Builder
@@ -36,4 +38,6 @@ public class Setting {
     private Integer port;
 
     private Boolean persistentPreciseInput;
+
+    private String autoConnectHost;
 }

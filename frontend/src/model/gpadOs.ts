@@ -121,6 +121,7 @@ export interface Settings {
     ipSetManually: boolean;
     port: string | undefined;
     hintedIpAddress: string | undefined;
+    autoConnectHost: string | undefined;
 }
 
 export interface SourceEvent {

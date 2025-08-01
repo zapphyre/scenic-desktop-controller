@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+import java.net.InetAddress;
+
 @Value
 @Builder
 @Jacksonized
@@ -20,4 +22,5 @@ public class SettingDto {
     String hintedIpAddress;
     String textInputSceneName = "keyboard";
     boolean persistentPreciseInput;
+    InetAddress autoConnectHost;
 }

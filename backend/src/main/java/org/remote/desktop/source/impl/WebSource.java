@@ -2,9 +2,12 @@ package org.remote.desktop.source.impl;
 
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.model.GpadSourceConnectionState;
+import org.remote.desktop.service.impl.SourcesService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -16,13 +19,14 @@ import java.util.function.Consumer;
 
 import static org.remote.desktop.util.FluxUtil.pipe;
 
+@Slf4j
 @Value
 @SuperBuilder
 public class WebSource extends BaseSource {
 
     WebClient.RequestHeadersUriSpec<?> spec;
-
     ConnectableSource localSource;
+    SourcesService sourcesService;
     SettingsDao settingsDao;
 
     ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
@@ -34,6 +38,8 @@ public class WebSource extends BaseSource {
 
     @Override
     public ESourceEvent connect() {
+        log.info("connecting WEB source");
+
         connectAndRemember(spec.uri("button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
@@ -44,8 +50,13 @@ public class WebSource extends BaseSource {
                 .retrieve()
                 .bodyToFlux(AXIS_RAW_DATA)::subscribe, this::chainConsumers);
 
-        if (settingsDao.disconnectOnRemoteConnect())
-            localSource.disconnect();
+        connectAndRemember(spec.uri("source-state")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(GpadSourceConnectionState.class)::subscribe, sourcesService::handleDisconnect);
+
+//        if (settingsDao.disconnectOnRemoteConnect())
+//            localSource.disconnect();
 
 //        xdoSceneService.setSceneProvider(sceneApi::getCurrentSceneName);
 

@@ -6,9 +6,11 @@ import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.processor.*;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
+import org.remote.desktop.service.impl.SourcesService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.zapphyre.discovery.intf.RegistryController;
 import org.zapphyre.discovery.model.WebSourceDef;
 
 import java.util.Objects;
@@ -55,7 +57,7 @@ public class EventSourceFactory {
                 .build();
     }
 
-    public WebSource produceSource(WebSourceDef def) {
+    public WebSource produceSource(WebSourceDef def, SourcesService sourcesService) {
         return WebSource.builder()
                 .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .buttonAdapter(buttonAdapter)
@@ -65,6 +67,7 @@ public class EventSourceFactory {
                 .settingsDao(settingsDao)
                 .definition(def)
                 .localSource(localSource)
+                .sourcesService(sourcesService)
                 .build();
     }
 

@@ -1,7 +1,9 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.SourceState;
 import org.remote.desktop.component.GpadHostRepository;
+import org.remote.desktop.model.GpadSourceConnectionState;
 import org.remote.desktop.model.SourceEvent;
 import org.springframework.web.bind.annotation.*;
 import org.zapphyre.discovery.model.WebSourceDef;
@@ -29,5 +31,10 @@ public class SourceCtrl {
     @PutMapping("toggle")
     public void toggleSourceState(@RequestBody WebSourceDef def) {
         sourceManager.toggleSourceConnection(def);
+    }
+
+    @GetMapping("source-state")
+    public Flux<GpadSourceConnectionState>  getSourceStateStream() {
+        return sourceManager.getSourceStateFlux();
     }
 }
