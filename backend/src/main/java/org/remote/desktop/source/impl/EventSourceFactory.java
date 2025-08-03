@@ -3,6 +3,7 @@ package org.remote.desktop.source.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.asmus.service.JoyWorker;
+import org.remote.desktop.component.GpadHostRepository;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.processor.*;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
@@ -57,7 +58,7 @@ public class EventSourceFactory {
                 .build();
     }
 
-    public WebSource produceSource(WebSourceDef def, SourcesService sourcesService) {
+    public WebSource produceSource(WebSourceDef def, GpadHostRepository sourcesService) {
         return WebSource.builder()
                 .spec(getWebclient(def.getBaseUrl(), def.getPort()))
                 .buttonAdapter(buttonAdapter)
@@ -67,13 +68,13 @@ public class EventSourceFactory {
                 .settingsDao(settingsDao)
                 .definition(def)
                 .localSource(localSource)
-                .sourcesService(sourcesService)
+                .hostRepository(sourcesService)
                 .build();
     }
 
     WebClient.RequestHeadersUriSpec<?> getWebclient(String baseUrl, int port) {
         return WebClient.builder()
-                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/%s/", "raw-event"))
+                .baseUrl(String.format(createUrl(baseUrl, port) + "/api/"))
                 .build()
                 .get();
     }

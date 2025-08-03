@@ -4,6 +4,7 @@ import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.TimedValue;
+import org.remote.desktop.component.GpadHostRepository;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.GpadSourceConnectionState;
@@ -26,7 +27,7 @@ public class WebSource extends BaseSource {
 
     WebClient.RequestHeadersUriSpec<?> spec;
     ConnectableSource localSource;
-    SourcesService sourcesService;
+    GpadHostRepository hostRepository;
     SettingsDao settingsDao;
 
     ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
@@ -40,20 +41,20 @@ public class WebSource extends BaseSource {
     public ESourceEvent connect() {
         log.info("connecting WEB source");
 
-        connectAndRemember(spec.uri("button")
+        connectAndRemember(spec.uri("raw-event/button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(BUTTON_RAW_DATA)::subscribe, buttonAdapter::getButtonConsumer);
 
-        connectAndRemember(spec.uri("axis")
+        connectAndRemember(spec.uri("raw-event/axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(AXIS_RAW_DATA)::subscribe, this::chainConsumers);
 
-        connectAndRemember(spec.uri("source-state")
+        connectAndRemember(spec.uri("source/source-state")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(GpadSourceConnectionState.class)::subscribe, sourcesService::handleDisconnect);
+                .bodyToFlux(GpadSourceConnectionState.class)::subscribe, hostRepository::handleDisconnect);
 
 //        if (settingsDao.disconnectOnRemoteConnect())
 //            localSource.disconnect();

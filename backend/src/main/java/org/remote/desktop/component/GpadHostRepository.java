@@ -18,13 +18,18 @@ import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.intf.RegistryController;
 import org.zapphyre.discovery.model.JmDnsProperties;
 import org.zapphyre.discovery.model.WebSourceDef;
+import org.zapphyre.discovery.porperty.JmDnsHostProperties;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Slf4j
 @Component
@@ -33,16 +38,45 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     private final SettingsDao settingsDao;
     private final EventSourceFactory eventSourceFactory;
-    private final SourcesService  sourcesService;
     private final JoyWorker  joyWorker;
+
+    private final JmDnsHostProperties hostProperties;
+    private final RegistryController registryController;
 
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
+    private final AtomicBoolean connected = new AtomicBoolean();
 
     @PostConstruct
     void init() {
         connectableSources.computeIfAbsent(EventSourceFactory.getLocalDef(), eventSourceFactory::produceLocalSource)
                 .connect();
+
+        joyWorker.getSourceStateStream()
+                .log()
+                .filter(SourceState::isConnected)
+                .subscribe(q -> {
+                    if (connected.get()) return; //need the same for !isComn
+
+                    try {
+                        log.info("received source state change; registering instance");
+                        registryController.register(getJmDnsProperties());
+                        connected.set(true);
+
+                    } catch (IOException e) {
+                    }
+                });
+
+        joyWorker.getSourceStateStream()
+                .log()
+                .filter(Predicate.not(SourceState::isConnected))
+                .subscribe(q -> {
+                    if (!connected.get()) return;
+
+                        log.info("received source state change; unlisting instance");
+                        registryController.delist(getJmDnsProperties());
+                        connected.set(true);
+                });
     }
 
     public ConnectableSource getLocalSource() {
@@ -51,6 +85,11 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     public void toggleSourceConnection(WebSourceDef def) {
         ConnectableSource connectableSource = connectableSources.get(def);
+
+        if (connectableSource == null) {
+            System.out.println("null connectableSource: " + def);
+            return;
+        }
 
         ESourceEvent event = connectableSource.isConnected() ?
                 connectableSource.disconnect() : connectableSource.connect();
@@ -67,11 +106,15 @@ public class GpadHostRepository implements JmAutoRegistry {
     }
 
     public void sourceDiscovered(WebSourceDef def) {
-        connectableSources.computeIfAbsent(def, q -> eventSourceFactory.produceSource(q, sourcesService));
+        if (connectableSources.containsKey(def))
+            return;
+
+        connectableSources.computeIfAbsent(def, q -> eventSourceFactory.produceSource(q, this));
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
 
-        if (settingsDao.getSettings().getAutoConnectHost().equals(InetAddress.ofLiteral(def.getBaseUrl())))
+//        if (settingsDao.getSettings().getAutoConnectHost().equals(InetAddress.ofLiteral(def.getBaseUrl())))
+        if ("192.168.0.107".equals(def.getBaseUrl()))
             toggleSourceConnection(def);
     }
 
@@ -96,9 +139,29 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     public JmDnsProperties getJmDnsProperties() {
         return JmDnsProperties.builder()
+                .baseUrl(hostProperties.getMineIpAddress().getHostAddress())
                 .greetingMessage("hi")
                 .group("gevt")
                 .instanceName(settingsDao.getInstanceName())
+                .build();
+    }
+
+    public Consumer<GpadSourceConnectionState> handleDisconnect() {
+        return sourceState -> {
+            if (sourceState.getSourceState().isConnected()) return;
+
+            registryController.delist(sourceState.getJmDnsProperties());
+            connected.set(false);
+
+            toggleSourceConnection(map(sourceState.getJmDnsProperties()));
+        };
+    }
+
+    WebSourceDef map(JmDnsProperties p) {
+        return WebSourceDef.builder()
+                .baseUrl(p.getBaseUrl())
+                .name(p.getInstanceName())
+                .port(p.getPort())
                 .build();
     }
 

@@ -15,7 +15,7 @@ import org.zapphyre.discovery.porperty.JmDnsHostProperties;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-@Service
+//@Service
 @RequiredArgsConstructor
 public class SourcesService {
 

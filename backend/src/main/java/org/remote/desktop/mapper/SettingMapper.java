@@ -23,6 +23,14 @@ public interface SettingMapper {
     @Mapping(target = "ipAddress", source = "ipAddress", qualifiedByName = "ipAddr")
     SettingDto map(Setting entity);
 
+    default InetAddress map(String value) {
+        return InetAddress.ofLiteral(value);
+    }
+
+    default String map(InetAddress value) {
+        return value.getHostAddress();
+    }
+
     Setting map(SettingVto vto);
 
     SettingVto mapVto(Setting setting);
