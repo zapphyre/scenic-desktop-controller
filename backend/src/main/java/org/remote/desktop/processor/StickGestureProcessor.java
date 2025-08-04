@@ -36,6 +36,7 @@ import reactor.core.publisher.Sinks;
 
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -54,9 +55,6 @@ public class StickGestureProcessor implements AppEventMapper {
     private final ButtonPressMapper buttonPressMapper;
     private final PolarCoordsMapper polarCoordsMapper;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
-
-    @Getter
-    private final Sinks.Many<SourceEvent> axis = Sinks.many().multicast().directBestEffort();
 
     private final ToleranceConfig toleranceConfig = ToleranceConfig.builder()
             .frequencyTolerancePercent(10.0)
@@ -118,10 +116,13 @@ public class StickGestureProcessor implements AppEventMapper {
 
     private final List<GestureEventDto> buffer = new LinkedList<>();
 
+    private ScheduledFuture<?> scheduled;
     @Override
     public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
         return q -> {
             GestureEventDto gestureEvent = q.getEvent().getGestureEvent();
+            Optional.ofNullable(scheduled)
+                    .ifPresent(s -> s.cancel(true));
 
             long cnt = Stream.of(gestureEvent.getRightStickGesture(), gestureEvent.getLeftStickGesture())
                     .filter(Objects::nonNull)
@@ -135,7 +136,7 @@ public class StickGestureProcessor implements AppEventMapper {
             else
                 buffer.add(gestureEvent);
 
-            Executors.newSingleThreadScheduledExecutor().schedule(buffer::clear, 960, TimeUnit.MILLISECONDS);
+            scheduled = Executors.newSingleThreadScheduledExecutor().schedule(buffer::clear, 960, TimeUnit.MILLISECONDS);
 
             return new NoopCommandEvent(this);
         };

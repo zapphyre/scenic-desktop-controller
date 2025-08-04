@@ -2,6 +2,7 @@ package org.remote.desktop.component;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.SourceState;
 import org.asmus.service.JoyWorker;
@@ -9,7 +10,6 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.GpadSourceConnectionState;
 import org.remote.desktop.model.SourceEvent;
-import org.remote.desktop.service.impl.SourcesService;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.EventSourceFactory;
 import org.remote.desktop.source.impl.WebSource;
@@ -22,14 +22,11 @@ import org.zapphyre.discovery.porperty.JmDnsHostProperties;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @Slf4j
 @Component
@@ -38,7 +35,7 @@ public class GpadHostRepository implements JmAutoRegistry {
 
     private final SettingsDao settingsDao;
     private final EventSourceFactory eventSourceFactory;
-    private final JoyWorker  joyWorker;
+    private final JoyWorker joyWorker;
 
     private final JmDnsHostProperties hostProperties;
     private final RegistryController registryController;
@@ -54,29 +51,21 @@ public class GpadHostRepository implements JmAutoRegistry {
 
         joyWorker.getSourceStateStream()
                 .log()
-                .filter(SourceState::isConnected)
-                .subscribe(q -> {
-                    if (connected.get()) return; //need the same for !isComn
+                .subscribe(this::announceSourceState);
+    }
 
-                    try {
-                        log.info("received source state change; registering instance");
-                        registryController.register(getJmDnsProperties());
-                        connected.set(true);
+    @SneakyThrows
+    void announceSourceState(SourceState state) {
+        if (connected.get() == state.isConnected()) return;
 
-                    } catch (IOException e) {
-                    }
-                });
+        log.info("changing source state from {} to {}", connected.get(), state.isConnected());
 
-        joyWorker.getSourceStateStream()
-                .log()
-                .filter(Predicate.not(SourceState::isConnected))
-                .subscribe(q -> {
-                    if (!connected.get()) return;
+        if (state.isConnected())
+            registryController.register(getJmDnsProperties());
+        else
+            registryController.delist(getJmDnsProperties());
 
-                        log.info("received source state change; unlisting instance");
-                        registryController.delist(getJmDnsProperties());
-                        connected.set(true);
-                });
+        connected.set(state.isConnected());
     }
 
     public ConnectableSource getLocalSource() {
