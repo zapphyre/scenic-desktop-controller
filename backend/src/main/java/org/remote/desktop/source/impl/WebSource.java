@@ -51,10 +51,10 @@ public class WebSource extends BaseSource {
                 .retrieve()
                 .bodyToFlux(AXIS_RAW_DATA)::subscribe, this::chainConsumers);
 
-        connectAndRemember(spec.uri("source/source-state")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .retrieve()
-                .bodyToFlux(GpadSourceConnectionState.class)::subscribe, hostRepository::handleDisconnect);
+//        connectAndRemember(spec.uri("source/source-state")
+//                .accept(MediaType.TEXT_EVENT_STREAM)
+//                .retrieve()
+//                .bodyToFlux(GpadSourceConnectionState.class)::subscribe, hostRepository::handleDisconnect);
 
 //        if (settingsDao.disconnectOnRemoteConnect())
 //            localSource.disconnect();

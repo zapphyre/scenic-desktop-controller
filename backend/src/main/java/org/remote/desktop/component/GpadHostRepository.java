@@ -51,6 +51,7 @@ public class GpadHostRepository implements JmAutoRegistry {
 
         joyWorker.getSourceStateStream()
                 .log()
+                .distinct()
                 .subscribe(this::announceSourceState);
     }
 
@@ -88,7 +89,7 @@ public class GpadHostRepository implements JmAutoRegistry {
                     eventSourceFactory.getLocalSource().disconnect() :
                     eventSourceFactory.getLocalSource().connect();
 
-            sourceStateStream.tryEmitNext(new SourceEvent(EventSourceFactory.getLocalDef(), localState));
+//            sourceStateStream.tryEmitNext(new SourceEvent(EventSourceFactory.getLocalDef(), localState));
         }
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, event));
@@ -103,8 +104,10 @@ public class GpadHostRepository implements JmAutoRegistry {
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
 
 //        if (settingsDao.getSettings().getAutoConnectHost().equals(InetAddress.ofLiteral(def.getBaseUrl())))
-        if ("192.168.0.107".equals(def.getBaseUrl()))
+        if ("192.168.0.107".equals(def.getBaseUrl())) {
+            connected.set(true);
             toggleSourceConnection(def);
+        }
     }
 
     public void sourceLost(WebSourceDef lost) {
@@ -139,7 +142,7 @@ public class GpadHostRepository implements JmAutoRegistry {
         return sourceState -> {
             if (sourceState.getSourceState().isConnected()) return;
 
-            registryController.delist(sourceState.getJmDnsProperties());
+//            registryController.delist(sourceState.getJmDnsProperties());
             connected.set(false);
 
             toggleSourceConnection(map(sourceState.getJmDnsProperties()));
@@ -155,7 +158,7 @@ public class GpadHostRepository implements JmAutoRegistry {
     }
 
     public Flux<SourceEvent> getConnectedFlux() {
-        return sourceStateStream.asFlux();
+        return sourceStateStream.asFlux().publish();
     }
 
     public Flux<GpadSourceConnectionState> getSourceStateFlux() {
