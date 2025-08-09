@@ -7,8 +7,6 @@ import org.asmus.model.TimedValue;
 import org.remote.desktop.component.GpadHostRepository;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.model.GpadSourceConnectionState;
-import org.remote.desktop.service.impl.SourcesService;
 import org.remote.desktop.source.ConnectableSource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;

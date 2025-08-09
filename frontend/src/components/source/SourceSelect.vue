@@ -17,9 +17,9 @@ onMounted(async () => {
   const source = await apiClient.get("source/all");
   sources.value = source.data;
 
-  console.log(sources.value);
+  const url = `${import.meta.env.VITE_API_BASE_URL}/source/events`;
+  connectedEventSource = new EventSource(url);
 
-  connectedEventSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/source/events`);
   connectedEventSource.onmessage = (e: MessageEvent) => {
     const evt: SourceEvent = JSON.parse(e.data);
 

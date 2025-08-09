@@ -33,8 +33,4 @@ public class SourceCtrl {
         sourceManager.toggleSourceConnection(def);
     }
 
-    @GetMapping("source-state")
-    public Flux<GpadSourceConnectionState>  getSourceStateStream() {
-        return sourceManager.getSourceStateFlux();
-    }
 }

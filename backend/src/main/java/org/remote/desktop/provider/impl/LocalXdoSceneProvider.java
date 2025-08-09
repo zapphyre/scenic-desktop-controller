@@ -1,8 +1,10 @@
 package org.remote.desktop.provider.impl;
 
+import jakarta.annotation.PostConstruct;
 import jxdotool.xDoToolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.provider.XdoSceneProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,14 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
 
     private String lastRecognized = "";
 
+    @Value("${scene.timeout:690}")
+    private Integer timeout;
+
+    @PostConstruct
+    void init() {
+        System.out.println("==========timeout = " + timeout);
+    }
+
     @NonNull
     @Override
     public String tryGetCurrentName() {
@@ -32,7 +42,7 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
 
     String safeIdentityGet() {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(xDoToolUtil::runIdentityScript)
-                .completeOnTimeout(lastRecognized, 690, TimeUnit.MILLISECONDS);
+                .completeOnTimeout(lastRecognized, timeout, TimeUnit.MILLISECONDS);
 
         try {
             return future.get(21, TimeUnit.MILLISECONDS);
