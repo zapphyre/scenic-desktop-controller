@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.remote.desktop.util.FluxUtil.laterMerger;
+import static org.zapphyre.function.FunHelper.laterMerger;
 
 @Slf4j
 @Service

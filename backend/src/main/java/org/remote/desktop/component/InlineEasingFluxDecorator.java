@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.remote.desktop.util.FluxUtil.funky;
+import static org.zapphyre.function.FunHelper.funky;
 
 public class InlineEasingFluxDecorator<T extends Repeatable> {
 

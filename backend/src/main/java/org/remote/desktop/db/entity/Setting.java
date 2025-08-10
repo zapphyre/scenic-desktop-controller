@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.remote.desktop.db.converter.StringArrayConverter;
 
-import java.net.InetAddress;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -39,5 +41,6 @@ public class Setting {
 
     private Boolean persistentPreciseInput;
 
-    private String autoConnectHost;
+    @Convert(converter = StringArrayConverter.class)
+    private Set<String> autoconnect;
 }

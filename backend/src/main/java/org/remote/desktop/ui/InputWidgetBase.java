@@ -35,9 +35,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.remote.desktop.ui.CircleButtonsInputWidget.filterWordsByCharLimit;
-import static org.remote.desktop.util.FluxUtil.funky;
 import static org.remote.desktop.util.TextUtil.findNextWordStart;
 import static org.remote.desktop.util.TextUtil.findPreviousWordStart;
+import static org.zapphyre.function.FunHelper.funky;
 
 @AllArgsConstructor
 @RequiredArgsConstructor

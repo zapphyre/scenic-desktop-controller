@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
-import static org.remote.desktop.util.FluxUtil.chew;
-import static org.remote.desktop.util.FluxUtil.glob;
+import static org.zapphyre.function.FunHelper.chew;
+import static org.zapphyre.function.FunHelper.glob;
 
 public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
 

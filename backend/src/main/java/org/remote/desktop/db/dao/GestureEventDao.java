@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static org.remote.desktop.util.FluxUtil.*;
+import static org.zapphyre.function.FunHelper.optToNull;
 
 @Service
 @Transactional
@@ -25,8 +26,7 @@ public class GestureEventDao {
 
     public Long createGestureOnEvent(Long id) {
         return Optional.of(new GestureEvent())
-                .flatMap(q -> eventRepository.findById(id)
-                        .map(q::withEvent))
+                .flatMap(q -> eventRepository.findById(id).map(q::withEvent))
                 .map(gestureEventRepository::save)
                 .map(GestureEvent::getEvent)
                 .map(eventRepository::save)

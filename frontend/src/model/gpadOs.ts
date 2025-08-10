@@ -110,6 +110,7 @@ export interface WebSourceDef {
     baseUrl: string;
     port: number;
     name: string;
+    autoconnect: boolean;
 }
 
 export interface Settings {
@@ -121,7 +122,7 @@ export interface Settings {
     ipSetManually: boolean;
     port: string | undefined;
     hintedIpAddress: string | undefined;
-    autoConnectHost: string | undefined;
+    autoconnect: string[];
 }
 
 export interface SourceEvent {

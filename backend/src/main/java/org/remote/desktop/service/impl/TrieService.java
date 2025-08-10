@@ -15,8 +15,8 @@ import java.util.function.Function;
 
 import static java.util.function.Predicate.not;
 import static org.remote.desktop.service.impl.LanguageService.bytesToLines;
-import static org.remote.desktop.util.FluxUtil.laterMerger;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
+import static org.zapphyre.function.FunHelper.laterMerger;
 
 @Service
 @RequiredArgsConstructor

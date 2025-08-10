@@ -8,13 +8,9 @@ import org.asmus.model.SourceState;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.model.GpadSourceConnectionState;
 import org.remote.desktop.model.SourceEvent;
-import org.remote.desktop.model.event.XdoCommandEvent;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.EventSourceFactory;
-import org.remote.desktop.source.impl.WebSource;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.intf.RegistryController;
@@ -24,16 +20,13 @@ import org.zapphyre.discovery.porperty.JmDnsHostProperties;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GpadHostRepository implements JmAutoRegistry, ApplicationListener<XdoCommandEvent> {
+public class GpadHostRepository implements JmAutoRegistry {
 
     private final SettingsDao settingsDao;
     private final EventSourceFactory eventSourceFactory;
@@ -52,7 +45,6 @@ public class GpadHostRepository implements JmAutoRegistry, ApplicationListener<X
                 .connect();
 
         joyWorker.getSourceStateStream()
-                .log()
                 .distinctUntilChanged()
                 .subscribe(this::announceSourceState);
     }
@@ -78,39 +70,19 @@ public class GpadHostRepository implements JmAutoRegistry, ApplicationListener<X
     public void toggleSourceConnection(WebSourceDef def) {
         ConnectableSource connectableSource = connectableSources.get(def);
 
-//        if (connectableSource == null) {
-//            System.out.println("null connectableSource: " + def);
-//            return;
-//        }
-
         ESourceEvent event = connectableSource.isConnected() ?
                 connectableSource.disconnect() : connectableSource.connect();
-
-        if (connectableSource instanceof WebSource ws) {
-            ESourceEvent localState = ws.isConnected() ?
-                    eventSourceFactory.getLocalSource().disconnect() :
-                    eventSourceFactory.getLocalSource().connect();
-
-            sourceStateStream.tryEmitNext(new SourceEvent(EventSourceFactory.getLocalDef(), localState));
-        }
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, event));
     }
 
     public void sourceDiscovered(WebSourceDef def) {
-        System.out.println("discovered: " + def);
-        if (connectableSources.containsKey(def))
-            return;
-
         connectableSources.computeIfAbsent(def, q -> eventSourceFactory.produceSource(q, this));
 
         sourceStateStream.tryEmitNext(new SourceEvent(def, ESourceEvent.APPEARED));
 
-//        if (settingsDao.getSettings().getAutoConnectHost().equals(InetAddress.ofLiteral(def.getBaseUrl())))
-        if ("192.168.0.107".equals(def.getBaseUrl())) {
-//            connected.set(true);
+        if (autoconnect(def))
             toggleSourceConnection(def);
-        }
     }
 
     public void sourceLost(WebSourceDef lost) {
@@ -132,6 +104,11 @@ public class GpadHostRepository implements JmAutoRegistry, ApplicationListener<X
                 .toList();
     }
 
+    boolean autoconnect(WebSourceDef def) {
+        return Optional.ofNullable(settingsDao.getSettings().getAutoconnect()).orElseGet(Collections::emptySet)
+                .contains(def.getName());
+    }
+
     public JmDnsProperties getJmDnsProperties() {
         return JmDnsProperties.builder()
                 .baseUrl(hostProperties.getMineIpAddress().getHostAddress())
@@ -139,26 +116,6 @@ public class GpadHostRepository implements JmAutoRegistry, ApplicationListener<X
                 .group("gevt")
                 .instanceName(settingsDao.getInstanceName())
                 .build();
-    }
-
-    WebSourceDef map(JmDnsProperties p) {
-        return WebSourceDef.builder()
-                .baseUrl(p.getBaseUrl())
-                .name(p.getInstanceName())
-                .port(p.getPort())
-                .build();
-    }
-
-    @Override
-    public void onApplicationEvent(XdoCommandEvent event) {
-        if (!event.getTrigger().equalsIgnoreCase("y") &&
-                !event.getTrigger().equalsIgnoreCase("a")) return;
-
-        log.info("simulating connection state event for key {}", event.getTrigger());
-
-        announceSourceState(SourceState.builder()
-                .connected(event.getTrigger().equalsIgnoreCase("y"))
-                .build());
     }
 
     public Flux<SourceEvent> getConnectedFlux() {

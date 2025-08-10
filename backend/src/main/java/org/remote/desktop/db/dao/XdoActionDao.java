@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.zapphyre.function.FunHelper.optToNull;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -46,12 +48,12 @@ public class XdoActionDao {
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
                 .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
-                .ifPresent(eventMapper.update(vto, FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)));
+                .ifPresent(eventMapper.update(vto, optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
     public Long create(XdoActionVto vto) {
         return Optional.of(vto)
-                .map(eventMapper.mapXdoEvent(FluxUtil.optToNull(vto.getEventFk(), eventRepository::findById)))
+                .map(eventMapper.mapXdoEvent(optToNull(vto.getEventFk(), eventRepository::findById)))
                 .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .map(xdoActionRepository::save)
                 .map(XdoAction::getId)

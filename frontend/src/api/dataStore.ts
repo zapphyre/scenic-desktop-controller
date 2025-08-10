@@ -1,5 +1,5 @@
 import apiClient from "@/api";
-import type {Gesture, Lang, NameId, Scene} from "@/model/gpadOs";
+import type { Gesture, Lang, NameId, Scene, Settings } from "@/model/gpadOs";
 import { ref } from "vue";
 
 // ========== STATE ==========
@@ -10,9 +10,11 @@ const scenes = ref<Scene[]>([]);
 const triggers = ref([]);
 const gestures = ref<Gesture[]>([]);
 const languages = ref<Lang[]>([]);
-
 const gesturesNameId = ref<NameId[]>([]);
 const sceneNameIdList = ref<NameId[]>([]);
+
+// New state for settings
+const settings = ref<Settings | null>(null);
 
 // ========== FETCH METHODS ==========
 
@@ -65,6 +67,16 @@ const fetchLanguages = async () => {
         languages.value = (await apiClient.get("languages/all")).data;
     } catch (e) {
         console.error("Failed to fetch languages:", e);
+    }
+};
+
+// New: fetch settings from API
+const fetchSettings = async () => {
+    try {
+        settings.value = (await apiClient.get("settings")).data;
+    } catch (e) {
+        console.error("Failed to fetch settings:", e);
+        settings.value = null;
     }
 };
 
@@ -143,4 +155,19 @@ export const addGesture = (g: Gesture) => {
 
 export const addLanguage = (l: Lang) => {
     languages.value.push(l);
+};
+
+export const getSettings = async () => {
+    if (!settings.value) {
+        await fetchSettings();
+    }
+    return settings.value;
+};
+
+export const updateSettings = async (newSettings: Settings) => {
+    try {
+        return settings.value = (await apiClient.put("settings", newSettings)).data;
+    } catch (e) {
+        console.error("Failed to update settings:", e);
+    }
 };

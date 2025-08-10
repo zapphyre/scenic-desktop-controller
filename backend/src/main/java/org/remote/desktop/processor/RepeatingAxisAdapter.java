@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
-import static org.remote.desktop.util.FluxUtil.*;
+import static org.remote.desktop.util.FluxUtil.axisEventConsumerMap;
+import static org.remote.desktop.util.FluxUtil.easerMap;
+import static org.zapphyre.function.FunHelper.*;
 
 @Component
 public class RepeatingAxisAdapter {

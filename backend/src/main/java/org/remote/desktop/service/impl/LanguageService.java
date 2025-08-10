@@ -19,8 +19,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static org.remote.desktop.service.impl.VocabAdjustmentsService.concatTextDocs;
-import static org.remote.desktop.util.FluxUtil.funky;
 import static org.remote.desktop.util.KeyboardButtonFunctionDefinition.trieDict;
+import static org.zapphyre.function.FunHelper.funky;
 
 @Service
 @RequiredArgsConstructor

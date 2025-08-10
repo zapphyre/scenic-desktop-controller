@@ -4,7 +4,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
-import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 @Value
 @Builder
@@ -22,5 +23,7 @@ public class SettingDto {
     String hintedIpAddress;
     String textInputSceneName = "keyboard";
     boolean persistentPreciseInput;
-    InetAddress autoConnectHost;
+
+    @Builder.Default
+    Set<String> autoconnect = new HashSet<>();
 }

@@ -5,6 +5,8 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.dto.SettingDto;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("api/settings")
 @RequiredArgsConstructor
@@ -20,5 +22,10 @@ public class SettingsCtrl {
     @PutMapping
     public void update(@RequestBody SettingDto dto) {
         settingsDao.update(dto);
+    }
+
+    @PutMapping("autoconnect/{name}")
+    public Set<String> updateAutoconnect(@RequestBody boolean autoconnect, @PathVariable("name") String name) {
+        return settingsDao.updateAutoconn(name).apply(autoconnect);
     }
 }

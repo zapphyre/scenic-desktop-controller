@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Optional;
 
-import static org.remote.desktop.util.FluxUtil.eat;
+import static org.zapphyre.function.FunHelper.eat;
 
 @Configuration
 @RequiredArgsConstructor

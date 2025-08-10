@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.remote.desktop.db.converter.StringArrayConverter;
 import org.remote.desktop.db.entity.Setting;
 import org.remote.desktop.model.dto.SettingDto;
 import org.remote.desktop.model.vto.SettingVto;
@@ -13,7 +14,9 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface SettingMapper {
@@ -32,6 +35,14 @@ public interface SettingMapper {
     }
 
     Setting map(SettingVto vto);
+
+    default Set<String> mapAutoconn(String comaSepr) {
+        return StringArrayConverter.convertToList(comaSepr);
+    }
+
+    default String mapAutoconn(Set<String> comaSepr) {
+        return StringArrayConverter.convertToString(comaSepr);
+    }
 
     SettingVto mapVto(Setting setting);
 

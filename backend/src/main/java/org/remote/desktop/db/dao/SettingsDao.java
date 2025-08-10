@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.remote.desktop.db.entity.Setting.INST_NAME;
 
@@ -31,10 +34,11 @@ public class SettingsDao {
 
     @PostConstruct
     void deleteAll() {
-//        Setting current = settingsRepository.findBySettingsInstance(INST_NAME)
-//                .orElseGet(() -> settingsRepository.save(settingMapper.map(settingsProperties)));
+        Setting current = settingsRepository.findBySettingsInstance(INST_NAME)
+                .orElseGet(() ->
+                        settingsRepository.save(settingMapper.map(settingsProperties)));
 //
-        settingsRepository.deleteAll();
+//        settingsRepository.deleteAll();
     }
 
     public void update(SettingDto dto) {
@@ -72,5 +76,20 @@ public class SettingsDao {
 
     public String getIpAddress() {
         return getSettings().getIpAddress();
+    }
+
+    public Function<Boolean, Set<String>> updateAutoconn(String name) {
+        return q -> settingsRepository.findBySettingsInstance(INST_NAME)
+                .map(s -> {
+                    if (q)
+                        s.getAutoconnect().add(name);
+                    else
+                        s.getAutoconnect().remove(name);
+
+                    return s;
+                })
+                .map(settingsRepository::save)
+                .map(Setting::getAutoconnect)
+                .orElseThrow();
     }
 }

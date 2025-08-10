@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.zapphyre.function.FunHelper.optToNull;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -37,8 +39,8 @@ public class EventDao {
 
     public Long create(EventVto vto) {
         return Optional.of(vto)
-                .map(eventMapper.map(FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
-                        FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById))
+                .map(eventMapper.map(optToNull(vto.getParentFk(), sceneRepository::findById),
+                        optToNull(vto.getNextSceneFk(), sceneRepository::findById))
                 )
                 .map(eventMapper.rebindMode(modeRepository))
                 .map(eventRepository::save)
@@ -49,8 +51,8 @@ public class EventDao {
     public void update(EventVto vto) {
         eventRepository.findById(vto.getId())
                 .ifPresent(eventMapper.update(vto,
-                        FluxUtil.optToNull(vto.getParentFk(), sceneRepository::findById),
-                        FluxUtil.optToNull(vto.getNextSceneFk(), sceneRepository::findById)
+                        optToNull(vto.getParentFk(), sceneRepository::findById),
+                        optToNull(vto.getNextSceneFk(), sceneRepository::findById)
                 ));
     }
 

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.remote.desktop.util.FluxUtil.laterMerger;
+import static org.zapphyre.function.FunHelper.laterMerger;
 
 @Service
 @RequiredArgsConstructor

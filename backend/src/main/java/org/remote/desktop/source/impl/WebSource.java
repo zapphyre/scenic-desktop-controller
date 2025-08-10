@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static org.remote.desktop.util.FluxUtil.pipe;
+import static org.zapphyre.function.FunHelper.pipe;
 
 @Slf4j
 @Value

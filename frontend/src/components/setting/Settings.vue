@@ -14,7 +14,7 @@ const localSettings = ref<Settings>({
   allowNetworkDiscovery: false,
   baseSceneName: "",
   disconnectLocalOnRemoteConnection: false,
-  autoConnectHost: undefined,
+  autoconnect: [],
 });
 
 onMounted(async () => {
@@ -64,17 +64,17 @@ onMounted(async () => {
               placeholder="Enter base scene name"
           />
         </div>
-      <div class="col-12 line">
-        <div class="col-3 flex">
-          <label for="autoConnectHost" class="col-12 text-left pr-2">AutoConnect Host IP</label>
-          <InputText
-              name="autoConnectHost"
-              v-model="localSettings.autoConnectHost"
-              class="col-12"
-              placeholder="Enter host IP"
-          />
-        </div>
-      </div>
+<!--      <div class="col-12 line">-->
+<!--        <div class="col-3 flex">-->
+<!--          <label for="autoConnectHost" class="col-12 text-left pr-2">AutoConnect Host IP</label>-->
+<!--          <InputText-->
+<!--              name="autoConnectHost"-->
+<!--              v-model="localSettings.autoconnect"-->
+<!--              class="col-12"-->
+<!--              placeholder="Enter host IP"-->
+<!--          />-->
+<!--        </div>-->
+<!--      </div>-->
       </div>
       <div class="col-12 line">
         <div class="col-3 flex align-items-center">
