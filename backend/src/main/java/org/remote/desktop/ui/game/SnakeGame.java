@@ -8,6 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -18,14 +19,14 @@ public class SnakeGame extends Application {
     private static final int TILE_SIZE = 20;
     private static final int WIDTH = 20;
     private static final int HEIGHT = 20;
-    private ArrayList<SnakePart> snake = new ArrayList<>();
+    private final ArrayList<SnakePart> snake = new ArrayList<>();
     private SnakePart treat;
     private Direction direction = Direction.RIGHT;
     private boolean isGameOver = false;
-    private Random random = new Random();
+    private final Random random = new Random();
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 150_000_000; // 150ms
-    private boolean crashOnWalls = true;
+    private final boolean crashOnWalls = false;
 
     private enum Direction {
         UP, DOWN, LEFT, RIGHT
@@ -45,35 +46,119 @@ public class SnakeGame extends Application {
             return this.x == other.x && this.y == other.y;
         }
 
-        void render(Pane root, boolean isHead, boolean isTail, int index) {
+        private Polygon createBaseBodySegment(double size, double offset, boolean mirrored) {
+            Polygon base = new Polygon();
+            if (!mirrored) {
+                base.getPoints().addAll(
+                        0.0, offset,                    // Top-left
+                        size, 0.0,                      // Top-right
+                        size, size - offset,            // Bottom-right
+                        0.0, size                      // Bottom-left
+                );
+            } else {
+                base.getPoints().addAll(
+                        0.0, size - offset,             // Bottom-left
+                        size, size,                     // Bottom-right
+                        size, offset,                   // Top-right
+                        0.0, 0.0                       // Top-left
+                );
+            }
+            base.setFill(Color.LIMEGREEN);
+            return base;
+        }
+
+        private Polygon createHeadSegment(double size, double offset, Direction dir) {
+            Polygon head = new Polygon();
+            if (dir == Direction.UP) {
+                head.getPoints().addAll(
+                        size / 2, 0.0,                  // Top center
+                        size, size,                    // Bottom-right
+                        0.0, size                     // Bottom-left
+                );
+            } else if (dir == Direction.DOWN) {
+                head.getPoints().addAll(
+                        0.0, 0.0,                      // Top-left
+                        size, 0.0,                     // Top-right
+                        size / 2, size                 // Bottom center
+                );
+            } else if (dir == Direction.RIGHT) {
+                head.getPoints().addAll(
+                        0.0, 0.0,                      // Top-left
+                        size, size / 2,                // Right center
+                        0.0, size                     // Bottom-left
+                );
+            } else { // LEFT
+                head.getPoints().addAll(
+                        0.0, size / 2,                 // Left center
+                        size, 0.0,                     // Top-right
+                        size, size                    // Bottom-right
+                );
+            }
+            head.setFill(Color.LIMEGREEN);
+            return head;
+        }
+
+        private Polygon createTailSegment(double size, double offset, Direction dir) {
+            Polygon tail = new Polygon();
+            if (dir == Direction.UP) {
+                tail.getPoints().addAll(
+                        0.0, 0.0,                      // Top-left
+                        size, 0.0,                     // Top-right
+                        size / 2, size                 // Bottom center
+                );
+            } else if (dir == Direction.DOWN) {
+                tail.getPoints().addAll(
+                        size / 2, 0.0,                  // Top center
+                        size, size,                    // Bottom-right
+                        0.0, size                     // Bottom-left
+                );
+            } else if (dir == Direction.RIGHT) {
+                tail.getPoints().addAll(
+                        0.0, size / 2,                 // Left center
+                        size, 0.0,                     // Top-right
+                        size, size                    // Bottom-right
+                );
+            } else { // LEFT
+                tail.getPoints().addAll(
+                        0.0, 0.0,                      // Top-left
+                        size, size / 2,                // Right center
+                        0.0, size                     // Bottom-left
+                );
+            }
+            tail.setFill(Color.LIMEGREEN);
+            return tail;
+        }
+
+        void render(Pane root, boolean isHead, boolean isTail, int index, Direction nextDirection) {
             double size = TILE_SIZE;
             double offset = size * 0.2;
-
             double baseX = x * TILE_SIZE;
             double baseY = y * TILE_SIZE;
 
-            boolean mirrored = (index % 2 == 1);
+            Polygon segment;
+            Direction renderDirection = isHead ? this.direction : (nextDirection != null ? nextDirection : this.direction);
 
-            Polygon shape = new Polygon();
-
-            if (!mirrored) {
-                shape.getPoints().addAll(new Double[]{
-                        baseX + offset, baseY,
-                        baseX + size, baseY,
-                        baseX + size - offset, baseY + size,
-                        baseX, baseY + size
-                });
+            if (isHead) {
+                segment = createHeadSegment(size, offset, this.direction);
+            } else if (isTail) {
+                segment = createTailSegment(size, offset, this.direction);
             } else {
-                shape.getPoints().addAll(new Double[]{
-                        baseX, baseY,
-                        baseX + size - offset, baseY,
-                        baseX + size, baseY + size,
-                        baseX + offset, baseY + size
-                });
+                boolean mirrored = (index % 2 == 1); // Alternate mirroring for body segments
+                segment = createBaseBodySegment(size, offset, mirrored);
             }
 
-            shape.setFill(Color.LIMEGREEN);
-            root.getChildren().add(shape);
+            // Apply rotation based on direction
+            double angle = 0.0;
+            if (renderDirection == Direction.UP) angle = 90.0;
+            else if (renderDirection == Direction.DOWN) angle = 270.0;
+            else if (renderDirection == Direction.LEFT) angle = 180.0;
+            else if (renderDirection == Direction.RIGHT) angle = 0.0;
+
+            segment.getTransforms().add(new Rotate(angle, size / 2, size / 2));
+            segment.setTranslateX(baseX);
+            segment.setTranslateY(baseY);
+
+            root.getChildren().add(segment);
         }
     }
 
@@ -152,12 +237,19 @@ public class SnakeGame extends Application {
             return;
         }
 
-        snake.add(0, head);
+        // Update the head's direction before adding it
+        snake.get(0).direction = direction;
+        snake.addFirst(head);
+
+        // Update the first body segment's direction to the new direction
+        if (snake.size() > 1) {
+            snake.get(1).direction = direction;
+        }
 
         if (head.collidesWith(treat)) {
             placeTreat();
         } else {
-            snake.remove(snake.size() - 1);
+            snake.removeLast();
         }
 
         root.getChildren().clear();
@@ -166,7 +258,9 @@ public class SnakeGame extends Application {
             SnakePart part = snake.get(i);
             boolean isHead = (i == 0);
             boolean isTail = (i == snake.size() - 1);
-            part.render(root, isHead, isTail, i);
+            // Pass the direction of the next segment (if it exists)
+            Direction nextDirection = isTail ? null : snake.get(i + 1).direction;
+            part.render(root, isHead, isTail, i, nextDirection);
         }
 
         Rectangle treatRect = new Rectangle(
