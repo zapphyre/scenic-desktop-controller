@@ -67,92 +67,167 @@ public class SnakeGame extends Application {
             return base;
         }
 
-        private Polygon createHeadSegment(double size, double offset, Direction dir) {
+        private Polygon createHeadSegment(double size, double offset) {
             Polygon head = new Polygon();
-            if (dir == Direction.UP) {
-                head.getPoints().addAll(
-                        size / 2, 0.0,                  // Top center
-                        size, size,                    // Bottom-right
-                        0.0, size                     // Bottom-left
-                );
-            } else if (dir == Direction.DOWN) {
-                head.getPoints().addAll(
-                        0.0, 0.0,                      // Top-left
-                        size, 0.0,                     // Top-right
-                        size / 2, size                 // Bottom center
-                );
-            } else if (dir == Direction.RIGHT) {
-                head.getPoints().addAll(
-                        0.0, 0.0,                      // Top-left
-                        size, size / 2,                // Right center
-                        0.0, size                     // Bottom-left
-                );
-            } else { // LEFT
-                head.getPoints().addAll(
-                        0.0, size / 2,                 // Left center
-                        size, 0.0,                     // Top-right
-                        size, size                    // Bottom-right
-                );
-            }
+            head.getPoints().addAll(
+                    0.0, 0.0,                      // Top-left
+                    size, size / 2,                // Right center
+                    0.0, size                     // Bottom-left
+            );
             head.setFill(Color.LIMEGREEN);
             return head;
         }
 
-        private Polygon createTailSegment(double size, double offset, Direction dir) {
+        private Polygon createTailSegment(double size, double offset) {
             Polygon tail = new Polygon();
-            if (dir == Direction.UP) {
-                tail.getPoints().addAll(
-                        0.0, 0.0,                      // Top-left
-                        size, 0.0,                     // Top-right
-                        size / 2, size                 // Bottom center
-                );
-            } else if (dir == Direction.DOWN) {
-                tail.getPoints().addAll(
-                        size / 2, 0.0,                  // Top center
-                        size, size,                    // Bottom-right
-                        0.0, size                     // Bottom-left
-                );
-            } else if (dir == Direction.RIGHT) {
-                tail.getPoints().addAll(
-                        0.0, size / 2,                 // Left center
-                        size, 0.0,                     // Top-right
-                        size, size                    // Bottom-right
-                );
-            } else { // LEFT
-                tail.getPoints().addAll(
-                        0.0, 0.0,                      // Top-left
-                        size, size / 2,                // Right center
-                        0.0, size                     // Bottom-left
-                );
-            }
+            tail.getPoints().addAll(
+                    0.0, size / 2,                 // Left center
+                    size, 0.0,                     // Top-right
+                    size, size                    // Bottom-right
+            );
             tail.setFill(Color.LIMEGREEN);
             return tail;
         }
 
-        void render(Pane root, boolean isHead, boolean isTail, int index, Direction nextDirection) {
+        private Direction calculateDirection(SnakePart from, SnakePart to) {
+            if (from == null || to == null) return null;
+            int dx = to.x - from.x;
+            int dy = to.y - from.y;
+            if (dx == 1) return Direction.RIGHT;
+            if (dx == -1) return Direction.LEFT;
+            if (dy == 1) return Direction.DOWN;
+            if (dy == -1) return Direction.UP;
+            return null;
+        }
+
+        private Direction opposite(Direction d) {
+            if (d == null) return null;
+            switch (d) {
+                case UP: return Direction.DOWN;
+                case DOWN: return Direction.UP;
+                case LEFT: return Direction.RIGHT;
+                case RIGHT: return Direction.LEFT;
+                default: return null;
+            }
+        }
+
+        private double getAngle(Direction dir) {
+            if (dir == null) return 0.0;
+            switch (dir) {
+                case UP: return -90.0;
+                case DOWN: return 90.0;
+                case LEFT: return 180.0;
+                case RIGHT: return 0.0;
+                default: return 0.0;
+            }
+        }
+
+        void render(Pane root, boolean isHead, boolean isTail, int index, SnakePart previous, SnakePart next) {
             double size = TILE_SIZE;
             double offset = size * 0.2;
             double baseX = x * TILE_SIZE;
             double baseY = y * TILE_SIZE;
 
+            // Incoming: direction moving into this segment (from tail side)
+            Direction incoming = next != null ? calculateDirection(next, this) : opposite(calculateDirection(previous, this));
+            // Outgoing: direction moving out of this segment (to head side)
+            Direction outgoing = previous != null ? calculateDirection(this, previous) : null;
+
             Polygon segment;
-            Direction renderDirection = isHead ? this.direction : (nextDirection != null ? nextDirection : this.direction);
+            double angle = getAngle(incoming);
 
             if (isHead) {
-                segment = createHeadSegment(size, offset, this.direction);
+                segment = createHeadSegment(size, offset);
             } else if (isTail) {
-                segment = createTailSegment(size, offset, this.direction);
+                segment = createTailSegment(size, offset);
             } else {
-                boolean mirrored = (index % 2 == 1); // Alternate mirroring for body segments
-                segment = createBaseBodySegment(size, offset, mirrored);
-            }
+                if (incoming == outgoing || outgoing == null) {
+                    // Straight segment
+                    boolean mirrored = (index % 2 == 1);
+                    segment = createBaseBodySegment(size, offset, mirrored);
+                } else {
+                    // Turn segment with cut corner on the inside
+                    segment = new Polygon();
+                    segment.setFill(Color.LIMEGREEN);
+                    double s = size;
+                    double o = offset;
 
-            // Apply rotation based on direction
-            double angle = 0.0;
-            if (renderDirection == Direction.UP) angle = 90.0;
-            else if (renderDirection == Direction.DOWN) angle = 270.0;
-            else if (renderDirection == Direction.LEFT) angle = 180.0;
-            else if (renderDirection == Direction.RIGHT) angle = 0.0;
+                    if (incoming == Direction.RIGHT && outgoing == Direction.UP) {
+                        // Cut bottom left
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s, 0.0,
+                                s, s,
+                                o, s,
+                                0.0, s - o
+                        );
+                    } else if (incoming == Direction.RIGHT && outgoing == Direction.DOWN) {
+                        // Cut top left
+                        segment.getPoints().addAll(
+                                o, 0.0,
+                                s, 0.0,
+                                s, s,
+                                0.0, s,
+                                0.0, o
+                        );
+                    } else if (incoming == Direction.LEFT && outgoing == Direction.UP) {
+                        // Cut bottom right
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s, 0.0,
+                                s, s - o,
+                                s - o, s,
+                                0.0, s
+                        );
+                    } else if (incoming == Direction.LEFT && outgoing == Direction.DOWN) {
+                        // Cut top right
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s - o, 0.0,
+                                s, o,
+                                s, s,
+                                0.0, s
+                        );
+                    } else if (incoming == Direction.UP && outgoing == Direction.LEFT) {
+                        // Cut top right
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s - o, 0.0,
+                                s, o,
+                                s, s,
+                                0.0, s
+                        );
+                    } else if (incoming == Direction.UP && outgoing == Direction.RIGHT) {
+                        // Cut top left
+                        segment.getPoints().addAll(
+                                o, 0.0,
+                                s, 0.0,
+                                s, s,
+                                0.0, s,
+                                0.0, o
+                        );
+                    } else if (incoming == Direction.DOWN && outgoing == Direction.LEFT) {
+                        // Cut bottom right
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s, 0.0,
+                                s, s - o,
+                                s - o, s,
+                                0.0, s
+                        );
+                    } else if (incoming == Direction.DOWN && outgoing == Direction.RIGHT) {
+                        // Cut bottom left
+                        segment.getPoints().addAll(
+                                0.0, 0.0,
+                                s, 0.0,
+                                s, s,
+                                o, s,
+                                0.0, s - o
+                        );
+                    }
+                    angle = 0.0;
+                }
+            }
 
             segment.getTransforms().add(new Rotate(angle, size / 2, size / 2));
             segment.setTranslateX(baseX);
@@ -237,14 +312,7 @@ public class SnakeGame extends Application {
             return;
         }
 
-        // Update the head's direction before adding it
-        snake.get(0).direction = direction;
         snake.addFirst(head);
-
-        // Update the first body segment's direction to the new direction
-        if (snake.size() > 1) {
-            snake.get(1).direction = direction;
-        }
 
         if (head.collidesWith(treat)) {
             placeTreat();
@@ -258,9 +326,9 @@ public class SnakeGame extends Application {
             SnakePart part = snake.get(i);
             boolean isHead = (i == 0);
             boolean isTail = (i == snake.size() - 1);
-            // Pass the direction of the next segment (if it exists)
-            Direction nextDirection = isTail ? null : snake.get(i + 1).direction;
-            part.render(root, isHead, isTail, i, nextDirection);
+            SnakePart previous = i > 0 ? snake.get(i - 1) : null;
+            SnakePart nextPart = i < snake.size() - 1 ? snake.get(i + 1) : null;
+            part.render(root, isHead, isTail, i, previous, nextPart);
         }
 
         Rectangle treatRect = new Rectangle(
