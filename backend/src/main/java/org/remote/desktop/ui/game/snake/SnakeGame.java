@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.game;
+package org.remote.desktop.ui.game.snake;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -146,86 +146,17 @@ public class SnakeGame extends Application {
                     boolean mirrored = (index % 2 == 1);
                     segment = createBaseBodySegment(size, offset, mirrored);
                 } else {
-                    // Turn segment with cut corner on the inside
+                    // Turn segment with 45-degree rotated rectangle
+                    double diagSize = size / Math.sqrt(2); // Diagonal size for 45-degree rotation
                     segment = new Polygon();
+                    segment.getPoints().addAll(
+                            size / 2 - diagSize / 2, size / 2 - diagSize / 2, // Top-left
+                            size / 2 + diagSize / 2, size / 2 - diagSize / 2, // Top-right
+                            size / 2 + diagSize / 2, size / 2 + diagSize / 2, // Bottom-right
+                            size / 2 - diagSize / 2, size / 2 + diagSize / 2  // Bottom-left
+                    );
                     segment.setFill(Color.LIMEGREEN);
-                    double s = size;
-                    double o = offset;
-
-                    if (incoming == Direction.RIGHT && outgoing == Direction.UP) {
-                        // Cut bottom left
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s, 0.0,
-                                s, s,
-                                o, s,
-                                0.0, s - o
-                        );
-                    } else if (incoming == Direction.RIGHT && outgoing == Direction.DOWN) {
-                        // Cut top left
-                        segment.getPoints().addAll(
-                                o, 0.0,
-                                s, 0.0,
-                                s, s,
-                                0.0, s,
-                                0.0, o
-                        );
-                    } else if (incoming == Direction.LEFT && outgoing == Direction.UP) {
-                        // Cut bottom right
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s, 0.0,
-                                s, s - o,
-                                s - o, s,
-                                0.0, s
-                        );
-                    } else if (incoming == Direction.LEFT && outgoing == Direction.DOWN) {
-                        // Cut top right
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s - o, 0.0,
-                                s, o,
-                                s, s,
-                                0.0, s
-                        );
-                    } else if (incoming == Direction.UP && outgoing == Direction.LEFT) {
-                        // Cut top right
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s - o, 0.0,
-                                s, o,
-                                s, s,
-                                0.0, s
-                        );
-                    } else if (incoming == Direction.UP && outgoing == Direction.RIGHT) {
-                        // Cut top left
-                        segment.getPoints().addAll(
-                                o, 0.0,
-                                s, 0.0,
-                                s, s,
-                                0.0, s,
-                                0.0, o
-                        );
-                    } else if (incoming == Direction.DOWN && outgoing == Direction.LEFT) {
-                        // Cut bottom right
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s, 0.0,
-                                s, s - o,
-                                s - o, s,
-                                0.0, s
-                        );
-                    } else if (incoming == Direction.DOWN && outgoing == Direction.RIGHT) {
-                        // Cut bottom left
-                        segment.getPoints().addAll(
-                                0.0, 0.0,
-                                s, 0.0,
-                                s, s,
-                                o, s,
-                                0.0, s - o
-                        );
-                    }
-                    angle = 0.0;
+                    angle = 45.0; // 45-degree rotation for all turns
                 }
             }
 
