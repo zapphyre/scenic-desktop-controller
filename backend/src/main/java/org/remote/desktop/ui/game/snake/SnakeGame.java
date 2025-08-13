@@ -20,7 +20,7 @@ public class SnakeGame extends Application {
     private static final int WIDTH = 20;
     private static final int HEIGHT = 20;
     private final ArrayList<SnakePart> snake = new ArrayList<>();
-    private SnakePart treat;
+    private Position treat;
     private Direction direction = Direction.RIGHT;
     private boolean isGameOver = false;
     private final Random random = new Random();
@@ -33,17 +33,16 @@ public class SnakeGame extends Application {
     }
 
     private static class SnakePart {
-        int x, y;
+        Position position;
         Direction direction;
 
-        SnakePart(int x, int y, Direction direction) {
-            this.x = x;
-            this.y = y;
+        SnakePart(Position position, Direction direction) {
+            this.position = position;
             this.direction = direction;
         }
 
-        boolean collidesWith(SnakePart other) {
-            return this.x == other.x && this.y == other.y;
+        boolean collidesWith(Position other) {
+            return this.position.equals(other);
         }
 
         private Polygon createBaseBodySegment(double size, double offset, boolean mirrored) {
@@ -91,42 +90,40 @@ public class SnakeGame extends Application {
 
         private Direction calculateDirection(SnakePart from, SnakePart to) {
             if (from == null || to == null) return null;
-            int dx = to.x - from.x;
-            int dy = to.y - from.y;
+            int dx = to.position.getX() - from.position.getX();
+            int dy = to.position.getY() - from.position.getY();
             if (dx == 1) return Direction.RIGHT;
             if (dx == -1) return Direction.LEFT;
             if (dy == 1) return Direction.DOWN;
-            if (dy == -1) return Direction.UP;
-            return null;
+
+            return Direction.UP;
         }
 
         private Direction opposite(Direction d) {
             if (d == null) return null;
-            switch (d) {
-                case UP: return Direction.DOWN;
-                case DOWN: return Direction.UP;
-                case LEFT: return Direction.RIGHT;
-                case RIGHT: return Direction.LEFT;
-                default: return null;
-            }
+            return switch (d) {
+                case UP -> Direction.DOWN;
+                case DOWN -> Direction.UP;
+                case LEFT -> Direction.RIGHT;
+                case RIGHT -> Direction.LEFT;
+            };
         }
 
         private double getAngle(Direction dir) {
             if (dir == null) return 0.0;
-            switch (dir) {
-                case UP: return -90.0;
-                case DOWN: return 90.0;
-                case LEFT: return 180.0;
-                case RIGHT: return 0.0;
-                default: return 0.0;
-            }
+            return switch (dir) {
+                case UP -> -90.0;
+                case DOWN -> 90.0;
+                case LEFT -> 180.0;
+                case RIGHT -> 0.0;
+            };
         }
 
         void render(Pane root, boolean isHead, boolean isTail, int index, SnakePart previous, SnakePart next) {
             double size = TILE_SIZE;
             double offset = size * 0.2;
-            double baseX = x * TILE_SIZE;
-            double baseY = y * TILE_SIZE;
+            double baseX = position.getX() * TILE_SIZE;
+            double baseY = position.getY() * TILE_SIZE;
 
             // Incoming: direction moving into this segment (from tail side)
             Direction incoming = next != null ? calculateDirection(next, this) : opposite(calculateDirection(previous, this));
@@ -174,8 +171,14 @@ public class SnakeGame extends Application {
         Scene scene = new Scene(root, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
         scene.setFill(Color.TRANSPARENT);
 
-        snake.add(new SnakePart(WIDTH / 2, HEIGHT / 2, direction));
-        snake.add(new SnakePart(WIDTH / 2 - 1, HEIGHT / 2, direction));
+        snake.add(new SnakePart(Position.builder()
+                .x(WIDTH / 2)
+                .y(HEIGHT / 2)
+                .build(), direction));
+        snake.add(new SnakePart(Position.builder()
+                .x(WIDTH / 2 - 1)
+                .y(HEIGHT / 2)
+                .build(), direction));
         placeTreat();
 
         scene.setOnKeyPressed(event -> {
@@ -208,37 +211,49 @@ public class SnakeGame extends Application {
         while (true) {
             int x = random.nextInt(WIDTH);
             int y = random.nextInt(HEIGHT);
-            final int finalX = x;
-            final int finalY = y;
-            if (snake.stream().noneMatch(part -> part.x == finalX && part.y == finalY)) {
-                treat = new SnakePart(finalX, finalY, Direction.RIGHT);
+
+            Position current = Position.builder()
+                    .x(x)
+                    .y(y)
+                    .build();
+            if (snake.stream().noneMatch(part -> part.position == current)) {
+                treat = current;
                 break;
             }
         }
     }
 
     private void updateGame(Pane root) {
-        SnakePart head = new SnakePart(snake.get(0).x, snake.get(0).y, direction);
+        SnakePart head = new SnakePart(snake.getFirst().position.toBuilder().build(), direction);
         switch (direction) {
-            case UP: head.y -= 1; break;
-            case DOWN: head.y += 1; break;
-            case LEFT: head.x -= 1; break;
-            case RIGHT: head.x += 1; break;
+            case UP:
+                head.position.decrementY();
+                break;
+            case DOWN:
+                head.position.incrementY();
+                break;
+            case LEFT:
+                head.position.decrementX();
+                break;
+            case RIGHT:
+                head.position.incrementX();
+                break;
         }
 
         if (crashOnWalls) {
-            if (head.x < 0 || head.x >= WIDTH || head.y < 0 || head.y >= HEIGHT) {
+            if (head.position.getX() < 0 || head.position.getX() >= WIDTH ||
+                    head.position.getY() < 0 || head.position.getY() >= HEIGHT) {
                 isGameOver = true;
                 return;
             }
         } else {
-            if (head.x < 0) head.x = WIDTH - 1;
-            else if (head.x >= WIDTH) head.x = 0;
-            else if (head.y < 0) head.y = HEIGHT - 1;
-            else if (head.y >= HEIGHT) head.y = 0;
+            if (head.position.getX() < 0) head.position.setX(WIDTH - 1);
+            else if (head.position.getX() >= WIDTH) head.position.setX(0);
+            else if (head.position.getY() < 0) head.position.setY(HEIGHT - 1);
+            else if (head.position.getY() >= HEIGHT) head.position.setY(0);
         }
 
-        if (snake.stream().anyMatch(part -> part.collidesWith(head))) {
+        if (snake.stream().anyMatch(part -> part.collidesWith(head.position))) {
             isGameOver = true;
             return;
         }
