@@ -45,7 +45,8 @@ public class StickTextAdapter {
                 .map(widget::setGroupActive)
                 .distinctUntilChanged()
                 .doOnComplete(() -> ui.cancel(true))
-                .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
+                .subscribe();
+//                .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
 
 //        AxisEventFactory.rightStickStream().polarProducer(worker)
 ////                .filter(_ -> widget.isReady())
@@ -55,6 +56,4 @@ public class StickTextAdapter {
 //                .subscribe();
 
     }
-
-
 }
