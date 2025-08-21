@@ -17,7 +17,7 @@ import java.util.function.Function;
 import static org.zapphyre.function.FunHelper.funky;
 import static org.zapphyre.function.FunHelper.logFun;
 
-public class InlineEasingFluxDecorator<T extends Repeatable> {
+public class RepeatableDecorator<T extends Repeatable> {
 
     private final CacheManager cacheManager;
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
@@ -26,17 +26,17 @@ public class InlineEasingFluxDecorator<T extends Repeatable> {
     private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_" + q.getName() + UUID.randomUUID();
 
     private final Sinks.Many<SceneDto> sceneSink = Sinks.many().unicast().onBackpressureBuffer();
-    private final Sinks.Many<T> outputSink = Sinks.many().unicast().onBackpressureBuffer();
+    private final Sinks.Many<T> outputSink = Sinks.many().multicast().onBackpressureBuffer();
 
-    public InlineEasingFluxDecorator(CacheManager cacheManager,
-                                     Flux<T> sourceFlux,
-                                     Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
-                                     Function<SceneDto, EAxisEaser> easerGetter,
-                                     Map<EAxisEvent, Consumer<T>> consumerMap,
-                                     Function<SceneDto, EAxisEvent> axisActionGetter) {
+    public RepeatableDecorator(CacheManager cacheManager,
+                               Flux<T> sourceFlux,
+                               Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
+                               Function<SceneDto, EAxisEaser> easerGetter,
+                               Map<EAxisEvent, Consumer<T>> consumerMap,
+                               Function<SceneDto, EAxisEvent> axisActionGetter) {
         this.cacheManager = cacheManager;
-        this.easerMap = easerMap;
         this.easerGetter = easerGetter;
+        this.easerMap = easerMap;
 
         sceneSink.asFlux()
                 .map(this::getCachedOrFreshEaser)
@@ -58,7 +58,7 @@ public class InlineEasingFluxDecorator<T extends Repeatable> {
     public Flux<T> getRepeatingStream() {
         return outputSink
                 .asFlux()
-//                .publish().autoConnect()
+                .publish().autoConnect()
                 ;
     }
 

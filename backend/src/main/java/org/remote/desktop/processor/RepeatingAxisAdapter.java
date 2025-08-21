@@ -3,6 +3,7 @@ package org.remote.desktop.processor;
 import jakarta.annotation.PostConstruct;
 import org.asmus.builder.AxisEventProcessorFactory;
 import org.remote.desktop.component.InlineEasingFluxDecorator;
+import org.remote.desktop.component.RepeatableDecorator;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.RepeatablePolarCoords;
 import org.remote.desktop.model.dto.SceneDto;
@@ -29,6 +30,8 @@ public class RepeatingAxisAdapter {
     private final InlineEasingFluxDecorator<RepeatablePolarCoords> leftRepeater;
     private final InlineEasingFluxDecorator<RepeatablePolarCoords> rightRepeater;
 
+    RepeatableDecorator<RepeatablePolarCoords> decorator;
+
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,
                                 CacheManager cacheManager, PolarCoordsMapper polarCoordsMapper) {
@@ -36,9 +39,18 @@ public class RepeatingAxisAdapter {
         this.xdoSceneService = xdoSceneService;
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
-        this.leftRepeater = new InlineEasingFluxDecorator<>(
+        decorator = new RepeatableDecorator<>(
                 cacheManager,
                 axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
+                easerMap,
+                SceneDto::getLeftAxisEaser,
+                axisEventConsumerMap,
+                SceneDto::getLeftAxisEvent
+        );
+
+        RepeatableDecorator<RepeatablePolarCoords> repeated = new RepeatableDecorator<>(
+                cacheManager,
+                decorator.getRepeatingStream(),
                 easerMap,
                 SceneDto::getLeftAxisEaser,
                 axisEventConsumerMap,
@@ -53,6 +65,15 @@ public class RepeatingAxisAdapter {
                 axisEventConsumerMap,
                 SceneDto::getRightAxisEvent
         );
+
+        this.leftRepeater = new InlineEasingFluxDecorator<>(
+                cacheManager,
+                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
+                easerMap,
+                SceneDto::getLeftAxisEaser,
+                axisEventConsumerMap,
+                SceneDto::getLeftAxisEvent
+        );
     }
 
     public Consumer<Map<String, Integer>> leftAxis() {
@@ -65,6 +86,23 @@ public class RepeatingAxisAdapter {
 
     @PostConstruct
     void init() {
+//        glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
+//                .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(q -> {
+//                        Optional.ofNullable(left).ifPresent(Disposable::dispose);
+//                    left = decorator.getRepeatingStream()
+//                            .subscribe(axisEventConsumerMap.get(q.getLeftAxisEvent()));
+
+//                    Flux.just(q)
+//                            .switchMap(scene -> decorator.getRepeatingStream()
+//                                    .doOnNext(axisEventConsumerMap.get(q.getLeftAxisEvent()))
+//                            )
+//                            .subscribe(p -> {
+//                                System.out.println(p);
+//                                axisEventConsumerMap.get(q.getLeftAxisEvent()).accept(p);
+//                            });
+//                            .subscribe();
+//                })));
+
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
                 .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(leftRepeater::setScene, rightRepeater::setScene)));
     }

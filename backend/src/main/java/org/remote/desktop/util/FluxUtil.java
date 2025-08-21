@@ -37,6 +37,7 @@ public class FluxUtil {
 
     public Flux<ButtonActionDef> repeatGEdge(Flux<ButtonActionDef> flux) {
         AtomicReference<ButtonActionDef> prev = new AtomicReference<>();
+
         return repeat(flux.mapNotNull(q -> q.getLogicalEventType() == ELogicalEventType.ENGAGE ?
                 prev.get() : prev.getAndSet(q)
 

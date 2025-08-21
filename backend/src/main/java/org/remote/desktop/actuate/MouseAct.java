@@ -72,7 +72,7 @@ public class MouseAct {
     AtomicInteger drop = new  AtomicInteger(0);
     public static void scrollWithStick(PolarCoords coords) {
 
-        if (drop.incrementAndGet() < 12) {
+        if (coords.isZero() ||  drop.incrementAndGet() < 12) {
             return;
         }
 
