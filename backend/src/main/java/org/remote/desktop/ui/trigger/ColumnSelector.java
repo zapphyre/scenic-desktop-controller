@@ -17,13 +17,13 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ColumnSelector<T> extends VBox {
+public class ColumnSelector<T extends UiSelectable<?>> extends VBox {
     private List<T> items = new ArrayList<>();
     private Function<T, String> labelExtractor;
     private List<Label> labels = new ArrayList<>();
     private BidirectionalSpliterator<T> spliterator;
     private final Border activeBorder = new Border(new BorderStroke(
-            Color.rgb(255, 0, 0, 0.8), // Reddish when active
+            Color.rgb(255, 0, 0, 0.8),
             BorderStrokeStyle.SOLID,
             CornerRadii.EMPTY,
             new BorderWidths(2)
@@ -35,7 +35,6 @@ public class ColumnSelector<T> extends VBox {
             new BorderWidths(2)
     ));
 
-    // Custom Spliterator for bidirectional navigation
     private static class BidirectionalSpliterator<T> implements Spliterator<T> {
         private final ListIterator<T> iterator;
         private final int size;
@@ -106,9 +105,14 @@ public class ColumnSelector<T> extends VBox {
         setSpacing(20);
     }
 
-    public void setItems(List<T> items, Function<T, String> labelExtractor) {
-        this.items = items != null ? new ArrayList<>(items) : new ArrayList<>();
-        this.labelExtractor = labelExtractor != null ? labelExtractor : Object::toString;
+    public void setItems(List<? extends T> items, Function<? super T, String> labelExtractor) {
+        this.items = new ArrayList<>();
+        if (items != null) {
+            for (T item : items) {
+                this.items.add(item);
+            }
+        }
+        this.labelExtractor = (Function<T, String>) labelExtractor;
         this.spliterator = new BidirectionalSpliterator<>(this.items);
         this.labels.clear();
         getChildren().clear();
@@ -123,7 +127,6 @@ public class ColumnSelector<T> extends VBox {
 
             final int index = i;
             label.setOnMouseClicked(event -> {
-                // Move spliterator to the clicked position
                 while (spliterator.iterator.nextIndex() <= index && spliterator.tryAdvance(item2 -> {})) {}
                 while (spliterator.iterator.nextIndex() > index + 1 && spliterator.tryReverse(item2 -> {})) {}
                 updateSelection(true);
@@ -133,7 +136,6 @@ public class ColumnSelector<T> extends VBox {
             labels.add(label);
         }
 
-        // Select first item if available
         if (!items.isEmpty()) {
             spliterator.tryAdvance(item -> {});
             updateSelection(true);

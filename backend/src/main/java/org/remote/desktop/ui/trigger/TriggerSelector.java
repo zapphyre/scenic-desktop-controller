@@ -1,18 +1,14 @@
 package org.remote.desktop.ui.trigger;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class TriggerSelector<T> extends HBox {
-    private final ColumnSelector<T> leftSelector;
-    private final ColumnSelector<T> rightSelector;
+public class TriggerSelector<L extends UiSelectable<?>, R extends UiSelectable<?>> extends HBox {
+    private final ColumnSelector<L> leftSelector;
+    private final ColumnSelector<R> rightSelector;
     private int activeColumn = 0; // 0: left, 1: right
 
     public TriggerSelector() {
@@ -25,9 +21,9 @@ public class TriggerSelector<T> extends HBox {
         getChildren().addAll(leftSelector, rightSelector);
     }
 
-    public void setColumns(List<T> leftItems, List<T> rightItems, Function<T, String> labelExtractor) {
-        leftSelector.setItems(leftItems, labelExtractor);
-        rightSelector.setItems(rightItems, labelExtractor);
+    public void setColumns(List<? extends L> leftItems, List<? extends R> rightItems, Function<? super L, String> leftLabelExtractor, Function<? super R, String> rightLabelExtractor) {
+        leftSelector.setItems(leftItems, leftLabelExtractor);
+        rightSelector.setItems(rightItems, rightLabelExtractor);
         updateActiveColumn();
     }
 
@@ -47,15 +43,15 @@ public class TriggerSelector<T> extends HBox {
         }
     }
 
-    private void switchToLeft() {
-        if (activeColumn != 0) {
+    public void switchToLeft() {
+        if (activeColumn != 1) {
             activeColumn = 0;
             updateActiveColumn();
         }
     }
 
-    private void switchToRight() {
-        if (activeColumn != 1) {
+    public void switchToRight() {
+        if (activeColumn != 0) {
             activeColumn = 1;
             updateActiveColumn();
         }
@@ -66,50 +62,7 @@ public class TriggerSelector<T> extends HBox {
         rightSelector.setActive(activeColumn == 1);
     }
 
-    public Map.Entry<T, T> getSelected() {
+    public Map.Entry<L, R> getSelected() {
         return new AbstractMap.SimpleEntry<>(leftSelector.getSelected(), rightSelector.getSelected());
-    }
-
-    public static class TriggerSelectApplication extends Application {
-        @Override
-        public void start(Stage primaryStage) {
-            TriggerSelector<String> selector = new TriggerSelector<>();
-
-            List<String> leftSample = List.of("Left Trigger 1", "Left Trigger 2", "Left Trigger 3", "Left Trigger 4");
-            List<String> rightSample = List.of("Right Trigger A", "Right Trigger B", "Right Trigger C");
-
-            selector.setColumns(leftSample, rightSample, item -> item);
-
-            selector.setOnKeyPressed(event -> {
-                switch (event.getCode()) {
-                    case DOWN:
-                        selector.selectNext();
-                        break;
-                    case UP:
-                        selector.selectPrevious();
-                        break;
-                    case LEFT:
-                        selector.switchToLeft();
-                        break;
-                    case RIGHT:
-                        selector.switchToRight();
-                        break;
-                }
-            });
-
-            Scene scene = new Scene(selector, 400, 300);
-            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
-
-            primaryStage.initStyle(StageStyle.TRANSPARENT);
-            primaryStage.setTitle("Trigger Selector");
-            primaryStage.setScene(scene);
-            primaryStage.show();
-
-            selector.requestFocus();
-        }
-
-        public static void main(String[] args) {
-            launch(args);
-        }
     }
 }

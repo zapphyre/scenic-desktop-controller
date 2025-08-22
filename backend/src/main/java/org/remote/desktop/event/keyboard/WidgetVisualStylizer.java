@@ -22,6 +22,6 @@ public class WidgetVisualStylizer implements ApplicationListener<ButtonEvent> {
 
     @Override
     public boolean supportsAsyncExecution() {
-        return false;
+        return true;
     }
 }
