@@ -9,15 +9,12 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.XdoActionDto;
-import org.remote.desktop.model.event.WinderCommandEvent;
-import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.winder.common.model.EWinderOp;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -58,18 +55,15 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
 
     @Override
     public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
-        return q -> q.getMode() == EAdapterMode.DESKTOP ?
-                new XdoCommandEvent(this,
-                        q.getKeyEvt(),
-                        q.getKeyStrokes(),
-                        sceneXdoAction.getNextScene(),
-                        def.getTrigger(),
-                        sceneXdoAction.getEventSourceScene().getWindowName(),
-                        def.getModifiers(),
-                        def.isLongPress()) :
-                new WinderCommandEvent(this,
-                        EWinderOp.valueOf(q.getEvent().getActions().getFirst().getKeyStrokes().getFirst())
-                );
+        return q -> new GpadCommandEvent(this,
+                q.getKeyEvt(),
+                q.getKeyStrokes(),
+                q.getMode(),
+                sceneXdoAction.getNextScene(),
+                def.getTrigger(),
+                sceneXdoAction.getEventSourceScene().getWindowName(),
+                def.getModifiers(),
+                def.isLongPress());
     }
 
     protected Predicate<ButtonActionDef> purgingFilter() {

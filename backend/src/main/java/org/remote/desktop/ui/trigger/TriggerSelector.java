@@ -44,14 +44,14 @@ public class TriggerSelector<L extends UiSelectable<?>, R extends UiSelectable<?
     }
 
     public void switchToLeft() {
-        if (activeColumn != 1) {
+        if (activeColumn != 0) {
             activeColumn = 0;
             updateActiveColumn();
         }
     }
 
     public void switchToRight() {
-        if (activeColumn != 0) {
+        if (activeColumn != 1) {
             activeColumn = 1;
             updateActiveColumn();
         }

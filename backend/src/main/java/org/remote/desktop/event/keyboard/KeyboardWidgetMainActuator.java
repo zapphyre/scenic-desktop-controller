@@ -2,6 +2,9 @@ package org.remote.desktop.event.keyboard;
 
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.EButtonAxisMapping;
+import org.remote.desktop.actuate.MouseAct;
+import org.remote.desktop.model.event.keyboard.LongHoldEvent;
+import org.remote.desktop.model.event.keyboard.PasteEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
@@ -21,10 +24,6 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
     private final CircleButtonsInputWidget widget;
     private final XdoSceneService xdoSceneService;
     private final List<String> regularButtons = List.of("A", "X", "Y", "B");
-
-    public void longClick(String trigger) {
-        widget.activatePrecisionMode(EActionButton.valueOf(trigger));
-    }
 
     @Override
     public void onApplicationEvent(PredictionControlEvent event) {
@@ -78,5 +77,21 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
     @Override
     public boolean supportsAsyncExecution() {
         return false;
+    }
+
+    @Component
+    class KeyboardLongActuator implements ApplicationListener<LongHoldEvent> {
+        @Override
+        public void onApplicationEvent(LongHoldEvent event) {
+            widget.activatePrecisionMode(event.getButton());
+        }
+    }
+
+    @Component
+    class PasteActuator implements ApplicationListener<PasteEvent> {
+        @Override
+        public void onApplicationEvent(PasteEvent event) {
+            MouseAct.paste();
+        }
     }
 }

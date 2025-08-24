@@ -4,9 +4,7 @@ import jakarta.annotation.PostConstruct;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
-import org.asmus.builder.AxisEventFactory;
 import org.asmus.builder.AxisEventProcessorFactory;
-import org.asmus.builder.IntrospectedEventFactory;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
@@ -36,17 +34,20 @@ public class StickTextAdapter {
 
     @PostConstruct
     void init() {
-        Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> widget.start(new Stage())));
-        Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> triggerSelectApplication.start(new Stage())));
+        Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> {
+            Platform.startup(() -> {
+                widget.start(new Stage());
+                triggerSelectApplication.start(new Stage());
+            });
+        });
+//        Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> {
+//            triggerSelectApplication.start(new Stage());
+//            triggerSelectApplication.render();
+//        }));
 
         PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
-        axisProcessors.leftPolarFlux()
-                .filter(q -> q.getRadius() > 12_000)
-                .map(groupsTranslator::translate)
-                .distinctUntilChanged()
-                .map(widget::setGroupActive)
-                .distinctUntilChanged()
+        axisProcessors.leftPolarFlux().filter(q -> q.getRadius() > 12_000).map(groupsTranslator::translate).distinctUntilChanged().map(widget::setGroupActive).distinctUntilChanged()
                 .doOnComplete(() -> ui.cancel(true))
                 .subscribe();
 //                .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));

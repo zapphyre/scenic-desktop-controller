@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
-public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
+public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
     private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
@@ -40,9 +40,9 @@ public class XdoSceneService implements ApplicationListener<XdoCommandEvent> {
     }
 
     @Override
-    public void onApplicationEvent(XdoCommandEvent event) {
+    public void onApplicationEvent(GpadCommandEvent event) {
         Optional.of(event)
-                .map(XdoCommandEvent::getNextScene)
+                .map(GpadCommandEvent::getNextScene)
                 .map(q -> {
                     lastRecognizedWindowName = q.getWindowName();
                     return forcedScene = q;

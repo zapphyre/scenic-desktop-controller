@@ -28,6 +28,7 @@ import org.remote.desktop.ui.component.TextContainer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -86,7 +87,7 @@ public abstract class InputWidgetBase extends Application implements TwoGroupInp
         inputMode = new ToggleButton("Input");
         languagesComboBox = new ComboBox<>();
         languagesComboBox.setPrefWidth(69);
-        languagesComboBox.getItems().addAll(languages.get());
+        languagesComboBox.getItems().addAll(Optional.ofNullable(languages.get()).orElseGet(ArrayList::new));
 
         languagesComboBox.setCellFactory(listView -> new ListCell<LanguageDto>() {
             @Override

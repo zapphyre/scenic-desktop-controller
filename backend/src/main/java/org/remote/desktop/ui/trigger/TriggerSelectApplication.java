@@ -19,6 +19,8 @@ public class TriggerSelectApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
         TriggerSelector<UiSelectable<?>, UiSelectable<?>> selector = new TriggerSelector<>();
 
         selector.setColumns(leftItems, rightItems, UiSelectable::getItemName, UiSelectable::getItemName);
@@ -43,14 +45,9 @@ public class TriggerSelectApplication extends Application {
         Scene scene = new Scene(selector, 400, 300);
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
-        (this.primaryStage = primaryStage).initStyle(StageStyle.TRANSPARENT);
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setTitle("Trigger Selector");
         primaryStage.setScene(scene);
-
-        Platform.runLater(() -> {
-            primaryStage.requestFocus();
-            primaryStage.show();
-        });
 
         selector.requestFocus();
     }
@@ -64,5 +61,9 @@ public class TriggerSelectApplication extends Application {
             primaryStage.requestFocus();
             primaryStage.show();
         });
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

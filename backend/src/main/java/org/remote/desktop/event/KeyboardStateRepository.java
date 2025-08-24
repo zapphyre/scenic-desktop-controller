@@ -2,7 +2,8 @@ package org.remote.desktop.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.model.event.XdoCommandEvent;
+import org.remote.desktop.model.EAdapterMode;
+import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.pojo.KeyPart;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
 
 @Component
 @RequiredArgsConstructor
-public class KeyboardStateRepository implements ApplicationListener<XdoCommandEvent> {
+public class KeyboardStateRepository implements ApplicationListener<GpadCommandEvent> {
 
     @Getter
     private final Set<KeyPart> pressedKeys = new HashSet<>();
@@ -25,7 +26,7 @@ public class KeyboardStateRepository implements ApplicationListener<XdoCommandEv
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void onApplicationEvent(XdoCommandEvent event) {
+    public void onApplicationEvent(GpadCommandEvent event) {
         if (event.getKeyPart().getKeyEvt().ordinal() > 1) return;
 
         switch (event.getKeyPart().getKeyEvt()) {
@@ -41,12 +42,12 @@ public class KeyboardStateRepository implements ApplicationListener<XdoCommandEv
     }
 
     public void issueKeyupCommand(KeyPart keyPart) {
-        eventPublisher.publishEvent(new XdoCommandEvent(this, keyPart.getKeyEvt(), keyPart.getKeyStrokes(), null, null, null, Set.of(), false));
+        eventPublisher.publishEvent(new GpadCommandEvent(this, keyPart.getKeyEvt(), keyPart.getKeyStrokes(), EAdapterMode.DESKTOP, null, null, null, Set.of(), false));
     }
 
     public void releaseAllPressedKeys() {
         pressedKeys.stream()
-                .map(q -> new XdoCommandEvent(q, this))
+                .map(q -> new GpadCommandEvent(q, this))
                 .forEach(eventPublisher::publishEvent);
     }
 }
