@@ -3,7 +3,9 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.remote.desktop.mode.model.EMode;
 import org.remote.desktop.model.event.XdoEvent;
+import org.remote.desktop.service.impl.StateService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,8 @@ import static jxdotool.xDoToolUtil.*;
 @Component
 @RequiredArgsConstructor
 public class CommandActuator implements ApplicationListener<XdoEvent> {
+
+    private final StateService stateService;
 
     @Override
     @SneakyThrows
@@ -28,6 +32,7 @@ public class CommandActuator implements ApplicationListener<XdoEvent> {
             case MOUSE_DOWN -> xDo("mousedown", xdoKeyPart);
             case MOUSE_UP -> xDo("mouseup", xdoKeyPart);
             case TIMEOUT -> Thread.sleep(Integer.parseInt(xdoKeyPart));
+            case SCENE_RESET -> stateService.nullifyForced();
 //            case KEYBOARD_ON -> modeFactory.changeMode(EMode.KEYBOARD).currentModeEvent(e);
 //            case KEYBOARD_OFF -> MouseAct.paste();
 //            case KEYBOARD_LONG -> widgetActuator.longClick(e.getTrigger());
