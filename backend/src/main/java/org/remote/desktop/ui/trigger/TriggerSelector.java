@@ -1,14 +1,15 @@
 package org.remote.desktop.ui.trigger;
 
+import javafx.application.Platform;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class TriggerSelector extends HBox {
-    private final ColumnSelector<? extends UiSelectable<?>> leftSelector;
-    private final ColumnSelector<? extends UiSelectable<?>> rightSelector;
+public class TriggerSelector<L, R> extends HBox {
+    private final ColumnSelector<L> leftSelector;
+    private final ColumnSelector<R> rightSelector;
     private int activeColumn = 0; // 0: left, 1: right
 
     public TriggerSelector() {
@@ -21,12 +22,16 @@ public class TriggerSelector extends HBox {
         getChildren().addAll(leftSelector, rightSelector);
     }
 
-    public <L extends UiSelectable<?>, R extends UiSelectable<?>> SelectedGetter<L, R> setColumns(List<L> leftItems, List<R> rightItems, Function<L, String> leftLabelExtractor, Function<R, String> rightLabelExtractor) {
-        leftSelector.<L>setItems(leftItems, leftLabelExtractor);
-        rightSelector.<R>setItems(rightItems, rightLabelExtractor);
-        updateActiveColumn();
+    public SelectedGetter<L, R> setColumns(List<? extends L> leftItems, List<? extends R> rightItems,
+                                           Function<? super L, String> leftLabelExtractor,
+                                           Function<? super R, String> rightLabelExtractor) {
+        Platform.runLater(() -> {
+            leftSelector.setItems(leftItems, leftLabelExtractor);
+            rightSelector.setItems(rightItems, rightLabelExtractor);
+            updateActiveColumn();
+        });
 
-        return () -> Map.entry(leftItems.get(activeColumn), rightItems.get(activeColumn));
+        return this::getSelected;
     }
 
     public void selectNext() {
@@ -64,7 +69,7 @@ public class TriggerSelector extends HBox {
         rightSelector.setActive(activeColumn == 1);
     }
 
-//    public Map.Entry<L, R> getSelected() {
-//        return Map.entry(leftSelector.getSelected(), rightSelector.getSelected());
-//    }
+    public Map.Entry<L, R> getSelected() {
+        return Map.entry(leftSelector.getSelected(), rightSelector.getSelected());
+    }
 }

@@ -40,16 +40,12 @@ public class StickTextAdapter {
                 triggerSelectApplication.start(new Stage());
             });
         });
-//        Executors.newSingleThreadExecutor().submit(() -> Platform.startup(() -> {
-//            triggerSelectApplication.start(new Stage());
-//            triggerSelectApplication.render();
-//        }));
 
-        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
+//        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
-        axisProcessors.leftPolarFlux().filter(q -> q.getRadius() > 12_000).map(groupsTranslator::translate).distinctUntilChanged().map(widget::setGroupActive).distinctUntilChanged()
-                .doOnComplete(() -> ui.cancel(true))
-                .subscribe();
+//        axisProcessors.leftPolarFlux().filter(q -> q.getRadius() > 12_000).map(groupsTranslator::translate).distinctUntilChanged().map(widget::setGroupActive).distinctUntilChanged()
+//                .doOnComplete(() -> ui.cancel(true))
+//                .subscribe();
 //                .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
 
 //        AxisEventFactory.rightStickStream().polarProducer(worker)

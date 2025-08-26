@@ -10,13 +10,15 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ColumnSelector<T extends UiSelectable<?>> extends VBox {
+public class ColumnSelector<T> extends VBox {
     private List<T> items = new ArrayList<>();
-    private Function<T, String> labelExtractor;
     private List<Label> labels = new ArrayList<>();
     private BidirectionalSpliterator<T> spliterator;
     private final Border activeBorder = new Border(new BorderStroke(
@@ -102,11 +104,10 @@ public class ColumnSelector<T extends UiSelectable<?>> extends VBox {
         setSpacing(20);
     }
 
-    public <L extends UiSelectable<?>> void setItems(List<L> items, Function<L, String> labelExtractor) {
+    public void setItems(List<? extends T> items, Function<? super T, String> labelExtractor) {
         this.items = new ArrayList<>();
-
         if (items != null) {
-            this.items.addAll((Collection<? extends T>) items);
+            this.items.addAll(items);
         }
         this.spliterator = new BidirectionalSpliterator<>(this.items);
         this.labels.clear();
@@ -114,7 +115,7 @@ public class ColumnSelector<T extends UiSelectable<?>> extends VBox {
 
         for (int i = 0; i < this.items.size(); i++) {
             T item = this.items.get(i);
-            String text = this.labelExtractor.apply(item);
+            String text = labelExtractor.apply(item);
 
             Label label = new Label(text);
             label.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: limegreen; -fx-background-color: transparent;");

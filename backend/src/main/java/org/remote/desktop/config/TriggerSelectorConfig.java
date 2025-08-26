@@ -17,20 +17,19 @@ import java.util.List;
 public class TriggerSelectorConfig {
 
     @Bean
-    public TriggerSelectApplication create() {
-        List<TriggerSelectable> left = Arrays.stream(EAxisEvent.values())
-                .map(TriggerSelectable::new)
+    public TriggerSelectApplication<EAxisEvent, EAxisEaser> create() {
+        List<EAxisEvent> left = Arrays.stream(EAxisEvent.values())
                 .toList();
 
-        List<EaserSelectable> right = Arrays.stream(EAxisEaser.values())
-                .map(EaserSelectable::new)
+        List<EAxisEaser> right = Arrays.stream(EAxisEaser.values())
                 .toList();
 
-        TriggerSelectApplication triggerSelectApplication = new TriggerSelectApplication(left, right);
+        TriggerSelectApplication<EAxisEvent, EAxisEaser> triggerSelectApplication = new TriggerSelectApplication<>(left, right);
 
-        triggerSelectApplication.setItems(left, right)
+
+        triggerSelectApplication.setItems(left, right, Enum::name, Enum::name)
                 .selected(q -> {
-
+                    System.out.println("Selected " + q);
                 });
 
         return triggerSelectApplication;
