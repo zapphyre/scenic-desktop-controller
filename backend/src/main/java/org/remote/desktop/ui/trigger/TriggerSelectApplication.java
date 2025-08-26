@@ -3,27 +3,31 @@ package org.remote.desktop.ui.trigger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public class TriggerSelectApplication<T> extends Application {
+public class TriggerSelectApplication extends Application {
 
     private final List<? extends UiSelectable<?>> leftItems;
     private final List<? extends UiSelectable<?>> rightItems;
-    TriggerSelector<UiSelectable<?>, UiSelectable<?>> selector;
+    TriggerSelector selector;
 
     private Stage primaryStage;
 
-    public <L extends UiSelectable<L>, R extends UiSelectable<R>> Consumer<Map.Entry<L, R>> setItems(List<L> leftItems, List<R> rightItems) {
-        selector.setColumns(leftItems, rightItems, UiSelectable::getItemName, UiSelectable::getItemName);
-        return q -> {
+    public <L extends UiSelectable<?>, R extends UiSelectable<?>> SelectedCallback<L, R> setItems(List<L> leftItems, List<R> rightItems) {
+        SelectedGetter<L, R> getter = selector.setColumns(leftItems, rightItems, UiSelectable::getItemName, UiSelectable::getItemName);
 
+        return q -> {
+            selector.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.ENTER)
+                    q.accept(getter.getSelected());
+//                    q.accept((Map.Entry<L, R>) selector.getSelected());
+            });
         };
     }
 
@@ -31,7 +35,7 @@ public class TriggerSelectApplication<T> extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        selector = new TriggerSelector<>();
+        selector = new TriggerSelector();
 
 //        selector.setColumns(leftItems, rightItems, UiSelectable::getItemName, UiSelectable::getItemName);
 
@@ -48,9 +52,6 @@ public class TriggerSelectApplication<T> extends Application {
                     break;
                 case RIGHT:
                     selector.switchToRight();
-                    break;
-                case ENTER:
-                    Map.Entry<UiSelectable<?>, UiSelectable<?>> selected = selector.getSelected();
                     break;
             }
         });
