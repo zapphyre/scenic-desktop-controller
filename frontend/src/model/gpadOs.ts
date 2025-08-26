@@ -181,6 +181,7 @@ export enum EKeyEvt {
     KEYBOARD_OFF = "KEYBOARD_OFF",
     KEYBOARD_LONG = "KEYBOARD_LONG",
     WINDER = "WINDER",
+    TRIGGER_ADJUST = "TRIGGER_ADJUST"
 }
 
 export enum EButtonAxisMapping {

@@ -10,10 +10,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -105,14 +102,12 @@ public class ColumnSelector<T extends UiSelectable<?>> extends VBox {
         setSpacing(20);
     }
 
-    public void setItems(List<? extends T> items, Function<? super T, String> labelExtractor) {
+    public <L extends UiSelectable<?>> void setItems(List<L> items, Function<L, String> labelExtractor) {
         this.items = new ArrayList<>();
+
         if (items != null) {
-            for (T item : items) {
-                this.items.add(item);
-            }
+            this.items.addAll((Collection<? extends T>) items);
         }
-        this.labelExtractor = (Function<T, String>) labelExtractor;
         this.spliterator = new BidirectionalSpliterator<>(this.items);
         this.labels.clear();
         getChildren().clear();

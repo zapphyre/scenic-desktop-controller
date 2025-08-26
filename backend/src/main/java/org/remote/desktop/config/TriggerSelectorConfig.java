@@ -22,11 +22,17 @@ public class TriggerSelectorConfig {
                 .map(TriggerSelectable::new)
                 .toList();
 
-
         List<EaserSelectable> right = Arrays.stream(EAxisEaser.values())
                 .map(EaserSelectable::new)
                 .toList();
 
-        return new TriggerSelectApplication(left, right);
+        TriggerSelectApplication triggerSelectApplication = new TriggerSelectApplication(left, right);
+
+        triggerSelectApplication.setItems(left, right)
+                .selected(q -> {
+
+                });
+
+        return triggerSelectApplication;
     }
 }

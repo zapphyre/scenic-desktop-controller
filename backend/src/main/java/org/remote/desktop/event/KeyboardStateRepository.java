@@ -46,6 +46,7 @@ public class KeyboardStateRepository implements ApplicationListener<GpadCommandE
     }
 
     public void releaseAllPressedKeys() {
+        System.out.println("releasing pressed keys: " + pressedKeys);
         pressedKeys.stream()
                 .map(q -> new GpadCommandEvent(q, this))
                 .forEach(eventPublisher::publishEvent);

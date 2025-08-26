@@ -3,6 +3,7 @@ package org.remote.desktop.event.keyboard;
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.actuate.MouseAct;
+import org.remote.desktop.model.event.keyboard.KeyboardWidgetControlEvent;
 import org.remote.desktop.model.event.keyboard.LongHoldEvent;
 import org.remote.desktop.model.event.keyboard.PasteEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
@@ -88,10 +89,13 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
     }
 
     @Component
-    class PasteActuator implements ApplicationListener<PasteEvent> {
+    class PasteActuator implements ApplicationListener<KeyboardWidgetControlEvent> {
         @Override
-        public void onApplicationEvent(PasteEvent event) {
-            MouseAct.paste();
+        public void onApplicationEvent(KeyboardWidgetControlEvent event) {
+            if (event.isOn())
+                widget.render();
+            else
+                MouseAct.paste();
         }
     }
 }
