@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.trigger;
+package org.remote.desktop.ui.select.axis;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -6,24 +6,24 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.ui.select.DuoBehaviourSelector;
 
 import java.util.List;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class TriggerSelectApplication<L, R> extends Application {
-    private final List<? extends L> leftItems;
-    private final List<? extends R> rightItems;
-    private final TriggerSelector<L, R> selector = new TriggerSelector<>();
+public class AxisSelectApplication<L, R> extends Application {
+    private final DuoBehaviourSelector<L, R> selector = new DuoBehaviourSelector<>();
     private Stage primaryStage;
 
     private Runnable setCols = () -> {
     };
+    private AxisUpdate.AxisUpdateBuilder<L, R> update;
 
     public SelectedCallback<L, R> setItems(List<? extends L> leftItems, List<? extends R> rightItems,
                                            Function<? super L, String> leftLabelGetter, Function<? super R, String> rightLabelGetter) {
 
-//        TriggerSelector.SelectedGetter<L, R> getter =
         setCols = () -> selector.setColumns(
                 leftItems, rightItems, leftLabelGetter, rightLabelGetter
         );
@@ -44,7 +44,7 @@ public class TriggerSelectApplication<L, R> extends Application {
                             selector.switchToRight();
                             break;
                         case ENTER:
-                            callback.accept(selector.getSelected());
+                            callback.accept(update.left(selector.getSelected().getKey()).right(selector.getSelected().getValue()).build());
                             break;
                     }
                 });
@@ -74,7 +74,9 @@ public class TriggerSelectApplication<L, R> extends Application {
         Platform.runLater(() -> primaryStage.hide());
     }
 
-    public void render() {
+    public void render(SceneDto lastScene, String trigger) {
+        update = AxisUpdate.<L, R>builder().trigger(trigger).sceneDto(lastScene);
+
         Platform.runLater(() -> {
             this.primaryStage.requestFocus();
             this.primaryStage.show();

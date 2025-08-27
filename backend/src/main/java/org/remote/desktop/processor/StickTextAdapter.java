@@ -10,8 +10,8 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidgetBase;
-import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
-import org.remote.desktop.ui.trigger.TriggerSelectApplication;
+import org.remote.desktop.ui.select.axis.AxisSelectApplication;
+import org.remote.desktop.ui.select.trigger.TriggerSelectApplication;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -28,7 +28,8 @@ public class StickTextAdapter {
     protected final ButtonPressMapper buttonPressMapper;
 
     private final InputWidgetBase widget;
-    private final TriggerSelectApplication triggerSelectApplication;
+    private final AxisSelectApplication axisSelectApplication;
+    private final TriggerSelectApplication  triggerSelectApplication;
 
     private PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
@@ -37,6 +38,7 @@ public class StickTextAdapter {
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> {
             Platform.startup(() -> {
                 widget.start(new Stage());
+                axisSelectApplication.start(new Stage());
                 triggerSelectApplication.start(new Stage());
             });
         });

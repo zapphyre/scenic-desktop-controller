@@ -17,7 +17,7 @@ public class EventModeFactory {
             case XDO -> new XdoMode();
             case WINDER -> new WinderMode();
             case KEYBOARD -> new KeyboardMode();
-            case TRIGGER_SELECT -> new TriggerSelectMode();
+            case TRIGGER_SELECT -> new AxisSelectMode();
         };
     }
 

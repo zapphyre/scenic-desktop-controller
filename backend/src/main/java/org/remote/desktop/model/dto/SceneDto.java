@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
+import lombok.With;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
 
+@With
 @Value
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

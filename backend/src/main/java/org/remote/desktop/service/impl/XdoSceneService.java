@@ -3,6 +3,7 @@ package org.remote.desktop.service.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
@@ -17,16 +18,18 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Service
-@RequiredArgsConstructor
 public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
     private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
+    private final SceneDao  sceneDao;
+
     @Setter
     private Supplier<String> sceneProvider;
 
-    public XdoSceneService(LocalXdoSceneProvider localXdoSceneProvider) {
-        sceneProvider = localXdoSceneProvider::tryGetCurrentName;
+    public XdoSceneService(LocalXdoSceneProvider localXdoSceneProvider, SceneDao sceneDao) {
+        this.sceneProvider = localXdoSceneProvider::tryGetCurrentName;
+        this.sceneDao = sceneDao;
     }
 
     @Getter
@@ -84,6 +87,10 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
 
     public void registerForcedSceneObserver(Consumer<String> observer) {
         forcedSceneObservers.add(observer);
+    }
+
+    public SceneDto getLastScene() {
+        return sceneDao.getSceneForWindowNameOrBase(lastRecognizedWindowName);
     }
 
     @Override

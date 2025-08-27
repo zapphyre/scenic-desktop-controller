@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.trigger;
+package org.remote.desktop.ui.select;
 
 import javafx.application.Platform;
 import javafx.scene.layout.HBox;
@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public class TriggerSelector<L, R> extends HBox {
+public class DuoBehaviourSelector<L, R> extends HBox {
     private final ColumnSelector<L> leftSelector;
     private final ColumnSelector<R> rightSelector;
     private int activeColumn = 0; // 0: left, 1: right
 
-    public TriggerSelector() {
+    public DuoBehaviourSelector() {
         setStyle("-fx-background-color: transparent;");
         setSpacing(20);
         setPadding(new javafx.geometry.Insets(20));

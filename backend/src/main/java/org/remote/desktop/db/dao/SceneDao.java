@@ -93,6 +93,13 @@ public class SceneDao {
                 .ifPresent(sceneMapper.update(vto, vto.getInheritsIdFk() == null ? List.of() : sceneRepository.findAllById(vto.getInheritsIdFk())));
     }
 
+    public void update(SceneDto dto) {
+        Optional.of(dto)
+                .map(SceneDto::getId)
+                .flatMap(sceneRepository::findById)
+                .ifPresent(sceneMapper.update(dto));
+    }
+
     public Long createForId(SceneVto vto) {
         return create(vto).getId();
     }

@@ -1,37 +1,31 @@
 package org.remote.desktop.config;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.EAxisEaser;
-import org.remote.desktop.model.EAxisEvent;
-import org.remote.desktop.ui.trigger.EaserSelectable;
-import org.remote.desktop.ui.trigger.TriggerSelectApplication;
-import org.remote.desktop.ui.trigger.TriggerSelectable;
+import org.remote.desktop.ui.select.trigger.TriggerSelectApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Configuration
+@Component
 @RequiredArgsConstructor
 public class TriggerSelectorConfig {
 
+    private final SceneDao sceneDao;
+
     @Bean
-    public TriggerSelectApplication<EAxisEvent, EAxisEaser> create() {
-        List<EAxisEvent> left = Arrays.stream(EAxisEvent.values())
+    public TriggerSelectApplication createTriggerSelectApplication() {
+        List<EAxisEaser> items = Arrays.stream(EAxisEaser.values())
                 .toList();
 
-        List<EAxisEaser> right = Arrays.stream(EAxisEaser.values())
-                .toList();
+        TriggerSelectApplication triggerSelectApplication = new TriggerSelectApplication();
 
-        TriggerSelectApplication<EAxisEvent, EAxisEaser> triggerSelectApplication = new TriggerSelectApplication<>(left, right);
-
-
-        triggerSelectApplication.setItems(left, right, Enum::name, Enum::name)
-                .selected(q -> {
-                    System.out.println("Selected " + q);
-                });
-
+        triggerSelectApplication.setItems(items, Enum::name)
+//                .update(q -> );
+;
         return triggerSelectApplication;
     }
 }

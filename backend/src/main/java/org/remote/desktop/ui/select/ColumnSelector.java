@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.trigger;
+package org.remote.desktop.ui.select;
 
 import javafx.scene.control.Label;
 import javafx.scene.effect.Glow;
