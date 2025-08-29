@@ -6,6 +6,7 @@ import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
@@ -36,11 +37,11 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
         this.xdoSceneService = xdoSceneService;
     }
 
-    protected abstract InlineEasingFluxDecorator<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents);
+    protected abstract InlineEasingFluxDecorator<ETriggerEvent, ButtonActionDef> getFluxRepeater(Flux<ButtonActionDef> gamepadEvents);
 
     @Override
     protected Flux<ButtonActionDef> easy(Flux<ButtonActionDef> gamepadEvents) {
-        InlineEasingFluxDecorator<ButtonActionDef> repeater = getGrokFluxRepeater(gamepadEvents);
+        InlineEasingFluxDecorator<ETriggerEvent, ButtonActionDef> repeater = getFluxRepeater(gamepadEvents);
 
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
                 .to(chew(sceneService::getSceneForWindowNameOrBase, repeater::setScene));

@@ -23,7 +23,7 @@ public class ButtonActionDef implements Repeatable {
     ELogicalEventType logicalEventType;
 
     // both modifiers and longPress has to be excluded from equality, b/c filtering of leftover qualified events need NOT
-    // to account for them; it only need to account about button's itself identity
+    // to account for them; it only needs to account about button's identity itself
     Set<EButtonAxisMapping> modifiers;
     boolean longPress;
 

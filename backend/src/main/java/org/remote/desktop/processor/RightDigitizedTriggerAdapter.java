@@ -9,6 +9,7 @@ import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.SceneService;
@@ -24,6 +25,7 @@ import java.util.function.Predicate;
 
 import static org.remote.desktop.util.ETriggerFilter.trigger;
 import static org.remote.desktop.util.FluxUtil.GEeaserMap;
+import static org.remote.desktop.util.FluxUtil.triggerEventConsumerMap;
 
 @Component
 public class RightDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
@@ -33,14 +35,14 @@ public class RightDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
     }
 
     @Override
-    protected InlineEasingFluxDecorator<ButtonActionDef> getGrokFluxRepeater(Flux<ButtonActionDef> gamepadEvents) {
-        return  new InlineEasingFluxDecorator<>(
+    protected InlineEasingFluxDecorator<ETriggerEvent, ButtonActionDef> getFluxRepeater(Flux<ButtonActionDef> gamepadEvents) {
+        return new InlineEasingFluxDecorator<>(
                 cacheManager,
                 gamepadEvents,
                 GEeaserMap,
                 SceneDto::getRightTriggerEaser,
-                Map.of(),
-                q -> EAxisEvent.NOOP
+                triggerEventConsumerMap,
+                SceneDto::getRightTriggerEvent
         );
     }
 

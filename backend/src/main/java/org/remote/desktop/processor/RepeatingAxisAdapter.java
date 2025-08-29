@@ -5,6 +5,7 @@ import org.asmus.builder.AxisEventProcessorFactory;
 import org.remote.desktop.component.InlineEasingFluxDecorator;
 import org.remote.desktop.component.RepeatableDecorator;
 import org.remote.desktop.mapper.PolarCoordsMapper;
+import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.RepeatablePolarCoords;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.SceneService;
@@ -27,8 +28,8 @@ public class RepeatingAxisAdapter {
     private final XdoSceneService xdoSceneService;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
 
-    private final InlineEasingFluxDecorator<RepeatablePolarCoords> leftRepeater;
-    private final InlineEasingFluxDecorator<RepeatablePolarCoords> rightRepeater;
+    private final InlineEasingFluxDecorator<EAxisEvent, RepeatablePolarCoords> leftRepeater;
+    private final InlineEasingFluxDecorator<EAxisEvent, RepeatablePolarCoords> rightRepeater;
 
     RepeatableDecorator<RepeatablePolarCoords> decorator;
 
@@ -39,23 +40,23 @@ public class RepeatingAxisAdapter {
         this.xdoSceneService = xdoSceneService;
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
-        decorator = new RepeatableDecorator<>(
-                cacheManager,
-                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
-                easerMap,
-                SceneDto::getLeftAxisEaser,
-                axisEventConsumerMap,
-                SceneDto::getLeftAxisEvent
-        );
-
-        RepeatableDecorator<RepeatablePolarCoords> repeated = new RepeatableDecorator<>(
-                cacheManager,
-                decorator.getRepeatingStream(),
-                easerMap,
-                SceneDto::getLeftAxisEaser,
-                axisEventConsumerMap,
-                SceneDto::getLeftAxisEvent
-        );
+//        decorator = new RepeatableDecorator<>(
+//                cacheManager,
+//                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
+//                easerMap,
+//                SceneDto::getLeftAxisEaser,
+//                axisEventConsumerMap,
+//                SceneDto::getLeftAxisEvent
+//        );
+//
+//        RepeatableDecorator<RepeatablePolarCoords> repeated = new RepeatableDecorator<>(
+//                cacheManager,
+//                decorator.getRepeatingStream(),
+//                easerMap,
+//                SceneDto::getLeftAxisEaser,
+//                axisEventConsumerMap,
+//                SceneDto::getLeftAxisEvent
+//        );
 
         this.rightRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
@@ -104,6 +105,10 @@ public class RepeatingAxisAdapter {
 //                })));
 
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-                .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(leftRepeater::setScene, rightRepeater::setScene)));
+                .to(chew(sceneService::getSceneForWindowNameOrBase,
+                        pipe(leftRepeater::setScene, rightRepeater::setScene, q -> {
+
+                        }))
+                );
     }
 }

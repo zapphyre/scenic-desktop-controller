@@ -17,7 +17,7 @@ import java.util.function.Function;
 import static org.zapphyre.function.FunHelper.funky;
 import static org.zapphyre.function.FunHelper.logFun;
 
-public class InlineEasingFluxDecorator<T extends Repeatable> {
+public class InlineEasingFluxDecorator<E, T extends Repeatable> {
 
     private final CacheManager cacheManager;
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
@@ -32,8 +32,8 @@ public class InlineEasingFluxDecorator<T extends Repeatable> {
                                      Flux<T> sourceFlux,
                                      Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
                                      Function<SceneDto, EAxisEaser> easerGetter,
-                                     Map<EAxisEvent, Consumer<T>> consumerMap,
-                                     Function<SceneDto, EAxisEvent> axisActionGetter) {
+                                     Map<E, Consumer<T>> consumerMap,
+                                     Function<SceneDto, E> axisActionGetter) {
         this.cacheManager = cacheManager;
         this.easerMap = easerMap;
         this.easerGetter = easerGetter;
@@ -44,11 +44,11 @@ public class InlineEasingFluxDecorator<T extends Repeatable> {
                         .apply(sourceFlux)
                         .mapNotNull(
                                 funky(axisActionGetter
-                                        .andThen(q -> consumerMap.getOrDefault(q, p -> {}))
+                                        .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
                                         .apply(repeaterDef.scene))
                         )
                 )
-                .subscribe(outputSink::tryEmitNext, outputSink::tryEmitError, outputSink::tryEmitComplete);
+                .subscribe();
     }
 
     public void setScene(SceneDto scene) {
@@ -58,7 +58,6 @@ public class InlineEasingFluxDecorator<T extends Repeatable> {
     public Flux<T> getRepeatingStream() {
         return outputSink
                 .asFlux()
-//                .publish().autoConnect()
                 ;
     }
 

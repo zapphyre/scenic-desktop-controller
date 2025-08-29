@@ -9,6 +9,7 @@ import lombok.With;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
 import java.util.LinkedList;
@@ -39,7 +40,10 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     EAxisEvent rightAxisEvent;
     EAxisEaser rightAxisEaser;
 
+    ETriggerEvent leftTriggerEvent;
     EAxisEaser leftTriggerEaser;
+
+    ETriggerEvent rightTriggerEvent;
     EAxisEaser rightTriggerEaser;
 
     @ToString.Include

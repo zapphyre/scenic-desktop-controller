@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
+import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.model.GamepadEventContainer;
 
 import java.io.Serializable;
@@ -44,19 +45,24 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
 
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent leftAxisEvent = EAxisEvent.DEFAULT;
+    private EAxisEvent leftAxisEvent;
     @Enumerated(EnumType.STRING)
-    private EAxisEaser leftAxisEaser = EAxisEaser.NONE;
+    private EAxisEaser leftAxisEaser;
 
     @Enumerated(EnumType.STRING)
-    private EAxisEvent rightAxisEvent = EAxisEvent.DEFAULT;
+    private EAxisEvent rightAxisEvent;
     @Enumerated(EnumType.STRING)
-    private EAxisEaser rightAxisEaser = EAxisEaser.NONE;
+    private EAxisEaser rightAxisEaser;
 
     @Enumerated(EnumType.STRING)
     private EAxisEaser rightTriggerEaser;
     @Enumerated(EnumType.STRING)
+    private ETriggerEvent rightTriggerEvent;
+
+    @Enumerated(EnumType.STRING)
     private EAxisEaser leftTriggerEaser;
+    @Enumerated(EnumType.STRING)
+    private ETriggerEvent leftTriggerEvent;
 
     @PreUpdate
     @PrePersist

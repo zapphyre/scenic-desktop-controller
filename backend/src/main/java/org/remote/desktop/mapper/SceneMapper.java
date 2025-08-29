@@ -23,6 +23,8 @@ public interface SceneMapper {
     @Mapping(target = "rightAxisEaser", source = "rightAxisEaser", defaultValue = "CONTINUOUS")
     @Mapping(target = "rightTriggerEaser", source = "rightTriggerEaser", defaultValue = "CONTINUOUS")
     @Mapping(target = "leftTriggerEaser", source = "leftTriggerEaser", defaultValue = "NONE")
+    @Mapping(target = "leftTriggerEvent", defaultValue = "DEFINED")
+    @Mapping(target = "rightTriggerEvent", defaultValue = "DEFINED")
     SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
 
     List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);

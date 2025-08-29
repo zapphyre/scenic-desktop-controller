@@ -24,8 +24,11 @@ public class TriggerSelectorConfig {
         TriggerSelectApplication triggerSelectApplication = new TriggerSelectApplication();
 
         triggerSelectApplication.setItems(items, Enum::name)
-//                .update(q -> );
-;
+                .update(q -> {
+
+                    System.out.println("TriggerSelectApplication updated " + q);
+                });
+
         return triggerSelectApplication;
     }
 }

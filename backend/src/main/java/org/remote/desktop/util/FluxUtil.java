@@ -75,6 +75,11 @@ public class FluxUtil {
             }
     );
 
+    public static final Map<ETriggerEvent, Consumer<ButtonActionDef>> triggerEventConsumerMap = Map.of(
+            ETriggerEvent.VOLUME_DOWN, q -> System.out.println("lowering volume"),
+            ETriggerEvent.VOLUME_UP, q -> System.out.println("increasing volume")
+    );
+
     public static final Map<EAxisEaser, Function<Flux<RepeatablePolarCoords>, Flux<RepeatablePolarCoords>>> easerMap =
             Map.of(
                     CONTINUOUS, FluxUtil::repeat,
