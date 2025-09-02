@@ -40,24 +40,6 @@ public class RepeatingAxisAdapter {
         this.xdoSceneService = xdoSceneService;
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
-//        decorator = new RepeatableDecorator<>(
-//                cacheManager,
-//                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
-//                easerMap,
-//                SceneDto::getLeftAxisEaser,
-//                axisEventConsumerMap,
-//                SceneDto::getLeftAxisEvent
-//        );
-//
-//        RepeatableDecorator<RepeatablePolarCoords> repeated = new RepeatableDecorator<>(
-//                cacheManager,
-//                decorator.getRepeatingStream(),
-//                easerMap,
-//                SceneDto::getLeftAxisEaser,
-//                axisEventConsumerMap,
-//                SceneDto::getLeftAxisEvent
-//        );
-
         this.rightRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
                 axisEventProcessorFactory.rightPolarFlux().map(polarCoordsMapper::mapRep),
@@ -87,28 +69,7 @@ public class RepeatingAxisAdapter {
 
     @PostConstruct
     void init() {
-//        glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-//                .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(q -> {
-//                        Optional.ofNullable(left).ifPresent(Disposable::dispose);
-//                    left = decorator.getRepeatingStream()
-//                            .subscribe(axisEventConsumerMap.get(q.getLeftAxisEvent()));
-
-//                    Flux.just(q)
-//                            .switchMap(scene -> decorator.getRepeatingStream()
-//                                    .doOnNext(axisEventConsumerMap.get(q.getLeftAxisEvent()))
-//                            )
-//                            .subscribe(p -> {
-//                                System.out.println(p);
-//                                axisEventConsumerMap.get(q.getLeftAxisEvent()).accept(p);
-//                            });
-//                            .subscribe();
-//                })));
-
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-                .to(chew(sceneService::getSceneForWindowNameOrBase,
-                        pipe(leftRepeater::setScene, rightRepeater::setScene, q -> {
-
-                        }))
-                );
+                .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(leftRepeater::setScene, rightRepeater::setScene)));
     }
 }

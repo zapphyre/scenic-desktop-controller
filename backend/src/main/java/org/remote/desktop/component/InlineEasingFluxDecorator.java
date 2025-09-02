@@ -1,7 +1,6 @@
 package org.remote.desktop.component;
 
 import org.remote.desktop.model.EAxisEaser;
-import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.Repeatable;
 import org.remote.desktop.model.dto.SceneDto;
 import org.springframework.cache.CacheManager;
@@ -40,13 +39,14 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
 
         sceneSink.asFlux()
                 .map(this::getCachedOrFreshEaser)
-                .switchMap(repeaterDef -> repeaterDef.repeater()
-                        .apply(sourceFlux)
-                        .mapNotNull(
-                                funky(axisActionGetter
-                                        .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
-                                        .apply(repeaterDef.scene))
-                        )
+                .switchMap(repeaterDef ->
+                        Optional.ofNullable(Optional.ofNullable(repeaterDef.repeater()).orElseGet(Function::identity)
+                                        .apply(sourceFlux)).orElseGet(Flux::empty)
+                                .mapNotNull(
+                                        funky(axisActionGetter
+                                                .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
+                                                .apply(repeaterDef.scene))
+                                )
                 )
                 .subscribe();
     }
@@ -80,7 +80,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
                 .andThen(funky(logFun("getting easer name: '{}'")))
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
-//                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene))))
+                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene))))
                 .apply(scene);
     }
 
@@ -88,7 +88,6 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
         return q -> new SceneAndRepeater<>(scene, q);
     }
 
-    // Helper record to pair SceneDto with StreamRepeaterDef
     private record SceneAndRepeater<T>(SceneDto scene, Function<Flux<T>, Flux<T>> repeater) {
     }
 }

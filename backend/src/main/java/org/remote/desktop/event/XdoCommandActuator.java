@@ -3,7 +3,6 @@ package org.remote.desktop.event;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.remote.desktop.mode.model.EMode;
 import org.remote.desktop.model.event.XdoEvent;
 import org.remote.desktop.service.impl.StateService;
 import org.springframework.context.ApplicationListener;
@@ -14,7 +13,7 @@ import static jxdotool.xDoToolUtil.*;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CommandActuator implements ApplicationListener<XdoEvent> {
+public class XdoCommandActuator implements ApplicationListener<XdoEvent> {
 
     private final StateService stateService;
 
@@ -23,6 +22,7 @@ public class CommandActuator implements ApplicationListener<XdoEvent> {
     public void onApplicationEvent(XdoEvent e) {
         String xdoKeyPart = String.join("+", e.getKeyPart().getKeyStrokes());
 //        System.out.println("xdoKeyPart: " + e);
+
 
         switch (e.getKeyPart().getKeyEvt()) {
             case PRESS -> keydown(xdoKeyPart);

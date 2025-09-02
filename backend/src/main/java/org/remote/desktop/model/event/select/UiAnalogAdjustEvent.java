@@ -5,12 +5,12 @@ import org.remote.desktop.model.event.GpadCommandEvent;
 import org.springframework.context.ApplicationEvent;
 
 @Value
-public class AxisSelectEvent extends ApplicationEvent {
+public class UiAnalogAdjustEvent extends ApplicationEvent {
 
     boolean on;
     GpadCommandEvent event;
 
-    public AxisSelectEvent(Object source, boolean on, GpadCommandEvent event) {
+    public UiAnalogAdjustEvent(Object source, boolean on, GpadCommandEvent event) {
         super(source);
         this.on = on;
         this.event = event;

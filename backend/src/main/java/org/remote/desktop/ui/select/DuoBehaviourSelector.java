@@ -72,4 +72,9 @@ public class DuoBehaviourSelector<L, R> extends HBox {
     public Map.Entry<L, R> getSelected() {
         return Map.entry(leftSelector.getSelected(), rightSelector.getSelected());
     }
+
+    public void select(L l, R r) {
+        leftSelector.select(l);
+        rightSelector.select(r);
+    }
 }

@@ -56,7 +56,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     public void forceScene(SceneDto scene) {
         lastRecognizedWindowName = scene.getWindowName();
 
-        forcedScene = lastRecognizedScene = scene;
+        forcedScene = scene;
     }
 
     public String tryGetCurrentName() {

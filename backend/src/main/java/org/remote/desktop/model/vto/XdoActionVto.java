@@ -6,7 +6,6 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.EKeyEvt;
-import org.remote.desktop.model.EMode;
 
 import java.util.List;
 

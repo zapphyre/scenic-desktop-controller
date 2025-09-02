@@ -10,8 +10,11 @@ import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidgetBase;
-import org.remote.desktop.ui.select.axis.AxisSelectApplication;
-import org.remote.desktop.ui.select.trigger.TriggerSelectApplication;
+import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
+import org.remote.desktop.ui.select.DuoSelectApplication;
+import org.remote.desktop.ui.select.UnoSelectApplication;
+import org.remote.desktop.ui.select.axis.AxisUiSelector;
+import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -28,8 +31,9 @@ public class StickTextAdapter {
     protected final ButtonPressMapper buttonPressMapper;
 
     private final InputWidgetBase widget;
-    private final AxisSelectApplication axisSelectApplication;
-    private final TriggerSelectApplication  triggerSelectApplication;
+    private final AxisUiSelector duoSelectApplication;
+    private final TriggerUiSelector unoSelectApplication;
+    private final UnoSelectApplication<?> singleSelector;
 
     private PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
@@ -38,16 +42,17 @@ public class StickTextAdapter {
         Future<?> ui = Executors.newSingleThreadExecutor().submit(() -> {
             Platform.startup(() -> {
                 widget.start(new Stage());
-                axisSelectApplication.start(new Stage());
-                triggerSelectApplication.start(new Stage());
+                singleSelector.start(new Stage());
+                duoSelectApplication.start(new Stage());
+                unoSelectApplication.start(new Stage());
             });
         });
 
-//        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
+        PolarCoordsSectionTranslator groupsTranslator = createTranslator(new PolarSettings(180, VariableGroupingInputWidgetBase.letterGroups.length));
 
-//        axisProcessors.leftPolarFlux().filter(q -> q.getRadius() > 12_000).map(groupsTranslator::translate).distinctUntilChanged().map(widget::setGroupActive).distinctUntilChanged()
-//                .doOnComplete(() -> ui.cancel(true))
-//                .subscribe();
+        axisProcessors.leftPolarFlux().filter(q -> q.getRadius() > 12_000).map(groupsTranslator::translate).distinctUntilChanged().map(widget::setGroupActive).distinctUntilChanged()
+                .doOnComplete(() -> ui.cancel(true))
+                .subscribe();
 //                .subscribe(p -> letterSegmentTranslator = createTranslator(new PolarSettings(210, p)));
 
 //        AxisEventFactory.rightStickStream().polarProducer(worker)

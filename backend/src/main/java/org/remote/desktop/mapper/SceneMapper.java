@@ -56,21 +56,22 @@ public interface SceneMapper {
     }
 
     default Consumer<Scene> update(SceneVto source, List<Scene> inherits) {
-        return q -> update(q, source, inherits);
+        return q -> update(q, source, inherits, new CycleAvoidingMappingContext());
     }
 
     default Consumer<Scene> update(SceneDto source) {
-        return q -> update(q, source);
+        return q -> update(q, source, new CycleAvoidingMappingContext());
     }
 
     @Mapping(target = "inheritsFrom", ignore = true)
     @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
-    void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits);
+    void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits, CycleAvoidingMappingContext ctx);
 
-    void update(@MappingTarget Scene target, SceneDto source);
+    @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
+    void update(@MappingTarget Scene target, SceneDto source, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "inheritsFrom", ignore = true)
-//    @Mapping(target = "events", ignore = true) // i'm setting them by id
+    @Mapping(target = "events", ignore = true) // i'm setting them by id
     Scene map(SceneVto vto, @Context List<Scene> inherits);
 
     @AfterMapping

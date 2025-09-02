@@ -1,45 +1,80 @@
 package org.remote.desktop.config;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
-import org.remote.desktop.ui.select.axis.AxisSelectApplication;
+import org.remote.desktop.model.ETriggerEvent;
+import org.remote.desktop.model.dto.SceneDto;
+import org.remote.desktop.service.impl.SceneService;
+import org.remote.desktop.service.impl.StateService;
+import org.remote.desktop.ui.select.axis.AxisUiSelector;
+import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
 public class AxisSelectorConfig {
 
-    private final SceneDao sceneDao;
+    private final SceneService sceneDao;
+    private final StateService stateService;
 
     @Bean
-    public AxisSelectApplication<EAxisEvent, EAxisEaser> create() {
-        List<EAxisEvent> left = Arrays.stream(EAxisEvent.values())
-                .toList();
+    @Primary
+    public AxisUiSelector axisSelector() {
+        List<EAxisEvent> left = Arrays.asList(EAxisEvent.values());
+        List<EAxisEaser> right = Arrays.asList(EAxisEaser.values());
 
-        List<EAxisEaser> right = Arrays.stream(EAxisEaser.values())
-                .toList();
+        AxisUiSelector duoSelectApplication = new AxisUiSelector();
 
-        AxisSelectApplication<EAxisEvent, EAxisEaser> axisSelectApplication = new AxisSelectApplication<>();
+        duoSelectApplication.setItems(left, right, Enum::name, Enum::name)
+                .selected(update -> {
 
-        axisSelectApplication.setItems(left, right, Enum::name, Enum::name)
-                .selected((update) -> {
+                    SceneDto updated = switch (update.getTrigger()) {
+                        case LEFT_STICK ->
+                                update.getSceneDto().withLeftAxisEvent(update.getLeft()).withLeftAxisEaser(update.getRight());
+                        case RIGHT_STICK ->
+                                update.getSceneDto().withRightAxisEvent(update.getLeft()).withRightAxisEaser(update.getRight());
+                        default -> throw new IllegalStateException("Unexpected value: " + update.getTrigger());
+                    };
 
-                    Optional.of(update.getSceneDto())
-                            .map(q -> switch (update.getTrigger()) {
-                                case "TRIGGER_LEFT" -> update.getTrigger();
-                                default -> update.getTrigger();
-                            });
-
-//                    sceneDao.update();
+                    sceneDao.update(updated);
+                    duoSelectApplication.close();
                 });
 
-        return axisSelectApplication;
+        return duoSelectApplication;
+    }
+
+    @Bean
+    public TriggerUiSelector triggerSelector() {
+        List<ETriggerEvent> left = Arrays.asList(ETriggerEvent.values());
+        List<EAxisEaser> right = Arrays.asList(EAxisEaser.values());
+
+        TriggerUiSelector duoSelectApplication = new TriggerUiSelector();
+
+        duoSelectApplication.setItems(left, right, Enum::name, Enum::name)
+                .selected(update -> {
+
+
+                    SceneDto updated = switch (update.getTrigger()) {
+                        case LEFT_TRIGGER -> update.getSceneDto()
+                                .withLeftTriggerEvent(update.getLeft())
+                                .withLeftTriggerEaser(update.getRight());
+                        case RIGHT_TRIGGER -> update.getSceneDto()
+                                .withRightTriggerEvent(update.getLeft())
+                                    .withRightAxisEaser(update.getRight());
+                        default -> throw new IllegalStateException("Unexpected value: " + update.getTrigger());
+                    };
+
+                    sceneDao.update(updated);
+                    duoSelectApplication.close();
+                    stateService.nullifyForced();
+                });
+
+        return duoSelectApplication;
     }
 }

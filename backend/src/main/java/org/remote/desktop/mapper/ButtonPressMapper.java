@@ -68,11 +68,12 @@ public interface ButtonPressMapper {
     ActionMatch map(ButtonActionDef defs);
 
     @Mapping(target = "action", source = "dto.buttonEvent", qualifiedByName = "map")
-    @Mapping(target = "windowName", source = "currentScene.windowName")
+    @Mapping(target = "windowName", source = "currentScene.name")
     @Mapping(target = "eventSourceScene", source = "dto.scene")
     GPadEventStreamService.SceneBtnActions map(SceneDto currentScene, EventDto dto);
 
     @Mapping(target = "buttonTrigger", ignore = true)
+    @Mapping(target = "recognizedSourceSceneName", source = "windowName")
     NextSceneXdoAction map(GPadEventStreamService.SceneBtnActions actions);
 
     default Function<EventDto, GPadEventStreamService.SceneBtnActions> map(SceneDto currentScene) {

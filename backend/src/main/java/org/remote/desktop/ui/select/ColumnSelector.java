@@ -12,15 +12,12 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ColumnSelector<T> extends VBox {
     private List<T> items = new ArrayList<>();
-    private List<Label> labels = new ArrayList<>();
-    private BidirectionalSpliterator<T> spliterator;
+    private final List<Label> labels = new ArrayList<>();
+    private int selectedIndex = -1;
     private final Border activeBorder = new Border(new BorderStroke(
             Color.rgb(255, 0, 0, 0.8),
             BorderStrokeStyle.SOLID,
@@ -34,71 +31,6 @@ public class ColumnSelector<T> extends VBox {
             new BorderWidths(2)
     ));
 
-    private static class BidirectionalSpliterator<T> implements Spliterator<T> {
-        private final ListIterator<T> iterator;
-        private final int size;
-        private T currentElement;
-        private boolean hasCurrent;
-
-        public BidirectionalSpliterator(List<T> list) {
-            this.iterator = list.listIterator();
-            this.size = list.size();
-            this.currentElement = null;
-            this.hasCurrent = false;
-        }
-
-        @Override
-        public boolean tryAdvance(Consumer<? super T> action) {
-            if (iterator.hasNext()) {
-                currentElement = iterator.next();
-                hasCurrent = true;
-                action.accept(currentElement);
-                return true;
-            }
-            hasCurrent = false;
-            return false;
-        }
-
-        public boolean tryReverse(Consumer<? super T> action) {
-            if (iterator.hasPrevious()) {
-                currentElement = iterator.previous();
-                hasCurrent = true;
-                action.accept(currentElement);
-                return true;
-            }
-            hasCurrent = false;
-            return false;
-        }
-
-        public T getCurrent() {
-            if (hasCurrent) {
-                return currentElement;
-            }
-            if (iterator.hasNext()) {
-                currentElement = iterator.next();
-                iterator.previous();
-                hasCurrent = true;
-                return currentElement;
-            }
-            return null;
-        }
-
-        @Override
-        public Spliterator<T> trySplit() {
-            return null;
-        }
-
-        @Override
-        public long estimateSize() {
-            return size - iterator.nextIndex();
-        }
-
-        @Override
-        public int characteristics() {
-            return ORDERED | SIZED | SUBSIZED;
-        }
-    }
-
     public ColumnSelector() {
         setStyle("-fx-background-color: transparent;");
         setSpacing(20);
@@ -109,9 +41,9 @@ public class ColumnSelector<T> extends VBox {
         if (items != null) {
             this.items.addAll(items);
         }
-        this.spliterator = new BidirectionalSpliterator<>(this.items);
         this.labels.clear();
         getChildren().clear();
+        this.selectedIndex = -1;
 
         for (int i = 0; i < this.items.size(); i++) {
             T item = this.items.get(i);
@@ -123,8 +55,7 @@ public class ColumnSelector<T> extends VBox {
 
             final int index = i;
             label.setOnMouseClicked(event -> {
-                while (spliterator.iterator.nextIndex() <= index && spliterator.tryAdvance(item2 -> {})) {}
-                while (spliterator.iterator.nextIndex() > index + 1 && spliterator.tryReverse(item2 -> {})) {}
+                selectedIndex = index;
                 updateSelection(true);
             });
 
@@ -133,23 +64,30 @@ public class ColumnSelector<T> extends VBox {
         }
 
         if (!items.isEmpty()) {
-            spliterator.tryAdvance(item -> {});
+            selectedIndex = 0;
             updateSelection(true);
         }
     }
 
     public void selectNext() {
-        spliterator.tryAdvance(item -> {});
-        updateSelection(true);
+        if (selectedIndex < items.size() - 1) {
+            selectedIndex++;
+            updateSelection(true);
+        }
     }
 
     public void selectPrevious() {
-        spliterator.tryReverse(item -> {});
-        updateSelection(true);
+        if (selectedIndex > 0) {
+            selectedIndex--;
+            updateSelection(true);
+        }
     }
 
     public T getSelected() {
-        return spliterator.getCurrent();
+        if (selectedIndex >= 0 && selectedIndex < items.size()) {
+            return items.get(selectedIndex);
+        }
+        return null;
     }
 
     public void setActive(boolean isActive) {
@@ -160,9 +98,17 @@ public class ColumnSelector<T> extends VBox {
         for (Label label : labels) {
             label.setBorder(null);
         }
-        int currentIndex = spliterator.iterator.nextIndex() - 1;
-        if (currentIndex >= 0 && currentIndex < labels.size()) {
-            labels.get(currentIndex).setBorder(isActive ? activeBorder : inactiveBorder);
+        if (selectedIndex >= 0 && selectedIndex < labels.size()) {
+            labels.get(selectedIndex).setBorder(isActive ? activeBorder : inactiveBorder);
+        }
+    }
+
+    public void select(T elem) {
+        for (int i = 0; i < items.size(); i++) {
+            if (!items.get(i).equals(elem)) continue;
+
+            selectedIndex = i;
+            updateSelection(true);
         }
     }
 }

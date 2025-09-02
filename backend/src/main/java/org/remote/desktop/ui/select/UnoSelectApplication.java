@@ -1,28 +1,28 @@
-package org.remote.desktop.ui.select.trigger;
+package org.remote.desktop.ui.select;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.ui.select.UnoBehaviourSelector;
+import org.remote.desktop.ui.select.trigger.TriggerUpdateCallback;
+import org.remote.desktop.ui.select.trigger.UiSelectUpdate;
 
 import java.util.List;
 import java.util.function.Function;
 
-public class TriggerSelectApplication extends Application {
+public class UnoSelectApplication<T> extends Application {
 
-    private final UnoBehaviourSelector<EAxisEaser> selector = new UnoBehaviourSelector<>();
+    private final UnoBehaviourSelector<T> selector = new UnoBehaviourSelector<>();
     private Stage primaryStage;
     private Runnable setCols = () -> {
     };
 
-    private TriggerUpdate.TriggerUpdateBuilder update;
+    private UiSelectUpdate.UiSelectUpdateBuilder<T> update;
 
-    public TriggerUpdateCallback setItems(List<? extends EAxisEaser> items,
-                                          Function<? super EAxisEaser, String> labelGetter) {
+    public TriggerUpdateCallback<T> setItems(List<? extends T> items,
+                                          Function<? super T, String> labelGetter) {
 
         setCols = () -> selector.setColumns(items, labelGetter);
 
@@ -36,7 +36,7 @@ public class TriggerSelectApplication extends Application {
                             selector.selectPrevious();
                             break;
                         case ENTER:
-                            callback.accept(update.easer(selector.getSelected()).build());
+                            callback.accept(update.analogControl(selector.getSelected()).build());
                             break;
                     }
                 });
@@ -68,11 +68,12 @@ public class TriggerSelectApplication extends Application {
     }
 
     public void render(SceneDto lastScene, String trigger) {
-        update = TriggerUpdate.builder().trigger(trigger).sceneDto(lastScene);
+        update = UiSelectUpdate.<T>builder().trigger(trigger).sceneDto(lastScene);
 
         Platform.runLater(() -> {
-            this.primaryStage.requestFocus();
             this.primaryStage.show();
+            this.primaryStage.toFront();
+            this.primaryStage.requestFocus();
         });
     }
 }

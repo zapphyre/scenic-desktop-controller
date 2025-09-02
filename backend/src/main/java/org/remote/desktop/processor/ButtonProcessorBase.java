@@ -60,6 +60,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
                 q.getKeyStrokes(),
                 q.getMode(),
                 sceneXdoAction.getNextScene(),
+                sceneXdoAction.getRecognizedSourceSceneName(),
                 def.getTrigger(),
                 sceneXdoAction.getEventSourceScene().getWindowName(),
                 def.getModifiers(),

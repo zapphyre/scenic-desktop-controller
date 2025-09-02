@@ -14,6 +14,6 @@ public enum EKeyEvt {
     KEYBOARD_OFF,
     KEYBOARD_LONG,
     WINDER,
-    TRIGGER_ADJUST
+    UI_ANALOG_ADJUST,
     ;
 }

@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.select.axis;
+package org.remote.desktop.ui.select;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -6,14 +6,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.EAnalogControl;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.ui.select.DuoBehaviourSelector;
+import org.remote.desktop.ui.select.axis.AxisUpdate;
+import org.remote.desktop.ui.select.axis.SelectedCallback;
 
 import java.util.List;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class AxisSelectApplication<L, R> extends Application {
+public class DuoSelectApplication<L, R> extends Application {
     private final DuoBehaviourSelector<L, R> selector = new DuoBehaviourSelector<>();
     private Stage primaryStage;
 
@@ -74,12 +76,14 @@ public class AxisSelectApplication<L, R> extends Application {
         Platform.runLater(() -> primaryStage.hide());
     }
 
-    public void render(SceneDto lastScene, String trigger) {
+    public void render(SceneDto lastScene, EAnalogControl trigger, L l, R r) {
         update = AxisUpdate.<L, R>builder().trigger(trigger).sceneDto(lastScene);
+        selector.select(l, r);
 
         Platform.runLater(() -> {
-            this.primaryStage.requestFocus();
             this.primaryStage.show();
+            this.primaryStage.toFront();
+            this.primaryStage.requestFocus();
         });
     }
 

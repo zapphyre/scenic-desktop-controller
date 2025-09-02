@@ -3,7 +3,7 @@ package org.remote.desktop.ui.select.trigger;
 import java.util.function.Consumer;
 
 @FunctionalInterface
-public interface TriggerUpdateCallback {
+public interface TriggerUpdateCallback<T> {
 
-    void update(Consumer<TriggerUpdate> update);
+    void update(Consumer<UiSelectUpdate<T>> update);
 }
