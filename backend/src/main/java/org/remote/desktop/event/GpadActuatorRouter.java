@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.remote.desktop.mode.EventModeFactory;
 import org.remote.desktop.mode.model.Mode;
 import org.remote.desktop.mode.model.XdoMode;
+import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.model.event.ModeEvent;
+import org.remote.desktop.model.modul.GpadOsActionModule;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -39,8 +41,15 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
     @Component
     class ModeEventRouter implements ApplicationListener<ModeEvent> {
 
+
+
         @Override
         public void onApplicationEvent(ModeEvent event) {
+            GpadOsActionModule<EAdapterMode> modeGpadOsActionModule;
+
+            modeGpadOsActionModule.
+
+
             mode = modeFactory.changeMode(event.getMode());
         }
     }

@@ -2,7 +2,7 @@ package org.remote.desktop.db.dao;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.db.entity.XdoAction;
+import org.remote.desktop.db.entity.Action;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
@@ -35,7 +35,7 @@ public class XdoActionDao {
 
     public List<String> getAllCurrentXdoStrokes() {
         return Stream.concat(xdoActionRepository.findAll().stream()
-                .map(XdoAction::getKeyStrokes)
+                .map(Action::getKeyStrokes)
                 .flatMap(Collection::stream)
                 .distinct(), Arrays.stream(EMode.values()).map(Enum::name)
         ).toList();
@@ -54,7 +54,7 @@ public class XdoActionDao {
                 .map(eventMapper.mapXdoEvent(optToNull(vto.getEventFk(), eventRepository::findById)))
                 .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .map(xdoActionRepository::save)
-                .map(XdoAction::getId)
+                .map(Action::getId)
                 .orElseThrow();
     }
 }

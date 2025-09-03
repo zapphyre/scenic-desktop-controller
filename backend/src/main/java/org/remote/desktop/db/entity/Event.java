@@ -42,7 +42,7 @@ public class Event {
     private Scene nextScene;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE})
-    private List<XdoAction> actions = new ArrayList<>();
+    private List<Action> actions = new ArrayList<>();
 
     @PreUpdate
     @PrePersist

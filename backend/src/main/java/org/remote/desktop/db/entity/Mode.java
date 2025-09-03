@@ -3,6 +3,7 @@ package org.remote.desktop.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.remote.desktop.model.EAdapterMode;
+import org.remote.desktop.model.modul.GpadOsActionModule;
 
 @With
 @Data
@@ -21,5 +22,6 @@ public class Mode {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private EAdapterMode adapterMode;
+    private String adapterMode;
+
 }

@@ -2,7 +2,6 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.remote.desktop.model.EKeyEvt;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +12,13 @@ import java.util.Optional;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class XdoAction {
+public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private EKeyEvt keyEvt;
+    private String keyEvt;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn

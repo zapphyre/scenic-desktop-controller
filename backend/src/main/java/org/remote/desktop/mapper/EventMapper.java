@@ -1,12 +1,10 @@
 package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
+import org.remote.desktop.db.entity.Action;
 import org.remote.desktop.db.entity.Event;
-import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.db.entity.XdoAction;
 import org.remote.desktop.db.repository.ModeRepository;
-import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.dto.EventDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.vto.EventVto;
@@ -48,7 +46,7 @@ public interface EventMapper {
 
 
     @Named("mapActionsWithMode")
-    default List<XdoAction> mapActionsWithMode(List<XdoAction> actions, @Context ModeRepository modeRepository) {
+    default List<Action> mapActionsWithMode(List<Action> actions, @Context ModeRepository modeRepository) {
         return Optional.ofNullable(actions)
                 .orElseGet(Collections::emptyList).stream()
                 .map(action -> action.withMode(modeRepository.findByAdapterMode(action.getMode().getAdapterMode())))
@@ -64,9 +62,9 @@ public interface EventMapper {
 
     @Mapping(target = "id", source = "vto.id")
     @Mapping(target = "event", source = "event")
-    XdoAction mapXdoEvent(XdoActionVto vto, Event event);
+    Action mapXdoEvent(XdoActionVto vto, Event event);
 
-    default Function<XdoActionVto, XdoAction> mapXdoEvent(Event event) {
+    default Function<XdoActionVto, Action> mapXdoEvent(Event event) {
         return q -> mapXdoEvent(q, event);
     }
 
@@ -93,35 +91,35 @@ public interface EventMapper {
         return q -> map(q, parent, next, new CycleAvoidingMappingContext());
     }
 
-    XdoAction map(XdoActionDto dto, @Context CycleAvoidingMappingContext ctx);
+    Action map(XdoActionDto dto, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "mode", source = "mode.adapterMode")
-    XdoActionDto map(XdoAction entity, @Context CycleAvoidingMappingContext ctx);
+    XdoActionDto map(Action entity, @Context CycleAvoidingMappingContext ctx);
 
     @Named("maptoDto")
-    List<XdoActionDto> maptoDto(Iterable<XdoAction> entities, @Context CycleAvoidingMappingContext ctx);
+    List<XdoActionDto> maptoDto(Iterable<Action> entities, @Context CycleAvoidingMappingContext ctx);
 
-    List<XdoAction> mapDtos(Iterable<XdoActionDto> entities, @Context CycleAvoidingMappingContext ctx);
+    List<Action> mapDtos(Iterable<XdoActionDto> entities, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "eventFk", source = "event.id")
     @Mapping(target = "mode", source = "mode.adapterMode")
-    XdoActionVto mapToVto(XdoAction entity);
+    XdoActionVto mapToVto(Action entity);
 
     @Named("map")
-    List<XdoActionVto> map(List<XdoAction> entities);
+    List<XdoActionVto> map(List<Action> entities);
 
-    void update(XdoActionDto from, @MappingTarget XdoAction to, @Context CycleAvoidingMappingContext ctx);
+    void update(XdoActionDto from, @MappingTarget Action to, @Context CycleAvoidingMappingContext ctx);
 
-    default Consumer<XdoAction> updater(XdoActionDto from) {
+    default Consumer<Action> updater(XdoActionDto from) {
         return q -> update(from, q, new CycleAvoidingMappingContext());
     }
 
     @Mapping(target = "id", source = "source.id")
     @Mapping(target = "event", source = "gEvt")
     @Mapping(target = "mode", ignore = true)
-    void update(@MappingTarget XdoAction target, XdoActionVto source, Event gEvt, @Context CycleAvoidingMappingContext ctx);
+    void update(@MappingTarget Action target, XdoActionVto source, Event gEvt, @Context CycleAvoidingMappingContext ctx);
 
-    default Consumer<XdoAction> update(XdoActionVto source, Event gEvt) {
+    default Consumer<Action> update(XdoActionVto source, Event gEvt) {
         return q -> update(q, source, gEvt, new CycleAvoidingMappingContext());
     }
 }
