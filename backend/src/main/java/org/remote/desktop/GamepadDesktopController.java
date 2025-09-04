@@ -1,5 +1,6 @@
 package org.remote.desktop;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.Action;
@@ -40,23 +41,11 @@ public class GamepadDesktopController {
 
 //    @PostConstruct
     void migr() {
-        Mode.ModeBuilder modeBuilder = Mode.builder().adapterMode(EAdapterMode.WINDER);
+        Mode mode = modeRepository.findById(1l).orElseThrow();
 
-        List<Action> actions = sceneRepository.findAll()
-                .stream().filter(
-                        q -> q.getName().equalsIgnoreCase(WINDER_SCENE_NAME)
-                )
-                .flatMap(q -> q.getEvents().stream())
-                .flatMap(q -> q.getActions().stream())
-                .toList();
-
-        Mode mode = modeBuilder.build();
-        Mode saved = modeRepository.save(mode);
-
-        actions.forEach(q -> q.setMode(saved));
-//        saved = modeRepository.save(mode);
-
-        xdoActionRepository.saveAll(actions);
+        sceneRepository.findAll().stream()
+               .peek(q -> q.setMode(mode))
+               .forEach(sceneRepository::save);
     }
 
 }

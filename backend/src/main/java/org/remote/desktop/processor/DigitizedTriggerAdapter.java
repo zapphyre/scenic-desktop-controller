@@ -44,7 +44,7 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
         InlineEasingFluxDecorator<ETriggerEvent, ButtonActionDef> repeater = getFluxRepeater(gamepadEvents);
 
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-                .to(chew(sceneService::getSceneForWindowNameOrBase, repeater::setScene));
+                .to(chew(sceneService::getSceneForModeAndWindowNameOrBase, repeater::setScene));
 
         return repeater.getRepeatingStream()
                 .publishOn(Schedulers.fromExecutorService(executorService))

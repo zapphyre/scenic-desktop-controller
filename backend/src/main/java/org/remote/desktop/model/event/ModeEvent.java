@@ -7,9 +7,9 @@ import org.springframework.context.ApplicationEvent;
 @Value
 public class ModeEvent extends ApplicationEvent {
 
-    EMode mode;
+    String mode;
 
-    public ModeEvent(Object source, EMode mode) {
+    public ModeEvent(Object source, String mode) {
         super(source);
         this.mode = mode;
     }

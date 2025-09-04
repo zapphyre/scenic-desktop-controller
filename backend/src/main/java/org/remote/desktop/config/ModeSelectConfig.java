@@ -28,7 +28,7 @@ public class ModeSelectConfig {
 
         unoSelectApplication.setItems(items, Enum::name)
                 .update(q -> eventPublisher.publishEvent(
-                        new ModeEvent(this, q.getAnalogControl())
+                        new ModeEvent(this, q.getAnalogControl().name())
                 ));
 
         return unoSelectApplication;

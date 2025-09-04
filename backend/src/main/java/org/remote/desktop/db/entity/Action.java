@@ -33,10 +33,6 @@ public class Action {
     @Column(name = "key_stroke", nullable = false)
     private List<String> keyStrokes;
 
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Mode mode;
-
     @PreUpdate
     @PrePersist
     public void relinkEntities() {

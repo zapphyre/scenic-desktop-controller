@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
-import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.EKeyEvt;
 
 import java.util.List;
@@ -22,6 +21,4 @@ public class XdoActionVto {
     Long eventFk;
 
     String activator;
-
-    EAdapterMode mode;
 }

@@ -4,6 +4,7 @@ import org.asmus.model.EButtonAxisMapping;
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.ButtonEvent;
 import org.remote.desktop.db.entity.Mode;
+import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.EAdapterMode;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.vto.ButtonEventVto;
@@ -31,13 +32,13 @@ public interface ButtonEventMapper {
     }
 
     // duplicity and i don't know why it want me to delare it anyway
-    default EAdapterMode map(Mode value) {
+    default String map(Mode value) {
         return Optional.ofNullable(value)
                 .map(Mode::getAdapterMode)
-                .orElse(EAdapterMode.DESKTOP);
+                .orElse("Desktop");
     }
 
-    default Mode eAdapterModeToMode(EAdapterMode eAdapterMode) {
-        return Mode.builder().adapterMode(eAdapterMode).build();
+    default Mode eAdapterModeToMode(String adapterMode) {
+        return Mode.builder().adapterMode(adapterMode).build();
     }
 }

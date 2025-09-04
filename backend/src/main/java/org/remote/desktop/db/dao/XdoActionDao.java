@@ -45,14 +45,14 @@ public class XdoActionDao {
         Optional.of(vto)
                 .map(XdoActionVto::getId)
                 .flatMap(xdoActionRepository::findById)
-                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
+//                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .ifPresent(eventMapper.update(vto, optToNull(vto.getEventFk(), eventRepository::findById)));
     }
 
     public Long create(XdoActionVto vto) {
         return Optional.of(vto)
                 .map(eventMapper.mapXdoEvent(optToNull(vto.getEventFk(), eventRepository::findById)))
-                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
+//                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .map(xdoActionRepository::save)
                 .map(Action::getId)
                 .orElseThrow();

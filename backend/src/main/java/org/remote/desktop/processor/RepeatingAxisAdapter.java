@@ -70,6 +70,6 @@ public class RepeatingAxisAdapter {
     @PostConstruct
     void init() {
         glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-                .to(chew(sceneService::getSceneForWindowNameOrBase, pipe(leftRepeater::setScene, rightRepeater::setScene)));
+                .to(chew(sceneService::getSceneForModeAndWindowNameOrBase, pipe(leftRepeater::setScene, rightRepeater::setScene)));
     }
 }

@@ -12,13 +12,13 @@ public class KeyboardMode extends Mode {
 
     @Override
     public ApplicationEvent currentModeEvent(GpadCommandEvent e) {
-        if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_LONG)
-            return new LongHoldEvent(this, EActionButton.valueOf(e.getTrigger()));
-        else if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_ON) {
-            return new KeyboardWidgetControlEvent(this, true);
-        } else if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_OFF)
-            return new KeyboardWidgetControlEvent(this, false);
-        else
+//        if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_LONG)
+//            return new LongHoldEvent(this, EActionButton.valueOf(e.getTrigger()));
+//        else if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_ON) {
+//            return new KeyboardWidgetControlEvent(this, true);
+//        } else if (e.getKeyPart().getKeyEvt() == EKeyEvt.KEYBOARD_OFF)
+//            return new KeyboardWidgetControlEvent(this, false);
+//        else
             return new PredictionControlEvent(this, null, null, e.getTrigger(), e.getModifiers(), e.isLongPress());
     }
 }

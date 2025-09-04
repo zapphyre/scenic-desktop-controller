@@ -1,7 +1,6 @@
 package org.remote.desktop.processor;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.builder.AxisEventProcessorFactory;
@@ -13,16 +12,13 @@ import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
-import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.model.dto.*;
 import org.remote.desktop.model.event.NoopCommandEvent;
-import org.remote.desktop.model.event.WinderCommandEvent;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import org.winder.common.model.EWinderOp;
 import org.zapphyre.fizzy.Gesturizer;
 import org.zapphyre.fizzy.matcher.Matcher;
 import org.zapphyre.fizzy.matcher.build.GestureSupplier;
@@ -32,7 +28,6 @@ import org.zapphyre.fizzy.model.MatchResult;
 import org.zapphyre.fizzy.model.ToleranceConfig;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -100,7 +95,7 @@ public class StickGestureProcessor implements AppEventMapper {
 
     List<MatchDef<ButtonEventDto>> setupMatcherOn(Function<? super GestureEventDto, GestureDto> stickSpecifier, String sceneName) {
         return Optional.ofNullable(sceneName)
-                .map(sceneService::getSceneForWindowNameOrBase)
+                .map(sceneService::getSceneForModeAndWindowNameOrBase)
                 .map(SceneDto::getEvents)
                 .orElseGet(Collections::emptyList).stream()
                 .flatMap(q -> Optional.ofNullable(q)

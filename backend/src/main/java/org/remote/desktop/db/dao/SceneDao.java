@@ -12,6 +12,7 @@ import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
+import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,7 @@ public class SceneDao {
     private final RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
     private final SceneRepository sceneRepository;
+    private final ModeService modeService;
 
     private final SceneMapper sceneMapper;
     private final EventMapper eventMapper;
@@ -52,7 +54,7 @@ public class SceneDao {
     }
 
     public SceneDto getSceneForWindowNameOrBase(String sceneName) {
-        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName);
+        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName, modeService.getCurrentMode());
 
 //        if (bySceneContain.size() > 1)
 //            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
@@ -64,7 +66,7 @@ public class SceneDao {
     }
 
     public List<SceneDto> getAllMatchingScenes(String sceneName) {
-        return sceneRepository.findBySceneContain(sceneName).stream()
+        return sceneRepository.findBySceneContain(sceneName, modeService.getCurrentMode()).stream()
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .toList();
     }

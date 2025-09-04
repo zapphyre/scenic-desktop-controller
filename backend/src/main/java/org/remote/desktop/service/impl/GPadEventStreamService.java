@@ -53,7 +53,7 @@ public class GPadEventStreamService {
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return ofNullable(windowName)
-                .map(sceneService::getSceneForWindowNameOrBase)
+                .map(sceneService::getSceneForModeAndWindowNameOrBase)
                 .map(this::extractInheritedActions)
                 .orElse(Map.of());
     }
@@ -73,7 +73,7 @@ public class GPadEventStreamService {
     public SceneDto sceneNow() {
         return xdoSceneService.isSceneForced() ?
                 xdoSceneService.getForcedScene() :
-                sceneService.getSceneForWindowNameOrBase(xdoSceneService.tryGetCurrentName());
+                sceneService.getSceneForModeAndWindowNameOrBase(xdoSceneService.tryGetCurrentName());
     }
 
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {

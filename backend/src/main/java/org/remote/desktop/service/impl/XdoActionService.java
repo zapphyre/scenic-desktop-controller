@@ -24,7 +24,6 @@ public class XdoActionService {
     @Cacheable(SCENE_ACTIONS_CACHE_NAME)
     public List<String> getAllCurrentXdoStrokes(EKeyEvt eKeyEvt) {
         return switch (eKeyEvt) {
-            case WINDER -> winderOps;
             default -> xdoActionDao.getAllCurrentXdoStrokes().stream()
                     .filter(Predicate.not(winderOps::contains))
                     .toList();

@@ -16,7 +16,7 @@ public class ModeService {
     private final ModeDao modeDao;
 
     @Getter @Setter
-    private String currentMode;
+    private String currentMode = "DESKTOP";
 
     public List<ModeVto> getAllModes() {
         return modeDao.getAllModes();

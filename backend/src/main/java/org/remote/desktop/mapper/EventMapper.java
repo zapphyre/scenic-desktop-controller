@@ -49,7 +49,7 @@ public interface EventMapper {
     default List<Action> mapActionsWithMode(List<Action> actions, @Context ModeRepository modeRepository) {
         return Optional.ofNullable(actions)
                 .orElseGet(Collections::emptyList).stream()
-                .map(action -> action.withMode(modeRepository.findByAdapterMode(action.getMode().getAdapterMode())))
+//                .map(action -> action.withMode(modeRepository.findByAdapterMode(action.getMode().getAdapterMode())))
                 .collect(Collectors.toList());
     }
 
@@ -93,7 +93,6 @@ public interface EventMapper {
 
     Action map(XdoActionDto dto, @Context CycleAvoidingMappingContext ctx);
 
-    @Mapping(target = "mode", source = "mode.adapterMode")
     XdoActionDto map(Action entity, @Context CycleAvoidingMappingContext ctx);
 
     @Named("maptoDto")
@@ -102,7 +101,6 @@ public interface EventMapper {
     List<Action> mapDtos(Iterable<XdoActionDto> entities, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "eventFk", source = "event.id")
-    @Mapping(target = "mode", source = "mode.adapterMode")
     XdoActionVto mapToVto(Action entity);
 
     @Named("map")
@@ -116,7 +114,6 @@ public interface EventMapper {
 
     @Mapping(target = "id", source = "source.id")
     @Mapping(target = "event", source = "gEvt")
-    @Mapping(target = "mode", ignore = true)
     void update(@MappingTarget Action target, XdoActionVto source, Event gEvt, @Context CycleAvoidingMappingContext ctx);
 
     default Consumer<Action> update(XdoActionVto source, Event gEvt) {

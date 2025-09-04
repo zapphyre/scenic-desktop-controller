@@ -13,13 +13,13 @@ import java.util.List;
 @Jacksonized
 @RequiredArgsConstructor
 public class KeyPart {
-    EKeyEvt keyEvt;
+    String keyEvt;
     List<String> keyStrokes;
 
     public KeyPart invert() {
         return KeyPart.builder()
                 .keyStrokes(keyStrokes)
-                .keyEvt(getKeyEvt() == EKeyEvt.PRESS ? EKeyEvt.RELEASE : EKeyEvt.PRESS)
+                .keyEvt(getKeyEvt().equals("PRESS") ? "RELEASE" : "PRESS")
                 .build();
     }
 }

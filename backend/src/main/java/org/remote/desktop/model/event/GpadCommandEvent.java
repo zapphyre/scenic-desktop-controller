@@ -25,7 +25,7 @@ public class GpadCommandEvent extends ApplicationEvent {
     Set<EButtonAxisMapping> modifiers;
     boolean longPress;
 
-    public GpadCommandEvent(Object source, EKeyEvt keyEvt, List<String> keyStrokes, EAdapterMode mode, SceneDto nextScene, String recognizedSceneName ,String trigger, String sourceSceneWindowName, Set<EButtonAxisMapping> modifiers, boolean longPress) {
+    public GpadCommandEvent(Object source, String keyEvt, List<String> keyStrokes, EAdapterMode mode, SceneDto nextScene, String recognizedSceneName ,String trigger, String sourceSceneWindowName, Set<EButtonAxisMapping> modifiers, boolean longPress) {
         super(source);
         this.mode = mode;
         this.nextScene = nextScene;

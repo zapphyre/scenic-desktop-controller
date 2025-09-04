@@ -25,19 +25,16 @@ public interface SceneMapper {
     @Mapping(target = "leftTriggerEaser", source = "leftTriggerEaser", defaultValue = "NONE")
     @Mapping(target = "leftTriggerEvent", defaultValue = "DEFINED")
     @Mapping(target = "rightTriggerEvent", defaultValue = "DEFINED")
-    SceneDto map(Scene sceneVto, @Context CycleAvoidingMappingContext ctx);
+    @Mapping(target = "mode", source = "mode.adapterMode")
+    SceneDto map(Scene entity, @Context CycleAvoidingMappingContext ctx);
 
-    List<SceneDto> map(List<Scene> sceneVto, @Context CycleAvoidingMappingContext ctx);
+    @InheritInverseConfiguration
+    Scene map(SceneDto dto, @Context CycleAvoidingMappingContext ctx);
 
-    Scene map(SceneDto sceneDto, @Context CycleAvoidingMappingContext ctx);
+    @Mapping(target = "mode", ignore = true)
+    Scene map(SceneVto dto, @Context CycleAvoidingMappingContext ctx);
 
-    List<Scene> mapDtos(List<SceneDto> sceneDto, @Context CycleAvoidingMappingContext ctx);
-
-    void update(SceneDto source, @MappingTarget Scene target, @Context CycleAvoidingMappingContext ctx);
-
-    default Consumer<Scene> updater(SceneDto source) {
-        return q -> update(source, q, new CycleAvoidingMappingContext());
-    }
+    List<SceneDto> map(List<Scene> entity, @Context CycleAvoidingMappingContext ctx);
 
     @Named("inheritedEvents")
     default Set<Event> inheritedEvents(Scene entity) {
@@ -46,6 +43,7 @@ public interface SceneMapper {
 
     @Mapping(target = "inheritedGamepadEvents", source = ".", qualifiedByName = "inheritedEvents")
     @Mapping(target = "inheritsIdFk", source = "inheritsFrom", qualifiedByName = "mapInheritNames")
+    @Mapping(target = "mode", source = "mode.adapterMode")
     SceneVto map(Scene entity);
 
     @Named("mapInheritNames")
@@ -65,13 +63,16 @@ public interface SceneMapper {
 
     @Mapping(target = "inheritsFrom", ignore = true)
     @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
+    @Mapping(target = "mode", ignore = true)
     void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits, CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
+    @Mapping(target = "mode", ignore = true) // i should map this properly
     void update(@MappingTarget Scene target, SceneDto source, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "inheritsFrom", ignore = true)
     @Mapping(target = "events", ignore = true) // i'm setting them by id
+    @Mapping(target = "mode", ignore = true)
     Scene map(SceneVto vto, @Context List<Scene> inherits);
 
     @AfterMapping

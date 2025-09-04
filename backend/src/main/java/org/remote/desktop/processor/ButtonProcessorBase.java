@@ -58,7 +58,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
         return q -> new GpadCommandEvent(this,
                 q.getKeyEvt(),
                 q.getKeyStrokes(),
-                q.getMode(),
+                null,
                 sceneXdoAction.getNextScene(),
                 sceneXdoAction.getRecognizedSourceSceneName(),
                 def.getTrigger(),

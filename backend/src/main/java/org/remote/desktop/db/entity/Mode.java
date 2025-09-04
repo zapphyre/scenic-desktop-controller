@@ -2,8 +2,8 @@ package org.remote.desktop.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.remote.desktop.model.EAdapterMode;
-import org.remote.desktop.model.modul.GpadOsActionModule;
+
+import java.util.List;
 
 @With
 @Data
@@ -21,7 +21,7 @@ public class Mode {
     @EqualsAndHashCode.Exclude
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     private String adapterMode;
 
+    private List<String> keyEvtTypes;
 }

@@ -22,15 +22,14 @@ public class XdoActionDto {
     Long id;
 
     @ToString.Include
-    EKeyEvt keyEvt;
+    String keyEvt; //verb
 
     @ToString.Include
-    List<String> keyStrokes;
+    List<String> keyStrokes; //nouns
 
     String activator;
 
     @ToString.Exclude
     EventDto event;
 
-    EAdapterMode mode;
 }

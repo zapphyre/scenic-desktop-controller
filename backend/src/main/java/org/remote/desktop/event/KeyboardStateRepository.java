@@ -27,12 +27,12 @@ public class KeyboardStateRepository implements ApplicationListener<GpadCommandE
 
     @Override
     public void onApplicationEvent(GpadCommandEvent event) {
-        if (event.getKeyPart().getKeyEvt().ordinal() > 1) return;
-
-        switch (event.getKeyPart().getKeyEvt()) {
-            case PRESS -> pressedKeys.add(event.getKeyPart());
-            case RELEASE -> pressedKeys.remove(event.getKeyPart().invert());
-        }
+//        if (event.getKeyPart().getKeyEvt().ordinal() > 1) return;
+//
+//        switch (event.getKeyPart().getKeyEvt()) {
+//            case PRESS -> pressedKeys.add(event.getKeyPart());
+//            case RELEASE -> pressedKeys.remove(event.getKeyPart().invert());
+//        }
 
         issuedCommandObservers.forEach(q -> q.accept(event.getKeyPart()));
     }

@@ -50,6 +50,8 @@ const filterChange = async () => {
   // );
   filteredStrokes.value = props.strokes.filter((p: string) => p.includes(filtered.value || ""));
 
+  console.log('strokes.value', strokes.value);
+
   if (filtered.value)
     filteredStrokes.value = [...filteredStrokes.value, ...strokes.value]  //filteredStrokes.value.concat(strokes.value);
 

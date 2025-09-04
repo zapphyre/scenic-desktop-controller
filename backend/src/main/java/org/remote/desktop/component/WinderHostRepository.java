@@ -46,7 +46,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
                 .orElseGet(() -> sceneDao.create(createPresetWinderScene(Arrays.asList(EWinderOp.values()))));
     }
 
-    @PostConstruct
+//    @PostConstruct
     void initScenery() {
         SceneVto scenery = getWinderScenery();
 
@@ -54,7 +54,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
 
         scenery.getEvents().stream()
                 .flatMap(q -> q.getActions().stream())
-                .filter(q -> q.getMode() == EAdapterMode.WINDER)
+//                .filter(q -> q.getMode() == EAdapterMode.WINDER)
                 .flatMap(event -> event.getKeyStrokes().stream())
                 .map(EWinderOp::valueOf)
                 .forEach(allOps::remove);
@@ -93,7 +93,7 @@ public class WinderHostRepository implements JmAutoRegistry, ApplicationListener
         return ops.stream()
                 .map(q -> EventVto.builder()
                         .actions(List.of(XdoActionVto.builder()
-                                .mode(EAdapterMode.WINDER)
+//                                .mode(EAdapterMode.WINDER)
                                 .keyEvt(EKeyEvt.STROKE)
                                 .keyStrokes(List.of(q.name()))
                                 .build())

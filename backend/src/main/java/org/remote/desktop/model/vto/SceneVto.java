@@ -39,4 +39,6 @@ public class SceneVto {
     List<EventVto> events;
 
     List<EventVto> inheritedGamepadEvents;
+
+    String mode;
 }

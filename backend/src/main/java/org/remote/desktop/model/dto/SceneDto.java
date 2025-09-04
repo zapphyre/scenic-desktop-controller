@@ -48,4 +48,6 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
 
     @ToString.Include
     List<EventDto> events;
+
+    String mode;
 }

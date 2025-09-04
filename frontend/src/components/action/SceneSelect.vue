@@ -5,20 +5,11 @@ import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
 import {getSceneNameIdList, getScenes, getTriggers} from "@/api/dataStore";
-import {
-  axisEaserValues,
-  axisValues,
-  ButtonEventVto,
-  EAxisEvent,
-  EventVto,
-  GPadEvent,
-  NameId,
-  Scene
-} from '@/model/gpadOs'
+import {axisEaserValues, axisValues, EAxisEvent, EventVto, NameId, Scene} from '@/model/gpadOs'
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 import _ from "lodash";
 
 const scenesRef = ref<Scene[]>([]);

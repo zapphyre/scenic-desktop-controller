@@ -11,8 +11,8 @@ public class AnalogControlSelectMode extends Mode {
 
     @Override
     public ApplicationEvent currentModeEvent(GpadCommandEvent gEvt) {
-        if (gEvt.getKeyPart().getKeyEvt() == EKeyEvt.UI_ANALOG_ADJUST)
-            return new UiAnalogAdjustEvent(this, true, gEvt);
+//        if (gEvt.getKeyPart().getKeyEvt() == EKeyEvt.UI_ANALOG_ADJUST)
+//            return new UiAnalogAdjustEvent(this, true, gEvt);
 //        else
 //            return new TriggerSelectEvent(this, false, gEvt);
 

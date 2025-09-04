@@ -33,7 +33,7 @@ public class SceneService {
     }
 
     @Cacheable(SCENE_CACHE_NAME_CONTAINING)
-    public SceneDto getSceneForWindowNameOrBase(String sceneName) {
+    public SceneDto getSceneForModeAndWindowNameOrBase(String sceneName) {
         return sceneDao.getSceneForWindowNameOrBase(sceneName);
     }
 
