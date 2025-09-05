@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -36,7 +37,7 @@ public class ColumnSelector<T> extends VBox {
         setSpacing(20);
     }
 
-    public void setItems(List<? extends T> items, Function<? super T, String> labelExtractor) {
+    public void setItems(Collection<? extends T> items, Function<? super T, String> labelExtractor) {
         this.items = new ArrayList<>();
         if (items != null) {
             this.items.addAll(items);

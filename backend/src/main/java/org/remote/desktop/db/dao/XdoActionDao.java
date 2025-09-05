@@ -7,7 +7,6 @@ import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
 import org.remote.desktop.mapper.EventMapper;
-import org.remote.desktop.mode.model.EMode;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +33,11 @@ public class XdoActionDao {
     }
 
     public List<String> getAllCurrentXdoStrokes() {
-        return Stream.concat(xdoActionRepository.findAll().stream()
+        return xdoActionRepository.findAll().stream()
                 .map(Action::getKeyStrokes)
                 .flatMap(Collection::stream)
-                .distinct(), Arrays.stream(EMode.values()).map(Enum::name)
-        ).toList();
+                .distinct()
+                .toList();
     }
 
     public void update(XdoActionVto vto) {

@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class XdoActionVto {
     Long id;
-    EKeyEvt keyEvt;
+    String keyEvt;
 
     List<String> keyStrokes;
 

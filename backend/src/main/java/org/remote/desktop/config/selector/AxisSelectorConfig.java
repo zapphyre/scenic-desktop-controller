@@ -1,4 +1,4 @@
-package org.remote.desktop.config;
+package org.remote.desktop.config.selector;
 
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.model.EAxisEaser;
@@ -58,7 +58,6 @@ public class AxisSelectorConfig {
 
         duoSelectApplication.setItems(left, right, Enum::name, Enum::name)
                 .selected(update -> {
-
 
                     SceneDto updated = switch (update.getTrigger()) {
                         case LEFT_TRIGGER -> update.getSceneDto()

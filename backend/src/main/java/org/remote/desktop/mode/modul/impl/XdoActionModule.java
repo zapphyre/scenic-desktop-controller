@@ -2,7 +2,7 @@ package org.remote.desktop.mode.modul.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.remote.desktop.mode.modul.GpadOsActionModule;
+import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.service.impl.StateService;
 import org.springframework.stereotype.Component;
 

@@ -14,6 +14,7 @@ import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
 import org.remote.desktop.ui.select.DuoSelectApplication;
 import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
+import org.remote.desktop.ui.select.mode.ModeSelector;
 import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class StickTextAdapter {
     private final AxisUiSelector duoSelectApplication;
     private final TriggerUiSelector unoSelectApplication;
     private final UnoSelectApplication<?> singleSelector;
+    private final ModeSelector modeSelector;
 
     private PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
@@ -45,6 +47,7 @@ public class StickTextAdapter {
                 singleSelector.start(new Stage());
                 duoSelectApplication.start(new Stage());
                 unoSelectApplication.start(new Stage());
+                modeSelector.getApplication().start(new Stage());
             });
         });
 

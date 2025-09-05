@@ -1,34 +1,30 @@
-package org.remote.desktop.config;
+package org.remote.desktop.config.selector;
 
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.mode.model.EMode;
-import org.remote.desktop.model.EAnalogControl;
+import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.model.event.ModeEvent;
-import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
-import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.mode.ModeSelector;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Configuration
 @RequiredArgsConstructor
 public class ModeSelectConfig {
 
+    private final Map<String, GpadOsActionModule> actuatorModules;
     private final ApplicationEventPublisher eventPublisher;
 
     @Bean
     public ModeSelector createModeSelectApplication() {
-        List<EMode> items = Arrays.asList(EMode.values());
-
         ModeSelector unoSelectApplication = new ModeSelector();
 
-        unoSelectApplication.setItems(items, Enum::name)
+        unoSelectApplication.setItems(actuatorModules.keySet().stream().toList(), Function.identity())
                 .update(q -> eventPublisher.publishEvent(
-                        new ModeEvent(this, q.getAnalogControl().name())
+                        new ModeEvent(this, q.getAnalogControl())
                 ));
 
         return unoSelectApplication;

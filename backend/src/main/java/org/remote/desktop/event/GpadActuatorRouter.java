@@ -1,36 +1,30 @@
 package org.remote.desktop.event;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.remote.desktop.mode.EventModeFactory;
-import org.remote.desktop.mode.GpadOsModuleLoader;
-import org.remote.desktop.mode.model.Mode;
-import org.remote.desktop.mode.model.XdoMode;
+import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.model.event.ModeEvent;
-import org.remote.desktop.mode.modul.GpadOsActionModule;
-import org.springframework.context.ApplicationEvent;
+import org.remote.desktop.service.impl.ModeService;
+import org.remote.desktop.ui.select.mode.ModeSelector;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-@Import(GpadOsModuleLoader.class)
 @RequiredArgsConstructor
 public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent> {
 
     private final ApplicationEventPublisher eventPublisher;
-
+    private final ModeSelector  modeSelector;
     private final Map<String, GpadOsActionModule> actuatorModules;
+    private final ModeService modeService;
 
+    @Getter
     private  GpadOsActionModule currentMode;
-
-//    private final EventModeFactory modeFactory = new EventModeFactory(new XdoMode());
-//
-//    private Mode mode = modeFactory.getLastMode();
 
     @PostConstruct
     void init() {
@@ -49,6 +43,9 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
 //            default -> modeFactory.getLastMode();
 //        };
 
+        if (e.getKeyPart().getKeyEvt().equals("MODE_SELECT"))
+            modeSelector.getApplication().render(null, "");
+
         currentMode.handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
 
 //        ApplicationEvent evt = mode.currentModeEvent(e);
@@ -61,6 +58,8 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
         @Override
         public void onApplicationEvent(ModeEvent event) {
             currentMode = actuatorModules.get(event.getMode());
+            modeService.setCurrentMode(event.getMode());
+            modeSelector.getApplication().close();
         }
     }
 }

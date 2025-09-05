@@ -3,6 +3,7 @@ package org.remote.desktop.ui.select;
 import javafx.application.Platform;
 import javafx.scene.layout.HBox;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -19,7 +20,7 @@ public class UnoBehaviourSelector<T> extends HBox {
         getChildren().addAll(selector);
     }
 
-    public void setColumns(List<? extends T> items,
+    public void setColumns(Collection<? extends T> items,
                            Function<? super T, String> leftLabelExtractor) {
         Platform.runLater(() -> {
             selector.setItems(items, leftLabelExtractor);

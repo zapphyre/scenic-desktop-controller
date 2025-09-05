@@ -9,6 +9,7 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.ui.select.trigger.TriggerUpdateCallback;
 import org.remote.desktop.ui.select.trigger.UiSelectUpdate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -21,8 +22,8 @@ public class UnoSelectApplication<T> extends Application {
 
     private UiSelectUpdate.UiSelectUpdateBuilder<T> update;
 
-    public TriggerUpdateCallback<T> setItems(List<? extends T> items,
-                                          Function<? super T, String> labelGetter) {
+    public TriggerUpdateCallback<T> setItems(Collection<? extends T> items,
+                                             Function<? super T, String> labelGetter) {
 
         setCols = () -> selector.setColumns(items, labelGetter);
 
