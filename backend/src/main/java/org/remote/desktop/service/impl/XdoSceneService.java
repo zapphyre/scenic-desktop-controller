@@ -89,10 +89,6 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
         forcedSceneObservers.add(observer);
     }
 
-    public SceneDto getLastScene() {
-        return sceneDao.getSceneForWindowNameOrBase(lastRecognizedWindowName);
-    }
-
     @Override
     public boolean supportsAsyncExecution() {
         return true;

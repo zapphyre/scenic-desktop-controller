@@ -10,7 +10,7 @@ import {
   EAdapterMode,
   EKeyEvt,
   EventVto,
-  GestureEventVto,
+  GestureEventVto, Mode,
   multiplicityValues,
   NameId,
   XdoAction
@@ -31,6 +31,7 @@ const props = defineProps<{
   disabled?: boolean | false;
   selectedSceneId: number
   renderAction?: boolean | true;
+  mode: Mode
 }>();
 
 const addNewAction = (mode: EAdapterMode) => async () => {
@@ -100,7 +101,7 @@ const emit = defineEmits<{
 
 onMounted(async () => {
   gestures.value = await getGesturesNameIdList();
-  forcedAvailableRef.value = (await getSceneNameIdList()).filter(q => q.id !== props.selectedSceneId)
+  forcedAvailableRef.value = (await getSceneNameIdList(props.mode.adapterMode!!)).filter(q => q.id !== props.selectedSceneId)
   triggers.value = await getTriggers();
 })
 </script>

@@ -23,14 +23,6 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
     private final Map<String, GpadOsActionModule> actuatorModules;
     private final ModeService modeService;
 
-    @Getter
-    private  GpadOsActionModule currentMode;
-
-    @PostConstruct
-    void init() {
-        currentMode = actuatorModules.get("DESKTOP");
-    }
-
     @Override
     public void onApplicationEvent(GpadCommandEvent e) {
 //        mode = switch (e.getKeyPart().getKeyEvt()) {
@@ -46,7 +38,7 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
         if (e.getKeyPart().getKeyEvt().equals("MODE_SELECT"))
             modeSelector.getApplication().render(null, "");
 
-        currentMode.handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
+        modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
 
 //        ApplicationEvent evt = mode.currentModeEvent(e);
 //        eventPublisher.publishEvent(evt);
@@ -57,8 +49,9 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
 
         @Override
         public void onApplicationEvent(ModeEvent event) {
-            currentMode = actuatorModules.get(event.getMode());
-            modeService.setCurrentMode(event.getMode());
+            GpadOsActionModule module = actuatorModules.get(event.getMode());
+            modeService.setCurrentMode(module);
+
             modeSelector.getApplication().close();
         }
     }

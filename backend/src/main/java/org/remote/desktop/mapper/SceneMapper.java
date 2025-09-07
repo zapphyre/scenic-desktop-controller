@@ -2,6 +2,7 @@ package org.remote.desktop.mapper;
 
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.SceneVto;
@@ -9,6 +10,7 @@ import org.remote.desktop.util.RecursiveScraper;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -25,11 +27,11 @@ public interface SceneMapper {
     @Mapping(target = "leftTriggerEaser", source = "leftTriggerEaser", defaultValue = "NONE")
     @Mapping(target = "leftTriggerEvent", defaultValue = "DEFINED")
     @Mapping(target = "rightTriggerEvent", defaultValue = "DEFINED")
-    @Mapping(target = "mode", source = "mode.adapterMode")
     SceneDto map(Scene entity, @Context CycleAvoidingMappingContext ctx);
 
     @InheritInverseConfiguration
-    Scene map(SceneDto dto, @Context CycleAvoidingMappingContext ctx);
+    @Mapping(target = "id", source = "dto.id")
+    Scene map(SceneDto dto, @Context Mode mode, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "mode", ignore = true)
     Scene map(SceneVto dto, @Context CycleAvoidingMappingContext ctx);
@@ -67,7 +69,7 @@ public interface SceneMapper {
     void update(@MappingTarget Scene target, SceneVto source, @Context List<Scene> inherits, CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "events", ignore = true) // why is this ignored?? -- maybe b/c from the fe i just want to update scene as such and other relations would throw unmanaged
-    @Mapping(target = "mode", ignore = true) // i should map this properly
+    @Mapping(target = "mode", ignore = true)
     void update(@MappingTarget Scene target, SceneDto source, @Context CycleAvoidingMappingContext ctx);
 
     @Mapping(target = "inheritsFrom", ignore = true)
@@ -82,5 +84,9 @@ public interface SceneMapper {
 
     default Function<SceneVto, Scene> mapWithInherents(List<Scene> inherits) {
         return q -> map(q, inherits);
+    }
+
+    default Function<? super SceneDto, Scene> mapWithMode(Mode mode) {
+        return q -> map(q, mode, new CycleAvoidingMappingContext());
     }
 }

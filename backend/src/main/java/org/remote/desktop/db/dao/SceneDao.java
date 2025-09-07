@@ -3,16 +3,15 @@ package org.remote.desktop.db.dao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
-import org.remote.desktop.db.repository.EventRepository;
+import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.mapper.SceneMapper;
 import org.remote.desktop.model.dto.SceneDto;
-import org.remote.desktop.model.vto.EventVto;
 import org.remote.desktop.model.vto.SceneVto;
-import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.collectingAndThen;
@@ -42,7 +40,7 @@ public class SceneDao {
     private final RecursiveScraper<Event, Scene> scraper = new RecursiveScraper<>();
 
     private final SceneRepository sceneRepository;
-    private final ModeService modeService;
+    private final ModeRepository modeRepository;
 
     private final SceneMapper sceneMapper;
     private final EventMapper eventMapper;
@@ -53,8 +51,8 @@ public class SceneDao {
                 .orElse(null);
     }
 
-    public SceneDto getSceneForWindowNameOrBase(String sceneName) {
-        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName, modeService.getCurrentMode());
+    public SceneDto getSceneForWindowNameOrBase(String sceneName, String mode) {
+        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName, mode);
 
 //        if (bySceneContain.size() > 1)
 //            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
@@ -65,14 +63,14 @@ public class SceneDao {
         return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
     }
 
-    public List<SceneDto> getAllMatchingScenes(String sceneName) {
-        return sceneRepository.findBySceneContain(sceneName, modeService.getCurrentMode()).stream()
+    public List<SceneDto> getAllMatchingScenes(String sceneName, String mode) {
+        return sceneRepository.findBySceneContain(sceneName, mode).stream()
                 .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .toList();
     }
 
-    public List<SceneVto> getAllSceneVtos() {
-        return sceneRepository.findAll().stream()
+    public List<SceneVto> getAllSceneVtos(String mode) {
+        return sceneRepository.findAllByMode_AdapterMode(mode).stream()
                 .map(sceneMapper::map)
                 .map(q -> sceneRepository.findAllById(q.getInheritsIdFk()).stream()
                         .map(scraper::scrapeActionsRecursiveWithCurrent)
@@ -109,8 +107,17 @@ public class SceneDao {
     public SceneVto create(SceneVto vto) {
         return Optional.of(vto)
                 .map(sceneMapper.mapWithInherents(safeRepo(sceneRepository::findAllById, vto.getInheritsIdFk())))
+                .map(q -> q.withMode(modeRepository.findByAdapterMode(vto.getMode())))
                 .map(sceneRepository::save)
                 .map(sceneMapper::map)
+                .orElseThrow();
+    }
+
+    SceneDto create(SceneDto dto) {
+        return Optional.of(dto)
+                .map(sceneMapper.mapWithMode(modeRepository.findByAdapterMode(dto.getMode().getAdapterMode())))
+                .map(sceneRepository::save)
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
                 .orElseThrow();
     }
 
@@ -122,5 +129,25 @@ public class SceneDao {
         return Optional.ofNullable(ids)
                 .map(repoFun)
                 .orElse(List.of());
+    }
+
+    public SceneDto getModeDefault(String name) {
+        return sceneRepository.findByName(name) // maybe create some derivation of scene name not the exact mode name
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElseGet(() -> createDefaultSceneForMode(name));
+    }
+
+    public SceneDto createDefaultSceneForMode(String name) {
+        Mode mode = Mode.builder()
+                .adapterMode(name)
+                .build();
+        mode = modeRepository.save(mode);
+
+        Scene scene = Scene.builder()
+                .name(name)
+                .mode(mode)
+                .build();
+
+        return sceneMapper.map(sceneRepository.save(scene), new CycleAvoidingMappingContext());
     }
 }

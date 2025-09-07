@@ -4,13 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.service.impl.StateService;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static jxdotool.xDoToolUtil.*;
-import static jxdotool.xDoToolUtil.click;
-import static jxdotool.xDoToolUtil.xDo;
 
 //@Component
 @RequiredArgsConstructor
@@ -26,6 +23,16 @@ public class XdoActionModule implements GpadOsActionModule {
     @Override
     public List<String> getNouns() {
         return List.of();
+    }
+
+    @Override
+    public List<String> getVerbs() {
+        return List.of();
+    }
+
+    @Override
+    public boolean isScenic() {
+        return true;
     }
 
     @SneakyThrows

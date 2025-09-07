@@ -2,12 +2,15 @@ package org.remote.desktop.db.dao;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.mapper.ModeMapper;
 import org.remote.desktop.model.vto.ModeVto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -21,5 +24,15 @@ public class ModeDao {
         return modeRepository.findAll().stream()
                 .map(mapper::map)
                 .toList();
+    }
+
+    public List<String> getModeVerbs(String mode) {
+        return modeRepository.findByAdapterMode(mode)
+                .getKeyEvtTypes();
+    }
+
+    public List<String> getModeNouns(String mode) {
+        return modeRepository.findByAdapterMode(mode)
+                .getNouns();
     }
 }

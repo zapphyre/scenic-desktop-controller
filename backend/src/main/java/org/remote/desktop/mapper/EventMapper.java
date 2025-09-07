@@ -3,6 +3,7 @@ package org.remote.desktop.mapper;
 import org.mapstruct.*;
 import org.remote.desktop.db.entity.Action;
 import org.remote.desktop.db.entity.Event;
+import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.model.dto.EventDto;
@@ -18,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",
-        uses = {GestureEventMapper.class, ButtonEventMapper.class, GestureMapper.class},
+        uses = {GestureEventMapper.class, ButtonEventMapper.class, GestureMapper.class, ModeMapper.class},
         builder = @Builder(disableBuilder = true)
 )
 public interface EventMapper {

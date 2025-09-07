@@ -3,6 +3,7 @@ package org.remote.desktop.mode;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.GamepadDesktopController;
+import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.mode.modul.impl.XdoActionModule;
 import org.remote.desktop.service.impl.StateService;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GpadOsModuleLoader {
     private static final String PLUGINS_DIR = "plugins";
+
+    private final SceneDao sceneDao;
 
     @Bean("actorMap")
     public Map<String, GpadOsActionModule> actuatorModules(StateService stateService) {
@@ -71,6 +74,15 @@ public class GpadOsModuleLoader {
 
         System.out.println("Module map size: " + moduleMap.size());
         moduleMap.forEach((name, module) -> System.out.println("Module: " + name + " -> " + module.getClass().getName()));
+
+        for (String name : moduleMap.keySet())
+            try {
+                if (!moduleMap.get(name).isScenic())
+                    sceneDao.getSceneVtoBy(name);
+            } catch (Exception e) {
+                sceneDao.createDefaultSceneForMode(name);
+            }
+
         return moduleMap;
     }
 

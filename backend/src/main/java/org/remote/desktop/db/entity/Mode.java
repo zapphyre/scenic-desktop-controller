@@ -24,4 +24,8 @@ public class Mode {
     private String adapterMode;
 
     private List<String> keyEvtTypes;
+
+    private List<String> nouns;
+
+    private Boolean scenic;
 }

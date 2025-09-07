@@ -2,10 +2,7 @@ package org.remote.desktop.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
-import lombok.With;
+import lombok.*;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.EAxisEvent;
@@ -20,6 +17,7 @@ import static org.remote.desktop.model.EAxisEaser.CONTINUOUS;
 
 @With
 @Value
+@RequiredArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
@@ -49,5 +47,5 @@ public class SceneDto implements GamepadEventContainer<EventDto, SceneDto> {
     @ToString.Include
     List<EventDto> events;
 
-    String mode;
+    ModeDto mode;
 }

@@ -125,6 +125,14 @@ export interface Settings {
     autoconnect: string[];
 }
 
+export interface Mode {
+    id: number | null;
+    adapterMode: string | null;
+    nouns: string[];
+    keyEvtTypes: string[];
+    scenic: boolean;
+}
+
 export interface SourceEvent {
     evt: ESourceEvent;
     def: WebSourceDef;

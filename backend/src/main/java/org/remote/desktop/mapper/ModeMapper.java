@@ -8,4 +8,5 @@ import org.remote.desktop.model.vto.ModeVto;
 public interface ModeMapper {
 
     ModeVto map(Mode entity);
+
 }

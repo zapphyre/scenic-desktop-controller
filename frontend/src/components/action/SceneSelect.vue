@@ -5,15 +5,19 @@ import FloatLabel from 'primevue/floatlabel';
 import MultiSelect from 'primevue/multiselect';
 import apiClient from '@/api';
 import {getSceneNameIdList, getScenes, getTriggers} from "@/api/dataStore";
-import {axisEaserValues, axisValues, EAxisEvent, EventVto, NameId, Scene} from '@/model/gpadOs'
+import {axisEaserValues, axisValues, EAxisEvent, EventVto, Mode, NameId, Scene} from '@/model/gpadOs';
 import GpadAction from "@/components/action/GpadAction.vue";
 import SelectDialog from "@/components/action/SceneDialog.vue";
 
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import _ from "lodash";
 
+const props = defineProps<{
+  mode: Mode | undefined;
+}>();
+
 const scenesRef = ref<Scene[]>([]);
-const selectedSceneRef = ref<Scene | undefined>()
+const selectedSceneRef = ref<Scene | undefined>();
 const inheritedAvailableRef = ref<NameId[]>();
 const inheritedRef = ref<NameId[]>();
 const allSceneNames = ref<string[]>([]);
@@ -24,83 +28,81 @@ const leftAxisRef = ref<EAxisEvent>();
 const rightAxisRef = ref<EAxisEvent>();
 
 const fetchScenes = async () => {
-  scenesRef.value = await getScenes();
-  allSceneNames.value = (await getScenes()).map((q: Scene) => q.name);
+  if (!props.mode?.adapterMode) return;
+  console.log('i dont want this');
+  scenesRef.value = await getScenes(props.mode.adapterMode);
+  allSceneNames.value = (await getScenes(props.mode.adapterMode)).map((q: Scene) => q.name);
 
-  const triggers = getTriggers();
+  const triggers = await getTriggers();
   console.log("triggers", triggers);
-}
+};
 
 const changedScene = async (event: SelectChangeEvent) => {
   selectedSceneRef.value = event.value;
   console.log("selectedSceneRef.value", selectedSceneRef.value);
 
-  selectedSceneRef.value?.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
-
-  inheritedAvailableRef.value = (await getSceneNameIdList()).filter(s => s.id !== event.value?.id)
-
-  inheritedRef.value = (await getSceneNameIdList()).filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id));
-
-  console.log("inheritedAvailableRef.value", inheritedAvailableRef.value);
-  console.log("inheritedRef.value", inheritedRef.value);
-
-  leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
-  rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
-}
+  if (selectedSceneRef.value && props.mode?.adapterMode) {
+    selectedSceneRef.value.events.sort((a: EventVto, b: EventVto) => (b.id ?? 0) - (a.id ?? 0));
+    inheritedAvailableRef.value = (await getSceneNameIdList(props.mode.adapterMode)).filter(s => s.id !== event.value?.id);
+    inheritedRef.value = (await getSceneNameIdList(props.mode.adapterMode)).filter(q => selectedSceneRef.value?.inheritsIdFk?.includes(q.id!));
+    console.log("inheritedAvailableRef.value", inheritedAvailableRef.value);
+    console.log("inheritedRef.value", inheritedRef.value);
+    leftAxisRef.value = selectedSceneRef.value?.leftAxisEvent ?? undefined;
+    rightAxisRef.value = selectedSceneRef.value?.rightAxisEvent ?? undefined;
+  }
+};
 
 const saveScene = (event: any) => apiClient.put("scene", selectedSceneRef.value);
 
 const addNewGamepadEvent = async () => {
-  const eventVto = {parentFk: selectedSceneRef.value?.id} as EventVto;
+  if (!selectedSceneRef.value) return;
+  const eventVto = {parentFk: selectedSceneRef.value.id} as EventVto;
 
   eventVto.id = (await apiClient.post("event", eventVto)).data;
   console.log("eventVto.id", eventVto.id);
-  if (!selectedSceneRef.value?.events) selectedSceneRef.value!.events = [];
+  if (!selectedSceneRef.value.events) selectedSceneRef.value.events = [];
 
-  selectedSceneRef.value?.events.unshift(eventVto);
+  selectedSceneRef.value.events.unshift(eventVto);
+};
 
-  // watch(eventVto, async (q) => {
-  //   console.log('sending update', eventVto);
-  //   // await apiClient.put("updateGamepadEvent", eventVto);
-  // });
-}
-const removeEvent = async  (event: EventVto) => {
+const removeEvent = async (event: EventVto) => {
   console.log('removing', event);
-
   _.remove(selectedSceneRef?.value?.events ?? [], q => q === event);
-}
+};
 
 const changedInherents = async (q: any) => {
-  selectedSceneRef.value!.inheritsIdFk = q.value.map((p: NameId) => p.id);
-  // console.log("selectedSceneRef.value!.inheritsIdFk", selectedSceneRef.value!.inheritsIdFk);
+  if (!selectedSceneRef.value) return;
+  selectedSceneRef.value.inheritsIdFk = q.value.map((p: NameId) => p.id);
   await apiClient.put("scene", selectedSceneRef.value);
 
-  apiClient.get(`events/inherents/${selectedSceneRef.value?.id}`)
+  apiClient.get(`events/inherents/${selectedSceneRef.value.id}`)
       .then((res) => res.data)
       .then(q => {
         console.log('inheritedGamepadEvents', q);
-        selectedSceneRef.value!.inheritedGamepadEvents = q
-      })
-}
+        selectedSceneRef.value!.inheritedGamepadEvents = q;
+      });
+};
 
 let newSceneDialog = false;
 const newScene = () => {
   dialogScene.value = {} as Scene;
   dialogVisible.value = true;
   newSceneDialog = true;
-}
+};
+
 const editScene = () => {
   dialogScene.value = selectedSceneRef.value;
   dialogVisible.value = true;
   newSceneDialog = false;
-}
-const dialogDelete = () => apiClient.delete(`scene/${dialogScene.value?.id}`)
+};
+
+const dialogDelete = () => apiClient.delete(`scene/${dialogScene.value?.id}`);
 
 const dialogOk = async (q: Scene) => {
   if (newSceneDialog) {
-    dialogScene.value!!.id = (await apiClient.post("scene", q)).data;
+    dialogScene.value!.id = (await apiClient.post("scene", q)).data;
     console.log("adding new scene to list", dialogScene.value);
-    scenesRef.value.push(dialogScene.value!!);
+    scenesRef.value.push(dialogScene.value!);
   } else {
     await apiClient.put("scene", q);
   }
@@ -108,16 +110,35 @@ const dialogOk = async (q: Scene) => {
   selectedSceneRef.value = q;
   leftAxisRef.value = selectedSceneRef.value.leftAxisEvent;
   rightAxisRef.value = selectedSceneRef.value.rightAxisEvent;
-}
+};
 
-onMounted(fetchScenes);
+onMounted(async () => {
+  if (props.mode?.adapterMode) {
+    await fetchScenes();
+    selectedSceneRef.value = undefined;
+    inheritedAvailableRef.value = undefined;
+    inheritedRef.value = undefined;
+    leftAxisRef.value = undefined;
+    rightAxisRef.value = undefined;
+  }
+});
+
+watch(() => props.mode, async (newMode) => {
+  if (newMode?.adapterMode) {
+    await fetchScenes();
+    selectedSceneRef.value = undefined;
+    inheritedAvailableRef.value = undefined;
+    inheritedRef.value = undefined;
+    leftAxisRef.value = undefined;
+    rightAxisRef.value = undefined;
+  }
+});
 </script>
 
 <template>
   <div class="card grid nested-grid grid-nogutter">
     <div class="col-12">
       <div class="grid">
-        <div class="col-12"></div>
         <div class="col-12">
           <SelectDialog
               v-if="dialogScene"
@@ -139,6 +160,7 @@ onMounted(fetchScenes);
                 optionLabel="name"
                 class="input-item"
                 placeholder="Select a scene"
+                :disabled="!props.mode?.scenic"
             />
             <label for="scene">Scene</label>
           </FloatLabel>
@@ -148,7 +170,6 @@ onMounted(fetchScenes);
           <Button @click="newScene">Add New</Button>
         </div>
         <div class="col-7 card"></div>
-
         <div class="col-12 card"></div>
         <div class="col-12 card"></div>
       </div>
@@ -239,7 +260,6 @@ onMounted(fetchScenes);
           </div>
 
           <!-- Two centered select boxes -->
-          <!-- Centered selects, nudged right with margin -->
           <div class="col-7 col-offset-1">
             <div class="grid grid-nogutter">
               <div class="col-4 pr-1">
@@ -268,7 +288,6 @@ onMounted(fetchScenes);
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -281,6 +300,7 @@ onMounted(fetchScenes);
                 :event="action"
                 @removeEvent="removeEvent"
                 :render-action="true"
+                :mode="props.mode!!"
             />
           </div>
         </div>
@@ -292,6 +312,7 @@ onMounted(fetchScenes);
                   :disabled="true"
                   :event="ihr"
                   :render-action="true"
+                  :mode="props.mode!!"
               />
             </div>
           </div>
@@ -300,7 +321,6 @@ onMounted(fetchScenes);
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .full-width-container {
@@ -311,7 +331,6 @@ onMounted(fetchScenes);
   width: 100%;
   min-width: 100%;
 }
-
 .input-item {
   width: 100%;
 }

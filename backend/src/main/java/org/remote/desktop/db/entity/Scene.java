@@ -14,7 +14,9 @@ import java.util.Optional;
 import java.util.Set;
 
 @Data
+@With
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)

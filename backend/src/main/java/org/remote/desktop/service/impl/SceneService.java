@@ -17,10 +17,11 @@ import static org.remote.desktop.db.dao.SceneDao.*;
 public class SceneService {
 
     private final SceneDao sceneDao;
+    private final ModeService  modeService;
 
 //    @Cacheable(SCENE_LIST_CACHE_NAME)
-    public List<SceneVto> getAllSceneVtos() {
-        return sceneDao.getAllSceneVtos();
+    public List<SceneVto> getAllSceneVtos(String mode) {
+        return sceneDao.getAllSceneVtos(mode);
     }
 
     @Cacheable(SCENE_CACHE_NAME)
@@ -34,7 +35,8 @@ public class SceneService {
 
     @Cacheable(SCENE_CACHE_NAME_CONTAINING)
     public SceneDto getSceneForModeAndWindowNameOrBase(String sceneName) {
-        return sceneDao.getSceneForWindowNameOrBase(sceneName);
+        return modeService.getCurrentMode().isScenic() ?
+                sceneDao.getSceneForWindowNameOrBase(sceneName, modeService.getCurrentMode().getName()) : sceneDao.getModeDefault(modeService.getCurrentMode().getName());
     }
 
     @CacheEvict(value = {SCENE_LIST_CACHE_NAME,  SCENE_CACHE_NAME_CONTAINING, SCENE_CACHE_NAME}, allEntries = true)
@@ -55,5 +57,9 @@ public class SceneService {
     @CacheEvict(value = {SCENE_LIST_CACHE_NAME,  SCENE_CACHE_NAME_CONTAINING, SCENE_CACHE_NAME}, allEntries = true)
     public void delete(Long sceneId) {
         sceneDao.delete(sceneId);
+    }
+
+    public SceneVto getSceneByName(String name) {
+        return sceneDao.getSceneVtoBy(name);
     }
 }

@@ -12,7 +12,7 @@ import org.remote.desktop.model.vto.ButtonEventVto;
 import java.util.List;
 import java.util.Optional;
 
-@Mapper(componentModel = "spring", uses = {}, builder = @Builder(disableBuilder = true))
+@Mapper(componentModel = "spring", uses = {ModeMapper.class}, builder = @Builder(disableBuilder = true))
 public interface ButtonEventMapper {
 
     // @Data on DTOs, disabled builder are set for mapstruct to avoid stack overflow ButtonEvent -> Event which occours
@@ -29,16 +29,5 @@ public interface ButtonEventMapper {
 
     default EButtonAxisMapping map(String val) {
         return EButtonAxisMapping.valueOf(val);
-    }
-
-    // duplicity and i don't know why it want me to delare it anyway
-    default String map(Mode value) {
-        return Optional.ofNullable(value)
-                .map(Mode::getAdapterMode)
-                .orElse("Desktop");
-    }
-
-    default Mode eAdapterModeToMode(String adapterMode) {
-        return Mode.builder().adapterMode(adapterMode).build();
     }
 }

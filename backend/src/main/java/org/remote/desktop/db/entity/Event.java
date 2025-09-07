@@ -50,10 +50,6 @@ public class Event {
         Optional.ofNullable(actions).orElse(List.of())
                 .forEach(p -> p.setEvent(this));
 
-//        Optional.ofNullable(scene)
-//                .map(Scene::getEvents)
-//                .ifPresent(q -> q.add(this));
-
         Optional.ofNullable(buttonEvent)
                 .ifPresent(p -> p.setEvent(this));
 

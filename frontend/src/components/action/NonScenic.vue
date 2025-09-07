@@ -4,9 +4,10 @@ import apiClient from "@/api";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import ProgressSpinner from 'primevue/progressspinner';
-import {EventVto, Scene, WinderActions, WinderOp, WinderOpEventMap} from "@/model/gpadOs";
+import {EventVto, Mode, Scene, WinderActions, WinderOp, WinderOpEventMap} from "@/model/gpadOs";
 import GpadAction from "@/components/action/GpadAction.vue";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
+import {getVerbs} from "@/api/dataStore";
 
 interface DataTableRow {
   key: WinderOp;
@@ -14,26 +15,49 @@ interface DataTableRow {
 }
 
 // Reactive state for async data
-const winderScene = ref<Scene | null>(null);
-const eventMap = ref<WinderOpEventMap | null>(null);
+const scene = ref<Scene | null>(null);
 const error = ref<string | null>(null);
 const loading = ref(true);
 
+const props = defineProps<{
+  mode: Mode | undefined;
+}>();
+
 onMounted(async () => {
-  winderScene.value = (await apiClient.get('winder/scene')).data;
-  eventMap.value = (await apiClient.get('winder/events')).data;
+
+  console.log('props.mode', props.mode);
+
+  scene.value = (await apiClient.get(`scene/${props.mode?.adapterMode}`)).data;
+  console.log('scene.value', scene.value);
   loading.value = false;
 });
-// Transform eventMap to array for DataTable
+
+// Ref to store fetched verbs
+const verbsRef = ref<string[]>([]);
+
+// Fetch verbs when mode changes
+watch(() => props.mode?.adapterMode, async (newMode) => {
+  if (newMode) {
+    verbsRef.value = await getVerbs(newMode);
+  } else {
+    verbsRef.value = [];
+  }
+}, { immediate: true });
+
+// Computed property to transform verbs into DataTableRow[]
 const mapEntries = computed<DataTableRow[]>(() => {
-  if (!eventMap.value) {
-    console.log('mapEntries: eventMap is null');
+  if (!verbsRef.value) {
+    console.log('mapEntries: verbsRef is empty');
     return [];
   }
-  const entries = Object.entries(eventMap.value).map(([key, value]) => ({
-    key: key as WinderOp,
-    value
+
+  const entries = verbsRef.value.map(q => ({
+    key: q,
+    value: q
   }));
+
+  console.log('entries', entries);
+
   return entries;
 });
 </script>
@@ -57,9 +81,10 @@ const mapEntries = computed<DataTableRow[]>(() => {
               style="width: 80%; min-width: 90%;"
       >
         <template #body="{ data }: { data: DataTableRow }">
-          <GpadAction :event="data.value"
+          <GpadAction :event="scene.e"
                       :render-action="false"
-                      :selected-scene-id="winderScene?.id ?? 0"/>
+                      :mode="props.mode!!"
+                      :selected-scene-id="scene?.id ?? 0"/>
         </template>
       </Column>
     </DataTable>

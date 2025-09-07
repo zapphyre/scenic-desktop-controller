@@ -17,9 +17,14 @@ public class SceneCtrl {
     private final TriggerService triggerService;
     private final SceneService sceneService;
 
-    @GetMapping("all")
-    public List<SceneVto> getAllScenes() {
-        return sceneService.getAllSceneVtos();
+    @GetMapping("all/{mode}")
+    public List<SceneVto> getAllScenes(@PathVariable("mode") String mode) {
+        return sceneService.getAllSceneVtos(mode);
+    }
+
+    @GetMapping("{name}")
+    public SceneVto getScene(@PathVariable("name") String name) {
+        return sceneService.getSceneByName(name);
     }
 
     @PostMapping

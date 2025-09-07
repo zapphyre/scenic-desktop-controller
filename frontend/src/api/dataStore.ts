@@ -1,20 +1,21 @@
-import apiClient from "@/api";
-import type { Gesture, Lang, NameId, Scene, Settings } from "@/model/gpadOs";
 import { ref } from "vue";
+import apiClient from "@/api";
+import type { Gesture, Lang, Mode, NameId, Scene, Settings } from "@/model/gpadOs";
 
 // ========== STATE ==========
 
 const strokes = ref<string[]>([]);
 const winderActions = ref<string[]>([]);
-const scenes = ref<Scene[]>([]);
+const scenesMap = ref<Record<string, Scene[]>>({});
 const triggers = ref([]);
 const gestures = ref<Gesture[]>([]);
 const languages = ref<Lang[]>([]);
 const gesturesNameId = ref<NameId[]>([]);
-const sceneNameIdList = ref<NameId[]>([]);
-
-// New state for settings
+const sceneNameIdList = ref<Record<string, NameId[]>>({});
 const settings = ref<Settings | null>(null);
+const modes = ref<Mode[]>([]);
+const verbs = ref<Record<string, string[]>>({});
+const nouns = ref<Record<string, string[]>>({});
 
 // ========== FETCH METHODS ==========
 
@@ -38,11 +39,12 @@ const fetchWinderActions = async () => {
     }
 };
 
-const fetchScenes = async () => {
+const fetchScenes = async (mode: string) => {
     try {
-        scenes.value = (await apiClient.get("scene/all")).data;
+        scenesMap.value[mode] = (await apiClient.get(`scene/all/${mode}`)).data;
     } catch (error) {
-        console.error("Failed to fetch scenes:", error);
+        console.error(`Failed to fetch scenes for mode ${mode}:`, error);
+        scenesMap.value[mode] = [];
     }
 };
 
@@ -70,13 +72,39 @@ const fetchLanguages = async () => {
     }
 };
 
-// New: fetch settings from API
 const fetchSettings = async () => {
     try {
         settings.value = (await apiClient.get("settings")).data;
     } catch (e) {
         console.error("Failed to fetch settings:", e);
         settings.value = null;
+    }
+};
+
+const fetchModes = async () => {
+    try {
+        modes.value = (await apiClient.get("mode/all")).data;
+    } catch (error) {
+        console.error("Failed to fetch modes:", error);
+        modes.value = [];
+    }
+};
+
+const fetchVerbs = async (mode: string) => {
+    try {
+        verbs.value[mode] = (await apiClient.get(`mode/verbs/${mode}`)).data;
+    } catch (error) {
+        console.error(`Failed to fetch verbs for mode ${mode}:`, error);
+        verbs.value[mode] = [];
+    }
+};
+
+const fetchNouns = async (mode: string) => {
+    try {
+        nouns.value[mode] = (await apiClient.get(`mode/nouns/${mode}`)).data;
+    } catch (error) {
+        console.error(`Failed to fetch nouns for mode ${mode}:`, error);
+        nouns.value[mode] = [];
     }
 };
 
@@ -104,19 +132,33 @@ export const getWinderActions = async () => {
     return winderActions.value;
 };
 
-export const getScenes = async () => {
-    if (!scenes.value.length) {
-        await fetchScenes();
+export const getScenes = async (mode: string) => {
+    if (!scenesMap.value[mode] || !scenesMap.value[mode].length) {
+        await fetchScenes(mode);
     }
-    return scenes.value;
+    return scenesMap.value[mode] || [];
 };
 
-export const getSceneNameIdList = async () => {
-    const sc = await getScenes();
-    if (!sceneNameIdList.value.length) {
-        sceneNameIdList.value = sc.map((s) => ({ name: s.name, id: s.id }));
+export const getSceneNameIdList = async (mode: string) => {
+    const sc = await getScenes(mode);
+    if (!sceneNameIdList.value[mode] || !sceneNameIdList.value[mode].length) {
+        sceneNameIdList.value[mode] = sc.map((s) => ({ name: s.name, id: s.id }));
     }
-    return sceneNameIdList.value;
+    return sceneNameIdList.value[mode] || [];
+};
+
+export const getVerbs = async (mode: string) => {
+    if (!verbs.value[mode] || !verbs.value[mode].length) {
+        await fetchVerbs(mode);
+    }
+    return verbs.value[mode] || [];
+};
+
+export const getNouns = async (mode: string) => {
+    if (!nouns.value[mode] || !nouns.value[mode].length) {
+        await fetchNouns(mode);
+    }
+    return nouns.value[mode] || [];
 };
 
 export const getTriggers = async () => {
@@ -146,6 +188,13 @@ export const getLanguages = async () => {
         await fetchLanguages();
     }
     return languages.value;
+};
+
+export const getModes = async () => {
+    if (!modes.value.length) {
+        await fetchModes();
+    }
+    return modes.value;
 };
 
 export const addGesture = (g: Gesture) => {
