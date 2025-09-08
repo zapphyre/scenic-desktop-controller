@@ -54,12 +54,12 @@ public interface EventMapper {
                 .collect(Collectors.toList());
     }
 
-    @Mapping(target = "actions", source = "entity.actions", qualifiedByName = "mapActionsWithMode")
-    Event rebindMode(Event entity, @Context ModeRepository modeRepository);
-
-    default Function<Event, Event> rebindMode(ModeRepository modeRepository) {
-        return q -> rebindMode(q, modeRepository);
-    }
+//    @Mapping(target = "actions", source = "entity.actions", qualifiedByName = "mapActionsWithMode")
+//    Event rebindMode(Event entity, @Context ModeRepository modeRepository);
+//
+//    default Function<Event, Event> rebindMode(ModeRepository modeRepository) {
+//        return q -> rebindMode(q, modeRepository);
+//    }
 
     @Mapping(target = "id", source = "vto.id")
     @Mapping(target = "event", source = "event")

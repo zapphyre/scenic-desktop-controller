@@ -3,14 +3,15 @@ import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
-
+import {ref, watch} from 'vue';
 import {
   ButtonEventVto,
   buttonValues,
   EAdapterMode,
   EKeyEvt,
   EventVto,
-  GestureEventVto, Mode,
+  GestureEventVto,
+  Mode,
   multiplicityValues,
   NameId,
   XdoAction
@@ -19,24 +20,86 @@ import XdoActionUi from "@/components/action/XdoActionUi.vue";
 import _ from "lodash";
 import apiClient from "@/api";
 import {getGesturesNameIdList, getSceneNameIdList, getTriggers} from "@/api/dataStore";
-import {onMounted, ref} from "vue";
-import WinderAction from "@/components/action/WinderAction.vue";
 
+// Reactive state
 const gestures = ref<NameId[]>([]);
 const forcedAvailableRef = ref<NameId[]>();
-const triggers = ref([]);
+const triggers = ref<string[]>([]);
+
+// Local event ref, defaults to { id: -1, parentFk: selectedSceneId } if props.event is undefined
+const localEvent = ref<EventVto>({
+  id: -1,
+  parentFk: undefined, // Will be set in watch
+  actions: [],
+  buttonEvent: undefined,
+  gestureEvent: undefined,
+  nextSceneFk: undefined
+});
 
 const props = defineProps<{
-  event: EventVto;
+  event?: EventVto;
   disabled?: boolean | false;
-  selectedSceneId: number
+  selectedSceneId: number;
   renderAction?: boolean | true;
-  mode: Mode
+  mode: Mode;
 }>();
 
+const emit = defineEmits<{
+  removeEvent: [event: EventVto];
+  updateEvent: [event: EventVto];
+}>();
+
+// Watch props.event to sync localEvent
+watch(() => props.event, (newEvent) => {
+  if (newEvent) {
+    localEvent.value = {...newEvent, parentFk: newEvent.parentFk ?? props.selectedSceneId};
+  } else {
+    localEvent.value = {
+      id: -1,
+      parentFk: props.selectedSceneId,
+      actions: [],
+      buttonEvent: undefined,
+      gestureEvent: undefined,
+      nextSceneFk: undefined
+    };
+  }
+}, {immediate: true});
+
+// Watch selectedSceneId to update parentFk
+watch(() => props.selectedSceneId, (newSceneId) => {
+  localEvent.value.parentFk = newSceneId;
+});
+
+// Fetch initial data
+watch(() => props.mode.adapterMode, async (adapterMode) => {
+  gestures.value = await getGesturesNameIdList();
+  triggers.value = await getTriggers();
+  if (adapterMode) {
+    forcedAvailableRef.value = (await getSceneNameIdList(adapterMode)).filter(q => q.id !== props.selectedSceneId);
+  } else {
+    forcedAvailableRef.value = [];
+  }
+}, {immediate: true});
+
+const createEventIfDefault = async () => {
+  if (localEvent.value.id !== -1) return localEvent.value;
+
+  const newEvent: EventVto = {
+    id: (await apiClient.post("event", {parentFk: props.selectedSceneId, })).data,
+    parentFk: props.selectedSceneId,
+    actions: [],
+    buttonEvent: undefined,
+    gestureEvent: undefined,
+    nextSceneFk: undefined
+  };
+  localEvent.value = newEvent;
+  emit('updateEvent', newEvent); // Notify parent of new event
+};
+
 const addNewAction = (mode: EAdapterMode) => async () => {
+  if (localEvent.value.id === -1) await createEventIfDefault();
   const toSave: XdoAction = {
-    eventFk: props.event.id,
+    eventFk: localEvent.value.id,
     id: undefined,
     keyEvt: EKeyEvt.STROKE,
     keyStrokes: [],
@@ -45,71 +108,62 @@ const addNewAction = (mode: EAdapterMode) => async () => {
   };
   toSave.id = (await apiClient.post("action", toSave)).data;
 
-  if (!props.event.actions) props.event.actions = [];
-
-  props.event.actions.push(toSave);
-}
+  if (!localEvent.value.actions) localEvent.value.actions = [];
+  localEvent.value.actions.push(toSave);
+};
 
 const removeXdoAction = async (action: XdoAction) => {
+  if (!localEvent.value.actions || localEvent.value.id === -1) return;
   await apiClient.delete("action", {data: action.id});
-  _.remove(props.event.actions, q => q === action);
-}
+  _.remove(localEvent.value.actions, q => q === action);
+};
 
 const change = async () => {
+  if (localEvent.value.id === -1) return;
   console.log("changed");
-  await apiClient.put("event", props.event);
-}
+  await apiClient.put("event", localEvent.value);
+};
 
 const addNewGesture = async () => {
-  const id = (await apiClient.post(`event/${props.event.id}/gesture`)).data;
-  const gestEvt = {id} as GestureEventVto;
-
-  props.event.gestureEvent = gestEvt;
-}
+  await createEventIfDefault();
+  const id = (await apiClient.post(`event/${localEvent.value.id}/gesture`)).data;
+  localEvent.value.gestureEvent = {id} as GestureEventVto;
+};
 
 const removeGestureFromEvent = async () => {
-  await apiClient.delete(`event/${props.event.id}/gesture/${props.event.gestureEvent?.id}`);
-
-  props.event.gestureEvent = undefined;
-}
+  if (localEvent.value.id === -1 || !localEvent.value.gestureEvent?.id) return;
+  await apiClient.delete(`event/${localEvent.value.id}/gesture/${localEvent.value.gestureEvent.id}`);
+  localEvent.value.gestureEvent = undefined;
+};
 
 const gestureChange = async () => {
-  await apiClient.put(`event/${props.event.id}/gesture`, props.event.gestureEvent);
-}
+  if (localEvent.value.id === -1 || !localEvent.value.gestureEvent) return;
+  await apiClient.put(`event/${localEvent.value.id}/gesture`, localEvent.value.gestureEvent);
+};
 
 const addButtonEvent = async () => {
-  const id = (await apiClient.post(`event/${props.event.id}/button`)).data;
-
-  props.event.buttonEvent = {id} as ButtonEventVto;
-}
+  await createEventIfDefault();
+  const id = (await apiClient.post(`event/${localEvent.value.id}/button`)).data;
+  localEvent.value.buttonEvent = {id} as ButtonEventVto;
+};
 
 const removeButtonEvent = async () => {
-  await apiClient.delete(`event/${props.event.id}/button/${props.event.buttonEvent?.id}`);
-
-  props.event.buttonEvent = undefined;
-}
+  if (localEvent.value.id === -1 || !localEvent.value.buttonEvent?.id) return;
+  await apiClient.delete(`event/${localEvent.value.id}/button/${localEvent.value.buttonEvent.id}`);
+  localEvent.value.buttonEvent = undefined;
+};
 
 const removeEvent = async () => {
-  await apiClient.delete(`event/${props.event.id}`);
-
-  emit('removeEvent', props.event);
-}
-
-const emit = defineEmits<{
-  removeEvent: [event: EventVto]
-}>();
-
-onMounted(async () => {
-  gestures.value = await getGesturesNameIdList();
-  forcedAvailableRef.value = (await getSceneNameIdList(props.mode.adapterMode!!)).filter(q => q.id !== props.selectedSceneId)
-  triggers.value = await getTriggers();
-})
+  if (localEvent.value.id === -1) return;
+  await apiClient.delete(`event/${localEvent.value.id}`);
+  emit('removeEvent', localEvent.value);
+};
 </script>
 
 <template>
-  <hr v-if="renderAction"/>
-
   <div class="grid w-full gpad-action-container">
+    <hr v-if="props.renderAction"/>
+
     <div class="card p-3 w-full">
       <div class="grid">
         <!-- Left Section -->
@@ -118,26 +172,26 @@ onMounted(async () => {
             <!-- First Row: Buttons + 3 Selects -->
             <div class="flex align-items-center">
               <Button
-                  v-if="props.event.buttonEvent"
-                  :disabled="disabled"
+                  v-if="localEvent.buttonEvent"
+                  :disabled="props.disabled"
                   class="p-button-danger p-button-sm"
                   icon="pi pi-trash"
                   @click="removeButtonEvent"
               />
               <Button
                   v-else
-                  :disabled="disabled"
+                  :disabled="props.disabled"
                   class="p-button-sm"
                   icon="pi pi-th-large"
                   @click="addButtonEvent"
               />
 
               <div
-                  v-if="!props.event.buttonEvent"
+                  v-if="!localEvent.buttonEvent"
                   class="flex justify-content-center gap-2 flex-grow-1"
               >
                 <Button
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                     class="p-button-sm p-button-danger"
                     icon="pi pi-times-circle"
                     @click="removeEvent"
@@ -146,31 +200,31 @@ onMounted(async () => {
 
               <div
                   class="flex justify-content-center gap-2 flex-grow-1"
-                  v-if="props.event.buttonEvent"
+                  v-if="localEvent.buttonEvent"
               >
                 <Select
-                    v-model="props.event.buttonEvent.trigger"
+                    v-model="localEvent.buttonEvent.trigger"
                     :options="triggers"
                     placeholder="Trigger"
                     class="w-4 input-item"
                     @change="change"
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                 />
                 <Select
-                    v-model="props.event.buttonEvent.multiplicity"
+                    v-model="localEvent.buttonEvent.multiplicity"
                     :options="multiplicityValues"
                     placeholder="Multiplicity"
                     class="w-2 input-item"
                     @change="change"
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                 />
                 <MultiSelect
-                    v-model="props.event.buttonEvent.modifiers"
+                    v-model="localEvent.buttonEvent.modifiers"
                     :options="buttonValues"
                     placeholder="Modifiers"
                     class="w-4 input-item"
                     @change="change"
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                 />
               </div>
             </div>
@@ -178,27 +232,27 @@ onMounted(async () => {
             <!-- Second Row: Checkbox + Select -->
             <div
                 class="flex justify-content-center align-items-center gap-2"
-                v-if="props.event.buttonEvent"
+                v-if="localEvent.buttonEvent"
             >
               <div class="flex align-items-center gap-2">
                 <label for="longPress">Long Press</label>
                 <Checkbox
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                     name="longPress"
-                    v-model="props.event.buttonEvent.longPress"
+                    v-model="localEvent.buttonEvent.longPress"
                     binary
                     @change="change"
                 />
               </div>
               <Select
-                  v-model="props.event.nextSceneFk"
+                  v-model="localEvent.nextSceneFk"
                   :options="forcedAvailableRef"
                   option-value="id"
                   option-label="name"
                   placeholder="Forced next scene"
                   class="w-6 input-item"
                   @change="change"
-                  :disabled="disabled"
+                  :disabled="props.disabled"
                   show-clear
               />
             </div>
@@ -207,11 +261,11 @@ onMounted(async () => {
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center gap-2">
                 <Button
-                    v-if="!props.event.gestureEvent"
+                    v-if="!localEvent.gestureEvent"
                     class="p-button-sm"
                     icon="pi pi-bullseye"
                     @click="addNewGesture"
-                    :disabled="disabled"
+                    :disabled="props.disabled"
                 />
                 <Button
                     v-else
@@ -220,11 +274,11 @@ onMounted(async () => {
                     @click="removeGestureFromEvent"
                 />
                 <div
-                    v-if="props.event.gestureEvent"
+                    v-if="localEvent.gestureEvent"
                     class="flex justify-content-center align-items-center gap-2 flex-grow-1"
                 >
                   <Select
-                      v-model="props.event.gestureEvent.leftStickGestureFk"
+                      v-model="localEvent.gestureEvent.leftStickGestureFk"
                       :options="gestures"
                       option-value="id"
                       option-label="name"
@@ -234,7 +288,7 @@ onMounted(async () => {
                       show-clear
                   />
                   <Select
-                      v-model="props.event.gestureEvent.rightStickGestureFk"
+                      v-model="localEvent.gestureEvent.rightStickGestureFk"
                       :options="gestures"
                       option-value="id"
                       option-label="name"
@@ -250,31 +304,26 @@ onMounted(async () => {
         </div>
 
         <!-- Right Section -->
-        <div v-if="renderAction" class="col-5">
+        <div v-if="props.renderAction" class="col-5">
           <div class="flex flex-column gap-2 align-items-center min-h-full">
-            <div v-for="(act, i) in props.event.actions || []">
-              <XdoActionUi v-if="act.mode === EAdapterMode.DESKTOP"
-                           :key="act.id ? `desktop-${act.id}` : `desktop-no-${i}`"
-                           :xdo-action="act"
-                           :disabled="disabled"
-                           @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
-                           @remove="removeXdoAction"/>
-              <WinderAction v-else
-                            :key="act.id ? `winder-${act.id}` : `winder-no-${i}`"
-                            :xdo-action="act"
-                            :disabled="disabled"
-                            @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
-                            @remove="removeXdoAction"/>
+            <div v-for="(act, i) in localEvent.actions || []">
+              <XdoActionUi
+                  :key="act.id ? `desktop-${act.id}` : `desktop-no-${i}`"
+                  :xdo-action="act"
+                  :disabled="props.disabled"
+                  @addKeyStroke="(q) => act?.keyStrokes?.push(q)"
+                  @remove="removeXdoAction"
+              />
             </div>
 
             <div class="flex justify-content-center">
               <Button
-                  :disabled="disabled"
+                  :disabled="props.disabled"
                   label="Add Desktop Action"
                   @click="q => addNewAction(EAdapterMode.DESKTOP)()"
               />
               <Button
-                  :disabled="disabled"
+                  :disabled="props.disabled"
                   label="Add Winder Action"
                   @click="q => addNewAction(EAdapterMode.WINDER)()"
               />
@@ -285,7 +334,6 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .gpad-action-container {
@@ -300,7 +348,6 @@ onMounted(async () => {
   gap: 1rem; /* Space between elements */
   padding: 1rem; /* Optional padding */
 }
-
 
 .input-item {
   min-width: 9rem; /* Consistent width for Select and MultiSelect */

@@ -28,7 +28,9 @@ onMounted(async () => {
   console.log('props.mode', props.mode);
 
   scene.value = (await apiClient.get(`scene/${props.mode?.adapterMode}`)).data;
-  console.log('scene.value', scene.value);
+  console.log('scene.value1', scene.value);
+  verbsRef.value = await getVerbs(props.mode?.adapterMode!!);
+  console.log('verbsRef.value',verbsRef.value);
   loading.value = false;
 });
 
@@ -42,23 +44,29 @@ watch(() => props.mode?.adapterMode, async (newMode) => {
   } else {
     verbsRef.value = [];
   }
+
+  console.log('verbsRef.value',verbsRef.value);
+
 }, { immediate: true });
 
 // Computed property to transform verbs into DataTableRow[]
-const mapEntries = computed<DataTableRow[]>(() => {
+const mapEntries = computed<string[]>(() => {
   if (!verbsRef.value) {
     console.log('mapEntries: verbsRef is empty');
     return [];
   }
 
-  const entries = verbsRef.value.map(q => ({
-    key: q,
-    value: q
-  }));
+  console.log('verbsRef.value',verbsRef.value);
 
-  console.log('entries', entries);
 
-  return entries;
+  // const entries = verbsRef.value.map(q => ({
+  //   key: q,
+  //   value: q
+  // }));
+  //
+  // console.log('entries', entries);
+
+  return null;
 });
 </script>
 
@@ -66,24 +74,25 @@ const mapEntries = computed<DataTableRow[]>(() => {
   <div class="p-4">
     <div v-if="error" class="text-red-500 mb-4">{{ error }}</div>
     <ProgressSpinner v-else-if="loading"/>
-    <div v-else-if="!mapEntries.length" class="text-gray-500">
+    <div v-else-if="!verbsRef.length" class="text-gray-500">
       No events available
     </div>
-    <DataTable v-else :value="mapEntries" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable v-else :value="verbsRef" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="key" header="Operation"
               style="width: 20%; min-width: 2%;"
       >
-        <template #body="{ data }: { data: DataTableRow }">
-          <span class="font-semibold">{{ WinderActions[data.key] || 'Unknown Operation' }}</span>
+        <template #body="{ data }: { data: string }">
+          <span class="font-semibold">{{ WinderActions[data] || 'Unknown Operation' }}</span>
         </template>
       </Column>
       <Column field="value.actions" header="Gamepad Action"
               style="width: 80%; min-width: 90%;"
       >
-        <template #body="{ data }: { data: DataTableRow }">
-          <GpadAction :event="scene.e"
+        <template #body="{ data }: { data: string }">
+          <GpadAction :event=""
                       :render-action="false"
                       :mode="props.mode!!"
+                      @update-event=""
                       :selected-scene-id="scene?.id ?? 0"/>
         </template>
       </Column>

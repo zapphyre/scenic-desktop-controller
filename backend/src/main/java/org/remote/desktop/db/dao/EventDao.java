@@ -42,7 +42,6 @@ public class EventDao {
                 .map(eventMapper.map(optToNull(vto.getParentFk(), sceneRepository::findById),
                         optToNull(vto.getNextSceneFk(), sceneRepository::findById))
                 )
-                .map(eventMapper.rebindMode(modeRepository))
                 .map(eventRepository::save)
                 .map(Event::getId)
                 .orElseThrow();

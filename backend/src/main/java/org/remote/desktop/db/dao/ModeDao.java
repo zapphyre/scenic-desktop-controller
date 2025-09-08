@@ -3,11 +3,13 @@ package org.remote.desktop.db.dao;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
+import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.mapper.ModeMapper;
 import org.remote.desktop.model.vto.ModeVto;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,8 +29,10 @@ public class ModeDao {
     }
 
     public List<String> getModeVerbs(String mode) {
-        return modeRepository.findByAdapterMode(mode)
-                .getKeyEvtTypes();
+        return Optional.ofNullable(mode)
+                .map(modeRepository::findByAdapterMode)
+                .map(Mode::getKeyEvtTypes)
+                .orElseGet(Collections::emptyList);
     }
 
     public List<String> getModeNouns(String mode) {

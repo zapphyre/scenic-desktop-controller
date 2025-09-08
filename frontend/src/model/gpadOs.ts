@@ -22,8 +22,8 @@ export interface EventVto {
     id: number | undefined;
     gestureEvent?: GestureEventVto;
     buttonEvent?: ButtonEventVto;
-    parentFk: number | null;
-    nextSceneFk: number | null;
+    parentFk: number | undefined;
+    nextSceneFk: number | undefined;
     actions: XdoAction[];
 }
 
@@ -149,7 +149,7 @@ export type WinderOpEventMap = Record<WinderOp, EventVto>;
 
 export type WinderOp = 'FF' | 'RW' | 'FN' | 'FP' | 'PP' | 'NT' | 'ET' | 'EX' | 'CS' | 'FS'
 
-export const WinderActions: Record<WinderOp, string> = {
+export const WinderActions: Record<string, string> = {
     FF: 'Fast Forward',
     RW: 'Rewind',
     FN: 'Next Frame',
