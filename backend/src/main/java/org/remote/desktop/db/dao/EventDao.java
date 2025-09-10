@@ -9,12 +9,10 @@ import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.vto.EventVto;
-import org.remote.desktop.util.FluxUtil;
 import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +26,8 @@ public class EventDao {
     private final EventRepository eventRepository;
     private final SceneRepository sceneRepository;
     private final ModeRepository modeRepository;
+
+    private final XdoActionDao xdoActionDao;
 
     private final EventMapper eventMapper;
 
@@ -48,8 +48,12 @@ public class EventDao {
     }
 
     public void update(EventVto vto) {
-        eventRepository.findById(vto.getId())
-                .ifPresent(eventMapper.update(vto,
+        eventRepository.findById(vto.getId()).stream()
+                .map(q -> q.withActions(vto.getActions().stream()
+                        .map(p -> xdoActionDao.save(p, q))
+                        .toList()
+                ))
+                .forEach(eventMapper.update(vto,
                         optToNull(vto.getParentFk(), sceneRepository::findById),
                         optToNull(vto.getNextSceneFk(), sceneRepository::findById)
                 ));

@@ -4,18 +4,14 @@ import apiClient from "@/api";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import ProgressSpinner from 'primevue/progressspinner';
-import {EventVto, Mode, Scene, WinderActions, WinderOp, WinderOpEventMap} from "@/model/gpadOs";
+import {EventVto, Mode, Scene, WinderActions} from "@/model/gpadOs";
 import GpadAction from "@/components/action/GpadAction.vue";
-import {computed, onMounted, ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {getVerbs} from "@/api/dataStore";
-
-interface DataTableRow {
-  key: WinderOp;
-  value: EventVto;
-}
 
 // Reactive state for async data
 const scene = ref<Scene | null>(null);
+const events = ref<EventVto[]>([]);
 const error = ref<string | null>(null);
 const loading = ref(true);
 
@@ -32,10 +28,62 @@ onMounted(async () => {
   verbsRef.value = await getVerbs(props.mode?.adapterMode!!);
   console.log('verbsRef.value',verbsRef.value);
   loading.value = false;
+
+  events.value = updateSceneWithMissingVerbs(scene.value!!, verbsRef.value);
+  console.log('events.value', events.value);
 });
+
+function updateSceneWithMissingVerbs(scene: Scene, verbsRef: string[]): EventVto[] {
+  // Step 1: Collect existing keyEvt values from events and inheritedGamepadEvents
+  const existingKeyEvts = new Set<string>();
+
+  // Check events
+  scene.events?.forEach(event => {
+    event.actions?.forEach(action => {
+      if (action.keyEvt) {
+        existingKeyEvts.add(action.keyEvt);
+      }
+    });
+  });
+
+
+  let existingEvents: EventVto[] = [];
+  scene.events?.forEach(event => {
+    event.actions?.forEach(action => {
+      if (verbsRef.indexOf(action.keyEvt!!) !== -1) {
+        existingEvents.push(event);
+      }
+    });
+  });
+
+
+  const missingVerbs = verbsRef.filter(verb => !existingKeyEvts.has(verb));
+  const newEvents: EventVto[] = missingVerbs.map(verb => ({
+    id: undefined,
+    gestureEvent: undefined,
+    buttonEvent: undefined,
+    parentFk: scene.id, // Link to scene's ID, or undefined if scene.id is undefined
+    nextSceneFk: undefined,
+    actions: [{
+      id: undefined,
+      keyEvt: verb,
+      keyStrokes: [],
+      eventFk: undefined,
+      activator: undefined
+    }]
+  }));
+
+  return [...existingEvents, ...newEvents];
+}
 
 // Ref to store fetched verbs
 const verbsRef = ref<string[]>([]);
+
+const saveEvent = async (e: EventVto) => {
+  console.log('event to save', e);
+
+  // e.id = (await apiClient.post(`event`))
+}
 
 // Fetch verbs when mode changes
 watch(() => props.mode?.adapterMode, async (newMode) => {
@@ -49,25 +97,6 @@ watch(() => props.mode?.adapterMode, async (newMode) => {
 
 }, { immediate: true });
 
-// Computed property to transform verbs into DataTableRow[]
-const mapEntries = computed<string[]>(() => {
-  if (!verbsRef.value) {
-    console.log('mapEntries: verbsRef is empty');
-    return [];
-  }
-
-  console.log('verbsRef.value',verbsRef.value);
-
-
-  // const entries = verbsRef.value.map(q => ({
-  //   key: q,
-  //   value: q
-  // }));
-  //
-  // console.log('entries', entries);
-
-  return null;
-});
 </script>
 
 <template>
@@ -77,22 +106,22 @@ const mapEntries = computed<string[]>(() => {
     <div v-else-if="!verbsRef.length" class="text-gray-500">
       No events available
     </div>
-    <DataTable v-else :value="verbsRef" class="p-datatable-sm" responsiveLayout="scroll">
+    <DataTable v-else :value="events" class="p-datatable-sm" responsiveLayout="scroll">
       <Column field="key" header="Operation"
               style="width: 20%; min-width: 2%;"
       >
-        <template #body="{ data }: { data: string }">
-          <span class="font-semibold">{{ WinderActions[data] || 'Unknown Operation' }}</span>
+        <template #body="{ data }: { data: EventVto }">
+          <span class="font-semibold">{{ WinderActions[data.actions[0].keyEvt ?? 'unknown'] || 'Unknown Operation' }}</span>
         </template>
       </Column>
       <Column field="value.actions" header="Gamepad Action"
               style="width: 80%; min-width: 90%;"
       >
-        <template #body="{ data }: { data: string }">
-          <GpadAction :event=""
+        <template #body="{ data }: { data: EventVto }">
+          <GpadAction :event="data"
                       :render-action="false"
                       :mode="props.mode!!"
-                      @update-event=""
+                      @update-event="saveEvent"
                       :selected-scene-id="scene?.id ?? 0"/>
         </template>
       </Column>

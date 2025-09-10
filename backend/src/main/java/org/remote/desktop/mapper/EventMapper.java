@@ -73,11 +73,7 @@ public interface EventMapper {
 
     @Mapping(target = "id", source = "src.id")
 
-    /*
-    * I ignore actions here, b/c i want them to be PERSIST cascading on event, b/c I want event to be able
-    * to save when winder scene initializes; it throws detached entity exception when I update EventVto and it comes with
-    * actions on it and PERSIST cascading on event is enabled
-    * */
+    // i have to save actions earlier and set them manually
     @Mapping(target = "actions", ignore = true)
     void update(@MappingTarget Event tgt, EventVto src, Scene scene, Scene nextScene);
 
@@ -93,6 +89,8 @@ public interface EventMapper {
     }
 
     Action map(XdoActionDto dto, @Context CycleAvoidingMappingContext ctx);
+
+    Action map(XdoActionVto dto, @Context CycleAvoidingMappingContext ctx);
 
     XdoActionDto map(Action entity, @Context CycleAvoidingMappingContext ctx);
 

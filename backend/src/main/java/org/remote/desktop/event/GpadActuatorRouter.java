@@ -7,6 +7,7 @@ import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.model.event.ModeEvent;
 import org.remote.desktop.service.impl.ModeService;
+import org.remote.desktop.service.impl.StateService;
 import org.remote.desktop.ui.select.mode.ModeSelector;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
@@ -22,6 +23,7 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
     private final ModeSelector  modeSelector;
     private final Map<String, GpadOsActionModule> actuatorModules;
     private final ModeService modeService;
+    private final StateService stateService;
 
     @Override
     public void onApplicationEvent(GpadCommandEvent e) {
@@ -53,6 +55,7 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
             modeService.setCurrentMode(module);
 
             modeSelector.getApplication().close();
+            stateService.nullifyForced();
         }
     }
 }

@@ -1,3 +1,8 @@
+export interface NameId {
+    name: string;
+    id?: number;
+}
+
 export interface Scene {
     id: number | undefined;
     name: string;
@@ -11,11 +16,7 @@ export interface Scene {
     inheritsIdFk: number[] | undefined;
     events: EventVto[];
     inheritedGamepadEvents: EventVto[];
-}
-
-export interface NameId {
-    name: string;
-    id?: number;
+    mode: Mode;
 }
 
 export interface EventVto {
@@ -25,6 +26,14 @@ export interface EventVto {
     parentFk: number | undefined;
     nextSceneFk: number | undefined;
     actions: XdoAction[];
+}
+
+export interface XdoAction {
+    id: number | undefined;
+    keyEvt: string | undefined;
+    keyStrokes: string[];
+    eventFk: number | undefined;
+    activator: EButtonAxisMapping | undefined;
 }
 
 export interface GestureEventVto {
@@ -62,20 +71,6 @@ export interface GPadEvent {
     modifiers: EButtonAxisMapping[] | [];
     actions: XdoAction[];
     multiplicity: EMultiplicity;
-}
-
-export interface XdoAction {
-    id: number | undefined;
-    keyEvt: EKeyEvt | undefined;
-    keyStrokes: string[];
-    eventFk: number | undefined;
-    activator: EButtonAxisMapping | undefined;
-    mode?: EAdapterMode | EAdapterMode.DESKTOP
-}
-
-export enum EAdapterMode {
-    DESKTOP = "DESKTOP",
-    WINDER =  "WINDER"
 }
 
 export interface TrieResult {
@@ -160,6 +155,7 @@ export const WinderActions: Record<string, string> = {
     EX: 'Exit',
     CS: 'Close',
     FS: 'Full Screen',
+    unknown: 'unknown',
 };
 
 export enum EAxisEaser {

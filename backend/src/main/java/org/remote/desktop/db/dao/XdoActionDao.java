@@ -3,9 +3,11 @@ package org.remote.desktop.db.dao;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.entity.Action;
+import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.XdoActionRepository;
+import org.remote.desktop.mapper.CycleAvoidingMappingContext;
 import org.remote.desktop.mapper.EventMapper;
 import org.remote.desktop.model.vto.XdoActionVto;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,14 @@ public class XdoActionDao {
                 .flatMap(Collection::stream)
                 .distinct()
                 .toList();
+    }
+
+    public Action save(XdoActionVto action, Event event) {
+        return Optional.of(action)
+                .map(q -> eventMapper.map(q, new CycleAvoidingMappingContext()))
+                .map(q -> q.withEvent(event))
+                .map(xdoActionRepository::save)
+                .orElseThrow();
     }
 
     public void update(XdoActionVto vto) {

@@ -7,7 +7,6 @@ import {ref, watch} from 'vue';
 import {
   ButtonEventVto,
   buttonValues,
-  EAdapterMode,
   EKeyEvt,
   EventVto,
   GestureEventVto,
@@ -82,21 +81,24 @@ watch(() => props.mode.adapterMode, async (adapterMode) => {
 }, {immediate: true});
 
 const createEventIfDefault = async () => {
-  if (localEvent.value.id !== -1) return localEvent.value;
+  console.log('localEvent.value', localEvent.value);
+
+  if (localEvent.value.id && localEvent.value.id !== -1) return localEvent.value;
 
   const newEvent: EventVto = {
     id: (await apiClient.post("event", {parentFk: props.selectedSceneId, })).data,
+    // id: undefined,
     parentFk: props.selectedSceneId,
-    actions: [],
-    buttonEvent: undefined,
-    gestureEvent: undefined,
-    nextSceneFk: undefined
+    actions: localEvent.value.actions,
+    buttonEvent: localEvent.value.buttonEvent,
+    gestureEvent: localEvent.value.gestureEvent,
+    nextSceneFk: localEvent.value.nextSceneFk,
   };
   localEvent.value = newEvent;
   emit('updateEvent', newEvent); // Notify parent of new event
 };
 
-const addNewAction = (mode: EAdapterMode) => async () => {
+const addNewAction = async () => {
   if (localEvent.value.id === -1) await createEventIfDefault();
   const toSave: XdoAction = {
     eventFk: localEvent.value.id,
@@ -104,7 +106,6 @@ const addNewAction = (mode: EAdapterMode) => async () => {
     keyEvt: EKeyEvt.STROKE,
     keyStrokes: [],
     activator: undefined,
-    mode: mode,
   };
   toSave.id = (await apiClient.post("action", toSave)).data;
 
@@ -320,13 +321,13 @@ const removeEvent = async () => {
               <Button
                   :disabled="props.disabled"
                   label="Add Desktop Action"
-                  @click="q => addNewAction(EAdapterMode.DESKTOP)()"
+                  @click="addNewAction"
               />
-              <Button
-                  :disabled="props.disabled"
-                  label="Add Winder Action"
-                  @click="q => addNewAction(EAdapterMode.WINDER)()"
-              />
+<!--              <Button-->
+<!--                  :disabled="props.disabled"-->
+<!--                  label="Add Winder Action"-->
+<!--                  @click="q => addNewAction(EAdapterMode.WINDER)()"-->
+<!--              />-->
             </div>
           </div>
         </div>

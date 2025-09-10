@@ -43,9 +43,15 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
                         Optional.ofNullable(Optional.ofNullable(repeaterDef.repeater()).orElseGet(Function::identity)
                                         .apply(sourceFlux)).orElseGet(Flux::empty)
                                 .mapNotNull(
-                                        funky(axisActionGetter
-                                                .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
-                                                .apply(repeaterDef.scene))
+                                        repeaterDef != null ?
+                                                repeaterDef.scene != null ?
+                                                        funky(axisActionGetter
+                                                                .andThen(q -> {
+                                                                    if (q == null) return null;
+
+                                                                    return consumerMap.getOrDefault(q, outputSink::tryEmitNext);
+                                                                })
+                                                                .apply(repeaterDef.scene)) : null : null
                                 )
                 )
                 .subscribe();

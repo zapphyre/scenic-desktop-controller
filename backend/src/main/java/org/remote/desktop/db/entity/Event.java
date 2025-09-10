@@ -41,7 +41,7 @@ public class Event {
     @ManyToOne(cascade = {CascadeType.DETACH})
     private Scene nextScene;
 
-    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Action> actions = new ArrayList<>();
 
     @PreUpdate

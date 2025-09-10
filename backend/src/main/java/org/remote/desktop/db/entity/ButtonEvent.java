@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Data
+@With
 @Entity
 @Builder
 @Jacksonized
