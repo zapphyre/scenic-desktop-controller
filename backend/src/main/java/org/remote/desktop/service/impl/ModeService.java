@@ -18,6 +18,7 @@ import java.util.Optional;
 public class ModeService {
 
     private final ModeDao modeDao;
+    private final StateService stateService;
     private final Map<String, GpadOsActionModule> moduleMap;
 
     @Getter @Setter
@@ -25,7 +26,16 @@ public class ModeService {
 
     @PostConstruct
     void init() {
-        currentMode = moduleMap.get("DESKTOP");
+        currentMode = getDesktopModule();
+    }
+
+    public void switchCurrentMode(String mode) {
+        currentMode = moduleMap.get(mode);
+        stateService.nullifyForced();
+    }
+
+    public GpadOsActionModule getDesktopModule() {
+        return moduleMap.get("DESKTOP");
     }
 
     public List<ModeVto> getAllModes() {

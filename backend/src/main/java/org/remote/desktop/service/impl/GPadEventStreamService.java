@@ -60,9 +60,8 @@ public class GPadEventStreamService {
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
-        Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
         return of(sceneDto)
-                .map(scrape)
+                .map(scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system")))
                 .orElseThrow().stream()
                 .map(activatorGroupingEventMapper::groupByActivator)
                 .flatMap(Collection::stream)

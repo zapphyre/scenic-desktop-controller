@@ -15,7 +15,7 @@ public class RecursiveScraper<T, S extends GamepadEventContainer<T, S>> {
     // might be useful when I want to have some base/system scene that is on background of any other scene
     public Function<S, Set<T>> scrapeActionsRecursiveWithCurrentOn(GamepadEventContainer<T, S> baseScene) {
         // in this order b/c lambda param is current recognized; scraped are off of it and base are additions
-        return q -> Stream.of(q.getEvents(), scrapeActionsRecursive(q), baseScene.getEvents())
+        return q -> Stream.of(q.getEvents(), scrapeActionsRecursive(q), scrapeActionsRecursiveWithCurrent(baseScene))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }

@@ -1,7 +1,5 @@
 package org.remote.desktop.event;
 
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.model.event.GpadCommandEvent;
@@ -20,30 +18,25 @@ import java.util.Map;
 public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent> {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final ModeSelector  modeSelector;
+    private final ModeSelector modeSelector;
     private final Map<String, GpadOsActionModule> actuatorModules;
     private final ModeService modeService;
-    private final StateService stateService;
 
     @Override
     public void onApplicationEvent(GpadCommandEvent e) {
-//        mode = switch (e.getKeyPart().getKeyEvt()) {
-//            case UI_ANALOG_ADJUST -> modeFactory.changeMode(EMode.TRIGGER_SELECT);
-//            case KEYBOARD_ON -> modeFactory.changeMode(EMode.KEYBOARD);
-//            case WINDER -> modeFactory.changeMode(EMode.WINDER);
-//
-//            case SCENE_RESET -> modeFactory.changeMode(EMode.XDO);
-//
-//            default -> modeFactory.getLastMode();
-//        };
-
         if (e.getKeyPart().getKeyEvt().equals("MODE_SELECT"))
-            modeSelector.getApplication().render(null, "");
+            if (e.getKeyPart().getKeyStrokes() != null &&
+                    !e.getKeyPart().getKeyStrokes().isEmpty() &&
+                    e.getKeyPart().getKeyStrokes().getFirst() != null)
+                modeService.switchCurrentMode(e.getKeyPart().getKeyStrokes().getFirst());
+            else
+                modeSelector.getApplication().render(null, "");
 
-        modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
+        if (e.getKeyPart().getKeyEvt().equals("SCENE_RESET"))
+            modeService.switchCurrentMode("DESKTOP");
 
-//        ApplicationEvent evt = mode.currentModeEvent(e);
-//        eventPublisher.publishEvent(evt);
+        if (!modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes()))
+            modeService.getDesktopModule().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
     }
 
     @Component
@@ -51,11 +44,8 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
 
         @Override
         public void onApplicationEvent(ModeEvent event) {
-            GpadOsActionModule module = actuatorModules.get(event.getMode());
-            modeService.setCurrentMode(module);
-
+            modeService.switchCurrentMode(event.getMode());
             modeSelector.getApplication().close();
-            stateService.nullifyForced();
         }
     }
 }

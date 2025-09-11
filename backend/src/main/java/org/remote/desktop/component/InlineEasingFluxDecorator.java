@@ -22,7 +22,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
     private final Function<SceneDto, EAxisEaser> easerGetter;
     private final String REPEATER_CACHE_NAME = "repeater";
-    private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_" + q.getName() + UUID.randomUUID();
+    private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_" + q.getName();
 
     private final Sinks.Many<SceneDto> sceneSink = Sinks.many().unicast().onBackpressureBuffer();
     private final Sinks.Many<T> outputSink = Sinks.many().unicast().onBackpressureBuffer();
@@ -43,15 +43,9 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
                         Optional.ofNullable(Optional.ofNullable(repeaterDef.repeater()).orElseGet(Function::identity)
                                         .apply(sourceFlux)).orElseGet(Flux::empty)
                                 .mapNotNull(
-                                        repeaterDef != null ?
-                                                repeaterDef.scene != null ?
-                                                        funky(axisActionGetter
-                                                                .andThen(q -> {
-                                                                    if (q == null) return null;
-
-                                                                    return consumerMap.getOrDefault(q, outputSink::tryEmitNext);
-                                                                })
-                                                                .apply(repeaterDef.scene)) : null : null
+                                        funky(axisActionGetter
+                                                .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
+                                                .apply(repeaterDef.scene))
                                 )
                 )
                 .subscribe();
@@ -68,7 +62,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
     }
 
     SceneAndRepeater<T> getCachedOrFreshEaser(SceneDto scene) {
-        return tryGetCachedEaser(scene.getName()) instanceof SceneAndRepeater<T> c ?
+        return tryGetCachedEaser(CACHE_KEY.apply(scene)) instanceof SceneAndRepeater<T> c ?
                 c : getEaserAndCache(scene);
     }
 
