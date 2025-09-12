@@ -254,6 +254,7 @@ const removeEvent = async () => {
                   class="w-6 input-item"
                   @change="change"
                   :disabled="props.disabled"
+                  v-if="props.renderAction"
                   show-clear
               />
             </div>
