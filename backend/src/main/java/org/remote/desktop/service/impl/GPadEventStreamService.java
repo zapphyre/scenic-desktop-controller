@@ -55,7 +55,7 @@ public class GPadEventStreamService {
         return ofNullable(windowName)
                 .map(sceneService::getSceneForModeAndWindowNameOrBase)
                 .map(this::extractInheritedActions)
-                .orElse(Map.of());
+                .orElseGet(Map::of);
     }
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
