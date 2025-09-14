@@ -3,7 +3,7 @@ package org.remote.desktop.model.event.keyboard;
 import lombok.Value;
 import org.asmus.model.EButtonAxisMapping;
 import org.asmus.model.ELogicalEventType;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 
 import java.util.Set;
 
@@ -15,7 +15,7 @@ public class PredictionControlEvent extends KeyboardBaseEvent {
     Set<EButtonAxisMapping> modifiers;
     boolean longPress;
 
-    public PredictionControlEvent(Object source, EActionButton button, ELogicalEventType logical, String type, Set<EButtonAxisMapping> modifiers, boolean longPress) {
+    public PredictionControlEvent(Object source, EKeyboardInputButton button, ELogicalEventType logical, String type, Set<EButtonAxisMapping> modifiers, boolean longPress) {
         super(source, button);
         this.logical = logical;
         this.type = type;

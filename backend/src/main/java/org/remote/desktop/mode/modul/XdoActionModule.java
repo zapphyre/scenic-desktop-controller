@@ -1,4 +1,4 @@
-package org.remote.desktop.mode.modul.impl;
+package org.remote.desktop.mode.modul;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

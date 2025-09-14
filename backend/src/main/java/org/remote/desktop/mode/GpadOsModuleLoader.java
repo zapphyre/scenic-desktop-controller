@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.GamepadDesktopController;
 import org.remote.desktop.db.dao.SceneDao;
-import org.remote.desktop.mode.modul.impl.XdoActionModule;
+import org.remote.desktop.mode.modul.KeyboardModule;
+import org.remote.desktop.mode.modul.XdoActionModule;
 import org.remote.desktop.service.impl.StateService;
+import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,18 +23,19 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.zapphyre.function.FunHelper.laterMerger;
+
 @Configuration
 @RequiredArgsConstructor
 public class GpadOsModuleLoader {
     private static final String PLUGINS_DIR = "plugins";
 
-    private final SceneDao sceneDao;
-
-    @Bean("actorMap")
-    public Map<String, GpadOsActionModule> actuatorModules(StateService stateService) {
+    @Bean
+    public Map<String, GpadOsActionModule> actuatorModules(StateService stateService,
+                                                           CircleButtonsInputWidget widget) {
         ClassLoader pluginClassLoader = loadPlugins();
         XdoActionModule xdoActionModule = new XdoActionModule(stateService);
-
+        KeyboardModule keyboardModule = new KeyboardModule(widget);
         // Manually load providers
         List<GpadOsActionModule> providers = new ArrayList<>();
         try {
@@ -68,20 +71,13 @@ public class GpadOsModuleLoader {
                 .collect(Collectors.toMap(
                         GpadOsActionModule::getName,
                         Function.identity(),
-                        (existing, replacement) -> existing
+                        laterMerger()
                 ));
         moduleMap.put(xdoActionModule.getName(), xdoActionModule);
+        moduleMap.put(keyboardModule.getName(), keyboardModule);
 
         System.out.println("Module map size: " + moduleMap.size());
         moduleMap.forEach((name, module) -> System.out.println("Module: " + name + " -> " + module.getClass().getName()));
-
-        for (String name : moduleMap.keySet())
-            try {
-                if (!moduleMap.get(name).isScenic())
-                    sceneDao.getSceneVtoBy(name);
-            } catch (Exception e) {
-                sceneDao.createDefaultSceneForMode(name);
-            }
 
         return moduleMap;
     }

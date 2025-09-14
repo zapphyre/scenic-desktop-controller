@@ -26,7 +26,9 @@ onMounted(async () => {
   scene.value = (await apiClient.get(`scene/${props.mode?.adapterMode}`)).data;
   console.log('scene.value1', scene.value);
   verbsRef.value = await getVerbs(props.mode?.adapterMode!!);
-  console.log('verbsRef.value',verbsRef.value);
+  console.log('verbsRef.value', verbsRef.value);
+  console.log('props.mode?.keyEvtTypes', props.mode?.keyEvtTypes);
+
   loading.value = false;
 
   events.value = updateSceneWithMissingVerbs(scene.value!!, verbsRef.value);
@@ -93,9 +95,9 @@ watch(() => props.mode?.adapterMode, async (newMode) => {
     verbsRef.value = [];
   }
 
-  console.log('verbsRef.value',verbsRef.value);
+  console.log('verbsRef.value', verbsRef.value);
 
-}, { immediate: true });
+}, {immediate: true});
 
 </script>
 
@@ -111,7 +113,9 @@ watch(() => props.mode?.adapterMode, async (newMode) => {
               style="width: 20%; min-width: 2%;"
       >
         <template #body="{ data }: { data: EventVto }">
-          <span class="font-semibold">{{ WinderActions[data.actions[0].keyEvt ?? 'unknown'] || 'Unknown Operation' }}</span>
+          <span class="font-semibold">{{
+              WinderActions[data.actions[0].keyEvt ?? 'unknown'] || data.actions[0].keyEvt
+            }}</span>
         </template>
       </Column>
       <Column field="value.actions" header="Gamepad Action"

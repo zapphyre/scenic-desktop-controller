@@ -13,7 +13,7 @@ import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.model.event.keyboard.ButtonEvent;
 import org.remote.desktop.processor.ButtonProcessorBase;
 import org.remote.desktop.service.impl.GPadEventStreamService;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ import static org.asmus.model.EQualificationType.PUSH;
 import static org.asmus.model.EQualificationType.RELEASE;
 import static org.remote.desktop.util.ETriggerFilter.triggerUpTo;
 
-@Component
+//@Component
 public class CharacterInputAdapter extends ButtonProcessorBase {
 
     private final List<EQualificationType> allowedQualifs = List.of(PUSH, RELEASE);
@@ -67,6 +67,6 @@ public class CharacterInputAdapter extends ButtonProcessorBase {
     @Override
     public Function<XdoActionDto, ApplicationEvent> mapEvent(ButtonActionDef def, NextSceneXdoAction sceneXdoAction) {
         return q ->
-                new ButtonEvent(this, EActionButton.valueOf(def.getTrigger()), def.getQualified(), def.getModifiers(), def.isLongPress());
+                new ButtonEvent(this, EKeyboardInputButton.valueOf(def.getTrigger()), def.getQualified(), def.getModifiers(), def.isLongPress());
     }
 }

@@ -4,9 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.remote.desktop.ui.model.IndexLetterAction;
-import org.remote.desktop.ui.model.ModifiedIndexedTransformer;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
 public abstract class UiButtonBase {
 
     int group;
-    EActionButton button;
+    EKeyboardInputButton button;
 
     @Builder.Default
     List<LF> lettersOnButton = List.of();

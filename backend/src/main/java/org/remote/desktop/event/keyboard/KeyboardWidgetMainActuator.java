@@ -5,11 +5,10 @@ import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.actuate.MouseAct;
 import org.remote.desktop.model.event.keyboard.KeyboardWidgetControlEvent;
 import org.remote.desktop.model.event.keyboard.LongHoldEvent;
-import org.remote.desktop.model.event.keyboard.PasteEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +16,8 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.List;
+
+import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
 
 @Component
 @RequiredArgsConstructor
@@ -65,14 +66,8 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
         }
 
         if (regularButtons.contains(event.getType()))
-            widget.setActiveAndType(EActionButton.valueOf(event.getType()), event.getModifiers());
+            widget.setActiveAndType(EKeyboardInputButton.valueOf(event.getType()), event.getModifiers());
 
-    }
-
-    void copyToClipboard(String text) {
-        StringSelection stringSelection = new StringSelection(text);
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
     }
 
     @Override

@@ -29,9 +29,9 @@ public class ModeService {
         currentMode = getDesktopModule();
     }
 
-    public void switchCurrentMode(String mode) {
-        currentMode = moduleMap.get(mode);
+    public GpadOsActionModule switchCurrentMode(String mode) {
         stateService.nullifyForced();
+        return currentMode = moduleMap.get(mode);
     }
 
     public GpadOsActionModule getDesktopModule() {
@@ -39,7 +39,17 @@ public class ModeService {
     }
 
     public List<ModeVto> getAllModes() {
-        return modeDao.getAllModes();
+        List<ModeVto> allModes = modeDao.getAllModes();
+        return moduleMap.keySet()
+                .stream()
+                .map(q -> ModeVto.builder()
+                        .id(allModes.stream().filter(m -> m.getAdapterMode().equals(q)).findFirst().orElse(ModeVto.builder().build()).getId())
+                        .adapterMode(q)
+                        .scenic(moduleMap.get(q).isScenic())
+                        .keyEvtTypes(moduleMap.get(q).getVerbs())
+                        .nouns(moduleMap.get(q).getNouns())
+                        .build())
+                .toList();
     }
 
     public List<String> getModeVerbs(String mode) {

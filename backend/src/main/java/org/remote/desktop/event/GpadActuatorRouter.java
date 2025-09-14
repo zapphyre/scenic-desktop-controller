@@ -39,7 +39,7 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
 
         @Override
         public void onApplicationEvent(ModeEvent event) {
-            modeService.switchCurrentMode(event.getMode());
+            modeService.switchCurrentMode(event.getMode()).activate();
             modeSelector.getApplication().close();
         }
     }

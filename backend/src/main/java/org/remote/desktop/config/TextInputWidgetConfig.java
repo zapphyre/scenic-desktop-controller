@@ -21,10 +21,11 @@ import static org.zapphyre.function.FunHelper.eat;
 public class TextInputWidgetConfig {
 
     private final SettingsDao settingsDao;
-    private final SceneService sceneService;
+//    private final SceneService sceneService;
+
     private final TrieService trieService;
     private final LanguageService languageService;
-    private final XdoSceneService xdoSceneService;
+//    private final XdoSceneService xdoSceneService;
 
     @Bean
     public CircleButtonsInputWidget inputWidget() {
@@ -37,16 +38,17 @@ public class TextInputWidgetConfig {
                 q -> eat(languageService.insertOrPropNonCommiting(q))
         );
 
-        forceScene(variableGroupingInputWidget);
+//        forceScene(variableGroupingInputWidget);
 
         return variableGroupingInputWidget;
     }
 
-    void forceScene(CircleButtonsInputWidget widget) {
-        Optional.of(settingsDao)
-                .map(SettingsDao::getSettings)
-                .map(SettingDto::getTextInputSceneName)
-                .map(sceneService::getScene)
-                .ifPresent(q -> widget.setKeyboardSceneActuator(() -> xdoSceneService.forceScene(q)));
-    }
+//    void forceScene(CircleButtonsInputWidget widget) {
+//        Optional.of(settingsDao)
+//                .map(SettingsDao::getSettings)
+//                .map(SettingDto::getTextInputSceneName)
+//                .map(sceneService::getScene)
+//                .ifPresent(q -> widget.setKeyboardSceneActuator(() -> xdoSceneService.forceScene(q)));
+//    }
+
 }

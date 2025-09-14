@@ -13,27 +13,27 @@ import javafx.scene.text.Text;
 import lombok.Getter;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.ui.model.ButtonsSettings;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static org.remote.desktop.ui.model.EActionButton.*;
+import static org.remote.desktop.ui.model.EKeyboardInputButton.*;
 
 public class FourButtonWidget extends Pane {
 
-    private final Map<EActionButton, ButtonsSettings> defs;
+    private final Map<EKeyboardInputButton, ButtonsSettings> defs;
     private final double radius;
 
     @Getter
     private final double textSize;
     private final double shift;
-    private final Map<EActionButton, ButtonNode> buttons = new HashMap<>();
+    private final Map<EKeyboardInputButton, ButtonNode> buttons = new HashMap<>();
     @Getter
-    private final Map<EActionButton, Map<Integer, Consumer<Double>>> lettersMap = new HashMap<>();
+    private final Map<EKeyboardInputButton, Map<Integer, Consumer<Double>>> lettersMap = new HashMap<>();
 
-    public FourButtonWidget(Map<EActionButton, ButtonsSettings> defs, double widgetSize, double textSize) {
+    public FourButtonWidget(Map<EKeyboardInputButton, ButtonsSettings> defs, double widgetSize, double textSize) {
         this.defs = defs;
         this.radius = widgetSize / 6;
         this.textSize = textSize;
@@ -50,7 +50,7 @@ public class FourButtonWidget extends Pane {
         setTranslateY(5);
     }
 
-    private void createButton(EActionButton key, double x, double y, double textSize) {
+    private void createButton(EKeyboardInputButton key, double x, double y, double textSize) {
         // Outer bezel (darker ring)
         int bezelWidth = 3;
         ButtonsSettings settings = defs.get(key);
@@ -137,7 +137,7 @@ public class FourButtonWidget extends Pane {
     /**
      * Simulates pressing a button: flips the 3D shading
      */
-    public void toggleButtonVisual(EActionButton buttonKey) {
+    public void toggleButtonVisual(EKeyboardInputButton buttonKey) {
         ButtonNode btn = buttons.get(buttonKey);
         boolean act = btn.active = !btn.active;
         btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), act));
@@ -157,7 +157,7 @@ public class FourButtonWidget extends Pane {
     /**
      * Resets button shading back to unpressed
      */
-    public void deactivate(EActionButton buttonKey) {
+    public void deactivate(EKeyboardInputButton buttonKey) {
         ButtonNode btn = buttons.get(buttonKey);
         if (btn != null) {
             btn.circle.setFill(create3DGradient(btn.settings.getBaseColor(), false));
@@ -190,15 +190,15 @@ public class FourButtonWidget extends Pane {
 //        return buttons.get(buttonKey).settings.getElements().get(idx).getLabel();
 //    }
 
-    public UiButtonBase getUiButtonBehaviourDef(EActionButton buttonKey) {
+    public UiButtonBase getUiButtonBehaviourDef(EKeyboardInputButton buttonKey) {
         return buttons.get(buttonKey).settings.getUiButton();
     }
 
-    public int sizeOfActionsAssignedToButton(EActionButton buttonKey) {
+    public int sizeOfActionsAssignedToButton(EKeyboardInputButton buttonKey) {
         return buttons.get(buttonKey).settings.getCharCount();
     }
 
-    public char getAssignedTrieKey(EActionButton buttonKey) {
+    public char getAssignedTrieKey(EKeyboardInputButton buttonKey) {
         return buttons.get(buttonKey).settings.getTrieKey();
     }
 

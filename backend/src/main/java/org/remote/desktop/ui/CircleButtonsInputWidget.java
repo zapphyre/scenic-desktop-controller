@@ -15,7 +15,7 @@ import org.remote.desktop.model.dto.LanguageDto;
 import org.remote.desktop.ui.component.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.ButtonsSettings;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.remote.desktop.ui.model.IndexLetterAction;
 import org.remote.desktop.util.IdxWordTx;
 
@@ -66,8 +66,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
         groupWidgetMap = buttonDict.keySet().stream() // key is 'group' from 'TrieGroupDef'
                 .collect(Collectors.toMap(Function.identity(), q -> { // group too
-                    Map<EActionButton, UiButtonBase> groupDefs = buttonDict.get(q);
-                    Map<EActionButton, ButtonsSettings> settingsMap = Arrays.stream(EActionButton.values())
+                    Map<EKeyboardInputButton, UiButtonBase> groupDefs = buttonDict.get(q);
+                    Map<EKeyboardInputButton, ButtonsSettings> settingsMap = Arrays.stream(EKeyboardInputButton.values())
                             .map(b -> groupDefs.getOrDefault(b, null))
                             .filter(Objects::nonNull)
                             .collect(Collectors.toMap(UiButtonBase::getButton, a -> bs
@@ -134,8 +134,8 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
                 }, 2100, TimeUnit.MILLISECONDS);
     };
 
-    IndexLetterAction getCurrentButtonWordTransformationFun(EActionButton eActionButton) {
-        return activeButtonGroup.getUiButtonBehaviourDef(eActionButton).processTouch(this);
+    IndexLetterAction getCurrentButtonWordTransformationFun(EKeyboardInputButton eKeyboardInputButton) {
+        return activeButtonGroup.getUiButtonBehaviourDef(eKeyboardInputButton).processTouch(this);
     }
 
     Pane rightPane = new Pane();
@@ -180,20 +180,20 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     }
 
     @Override
-    public void toggleVisual(EActionButton index) {
+    public void toggleVisual(EKeyboardInputButton index) {
         this.modifiers = Set.of();
         Platform.runLater(() -> activeButtonGroup.toggleButtonVisual(index));
     }
 
-    private EActionButton precisionInitiatior;
+    private EKeyboardInputButton precisionInitiatior;
 
-    public void activatePrecisionMode(EActionButton eActionButton) {
+    public void activatePrecisionMode(EKeyboardInputButton eKeyboardInputButton) {
         // button long-pressed; will get longTouchHandler out of current uiButton definition
-        groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eActionButton)
+        groupTxFun = activeButtonGroup.getUiButtonBehaviourDef(precisionInitiatior = eKeyboardInputButton)
                 .getLongTouchHandler().processTouch(this);
 
         letterIndex.set(1); //start fresh
-        Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eActionButton)
+        Consumer<Double> fontSizeSetter = activeButtonGroup.getLettersMap().get(eKeyboardInputButton)
                 .get(0); // get 0 and increment so on next touch idx + 1 is ready
         scheduleSizeResetOn.apply(fontSizeSetter);
 
@@ -203,7 +203,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
     Set<EButtonAxisMapping> modifiers = Set.of();
 
     @Override
-    public void setActiveAndType(EActionButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
+    public void setActiveAndType(EKeyboardInputButton buttonActivated, Set<EButtonAxisMapping> modifiers) {
         this.modifiers = modifiers;
 
         // long press (precision mode) was activated && another button then activation pressed
@@ -322,7 +322,7 @@ public class CircleButtonsInputWidget extends VariableGroupingInputWidgetBase im
 
             if (predictions.isEmpty()) {
                 sentence.appendText(" ");
-                activatePrecisionMode(EActionButton.Y);
+                activatePrecisionMode(EKeyboardInputButton.Y);
             }
 
             limitedPredictions = (persistentPreciseInput = predictions.isEmpty()) ?

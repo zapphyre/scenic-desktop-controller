@@ -2,7 +2,7 @@ package org.remote.desktop.util;
 
 import lombok.experimental.UtilityClass;
 import org.remote.desktop.model.*;
-import org.remote.desktop.ui.model.EActionButton;
+import org.remote.desktop.ui.model.EKeyboardInputButton;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.remote.desktop.model.LF.all;
-import static org.remote.desktop.ui.model.EActionButton.*;
+import static org.remote.desktop.ui.model.EKeyboardInputButton.*;
 import static org.remote.desktop.util.TextFieldTransformations.*;
 
 @UtilityClass
@@ -24,7 +24,7 @@ public class KeyboardButtonFunctionDefinition {
     public static int PUNCTUATION_GROUP_IDX = 1;
 
     // set labels
-    public static final Map<Integer, Map<EActionButton, UiButtonBase>> buttonDict;
+    public static final Map<Integer, Map<EKeyboardInputButton, UiButtonBase>> buttonDict;
 
     static {
         List<TrieButtonTouch> trieDefs = List.of(
