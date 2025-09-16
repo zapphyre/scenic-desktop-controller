@@ -3,11 +3,12 @@ package org.remote.desktop.mode;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.GamepadDesktopController;
-import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.mode.modul.KeyboardModule;
 import org.remote.desktop.mode.modul.XdoActionModule;
 import org.remote.desktop.service.impl.StateService;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,7 +36,7 @@ public class GpadOsModuleLoader {
                                                            CircleButtonsInputWidget widget) {
         ClassLoader pluginClassLoader = loadPlugins();
         XdoActionModule xdoActionModule = new XdoActionModule(stateService);
-        KeyboardModule keyboardModule = new KeyboardModule(widget);
+        KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
         // Manually load providers
         List<GpadOsActionModule> providers = new ArrayList<>();
         try {

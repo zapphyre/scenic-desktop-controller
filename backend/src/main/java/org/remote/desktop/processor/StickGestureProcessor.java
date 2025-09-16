@@ -41,7 +41,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class StickGestureProcessor implements AppEventMapper {
 
-    private final JoyWorker worker;
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
     private final ButtonAdapter buttonAdapter;

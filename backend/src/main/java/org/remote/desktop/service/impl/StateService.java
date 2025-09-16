@@ -41,4 +41,12 @@ public class StateService {
         xdoSceneService.nullifyForcedScene();
         keyboardStateRepository.releaseAllPressedKeys();
     }
+
+    public void recognizeScene() {
+        xdoSceneService.tryGetCurrentName();
+    }
+
+    public void defaultMode() {
+
+    }
 }

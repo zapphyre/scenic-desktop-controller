@@ -29,7 +29,7 @@ public class TriggerActionMatcher {
         return button -> {
             NextSceneXdoAction nextSceneXdoAction = getNextSceneButtonEventMapper(button);
 
-            return ofNullable(nextSceneXdoAction)
+                return ofNullable(nextSceneXdoAction)
                     .map(NextSceneXdoAction::getActions)
                     .orElseGet(Collections::emptyList).stream()
                     .map(mapper.mapEvent(button, nextSceneXdoAction))

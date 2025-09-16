@@ -31,6 +31,7 @@ public class ModeService {
 
     public GpadOsActionModule switchCurrentMode(String mode) {
         stateService.nullifyForced();
+        stateService.recognizeScene();
         return currentMode = moduleMap.get(mode);
     }
 

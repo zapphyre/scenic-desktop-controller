@@ -28,8 +28,8 @@ public class EventCtrl {
 
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
-        eventService.update(gamepadEventVto);
+    public EventVto updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
+        return eventService.update(gamepadEventVto);
     }
 
     @DeleteMapping("{eventId}")

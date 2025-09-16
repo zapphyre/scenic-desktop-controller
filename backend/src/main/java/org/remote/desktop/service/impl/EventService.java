@@ -29,7 +29,7 @@ public class EventService {
         return eventDao.create(eventVto);
     }
 
-    public void update(EventVto eventVto) {
-        eventDao.update(eventVto);
+    public EventVto update(EventVto eventVto) {
+        return eventDao.update(eventVto);
     }
 }

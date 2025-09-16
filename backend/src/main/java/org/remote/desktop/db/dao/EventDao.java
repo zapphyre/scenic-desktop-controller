@@ -13,6 +13,7 @@ import org.remote.desktop.util.RecursiveScraper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,16 +48,18 @@ public class EventDao {
                 .orElseThrow();
     }
 
-    public void update(EventVto vto) {
-        eventRepository.findById(vto.getId()).stream()
-                .map(q -> q.withActions(vto.getActions().stream()
+    public EventVto update(EventVto vto) {
+        return eventRepository.findById(vto.getId())
+                .map(q -> q.withActions(Optional.ofNullable(vto.getActions()).orElseGet(Collections::emptyList).stream()
                         .map(p -> xdoActionDao.save(p, q))
                         .toList()
                 ))
-                .forEach(eventMapper.update(vto,
+                .map(eventMapper.update(vto,
                         optToNull(vto.getParentFk(), sceneRepository::findById),
                         optToNull(vto.getNextSceneFk(), sceneRepository::findById)
-                ));
+                ))
+                .map(eventMapper::map)
+                .orElseThrow();
     }
 
     public List<EventVto> getInherentsRecurcivelyFor(long sceneId) {

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -90,7 +91,7 @@ public class SceneDao {
         Optional.of(vto)
                 .map(SceneVto::getId)
                 .flatMap(sceneRepository::findById)
-                .ifPresent(sceneMapper.update(vto, vto.getInheritsIdFk() == null ? List.of() : sceneRepository.findAllById(vto.getInheritsIdFk())));
+                .ifPresent(sceneMapper.update(vto, Optional.ofNullable(vto.getInheritsIdFk()).map(sceneRepository::findAllById).orElseGet(Collections::emptyList)));
     }
 
     public void update(SceneDto dto) {

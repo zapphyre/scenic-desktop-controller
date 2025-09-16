@@ -75,9 +75,9 @@ public interface EventMapper {
 
     // i have to save actions earlier and set them manually
     @Mapping(target = "actions", ignore = true)
-    void update(@MappingTarget Event tgt, EventVto src, Scene scene, Scene nextScene);
+    Event update(@MappingTarget Event tgt, EventVto src, Scene scene, Scene nextScene);
 
-    default Consumer<Event> update(EventVto src, Scene parent, Scene next) {
+    default Function<Event, Event> update(EventVto src, Scene parent, Scene next) {
         return q -> update(q, src, parent, next);
     }
 

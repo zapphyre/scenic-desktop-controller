@@ -86,7 +86,7 @@ const createEventIfDefault = async () => {
   if (localEvent.value.id && localEvent.value.id !== -1) return localEvent.value;
 
   const newEvent: EventVto = {
-    id: (await apiClient.post("event", {parentFk: props.selectedSceneId, })).data,
+    id: (await apiClient.post("event", {parentFk: props.selectedSceneId})).data,
     // id: undefined,
     parentFk: props.selectedSceneId,
     actions: localEvent.value.actions,
@@ -96,6 +96,8 @@ const createEventIfDefault = async () => {
   };
   localEvent.value = newEvent;
   emit('updateEvent', newEvent); // Notify parent of new event
+
+  return newEvent.id;
 };
 
 const addNewAction = async () => {
@@ -122,7 +124,7 @@ const removeXdoAction = async (action: XdoAction) => {
 const change = async () => {
   if (localEvent.value.id === -1) return;
   console.log("changed");
-  await apiClient.put("event", localEvent.value);
+  localEvent.value = (await apiClient.put("event", localEvent.value)).data;
 };
 
 const addNewGesture = async () => {

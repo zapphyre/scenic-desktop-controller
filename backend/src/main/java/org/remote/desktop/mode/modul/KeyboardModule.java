@@ -2,10 +2,10 @@ package org.remote.desktop.mode.modul;
 
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
+import org.remote.desktop.service.impl.StateService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.remote.desktop.ui.model.EKeyboardInputButton;
-import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -13,12 +13,14 @@ import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.Set;
 
+import static org.remote.desktop.actuate.MouseAct.paste;
+
 //@Component
 @RequiredArgsConstructor
 public class KeyboardModule implements GpadOsActionModule {
 
     private final CircleButtonsInputWidget widget;
-//    private final XdoSceneService xdoSceneService;
+    private final StateService stateService;
 
     @Override
     public String getName() {
@@ -35,7 +37,7 @@ public class KeyboardModule implements GpadOsActionModule {
         return List.of("SELECT_BOTTOM", "SELECT_TOP", "CURSOR_LEFT",
                 "CURSOR_RIGHT", "CURSOR_WORD_LEFT", "CURSOR_WORD_RIGHT",
                 "RESET_STATE", "ADD_WORD", "NEXT_PREDICTION_FRAME", "PREV_PREDICTION_FRAME",
-                "END_PASTE", "A", "X", "Y", "B");
+                "END", "PASTE", "A", "X", "Y", "B");
     }
 
     @Override
@@ -90,18 +92,21 @@ public class KeyboardModule implements GpadOsActionModule {
                 widget.prevPredictionsFrame();
                 yield true;
             }
-            case "END_PASTE" -> {
+            case "END" -> {
                 copyToClipboard(widget.getSentenceAndReset());
-//                xdoSceneService.tryGetCurrentName();
+                stateService.recognizeScene();
+                yield true;
+            }
+            case "PASTE" -> {
+                paste();
+                stateService.defaultMode();
                 yield true;
             }
             case "A", "X", "Y", "B" -> {
                 widget.setActiveAndType(EKeyboardInputButton.valueOf(s), Set.of());
                 yield true;
             }
-            default -> {
-                yield false;
-            }
+            default -> false;
         };
     }
 
