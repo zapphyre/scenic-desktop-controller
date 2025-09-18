@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class ModeCtrl {
     }
 
     @GetMapping("verbs/{mode}")
-    public List<String> getModeVerbs(@PathVariable("mode") String mode) {
+    public Collection<String> getModeVerbs(@PathVariable("mode") String mode) {
         return modeService.getModeVerbs(mode);
     }
 

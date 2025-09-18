@@ -37,7 +37,7 @@ public class KeyboardModule implements GpadOsActionModule {
         return List.of("SELECT_BOTTOM", "SELECT_TOP", "CURSOR_LEFT",
                 "CURSOR_RIGHT", "CURSOR_WORD_LEFT", "CURSOR_WORD_RIGHT",
                 "RESET_STATE", "ADD_WORD", "NEXT_PREDICTION_FRAME", "PREV_PREDICTION_FRAME",
-                "END", "PASTE", "A", "X", "Y", "B");
+                "END", "A", "X", "Y", "B");
     }
 
     @Override
@@ -94,12 +94,9 @@ public class KeyboardModule implements GpadOsActionModule {
             }
             case "END" -> {
                 copyToClipboard(widget.getSentenceAndReset());
-                stateService.recognizeScene();
-                yield true;
-            }
-            case "PASTE" -> {
-                paste();
                 stateService.defaultMode();
+                stateService.nullifyForced();
+                stateService.recognizeScene();
                 yield true;
             }
             case "A", "X", "Y", "B" -> {

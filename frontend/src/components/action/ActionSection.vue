@@ -3,19 +3,21 @@ import Select from 'primevue/select';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import MultiSelect from 'primevue/multiselect';
-import {actionValues, buttonValues, EKeyEvt, XdoAction} from "@/model/gpadOs";
+import {actionValues, buttonValues, EKeyEvt, Mode, XdoAction} from "@/model/gpadOs";
 import {onMounted, ref, watch} from "vue";
-import {getStrokes, useStrokesStore} from "@/api/dataStore";
+import {getStrokes, getVerbs, useStrokesStore} from "@/api/dataStore";
 import apiClient from '@/api';
 
 const filteredStrokes = ref<string[]>();
 const strokes = ref<string[]>([]);
 const filtered = ref<string>();
+const verbs = ref<string[]>([]);
 
 const props = defineProps<{
   xdoAction: XdoAction;
   disabled?: boolean;
   strokes: string[];
+  mode: Mode
 }>();
 
 const emit = defineEmits<{
@@ -74,6 +76,7 @@ onMounted(async () => {
   filterChange();
   // console.log("Initial strokes:", strokes.value);
 
+  verbs.value = await getVerbs(props.mode.adapterMode!!)
   // Sync strokes with props.xdoAction.keyStrokes
   watch(
       () => props.xdoAction.keyStrokes,
@@ -101,7 +104,7 @@ onMounted(async () => {
     />
     <Select
         v-model="props.xdoAction.keyEvt"
-        :options="actionValues"
+        :options="verbs"
         placeholder="XdoActionType"
         class="w-5"
         :disabled="disabled"

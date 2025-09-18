@@ -92,7 +92,7 @@ const fetchModes = async () => {
 
 const fetchVerbs = async (mode: string) => {
     try {
-        verbs.value[mode] = (await apiClient.get(`mode/verbs/${mode}`)).data;
+        verbs.value[mode] = (await apiClient.get(`mode/verbs/${mode ?? 'DESKTOP'}`)).data;
     } catch (error) {
         console.error(`Failed to fetch verbs for mode ${mode}:`, error);
         verbs.value[mode] = [];

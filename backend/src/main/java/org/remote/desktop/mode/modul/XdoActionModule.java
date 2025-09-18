@@ -8,6 +8,8 @@ import org.remote.desktop.service.impl.StateService;
 import java.util.List;
 
 import static jxdotool.xDoToolUtil.*;
+import static org.remote.desktop.actuate.MouseAct.paste;
+import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
 
 //@Component
 @RequiredArgsConstructor
@@ -22,12 +24,12 @@ public class XdoActionModule implements GpadOsActionModule {
 
     @Override
     public List<String> getNouns() {
-        return List.of();
+        return List.of("COPY", "PASTE");
     }
 
     @Override
     public List<String> getVerbs() {
-        return List.of();
+        return List.of("CLIPBOARD");
     }
 
     @Override
@@ -50,6 +52,13 @@ public class XdoActionModule implements GpadOsActionModule {
             case "MOUSE_UP" -> xDo("mouseup", xdoKeyPart);
             case "TIMEOUT" -> Thread.sleep(Integer.parseInt(xdoKeyPart));
             case "SCENE_RESET" -> stateService.nullifyForced();
+            case "CLIPBOARD" -> {
+                if (xdoKeyPart.equals("PASTE")) {
+                    paste();
+                } else {
+                    copyToClipboard("");
+                }
+            }
         }
 
         return true;

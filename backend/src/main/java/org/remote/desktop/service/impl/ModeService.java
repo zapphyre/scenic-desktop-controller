@@ -9,9 +9,12 @@ import org.remote.desktop.db.dao.ModeDao;
 import org.remote.desktop.model.vto.ModeVto;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.zapphyre.function.FunHelper.funky;
 
 @Service
 @RequiredArgsConstructor
@@ -53,10 +56,11 @@ public class ModeService {
                 .toList();
     }
 
-    public List<String> getModeVerbs(String mode) {
+    public Collection<String> getModeVerbs(String mode) {
         return Optional.ofNullable(moduleMap.get(mode))
-                .map(GpadOsActionModule::getVerbs)
-                .orElseGet(() -> modeDao.getModeVerbs(mode));
+                .map(GpadOsActionModule::getVerbs).stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.collectingAndThen(Collectors.toCollection(HashSet::new), funky(q -> q.addAll(modeDao.getModeVerbs(mode)))));
     }
 
     public List<String> getModeNouns(String mode) {

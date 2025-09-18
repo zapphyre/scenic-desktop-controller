@@ -3,10 +3,14 @@ package org.remote.desktop.service.impl;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.event.KeyboardStateRepository;
+import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.pojo.KeyPart;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,8 +19,10 @@ public class StateService {
     private final Sinks.Many<String> sceneStateStream = Sinks.many().multicast().directBestEffort();
     private final Sinks.Many<KeyPart> keydownStateStream = Sinks.many().multicast().directBestEffort();
 
+    protected final ApplicationEventPublisher eventPublisher;
     private final KeyboardStateRepository keyboardStateRepository;
     private final XdoSceneService xdoSceneService;
+
 
     @PostConstruct
     void init() {
@@ -47,6 +53,9 @@ public class StateService {
     }
 
     public void defaultMode() {
-
+        eventPublisher.publishEvent(new GpadCommandEvent(KeyPart.builder()
+                .keyEvt("SCENE_RESET")
+                .keyStrokes(List.of())
+                .build(), this));
     }
 }

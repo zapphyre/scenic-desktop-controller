@@ -312,6 +312,7 @@ const removeEvent = async () => {
           <div class="flex flex-column gap-2 align-items-center min-h-full">
             <div v-for="(act, i) in localEvent.actions || []">
               <XdoActionUi
+                  :mode="props.mode"
                   :key="act.id ? `desktop-${act.id}` : `desktop-no-${i}`"
                   :xdo-action="act"
                   :disabled="props.disabled"

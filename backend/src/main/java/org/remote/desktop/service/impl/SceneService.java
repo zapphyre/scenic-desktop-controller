@@ -36,7 +36,8 @@ public class SceneService {
     @Cacheable(SCENE_CACHE_NAME_CONTAINING)
     public SceneDto getSceneForModeAndWindowNameOrBase(String sceneName) {
         return modeService.getCurrentMode().isScenic() ?
-                sceneDao.getSceneForWindowNameOrBase(sceneName, modeService.getCurrentMode().getName()) : sceneDao.getModeDefault(modeService.getCurrentMode().getName());
+                sceneDao.getSceneForWindowNameOrBase(sceneName, modeService.getCurrentMode().getName()) :
+                sceneDao.getModeDefault(modeService.getCurrentMode().getName());
     }
 
     @CacheEvict(value = {SCENE_LIST_CACHE_NAME,  SCENE_CACHE_NAME_CONTAINING, SCENE_CACHE_NAME}, allEntries = true)
