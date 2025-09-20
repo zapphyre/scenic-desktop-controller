@@ -31,7 +31,9 @@ public class ModeDao {
     public List<String> getModeVerbs(String mode) {
         return Optional.of(mode)
                 .map(modeRepository::findByAdapterMode)
-                .map(Mode::getKeyEvtTypes)
+                .map(Mode::getKeyEvtTypes) //assigned
+                //or already used
+
                 .orElseGet(() -> sceneDao.getAllSceneVtos(mode).stream()
                         .flatMap(q -> q.getEvents().stream())
                         .flatMap(q -> q.getActions().stream())

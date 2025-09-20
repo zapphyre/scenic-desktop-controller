@@ -88,6 +88,9 @@ public class GPadEventStreamService {
                 .filter(q -> scrape.apply(scene).stream()
                         .map(EventDto::getButtonEvent)
                         .filter(Objects::nonNull)
+                        .filter(p -> Objects.nonNull(p.getTrigger()))
+                        .filter(p -> p.getTrigger().equals(click.getTrigger()))
+//                        .filter(p -> p.getModifiers().equals(click.getModifiers()))
                         .filter(triggerAndModifiersSameAsClick(click))
                         .anyMatch(q.getPredicate()))
                 .findFirst()
@@ -99,6 +102,7 @@ public class GPadEventStreamService {
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
 
     public void computeRemainderFilter(ButtonActionDef click) {
+        System.out.println("computeRemainderFilter: " + qualificationReceived);
         if (click.getQualified() == EQualificationType.PUSH)
             qualificationReceived.addAll(List.of(
                     EQualificationType.RELEASE,
@@ -117,6 +121,8 @@ public class GPadEventStreamService {
 
         if (click.getQualified() != EQualificationType.MULTIPLE)
             qualificationReceived.add(EQualificationType.MULTIPLE);
+
+        System.out.println("after: " + qualificationReceived);
     }
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {
