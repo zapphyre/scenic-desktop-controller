@@ -101,6 +101,7 @@ public class KeyboardModule implements GpadOsActionModule {
             }
             case "A", "X", "Y", "B" -> {
                 widget.setActiveAndType(EKeyboardInputButton.valueOf(s), Set.of());
+//                widget.toggleVisual(EKeyboardInputButton.valueOf(s));
                 yield true;
             }
             default -> false;

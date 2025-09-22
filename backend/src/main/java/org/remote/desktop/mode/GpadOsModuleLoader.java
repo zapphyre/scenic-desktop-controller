@@ -3,12 +3,14 @@ package org.remote.desktop.mode;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.GamepadDesktopController;
+import org.remote.desktop.mode.modul.AnalogAdjustModule;
 import org.remote.desktop.mode.modul.KeyboardModule;
 import org.remote.desktop.mode.modul.XdoActionModule;
 import org.remote.desktop.service.impl.StateService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,12 +33,16 @@ import static org.zapphyre.function.FunHelper.laterMerger;
 public class GpadOsModuleLoader {
     private static final String PLUGINS_DIR = "plugins";
 
+    private final ApplicationEventPublisher eventPublisher;
+
     @Bean
     public Map<String, GpadOsActionModule> actuatorModules(StateService stateService,
                                                            CircleButtonsInputWidget widget) {
         ClassLoader pluginClassLoader = loadPlugins();
         XdoActionModule xdoActionModule = new XdoActionModule(stateService);
         KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
+        AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher);
+
         // Manually load providers
         List<GpadOsActionModule> providers = new ArrayList<>();
         try {
@@ -76,6 +82,7 @@ public class GpadOsModuleLoader {
                 ));
         moduleMap.put(xdoActionModule.getName(), xdoActionModule);
         moduleMap.put(keyboardModule.getName(), keyboardModule);
+        moduleMap.put(analogAdjustModule.getName(), analogAdjustModule);
 
         System.out.println("Module map size: " + moduleMap.size());
         moduleMap.forEach((name, module) -> System.out.println("Module: " + name + " -> " + module.getClass().getName()));

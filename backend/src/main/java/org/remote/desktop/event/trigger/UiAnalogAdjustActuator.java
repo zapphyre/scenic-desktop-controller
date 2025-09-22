@@ -1,11 +1,13 @@
 package org.remote.desktop.event.trigger;
 
 import lombok.RequiredArgsConstructor;
+import org.remote.desktop.model.EAnalogControl;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.ui.select.SelectSelector;
 import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
 import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
@@ -17,15 +19,21 @@ import org.springframework.stereotype.Component;
 public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjustEvent> {
 
     private final TriggerUiSelector triggerSelector;
+    private final SelectSelector  selectSelector;
     private final AxisUiSelector axisSelector;
 
-    private final UnoSelectApplication unoSelectApplication;
+    private final UnoSelectApplication<EAnalogControl> unoSelectApplication;
 
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
 
+    private SceneDto lastSceneDto;
+
     @Override
     public void onApplicationEvent(UiAnalogAdjustEvent event) {
+        String name = xdoSceneService.tryGetCurrentName();
+        lastSceneDto = sceneService.getSceneForModeAndWindowNameOrBase(name);
+
         if (event.isOn())
             unoSelectApplication.render(
                     sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
@@ -41,7 +49,10 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         public void onApplicationEvent(AnalogControllerSelectEvent event) {
             unoSelectApplication.close();
 
-            SceneDto s = event.getLastScene();
+            String name = xdoSceneService.tryGetCurrentName();
+            SceneDto s =  lastSceneDto;
+
+            System.out.println("adjusting scene name: " + s.getName());
 
             switch (event.getAnalogControl()) {
                 case LEFT_STICK:

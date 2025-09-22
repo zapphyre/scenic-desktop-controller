@@ -10,9 +10,7 @@ import org.remote.desktop.model.vto.ModeVto;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.zapphyre.function.FunHelper.funky;
 
@@ -44,6 +42,7 @@ public class ModeService {
 
     public List<ModeVto> getAllModes() {
         List<ModeVto> allModes = modeDao.getAllModes();
+
         return moduleMap.keySet()
                 .stream()
                 .map(q -> ModeVto.builder()

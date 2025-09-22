@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class KeyboardWidgetMainActuator implements ApplicationListener<PredictionControlEvent> {
 
