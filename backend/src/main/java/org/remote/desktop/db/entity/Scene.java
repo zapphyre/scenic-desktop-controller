@@ -45,7 +45,7 @@ public class Scene implements GamepadEventContainer<Event, Scene>, Serializable 
     private List<Event> events = new LinkedList<>();
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
     private Mode mode;
 
     @Enumerated(EnumType.STRING)

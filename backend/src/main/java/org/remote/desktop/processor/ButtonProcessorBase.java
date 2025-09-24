@@ -44,7 +44,6 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
                 .filter(purgingFilter())
                 .doOnNext(this::qualificationExamine)
         )
-                .log("evt")
                 .map(triggerActionMatcher.appEventMapper(this))
                 .flatMap(Flux::fromIterable)
                 .subscribe(eventPublisher::publishEvent, Throwable::printStackTrace);

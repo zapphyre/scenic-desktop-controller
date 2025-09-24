@@ -27,12 +27,11 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
 
-    private SceneDto lastSceneDto;
+    SceneDto s;
 
     @Override
     public void onApplicationEvent(UiAnalogAdjustEvent event) {
-        String name = xdoSceneService.tryGetCurrentName();
-        lastSceneDto = sceneService.getSceneForModeAndWindowNameOrBase(name);
+        s = xdoSceneService.getLastRecognizedScene();
 
         if (event.isOn())
             unoSelectApplication.render(
@@ -48,9 +47,6 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         @Override
         public void onApplicationEvent(AnalogControllerSelectEvent event) {
             unoSelectApplication.close();
-
-            String name = xdoSceneService.tryGetCurrentName();
-            SceneDto s =  lastSceneDto;
 
             System.out.println("adjusting scene name: " + s.getName());
 

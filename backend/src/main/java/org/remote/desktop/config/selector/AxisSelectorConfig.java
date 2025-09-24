@@ -65,7 +65,7 @@ public class AxisSelectorConfig {
                                 .withLeftTriggerEaser(update.getRight());
                         case RIGHT_TRIGGER -> update.getSceneDto()
                                 .withRightTriggerEvent(update.getLeft())
-                                    .withRightAxisEaser(update.getRight());
+                                    .withRightTriggerEaser(update.getRight());
                         default -> throw new IllegalStateException("Unexpected value: " + update.getTrigger());
                     };
 

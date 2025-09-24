@@ -1,7 +1,6 @@
 package org.remote.desktop.service.impl;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
@@ -22,7 +21,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
     private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
-    private final SceneDao  sceneDao;
+    private final SceneDao sceneDao;
 
     @Setter
     private Supplier<String> sceneProvider;
@@ -34,6 +33,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
 
     @Getter
     private SceneDto forcedScene;
+    @Getter
     private SceneDto lastRecognizedScene;
 
     private String lastRecognizedWindowName = "";
@@ -48,12 +48,27 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
                 .map(GpadCommandEvent::getNextScene)
                 .map(q -> {
                     lastRecognizedWindowName = q.getWindowName();
+
+                    setLastDesktopRecognized(lastRecognizedWindowName);
+
                     return forcedScene = q;
                 })
                 .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
     }
 
+    void setLastDesktopRecognized(String windowName) {
+        Optional.ofNullable(sceneDao.getSceneByWindowName(windowName, "DESKTOP"))
+                .filter(p -> p.getMode().getScenic())
+                .ifPresent(p -> {
+                    System.out.printf("re-setting scene %s now and setting %s%n", lastRecognizedWindowName, p.getName());
+                    lastRecognizedScene = p;
+                });
+    }
+
     public void forceScene(SceneDto scene) {
+        if (scene.getMode().getScenic())
+            lastRecognizedScene = scene;
+
         lastRecognizedWindowName = scene.getWindowName();
 
         forcedScene = scene;
@@ -68,6 +83,8 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
             recognizedSceneObservers.forEach(p -> {
                 p.accept(windowName);
             });
+
+        setLastDesktopRecognized(windowName);
 
         return lastRecognizedWindowName = windowName;
     }

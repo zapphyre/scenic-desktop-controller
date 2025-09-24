@@ -1,6 +1,7 @@
 package org.remote.desktop.model.vto;
 
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.With;
 import lombok.extern.jackson.Jacksonized;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Value
 @Builder
 @Jacksonized
+@RequiredArgsConstructor
 public class SceneVto {
     Long id;
     String name;

@@ -5,6 +5,7 @@ import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.pojo.KeyPart;
+import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public class AnalogAdjustModule implements GpadOsActionModule {
 
     private final ApplicationEventPublisher eventPublisher;
+    private final XdoSceneService xdoSceneService;
 
 
     @Override
@@ -59,6 +61,8 @@ public class AnalogAdjustModule implements GpadOsActionModule {
 
     @Override
     public boolean activate() {
+        String name = xdoSceneService.tryGetCurrentName();
+        System.out.println("activating " + name);
         GpadCommandEvent repackedEvt = new GpadCommandEvent(
                 KeyPart.builder().build(), this
         );

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.remote.desktop.db.entity.Event;
 import org.remote.desktop.db.entity.Mode;
 import org.remote.desktop.db.entity.Scene;
+import org.remote.desktop.db.repository.EventRepository;
 import org.remote.desktop.db.repository.ModeRepository;
 import org.remote.desktop.db.repository.SceneRepository;
 import org.remote.desktop.mapper.CycleAvoidingMappingContext;
@@ -42,6 +43,7 @@ public class SceneDao {
 
     private final SceneRepository sceneRepository;
     private final ModeRepository modeRepository;
+    private final EventRepository eventRepository;
 
     private final SceneMapper sceneMapper;
     private final EventMapper eventMapper;
@@ -52,16 +54,21 @@ public class SceneDao {
                 .orElse(null);
     }
 
-    public SceneDto getSceneForWindowNameOrBase(String sceneName, String mode) {
-        List<Scene> bySceneContain = sceneRepository.findBySceneContain(sceneName, mode);
+    public SceneDto getSceneByWindowName(String windowName, String mode) {
+        return sceneRepository.findBySceneContain(windowName, mode).stream()
+                .findFirst()
+                .map(q -> sceneMapper.map(q, new CycleAvoidingMappingContext()))
+                .orElse(null);
+    }
+
+    public SceneDto getSceneForWindowNameOrBase(String windowName, String mode) {
+        SceneDto bySceneContain = getSceneByWindowName(windowName, mode);
 
 //        if (bySceneContain.size() > 1)
 //            log.info("Found more than one scene with name; scenes found: {}" + sceneName, bySceneContain);
 
-        if (bySceneContain.isEmpty())
-            return getScene("Base");
-
-        return sceneMapper.map(bySceneContain.getFirst(), new CycleAvoidingMappingContext());
+        return Optional.ofNullable(bySceneContain)
+                .orElseGet(() -> getScene("Base"));
     }
 
     public List<SceneDto> getAllMatchingScenes(String sceneName, String mode) {
@@ -123,6 +130,9 @@ public class SceneDao {
     }
 
     public void delete(Long name) {
+        eventRepository.findEventByNextSceneId(name)
+                        .ifPresent(q -> q.setNextScene(null));
+
         sceneRepository.deleteById(name);
     }
 
