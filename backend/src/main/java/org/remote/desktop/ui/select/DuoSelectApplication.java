@@ -29,6 +29,8 @@ public class DuoSelectApplication<L, R> extends Application {
         setCols = () -> selector.setColumns(
                 leftItems, rightItems, leftLabelGetter, rightLabelGetter
         );
+        selector.requestFocus();
+        selector.toFront();
 
         return callback ->
                 selector.setOnKeyPressed(event -> {
@@ -81,9 +83,10 @@ public class DuoSelectApplication<L, R> extends Application {
         selector.select(l, r);
 
         Platform.runLater(() -> {
+            this.primaryStage.setAlwaysOnTop(true);
             this.primaryStage.show();
-            this.primaryStage.toFront();
             this.primaryStage.requestFocus();
+            this.primaryStage.toFront();
         });
     }
 

@@ -32,6 +32,7 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
     @Override
     public void onApplicationEvent(UiAnalogAdjustEvent event) {
         s = xdoSceneService.getLastRecognizedScene();
+        unoSelectApplication.setTitle(s.getName());
 
         if (event.isOn())
             unoSelectApplication.render(
