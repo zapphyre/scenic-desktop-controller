@@ -27,7 +27,6 @@ public class EventCtrl {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public EventVto updateGamepadAction(@RequestBody EventVto gamepadEventVto) {
         return eventService.update(gamepadEventVto);
     }

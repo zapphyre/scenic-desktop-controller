@@ -42,12 +42,12 @@ public class WebSource extends BaseSource {
         connectAndRemember(spec.uri("raw-event/button")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(BUTTON_RAW_DATA)::subscribe, buttonAdapter::getButtonConsumer);
+                .bodyToFlux(BUTTON_RAW_DATA), buttonAdapter.getButtonConsumer());
 
         connectAndRemember(spec.uri("raw-event/axis")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(AXIS_RAW_DATA)::subscribe, this::chainConsumers);
+                .bodyToFlux(AXIS_RAW_DATA), this.chainConsumers());
 
 //        connectAndRemember(spec.uri("source/source-state")
 //                .accept(MediaType.TEXT_EVENT_STREAM)
@@ -63,10 +63,13 @@ public class WebSource extends BaseSource {
     }
 
     Consumer<Map<String, Integer>> chainConsumers() {
-        return pipe(arrowsAdapter.getArrowConsumer(), digitizedTriggerAdapter.getLeftTriggerProcessor(),
-                digitizedTriggerAdapter.getLeftTriggerProcessor(), digitizedTriggerAdapter.getRightTriggerProcessor(),
-                digitizedTriggerAdapter.getLeftStepTriggerProcessor(), digitizedTriggerAdapter.getRightStepTriggerProcessor(),
-                axisAdapter.leftAxis(), axisAdapter.rightAxis());
+        return map -> {
+        };
+
+//        return pipe(arrowsAdapter.getArrowConsumer(), digitizedTriggerAdapter.getLeftTriggerProcessor(),
+//                digitizedTriggerAdapter.getLeftTriggerProcessor(), digitizedTriggerAdapter.getRightTriggerProcessor(),
+//                digitizedTriggerAdapter.getLeftStepTriggerProcessor(), digitizedTriggerAdapter.getRightStepTriggerProcessor(),
+//                axisAdapter.leftAxis(), axisAdapter.rightAxis());
     }
 
     @Override

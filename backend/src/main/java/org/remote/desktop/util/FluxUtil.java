@@ -70,6 +70,7 @@ public class FluxUtil {
 //            EAxisEvent.SCROLL, MouseAct::scrollR,
             EAxisEvent.SCROLL, MouseAct::scrollWithStick,
             EAxisEvent.VOL, e -> {
+                System.out.println("lowering volume");
             },
             EAxisEvent.NOOP, e -> {
             }

@@ -165,9 +165,10 @@ const removeEvent = async () => {
 
 <template>
   <div class="grid w-full gpad-action-container">
-    <hr v-if="props.renderAction"/>
 
     <div class="card p-3 w-full">
+      <hr v-if="props.renderAction"/>
+
       <div class="grid">
         <!-- Left Section -->
         <div :class="props.renderAction ? 'col-7' : 'col-12'">

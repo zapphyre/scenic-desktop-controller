@@ -18,7 +18,6 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
     @Override
     public void onApplicationEvent(GpadCommandEvent e) {
         // do smting about this ifs
-        System.out.println("GpadActuatorRouter.onApplicationEvent: " + e);
 
         if (e.getKeyPart().getKeyEvt().equals("MODE_SELECT"))
             if (e.getKeyPart().getKeyStrokes() != null &&

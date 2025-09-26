@@ -26,17 +26,17 @@ public class LocalSource extends BaseSource {
     public ESourceEvent connect() {
         log.info("connecting local source");
 
-        connectAndRemember(worker.getButtonStream()::subscribe, buttonAdapter::getButtonConsumer);
-        connectAndRemember(worker.getAxisStream()::subscribe, arrowsAdapter::getArrowConsumer);
+        connectAndRemember(worker.getButtonStream(), buttonAdapter.getButtonConsumer());
+        connectAndRemember(worker.getAxisStream(), arrowsAdapter.getArrowConsumer());
 
-        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftTriggerProcessor);
-        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightTriggerProcessor);
+        connectAndRemember(worker.getAxisStream(), digitizedTriggerAdapter.getLeftTriggerProcessor());
+        connectAndRemember(worker.getAxisStream(), digitizedTriggerAdapter.getRightTriggerProcessor());
 
-        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getLeftStepTriggerProcessor);
-        connectAndRemember(worker.getAxisStream()::subscribe, digitizedTriggerAdapter::getRightStepTriggerProcessor);
+        connectAndRemember(worker.getAxisStream(), digitizedTriggerAdapter.getLeftStepTriggerProcessor());
+        connectAndRemember(worker.getAxisStream(), digitizedTriggerAdapter.getRightStepTriggerProcessor());
 
-        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::leftAxis);
-        connectAndRemember(worker.getAxisStream()::subscribe, axisAdapter::rightAxis);
+        connectAndRemember(worker.getAxisStream(), axisAdapter.leftAxis());
+        connectAndRemember(worker.getAxisStream(), axisAdapter.rightAxis());
 
         xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
 

@@ -4,18 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import org.remote.desktop.model.ESourceEvent;
-import org.remote.desktop.processor.*;
+import org.remote.desktop.processor.ArrowsAdapter;
+import org.remote.desktop.processor.ButtonAdapter;
+import org.remote.desktop.processor.DigitizedTriggerAdapter;
+import org.remote.desktop.processor.RepeatingAxisAdapter;
 import org.remote.desktop.source.ConnectableSource;
 import org.zapphyre.discovery.model.WebSourceDef;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @SuperBuilder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 public abstract class BaseSource implements ConnectableSource {
 
@@ -30,10 +33,8 @@ public abstract class BaseSource implements ConnectableSource {
     @EqualsAndHashCode.Include
     protected WebSourceDef definition;
 
-    protected <T> void connectAndRemember(Function<Consumer<T>, Disposable> connector, Supplier<Consumer<T>> action) {
-        connector
-                .andThen(disposables::add)
-                .apply(action.get());
+    protected <T> void connectAndRemember(Flux<T> connector, Consumer<T> action) {
+        disposables.add(connector.subscribe(action));
     }
 
     public ESourceEvent disconnect() {
