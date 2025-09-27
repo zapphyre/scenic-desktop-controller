@@ -22,7 +22,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
     private final Function<SceneDto, EAxisEaser> easerGetter;
     private final String REPEATER_CACHE_NAME = "repeater";
-    private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_SCENE_%s_TRIGGER_%s".formatted(q.getName(), q.getName());
+    private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_SCENE_%s_TRIGGER_%s".formatted(q.getName(), q.getName()); //this key aint no good
 
     private final Sinks.Many<SceneDto> sceneSink = Sinks.many().unicast().onBackpressureBuffer();
     private final Sinks.Many<T> outputSink = Sinks.many().unicast().onBackpressureBuffer();
@@ -44,18 +44,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
                                         .apply(sourceFlux)).orElseGet(Flux::empty)
                                 .mapNotNull(
                                         funky(axisActionGetter
-                                                .andThen(q -> {
-                                                    Consumer<T> orDefault = consumerMap.getOrDefault(q, outputSink::tryEmitNext);
-
-                                                    Consumer<T> intermediate = e -> {
-
-                                                        System.out.println("for element: " + q);
-                                                        System.out.println("repeating: " + e);
-                                                        orDefault.accept(e);
-                                                    };
-
-                                                    return intermediate;
-                                                })
+                                                .andThen(q -> consumerMap.getOrDefault(q, outputSink::tryEmitNext))
                                                 .apply(repeaterDef.scene))
                                 )
                 )

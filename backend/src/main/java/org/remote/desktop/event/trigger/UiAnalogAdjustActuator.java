@@ -7,7 +7,6 @@ import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
-import org.remote.desktop.ui.select.SelectSelector;
 import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
 import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjustEvent> {
 
     private final TriggerUiSelector triggerSelector;
-    private final SelectSelector  selectSelector;
     private final AxisUiSelector axisSelector;
 
     private final UnoSelectApplication<EAnalogControl> unoSelectApplication;
@@ -34,10 +32,9 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         s = xdoSceneService.getLastRecognizedScene();
         unoSelectApplication.setTitle(s.getName());
 
-        if (event.isOn())
-            unoSelectApplication.render(
-                    sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
-            );
+        unoSelectApplication.render(
+                sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
+        );
 
         xdoSceneService.forceScene(sceneService.getSystemScene());
     }
@@ -48,8 +45,6 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         @Override
         public void onApplicationEvent(AnalogControllerSelectEvent event) {
             unoSelectApplication.close();
-
-            System.out.println("adjusting scene name: " + s.getName());
 
             switch (event.getAnalogControl()) {
                 case LEFT_STICK:

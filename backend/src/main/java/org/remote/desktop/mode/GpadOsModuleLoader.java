@@ -34,7 +34,6 @@ public class GpadOsModuleLoader {
     private static final String PLUGINS_DIR = "plugins";
 
     private final ApplicationEventPublisher eventPublisher;
-    private final XdoSceneService xdoSceneService;
 
     @Bean
     public Map<String, GpadOsActionModule> actuatorModules(StateService stateService,
@@ -42,7 +41,7 @@ public class GpadOsModuleLoader {
         ClassLoader pluginClassLoader = loadPlugins();
         XdoActionModule xdoActionModule = new XdoActionModule(stateService);
         KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
-        AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher, xdoSceneService);
+        AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher);
 
         // Manually load providers
         List<GpadOsActionModule> providers = new ArrayList<>();

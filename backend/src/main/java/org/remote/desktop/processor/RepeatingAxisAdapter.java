@@ -42,9 +42,7 @@ public class RepeatingAxisAdapter {
 
         this.rightRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
-                axisEventProcessorFactory.rightPolarFlux()
-                        .log("RIGHT")
-                        .map(polarCoordsMapper::mapRep),
+                axisEventProcessorFactory.rightPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
                 SceneDto::getRightAxisEaser,
                 axisEventConsumerMap,
@@ -53,9 +51,7 @@ public class RepeatingAxisAdapter {
 
         this.leftRepeater = new InlineEasingFluxDecorator<>(
                 cacheManager,
-                axisEventProcessorFactory.leftPolarFlux()
-                        .log("LEFT")
-                        .map(polarCoordsMapper::mapRep),
+                axisEventProcessorFactory.leftPolarFlux().map(polarCoordsMapper::mapRep),
                 easerMap,
                 SceneDto::getLeftAxisEaser,
                 axisEventConsumerMap,

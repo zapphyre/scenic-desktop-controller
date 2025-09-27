@@ -14,8 +14,6 @@ import java.util.List;
 public class AnalogAdjustModule implements GpadOsActionModule {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final XdoSceneService xdoSceneService;
-
 
     @Override
     public String getName() {
@@ -45,7 +43,7 @@ public class AnalogAdjustModule implements GpadOsActionModule {
 
         return switch (verb) {
             case "MODE_SELECT" -> {
-                eventPublisher.publishEvent(new UiAnalogAdjustEvent(this, true, repackedEvt));
+                eventPublisher.publishEvent(new UiAnalogAdjustEvent(this, repackedEvt));
 
                 yield  true;
             }
@@ -61,13 +59,11 @@ public class AnalogAdjustModule implements GpadOsActionModule {
 
     @Override
     public boolean activate() {
-        String name = xdoSceneService.tryGetCurrentName();
-        System.out.println("activating " + name);
         GpadCommandEvent repackedEvt = new GpadCommandEvent(
                 KeyPart.builder().build(), this
         );
 
-        eventPublisher.publishEvent(new UiAnalogAdjustEvent(this, true, repackedEvt));
+        eventPublisher.publishEvent(new UiAnalogAdjustEvent(this, repackedEvt));
 
         return GpadOsActionModule.super.activate();
     }

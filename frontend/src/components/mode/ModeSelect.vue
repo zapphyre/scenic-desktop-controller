@@ -10,7 +10,7 @@ import NonScenic from "@/components/action/NonScenic.vue";
 const modesRef = ref<Mode[]>([]);
 const modeRef = ref<Mode | undefined>();
 
-const changedMode = async (event: SelectChangeEvent) => {
+const changedMode = (event: SelectChangeEvent) => {
   modeRef.value = event.value;
   console.log("selected mode:", modeRef.value);
 };
