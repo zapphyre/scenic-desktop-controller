@@ -90,11 +90,7 @@ public class GPadEventStreamService {
                     .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
                     .collect(Collectors.toSet());
 
-            Predicate<EQualifiedSceneDict> predicate = q -> evts.stream()
-                    .map(EventDto::getButtonEvent)
-                    .filter(Objects::nonNull)
-                    .filter(triggerAndModifiersSameAsClick(click))
-                    .anyMatch(q.getPredicate());
+            Predicate<EQualifiedSceneDict> predicate = predicateForRelevantQualificators(evts, click);
 
             return (click.getModifiers().isEmpty() ?
                     Arrays.stream(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
@@ -106,6 +102,14 @@ public class GPadEventStreamService {
                     .map(q -> q == click.getQualified())
                     .orElse(false);
         };
+    }
+
+    Predicate<EQualifiedSceneDict> predicateForRelevantQualificators(Set<EventDto> evts, ButtonActionDef click) {
+        return q -> evts.stream()
+                .map(EventDto::getButtonEvent)
+                .filter(Objects::nonNull)
+                .filter(triggerAndModifiersSameAsClick(click))
+                .anyMatch(q.getPredicate());
     }
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
