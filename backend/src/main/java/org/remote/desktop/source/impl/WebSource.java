@@ -63,13 +63,10 @@ public class WebSource extends BaseSource {
     }
 
     Consumer<Map<String, Integer>> chainConsumers() {
-        return map -> {
-        };
-
-//        return pipe(arrowsAdapter.getArrowConsumer(), digitizedTriggerAdapter.getLeftTriggerProcessor(),
-//                digitizedTriggerAdapter.getLeftTriggerProcessor(), digitizedTriggerAdapter.getRightTriggerProcessor(),
-//                digitizedTriggerAdapter.getLeftStepTriggerProcessor(), digitizedTriggerAdapter.getRightStepTriggerProcessor(),
-//                axisAdapter.leftAxis(), axisAdapter.rightAxis());
+        return pipe(arrowsAdapter.getArrowConsumer(), digitizedTriggerAdapter.getLeftTriggerProcessor(),
+                digitizedTriggerAdapter.getLeftTriggerProcessor(), digitizedTriggerAdapter.getRightTriggerProcessor(),
+                digitizedTriggerAdapter.getLeftStepTriggerProcessor(), digitizedTriggerAdapter.getRightStepTriggerProcessor(),
+                axisAdapter.leftAxis(), axisAdapter.rightAxis());
     }
 
     @Override

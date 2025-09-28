@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -84,16 +85,31 @@ public class GPadEventStreamService {
     public Function<SceneDto, Boolean> isIncomingQualificatorRelevantForCurrentScene(ButtonActionDef click) {
         Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
 
-        return scene -> Arrays.stream(EQualifiedSceneDict.values())
-                .filter(q -> scrape.apply(scene).stream()
-                        .map(EventDto::getButtonEvent)
-                        .filter(Objects::nonNull)
-                        .filter(triggerAndModifiersSameAsClick(click))
-                        .anyMatch(q.getPredicate()))
-                .findFirst()
-                .map(EQualifiedSceneDict::getQualifierType)
-                .map(q -> q == click.getQualified())
-                .orElse(false);
+        return scene -> {
+            Set<EventDto> evts = scrape.apply(scene).stream()
+                    .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
+                    .collect(Collectors.toSet());
+
+            List<EQualifiedSceneDict> toScanQualifs = click.getModifiers().isEmpty() ?
+                    Arrays.asList(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
+                    .filter(Predicate.not( q -> evts.stream()
+                            .map(EventDto::getButtonEvent)
+                            .filter(Objects::nonNull)
+                            .filter(triggerAndModifiersSameAsClick(click))
+                            .noneMatch(q.getPredicate())))
+                    .toList();
+
+            return toScanQualifs.stream()
+                    .filter(q -> evts.stream()
+                            .map(EventDto::getButtonEvent)
+                            .filter(Objects::nonNull)
+                            .filter(triggerAndModifiersSameAsClick(click))
+                            .anyMatch(q.getPredicate()))
+                    .findFirst()
+                    .map(EQualifiedSceneDict::getQualifierType)
+                    .map(q -> q == click.getQualified())
+                    .orElse(false);
+        };
     }
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
