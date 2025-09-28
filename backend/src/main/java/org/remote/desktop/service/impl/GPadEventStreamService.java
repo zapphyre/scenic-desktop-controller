@@ -86,17 +86,18 @@ public class GPadEventStreamService {
         Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
 
         return scene -> {
-            Set<EventDto> evts = scrape.apply(scene).stream()
+            Set<EventDto> eventsRelevantForCurrentClickModificators = scrape.apply(scene).stream()
                     .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
                     .collect(Collectors.toSet());
 
-            Predicate<EQualifiedSceneDict> predicate = predicateForRelevantQualificators(evts, click);
+            Predicate<EQualifiedSceneDict> longestQualifForRelevantEvents =
+                    predicateForRelevantQualificators(eventsRelevantForCurrentClickModificators, click);
 
             return (click.getModifiers().isEmpty() ?
                     Arrays.stream(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
-                    .filter(predicate)
+                    .filter(longestQualifForRelevantEvents)
             )
-                    .filter(predicate)
+                    .filter(longestQualifForRelevantEvents)
                     .findFirst()
                     .map(EQualifiedSceneDict::getQualifierType)
                     .map(q -> q == click.getQualified())
