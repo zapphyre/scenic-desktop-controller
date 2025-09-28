@@ -90,21 +90,17 @@ public class GPadEventStreamService {
                     .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
                     .collect(Collectors.toSet());
 
-            List<EQualifiedSceneDict> toScanQualifs = click.getModifiers().isEmpty() ?
-                    Arrays.asList(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
-                    .filter(Predicate.not( q -> evts.stream()
-                            .map(EventDto::getButtonEvent)
-                            .filter(Objects::nonNull)
-                            .filter(triggerAndModifiersSameAsClick(click))
-                            .noneMatch(q.getPredicate())))
-                    .toList();
+            Predicate<EQualifiedSceneDict> predicate = q -> evts.stream()
+                    .map(EventDto::getButtonEvent)
+                    .filter(Objects::nonNull)
+                    .filter(triggerAndModifiersSameAsClick(click))
+                    .anyMatch(q.getPredicate());
 
-            return toScanQualifs.stream()
-                    .filter(q -> evts.stream()
-                            .map(EventDto::getButtonEvent)
-                            .filter(Objects::nonNull)
-                            .filter(triggerAndModifiersSameAsClick(click))
-                            .anyMatch(q.getPredicate()))
+            return (click.getModifiers().isEmpty() ?
+                    Arrays.stream(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
+                    .filter(predicate)
+            )
+                    .filter(predicate)
                     .findFirst()
                     .map(EQualifiedSceneDict::getQualifierType)
                     .map(q -> q == click.getQualified())
