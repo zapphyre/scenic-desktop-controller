@@ -76,6 +76,7 @@ public class GPadEventStreamService {
                 sceneService.getSceneForModeAndWindowNameOrBase(xdoSceneService.tryGetCurrentName());
     }
 
+    //    @Cacheable(value = "klik", keyGenerator = "clickKeyGenerator")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         return of(sceneNow())
                 .map(isIncomingQualificatorRelevantForCurrentScene(click))

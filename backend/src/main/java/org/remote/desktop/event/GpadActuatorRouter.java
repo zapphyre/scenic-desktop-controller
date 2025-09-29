@@ -30,6 +30,8 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
         if (e.getKeyPart().getKeyEvt().equals("SCENE_RESET"))
             modeService.switchCurrentMode("DESKTOP");
 
+//        modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
+
         if (!modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes()))
             modeService.getDesktopModule().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
     }
