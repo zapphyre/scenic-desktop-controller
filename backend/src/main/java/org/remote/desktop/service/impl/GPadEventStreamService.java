@@ -40,17 +40,6 @@ public class GPadEventStreamService {
 
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
 
-    public Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
-        return q -> sameAsClick(click).test(q.getTrigger()) ||
-                q.getModifiers().stream()
-                        .map(Enum::name)
-                        .anyMatch(sameAsClick(click));
-    }
-
-    Predicate<String> sameAsClick(ButtonActionDef click) {
-        return click.getTrigger()::equals;
-    }
-
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
         return ofNullable(windowName)
@@ -76,7 +65,7 @@ public class GPadEventStreamService {
                 sceneService.getSceneForModeAndWindowNameOrBase(xdoSceneService.tryGetCurrentName());
     }
 
-    //    @Cacheable(value = "klik", keyGenerator = "clickKeyGenerator")
+    //    @Cacheable(value = "klik", keyGenerator = "clickKeyGclickKeyGeneratorenerator")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         return of(sceneNow())
                 .map(isIncomingQualificatorRelevantForCurrentScene(click))
@@ -98,7 +87,7 @@ public class GPadEventStreamService {
                     Arrays.stream(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
                     .filter(longestQualifForRelevantEvents)
             )
-                    .filter(longestQualifForRelevantEvents)
+                    .filter(longestQualifForRelevantEvents) // yes, it needs to be there otherwise auto-longclick won't work
                     .findFirst()
                     .map(EQualifiedSceneDict::getQualifierType)
                     .map(q -> q == click.getQualified())
@@ -112,6 +101,17 @@ public class GPadEventStreamService {
                 .filter(Objects::nonNull)
                 .filter(triggerAndModifiersSameAsClick(click))
                 .anyMatch(q.getPredicate());
+    }
+
+    Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+        return q -> sameAsClick(click).test(q.getTrigger()) ||
+                q.getModifiers().stream()
+                        .map(Enum::name)
+                        .anyMatch(sameAsClick(click));
+    }
+
+    Predicate<String> sameAsClick(ButtonActionDef click) {
+        return click.getTrigger()::equals;
     }
 
     private final Set<EQualificationType> qualificationReceived = new HashSet<>();
@@ -135,8 +135,6 @@ public class GPadEventStreamService {
 
         if (click.getQualified() != EQualificationType.MULTIPLE)
             qualificationReceived.add(EQualificationType.MULTIPLE);
-
-        System.out.println("after: " + qualificationReceived);
     }
 
     public boolean consumeEventLeftovers(ButtonActionDef def) {

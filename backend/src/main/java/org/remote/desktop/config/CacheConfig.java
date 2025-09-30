@@ -38,7 +38,7 @@ public class CacheConfig implements CachingConfigurer {
             return new SimpleKey(keyParts);
         };
     }
-    clickKeyGenerator
+
     @Bean
     public KeyGenerator clickKeyGenerator() { // b/c
         return (target, method, params) -> {

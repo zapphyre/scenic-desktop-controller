@@ -38,7 +38,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     @PostConstruct
     protected void process() {
         easy(gamepadObserver.getButtonEventStream()
-                .publishOn(Schedulers.fromExecutorService(executorService))
+//                .publishOn(Schedulers.fromExecutorService(executorService))
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())

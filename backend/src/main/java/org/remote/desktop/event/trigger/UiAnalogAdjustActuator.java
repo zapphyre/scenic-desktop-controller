@@ -36,7 +36,7 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
                 sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
         );
 
-        xdoSceneService.forceScene(sceneService.getSystemScene());
+//        xdoSceneService.forceScene(sceneService.getSystemScene());
     }
 
     @Component
@@ -45,6 +45,9 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         @Override
         public void onApplicationEvent(AnalogControllerSelectEvent event) {
             unoSelectApplication.close();
+
+            if (s == null) //for direct navigation by button action set
+                s = xdoSceneService.getLastRecognizedScene();
 
             switch (event.getAnalogControl()) {
                 case LEFT_STICK:
@@ -60,6 +63,8 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
                     triggerSelector.render(s, event.getAnalogControl(), s.getRightTriggerEvent(), s.getRightTriggerEaser());
                     break;
             }
+
+            s = null;
         }
     }
 }

@@ -2,13 +2,16 @@ package org.remote.desktop.mode.modul;
 
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
+import org.remote.desktop.model.EAnalogControl;
 import org.remote.desktop.model.event.GpadCommandEvent;
+import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.pojo.KeyPart;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class AnalogAdjustModule implements GpadOsActionModule {
@@ -27,7 +30,7 @@ public class AnalogAdjustModule implements GpadOsActionModule {
 
     @Override
     public List<String> getVerbs() {
-        return List.of("RIGHT_TRIGGER", "LEFT_TRIGGER", "LEFT_STICK", "RIGHT_STICK");
+        return Stream.of(EAnalogControl.values()).map(Enum::name).toList();
     }
 
     @Override
@@ -48,8 +51,9 @@ public class AnalogAdjustModule implements GpadOsActionModule {
                 yield  true;
             }
             case "RIGHT_TRIGGER", "RIGHT_STICK", "LEFT_STICK", "LEFT_TRIGGER" -> {
-                eventPublisher.publishEvent(repackedEvt);
+//                eventPublisher.publishEvent(repackedEvt);
 
+                eventPublisher.publishEvent(new AnalogControllerSelectEvent(this, EAnalogControl.valueOf(verb), null));
                 yield true;
             }
             default -> false;
