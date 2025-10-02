@@ -36,6 +36,11 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
             modeService.getDesktopModule().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
     }
 
+    @Override
+    public boolean supportsAsyncExecution() {
+        return true;
+    }
+
     @Component
     class ModeEventRouter implements ApplicationListener<ModeEvent> {
 

@@ -3,7 +3,6 @@ package org.remote.desktop.processor;
 import jakarta.annotation.PostConstruct;
 import org.asmus.builder.AxisEventProcessorFactory;
 import org.remote.desktop.component.InlineEasingFluxDecorator;
-import org.remote.desktop.component.RepeatableDecorator;
 import org.remote.desktop.mapper.PolarCoordsMapper;
 import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.RepeatablePolarCoords;
@@ -30,8 +29,6 @@ public class RepeatingAxisAdapter {
 
     private final InlineEasingFluxDecorator<EAxisEvent, RepeatablePolarCoords> leftRepeater;
     private final InlineEasingFluxDecorator<EAxisEvent, RepeatablePolarCoords> rightRepeater;
-
-    RepeatableDecorator<RepeatablePolarCoords> decorator;
 
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,

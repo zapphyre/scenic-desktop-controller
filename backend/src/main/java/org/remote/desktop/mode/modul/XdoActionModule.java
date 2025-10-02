@@ -15,7 +15,7 @@ import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
 @RequiredArgsConstructor
 public class XdoActionModule implements GpadOsActionModule {
 
-    private final StateService  stateService;
+    private final StateService stateService;
 
     @Override
     public String getName() {
@@ -42,24 +42,29 @@ public class XdoActionModule implements GpadOsActionModule {
     public boolean handleEvent(String verb, List<String> noun) {
         String xdoKeyPart = String.join("+", noun);
 //        System.out.println("xdoKeyPart: " + e);
-
-        switch (verb) {
-            case "PRESS" -> keydown(xdoKeyPart);
-            case "STROKE" -> pressKey(xdoKeyPart);
-            case "RELEASE" -> keyup(xdoKeyPart);
-            case "CLICK" -> click(xdoKeyPart);
-            case "MOUSE_DOWN" -> xDo("mousedown", xdoKeyPart);
-            case "MOUSE_UP" -> xDo("mouseup", xdoKeyPart);
-            case "TIMEOUT" -> Thread.sleep(Integer.parseInt(xdoKeyPart));
-            case "SCENE_RESET" -> stateService.nullifyForced();
-            case "CLIPBOARD" -> {
-                if (xdoKeyPart.equals("PASTE")) {
-                    paste();
-                } else {
-                    copyToClipboard("");
+        try {
+            switch (verb) {
+                case "PRESS" -> keydown(xdoKeyPart);
+                case "STROKE" -> pressKey(xdoKeyPart);
+                case "RELEASE" -> keyup(xdoKeyPart);
+                case "CLICK" -> click(xdoKeyPart);
+                case "MOUSE_DOWN" -> xDo("mousedown", xdoKeyPart);
+                case "MOUSE_UP" -> xDo("mouseup", xdoKeyPart);
+                case "TIMEOUT" -> Thread.sleep(Integer.parseInt(xdoKeyPart));
+                case "SCENE_RESET" -> stateService.nullifyForced();
+                case "CLIPBOARD" -> {
+                    if (xdoKeyPart.equals("PASTE")) {
+                        paste();
+                    } else {
+                        copyToClipboard("");
+                    }
                 }
             }
+        } catch (Exception e) {
+            System.out.println("action exception: " + e.getMessage());
+            return false;
         }
+
 
         return true;
     }

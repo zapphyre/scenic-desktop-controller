@@ -51,9 +51,8 @@ public class AnalogAdjustModule implements GpadOsActionModule {
                 yield  true;
             }
             case "RIGHT_TRIGGER", "RIGHT_STICK", "LEFT_STICK", "LEFT_TRIGGER" -> {
-//                eventPublisher.publishEvent(repackedEvt);
-
                 eventPublisher.publishEvent(new AnalogControllerSelectEvent(this, EAnalogControl.valueOf(verb), null));
+
                 yield true;
             }
             default -> false;

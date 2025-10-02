@@ -25,18 +25,16 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
     private final XdoSceneService xdoSceneService;
     private final SceneService sceneService;
 
-    SceneDto s;
+    private SceneDto adjustScene;
 
     @Override
     public void onApplicationEvent(UiAnalogAdjustEvent event) {
-        s = xdoSceneService.getLastRecognizedScene();
-        unoSelectApplication.setTitle(s.getName());
+        adjustScene = xdoSceneService.getLastRecognizedScene();
 
+        unoSelectApplication.setTitle(adjustScene.getName());
         unoSelectApplication.render(
                 sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
         );
-
-//        xdoSceneService.forceScene(sceneService.getSystemScene());
     }
 
     @Component
@@ -46,25 +44,20 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
         public void onApplicationEvent(AnalogControllerSelectEvent event) {
             unoSelectApplication.close();
 
-            if (s == null) //for direct navigation by button action set
-                s = xdoSceneService.getLastRecognizedScene();
-
             switch (event.getAnalogControl()) {
                 case LEFT_STICK:
-                    axisSelector.render(s, event.getAnalogControl(), s.getLeftAxisEvent(), s.getLeftAxisEaser());
+                    axisSelector.render(adjustScene, event.getAnalogControl(), adjustScene.getLeftAxisEvent(), adjustScene.getLeftAxisEaser());
                     break;
                 case RIGHT_STICK:
-                    axisSelector.render(s, event.getAnalogControl(), s.getRightAxisEvent(), s.getRightAxisEaser());
+                    axisSelector.render(adjustScene, event.getAnalogControl(), adjustScene.getRightAxisEvent(), adjustScene.getRightAxisEaser());
                     break;
                 case LEFT_TRIGGER:
-                    triggerSelector.render(s, event.getAnalogControl(), s.getLeftTriggerEvent(), s.getLeftTriggerEaser());
+                    triggerSelector.render(adjustScene, event.getAnalogControl(), adjustScene.getLeftTriggerEvent(), adjustScene.getLeftTriggerEaser());
                     break;
                 case RIGHT_TRIGGER:
-                    triggerSelector.render(s, event.getAnalogControl(), s.getRightTriggerEvent(), s.getRightTriggerEaser());
+                    triggerSelector.render(adjustScene, event.getAnalogControl(), adjustScene.getRightTriggerEvent(), adjustScene.getRightTriggerEaser());
                     break;
             }
-
-            s = null;
         }
     }
 }

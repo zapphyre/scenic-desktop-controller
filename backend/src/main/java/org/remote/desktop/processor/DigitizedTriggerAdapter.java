@@ -13,6 +13,7 @@ import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
@@ -29,7 +30,7 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
     protected final XdoSceneService xdoSceneService;
 
 
-    public DigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService) {
+    public DigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
 
         this.cacheManager = cacheManager;
@@ -47,7 +48,7 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
                 .to(chew(sceneService::getSceneForModeAndWindowNameOrBase, repeater::setScene));
 
         return repeater.getRepeatingStream()
-                .publishOn(Schedulers.fromExecutorService(executorService))
+//                .publishOn(Schedulers.fromExecutorService(executorService))
                 ;
     }
 

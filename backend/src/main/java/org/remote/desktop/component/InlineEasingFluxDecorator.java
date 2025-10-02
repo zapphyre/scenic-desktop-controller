@@ -77,7 +77,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
 
     private SceneAndRepeater<T> getEaserAndCache(SceneDto scene) {
         return easerGetter
-                .andThen(funky(logFun("getting easer name: '{}'")))
+//                .andThen(funky(logFun("getting easer name: '{}'")))
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
                 //napisat util fun ktora bude sluzit ako podmienka na vukonanie funkcie a posunutia jeho vysledku alebo hodnoty

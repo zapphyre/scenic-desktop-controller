@@ -28,9 +28,11 @@ import org.zapphyre.fizzy.model.MatchResult;
 import org.zapphyre.fizzy.model.ToleranceConfig;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -49,6 +51,8 @@ public class StickGestureProcessor implements AppEventMapper {
     private final ButtonPressMapper buttonPressMapper;
     private final PolarCoordsMapper polarCoordsMapper;
     private final AxisEventProcessorFactory axisEventProcessorFactory;
+    private final Scheduler scheduler;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     private final ToleranceConfig toleranceConfig = ToleranceConfig.builder()
             .frequencyTolerancePercent(10.0)
@@ -78,7 +82,9 @@ public class StickGestureProcessor implements AppEventMapper {
         ToleranceConfigurer<ButtonEventDto> forKnownValuesMatcher = Matcher.create(leftMatchDefs);
         Matcher<ButtonEventDto> stringMatcher = forKnownValuesMatcher.withTolerances(toleranceConfig);
 
-        GestureSupplier gs = motionMapper.pathCompose(polarCoords.map(polarCoordsMapper::map));
+        GestureSupplier gs = motionMapper.pathCompose(polarCoords.map(polarCoordsMapper::map)
+                .subscribeOn(scheduler)
+        );
 
         return gs.gestureCb(o -> stringMatcher.match(o).stream()
                 .filter(q -> q.getMatchPercentage() >= 80d)
@@ -130,7 +136,7 @@ public class StickGestureProcessor implements AppEventMapper {
             else
                 buffer.add(gestureEvent);
 
-            scheduled = Executors.newSingleThreadScheduledExecutor().schedule(buffer::clear, 960, TimeUnit.MILLISECONDS);
+            scheduled = scheduledExecutorService.schedule(buffer::clear, 960, TimeUnit.MILLISECONDS);
 
             return new NoopCommandEvent(this);
         };

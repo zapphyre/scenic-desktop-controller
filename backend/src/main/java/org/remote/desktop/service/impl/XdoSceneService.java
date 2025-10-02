@@ -38,10 +38,6 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
 
     private String lastRecognizedWindowName = "";
 
-    public SceneDto saveLastRecognizedScene(SceneDto sceneDto) {
-        return lastRecognizedScene = sceneDto;
-    }
-
     @Override
     public void onApplicationEvent(GpadCommandEvent event) {
         Optional.of(event)
@@ -63,15 +59,6 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
                     System.out.printf("re-setting scene %s now and setting %s%n", lastRecognizedWindowName, p.getName());
                     lastRecognizedScene = p;
                 });
-    }
-
-    public void forceScene(SceneDto scene) {
-        if (scene.getMode().getScenic())
-            lastRecognizedScene = scene;
-
-        lastRecognizedWindowName = scene.getWindowName();
-
-        forcedScene = scene;
     }
 
     public String tryGetCurrentName() {

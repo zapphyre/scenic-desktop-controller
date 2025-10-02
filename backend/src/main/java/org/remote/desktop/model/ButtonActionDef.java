@@ -9,6 +9,7 @@ import org.asmus.model.ELogicalEventType;
 import org.asmus.model.EMultiplicity;
 import org.asmus.model.EQualificationType;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @With
@@ -24,7 +25,8 @@ public class ButtonActionDef implements Repeatable {
 
     // both modifiers and longPress has to be excluded from equality, b/c filtering of leftover qualified events need NOT
     // to account for them; it only needs to account about button's identity itself
-    Set<EButtonAxisMapping> modifiers;
+    @Builder.Default
+    Set<EButtonAxisMapping> modifiers = new HashSet<>();
     boolean longPress;
 
     @EqualsAndHashCode.Include

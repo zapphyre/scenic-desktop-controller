@@ -17,6 +17,7 @@ import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,7 +35,7 @@ public class CharacterInputAdapter extends ButtonProcessorBase {
 
     public CharacterInputAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                                  GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
-                                 TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
+                                 TriggerActionMatcher triggerActionMatcher, Scheduler executorService,
                                  SettingsDao settingsDao) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
     }

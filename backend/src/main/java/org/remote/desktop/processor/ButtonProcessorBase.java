@@ -15,7 +15,9 @@ import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,7 +32,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     protected final GPadEventStreamService gPadEventStreamService;
     protected final IntrospectedEventFactory gamepadObserver;
     protected final TriggerActionMatcher triggerActionMatcher;
-    protected final ScheduledExecutorService executorService;
+    protected final Scheduler scheduler;
     protected final SettingsDao settingsDao;
 
     protected abstract Predicate<GamepadEvent> triggerFilter();
@@ -38,7 +40,7 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
     @PostConstruct
     protected void process() {
         easy(gamepadObserver.getButtonEventStream()
-//                .publishOn(Schedulers.fromExecutorService(executorService))
+                .subscribeOn(scheduler)
                 .filter(triggerFilter())
                 .map(buttonPressMapper::map)
                 .filter(purgingFilter())

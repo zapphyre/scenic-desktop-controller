@@ -13,6 +13,7 @@ import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,7 +31,7 @@ public class ArrowsAdapter extends ButtonProcessorBase {
 
     public ArrowsAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher,
                          GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver,
-                         TriggerActionMatcher triggerActionMatcher, ScheduledExecutorService executorService,
+                         TriggerActionMatcher triggerActionMatcher, Scheduler executorService,
                          SettingsDao settingsDao) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
     }
