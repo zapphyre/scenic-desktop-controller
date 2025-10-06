@@ -35,8 +35,8 @@ import static org.zapphyre.function.FunHelper.laterMerger;
 public class GPadEventStreamService {
 
     private final SceneService sceneService;
-    private final ButtonPressMapper buttonPressMapper;
     private final XdoSceneService xdoSceneService;
+    private final ButtonPressMapper buttonPressMapper;
     private final ActivatorGroupingEventMapper activatorGroupingEventMapper;
 
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
@@ -77,7 +77,7 @@ public class GPadEventStreamService {
         Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
 
         return scene -> {
-            Set<EventDto> eventsRelevantForCurrentClickModificators =  Objects.isNull(click.getModifiers()) ?
+            Set<EventDto> eventsRelevantForCurrentClickModificators = Objects.isNull(click.getModifiers()) ?
                     Set.of() : scrape.apply(scene).stream()
                     .filter(deepNonNull)
                     .collect(Collectors.toSet());
