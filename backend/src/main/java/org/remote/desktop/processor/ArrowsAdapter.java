@@ -1,6 +1,7 @@
 package org.remote.desktop.processor;
 
 import org.asmus.builder.IntrospectedEventFactory;
+import org.asmus.model.AxisReading;
 import org.asmus.model.GamepadEvent;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -36,7 +37,7 @@ public class ArrowsAdapter extends ButtonProcessorBase {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executorService, settingsDao);
     }
 
-    public Consumer<Map<String, Integer>> getArrowConsumer() {
+    public Consumer<AxisReading> getArrowConsumer() {
         return gamepadObserver.getArrowsStream()::processArrowEvents;
     }
 

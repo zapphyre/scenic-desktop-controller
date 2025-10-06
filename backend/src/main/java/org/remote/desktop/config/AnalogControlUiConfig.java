@@ -25,7 +25,7 @@ public class AnalogControlUiConfig {
 
         unoSelectApplication.setItems(items, Enum::name)
                 .update(q -> eventPublisher.publishEvent(
-                        new AnalogControllerSelectEvent(this, q.getAnalogControl(), q.getSceneDto()))
+                        new AnalogControllerSelectEvent(this, q.getElement(), q.getSceneDto()))
                 );
 
         return unoSelectApplication;

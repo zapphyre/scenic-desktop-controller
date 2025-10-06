@@ -107,7 +107,7 @@ public class FluxUtil {
         double newRadius = originalRadius * scrollFactor;
 
         // Return new PolarCoords with adjusted radius
-        return new RepeatablePolarCoords(newRadius, theta);
+        return new RepeatablePolarCoords(newRadius, theta, polar.getDevice());
     };
 
 

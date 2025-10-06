@@ -1,7 +1,10 @@
 package org.remote.desktop.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.GamepadDevice;
 import org.remote.desktop.db.dao.SceneDao;
+import org.remote.desktop.mapper.GamepadMapper;
+import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.vto.SceneVto;
 import org.springframework.cache.annotation.CacheEvict;
@@ -9,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.remote.desktop.db.dao.SceneDao.*;
 
@@ -18,6 +22,7 @@ public class SceneService {
 
     private final SceneDao sceneDao;
     private final ModeService  modeService;
+    private final GamepadMapper gamepadMapper;
 
 //    @Cacheable(SCENE_LIST_CACHE_NAME)
     public List<SceneVto> getAllSceneVtos(String mode) {
@@ -33,15 +38,20 @@ public class SceneService {
         return sceneDao.getScene("system");
     }
 
-    public SceneDto getSceneForModeAndWindowNameOrBase(String sceneName) {
-        return getSceneForModeAndWindowNameOrBase(sceneName, false);
+//    @Cacheable(SCENE_CACHE_NAME_CONTAINING)
+    public Function<String, SceneDto> getSceneForModeAndWindowNameOrBase(GamepadDto device) {
+        return getSceneForModeAndWindowNameOrBase(gamepadMapper.map(device));
+    }
+
+    public Function<String, SceneDto> getSceneForModeAndWindowNameOrBase(GamepadDevice device) {
+        return getSceneForModeAndWindowNameOrBase(false, device);
     }
 
     @Cacheable(SCENE_CACHE_NAME_CONTAINING)
-    public SceneDto getSceneForModeAndWindowNameOrBase(String sceneName, boolean ignoreMode) {
-        return modeService.getCurrentMode().isScenic() || ignoreMode?
-                sceneDao.getSceneForWindowNameOrBase(sceneName, modeService.getCurrentMode().getName()) :
-                sceneDao.getModeDefault(modeService.getCurrentMode().getName());
+    public Function<String, SceneDto> getSceneForModeAndWindowNameOrBase(boolean ignoreMode, GamepadDevice device) {
+        return q -> modeService.isCurrentGamepadModeScenic(device) || ignoreMode ?
+                sceneDao.getSceneForWindowNameOrBase(q, modeService.getCurrentModeNameFor(device)) :
+                sceneDao.getModeDefault(modeService.getCurrentModeNameFor(device));
     }
 
     @CacheEvict(value = {SCENE_LIST_CACHE_NAME,  SCENE_CACHE_NAME_CONTAINING, SCENE_CACHE_NAME}, allEntries = true)

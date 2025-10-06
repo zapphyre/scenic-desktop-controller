@@ -1,6 +1,7 @@
 package org.remote.desktop.component;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.GamepadDevice;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.AppEventMapper;
@@ -42,21 +43,21 @@ public class TriggerActionMatcher {
     NextSceneXdoAction getNextSceneButtonEventMapper(ButtonActionDef button) {
         return of(button)
                 .map(buttonPressMapper::map)
-                .map(getAction(xdoSceneService.isSceneForced()))
+                .map(getAction(button.getDevice()))
                 .orElse(null);
     }
 
-    Function<ActionMatch, NextSceneXdoAction> getAction(boolean forced) {
-        return of(forced)
+    Function<ActionMatch, NextSceneXdoAction> getAction(GamepadDevice device) {
+        return of(device)
                 .map(this::actionMapForCurrentScene)
                 .map(this::actionMatcher)
                 .orElseThrow();
     }
 
-    Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(boolean forced) {
-        return forced ?
-                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
-                gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName());
+    Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(GamepadDevice device) {
+        return xdoSceneService.isSceneForced() ?
+                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene(), device) :
+                gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName(), device);
     }
 
     Function<ActionMatch, NextSceneXdoAction> actionMatcher(Map<ActionMatch, NextSceneXdoAction> definitions) {

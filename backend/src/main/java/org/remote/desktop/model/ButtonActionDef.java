@@ -4,10 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.With;
-import org.asmus.model.EButtonAxisMapping;
-import org.asmus.model.ELogicalEventType;
-import org.asmus.model.EMultiplicity;
-import org.asmus.model.EQualificationType;
+import org.asmus.model.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +32,8 @@ public class ButtonActionDef implements Repeatable {
     EMultiplicity multiplicity;
 
     int position;
+
+    GamepadDevice device;
 
     @Override
     public boolean isRepeatable() {

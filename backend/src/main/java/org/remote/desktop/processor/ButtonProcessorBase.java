@@ -60,13 +60,13 @@ public abstract class ButtonProcessorBase implements AppEventMapper {
         return q -> new GpadCommandEvent(this,
                 q.getKeyEvt(),
                 q.getKeyStrokes(),
-                null,
                 sceneXdoAction.getNextScene(),
                 sceneXdoAction.getRecognizedSourceSceneName(),
                 def.getTrigger(),
                 sceneXdoAction.getEventSourceScene().getWindowName(),
                 def.getModifiers(),
-                def.isLongPress());
+                def.isLongPress(),
+                def.getDevice());
     }
 
     protected Predicate<ButtonActionDef> purgingFilter() {

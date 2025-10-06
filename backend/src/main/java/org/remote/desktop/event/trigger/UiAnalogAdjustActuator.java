@@ -33,7 +33,7 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
 
         unoSelectApplication.setTitle(adjustScene.getName());
         unoSelectApplication.render(
-                sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger()
+                sceneService.getScene(event.getEvent().getRecognizedSceneName()), event.getEvent().getTrigger(), event.getEvent().getDevice()
         );
     }
 

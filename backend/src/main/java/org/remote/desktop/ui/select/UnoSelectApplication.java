@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.asmus.model.GamepadDevice;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.ui.select.trigger.TriggerUpdateCallback;
 import org.remote.desktop.ui.select.trigger.UiSelectUpdate;
@@ -44,12 +45,11 @@ public class UnoSelectApplication<T> extends Application {
                             selector.selectPrevious();
                             break;
                         case ENTER:
-                            callback.accept(update.analogControl(selector.getSelected()).build());
+                            callback.accept(update.element(selector.getSelected()).build());
                             break;
                     }
                 });
     }
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -82,8 +82,8 @@ public class UnoSelectApplication<T> extends Application {
         Platform.runLater(() -> primaryStage.hide());
     }
 
-    public void render(SceneDto lastScene, String trigger) {
-        update = UiSelectUpdate.<T>builder().trigger(trigger).sceneDto(lastScene);
+    public void render(SceneDto lastScene, String trigger, GamepadDevice device) {
+        update = UiSelectUpdate.<T>builder().sceneDto(lastScene).device(device);
 
         Platform.runLater(() -> {
             this.primaryStage.setAlwaysOnTop(true);

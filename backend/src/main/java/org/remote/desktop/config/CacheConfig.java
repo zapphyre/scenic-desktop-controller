@@ -27,13 +27,13 @@ public class CacheConfig implements CachingConfigurer {
                     .filter(Objects::nonNull)
                     .toArray(Object[]::new);
 
-            if (params.length == 0)
-                return new SimpleKey(modeService.getCurrentMode().getName());
+//            if (params.length == 0)
+//                return new SimpleKey(modeService.getCurrentMode().getName());
 
             Object[] keyParts = new Object[params.length + 1];
             System.arraycopy(params, 0, keyParts, 0, params.length);
 
-            keyParts[params.length] = modeService.getCurrentMode().getName();
+//            keyParts[params.length] = modeService.getCurrentMode().getName();
 
             return new SimpleKey(keyParts);
         };
@@ -52,7 +52,7 @@ public class CacheConfig implements CachingConfigurer {
                     click.getModifiers(),
                     click.getMultiplicity(),
                     click.isLongPress(),
-                    modeService.getCurrentMode().getName()
+//                    modeService.getCurrentMode().getName()
             };
 
             return new SimpleKey(keyParts);

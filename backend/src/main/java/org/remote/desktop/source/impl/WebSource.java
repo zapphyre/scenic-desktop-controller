@@ -3,6 +3,7 @@ package org.remote.desktop.source.impl;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.asmus.model.AxisReading;
 import org.asmus.model.TimedValue;
 import org.remote.desktop.component.GpadHostRepository;
 import org.remote.desktop.db.dao.SettingsDao;
@@ -31,7 +32,7 @@ public class WebSource extends BaseSource {
     ParameterizedTypeReference<List<TimedValue>> BUTTON_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
-    ParameterizedTypeReference<Map<String, Integer>> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
+    ParameterizedTypeReference<AxisReading> AXIS_RAW_DATA = new ParameterizedTypeReference<>() {
     };
 
 
@@ -62,7 +63,7 @@ public class WebSource extends BaseSource {
         return state = ESourceEvent.CONNECTED;
     }
 
-    Consumer<Map<String, Integer>> chainConsumers() {
+    Consumer<AxisReading> chainConsumers() {
         return pipe(arrowsAdapter.getArrowConsumer(), digitizedTriggerAdapter.getLeftTriggerProcessor(),
                 digitizedTriggerAdapter.getLeftTriggerProcessor(), digitizedTriggerAdapter.getRightTriggerProcessor(),
                 digitizedTriggerAdapter.getLeftStepTriggerProcessor(), digitizedTriggerAdapter.getRightStepTriggerProcessor(),

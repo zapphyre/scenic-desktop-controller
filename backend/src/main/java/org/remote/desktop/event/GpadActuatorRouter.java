@@ -23,16 +23,16 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
             if (e.getKeyPart().getKeyStrokes() != null &&
                     !e.getKeyPart().getKeyStrokes().isEmpty() &&
                     e.getKeyPart().getKeyStrokes().getFirst() != null)
-                modeService.switchCurrentMode(e.getKeyPart().getKeyStrokes().getFirst());
+                modeService.switchCurrentMode(e.getKeyPart().getKeyStrokes().getFirst(), e.getDevice());
             else
-                modeSelector.getApplication().render(null, "");
+                modeSelector.getApplication().render(null, "", e.getDevice());
 
         if (e.getKeyPart().getKeyEvt().equals("SCENE_RESET"))
-            modeService.switchCurrentMode("DESKTOP");
+            modeService.switchCurrentMode("DESKTOP", e.getDevice());
 
 //        modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
 
-        if (!modeService.getCurrentMode().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes()))
+        if (!modeService.getCurrentModeFor(e.getDevice()).handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes()))
             modeService.getDesktopModule().handleEvent(e.getKeyPart().getKeyEvt(), e.getKeyPart().getKeyStrokes());
     }
 
@@ -46,7 +46,7 @@ public class GpadActuatorRouter implements ApplicationListener<GpadCommandEvent>
 
         @Override
         public void onApplicationEvent(ModeEvent event) {
-            modeService.switchCurrentMode(event.getMode()).activate();
+            modeService.switchCurrentMode(event.getMode(), event.getDevice()).activate();
             modeSelector.getApplication().close();
         }
     }

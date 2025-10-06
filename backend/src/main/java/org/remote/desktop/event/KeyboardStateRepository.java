@@ -42,7 +42,7 @@ public class KeyboardStateRepository implements ApplicationListener<GpadCommandE
     }
 
     public void issueKeyupCommand(KeyPart keyPart) {
-        eventPublisher.publishEvent(new GpadCommandEvent(this, keyPart.getKeyEvt(), keyPart.getKeyStrokes(), EAdapterMode.DESKTOP, null, null, null, null, Set.of(), false));
+//        eventPublisher.publishEvent(new GpadCommandEvent(this, keyPart.getKeyEvt(), keyPart.getKeyStrokes(), EAdapterMode.DESKTOP, null, null, null, null, Set.of(), false,nu));
     }
 
     public void releaseAllPressedKeys() {

@@ -1,11 +1,12 @@
 package org.remote.desktop.service.impl;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.asmus.model.GamepadDevice;
 import org.desktop.remote.mode.GpadOsActionModule;
+import org.remote.desktop.db.dao.GamepadModeDao;
 import org.remote.desktop.db.dao.ModeDao;
+import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.model.vto.ModeVto;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +22,41 @@ public class ModeService {
     private final ModeDao modeDao;
     private final StateService stateService;
     private final Map<String, GpadOsActionModule> moduleMap;
-
-    @Getter @Setter
-    private GpadOsActionModule currentMode;
+    private final GamepadModeDao gamepadModeDao;
 
     @PostConstruct
     void init() {
-        currentMode = getDesktopModule();
     }
 
-    public GpadOsActionModule switchCurrentMode(String mode) {
+    public boolean isCurrentGamepadModeScenic(GamepadDevice device) {
+        return Optional.ofNullable(device)
+                .map(this::getCurrentModeNameFor)
+                .map(moduleMap::get)
+                .orElseGet(this::getDesktopModule)
+                .isScenic();
+    }
+
+    public String getCurrentModeNameFor(GamepadDevice device) {
+        return Optional.ofNullable(device)
+                .map(GamepadDevice::name)
+                .map(gamepadModeDao::getGamepadModeByDeviceName)
+                .orElseGet(() -> gamepadModeDao.getGamepadModeOrCreateDesktop(device))
+                .getMode();
+    }
+
+    public GpadOsActionModule getCurrentModeFor(GamepadDevice device) {
+        return moduleMap.get(getCurrentModeNameFor(device));
+    }
+
+    public List<GamepadDto> getAllGamepads() {
+        return gamepadModeDao.getAllGamepads();
+    }
+
+    public GpadOsActionModule switchCurrentMode(String mode, GamepadDevice device) {
         stateService.nullifyForced();
         stateService.recognizeScene();
-        return currentMode = moduleMap.get(mode);
+        gamepadModeDao.setModeFor(device).accept(mode);
+        return moduleMap.get(mode);
     }
 
     public GpadOsActionModule getDesktopModule() {
@@ -46,7 +69,7 @@ public class ModeService {
         return moduleMap.keySet()
                 .stream()
                 .map(q -> ModeVto.builder()
-                        .id(allModes.stream().filter(m -> m.getAdapterMode().equals(q)).findFirst().orElse(ModeVto.builder().build()).getId())
+                        .id(allModes.stream().filter(m -> m.getAdapterMode().equals(q)).findFirst().orElseGet(ModeVto.builder()::build).getId())
                         .adapterMode(q)
                         .scenic(moduleMap.get(q).isScenic())
                         .keyEvtTypes(moduleMap.get(q).getVerbs())

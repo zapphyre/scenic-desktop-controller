@@ -29,8 +29,8 @@ public class ThreadConfig {
     @Bean(name = "identityTaskExecutor")
     public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(120); // Set desired pool size (e.g., 4 threads)
-        executor.setMaxPoolSize(160); // Maximum pool size
+        executor.setCorePoolSize(12); // Set desired pool size (e.g., 4 threads)
+        executor.setMaxPoolSize(16); // Maximum pool size
         executor.setQueueCapacity(100); // Queue capacity for tasks
         executor.setThreadNamePrefix("Identity-Thread-"); // For easier debugging
         executor.setWaitForTasksToCompleteOnShutdown(false); // Graceful shutdown

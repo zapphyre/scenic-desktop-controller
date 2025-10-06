@@ -3,6 +3,7 @@ package org.remote.desktop.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.model.EQualificationType;
+import org.asmus.model.GamepadDevice;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.mapper.ActivatorGroupingEventMapper;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -41,15 +42,15 @@ public class GPadEventStreamService {
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
-    public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName) {
+    public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName, GamepadDevice device) {
         return ofNullable(windowName)
-                .map(sceneService::getSceneForModeAndWindowNameOrBase)
-                .map(this::extractInheritedActions)
+                .map(sceneService.getSceneForModeAndWindowNameOrBase(device))
+                .map(sceneDto -> extractInheritedActions(sceneDto, device))
                 .orElseGet(Map::of);
     }
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
-    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
+    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto, GamepadDevice device) {
         return of(sceneDto)
                 .map(scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system")))
                 .orElseThrow().stream()
@@ -59,15 +60,15 @@ public class GPadEventStreamService {
                 .collect(toMap(SceneBtnActions::action, buttonPressMapper::map, laterMerger()));
     }
 
-    public SceneDto sceneNow() {
+    public SceneDto sceneNow(GamepadDevice device) {
         return xdoSceneService.isSceneForced() ?
                 xdoSceneService.getForcedScene() :
-                sceneService.getSceneForModeAndWindowNameOrBase(xdoSceneService.tryGetCurrentName());
+                sceneService.getSceneForModeAndWindowNameOrBase(device).apply(xdoSceneService.tryGetCurrentName());
     }
 
     //    @Cacheable(value = "klik", keyGenerator = "clickKeyGclickKeyGeneratorenerator")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        return of(sceneNow())
+        return of(sceneNow(click.getDevice()))
                 .map(isIncomingQualificatorRelevantForCurrentScene(click))
                 .orElse(false);
     }
@@ -76,8 +77,9 @@ public class GPadEventStreamService {
         Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
 
         return scene -> {
-            Set<EventDto> eventsRelevantForCurrentClickModificators = scrape.apply(scene).stream()
-                    .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
+            Set<EventDto> eventsRelevantForCurrentClickModificators =  Objects.isNull(click.getModifiers()) ?
+                    Set.of() : scrape.apply(scene).stream()
+                    .filter(deepNonNull)
                     .collect(Collectors.toSet());
 
             Predicate<EQualifiedSceneDict> longestQualifForRelevantEvents =
@@ -94,6 +96,11 @@ public class GPadEventStreamService {
                     .orElse(false);
         };
     }
+
+    Predicate<EventDto> deepNonNull = q -> Optional.ofNullable(q)
+            .map(EventDto::getButtonEvent)
+            .map(ButtonEventDto::getModifiers)
+            .isPresent();
 
     Predicate<EQualifiedSceneDict> predicateForRelevantQualificators(Set<EventDto> evts, ButtonActionDef click) {
         return q -> evts.stream()

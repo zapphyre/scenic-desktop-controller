@@ -1,6 +1,7 @@
 package org.remote.desktop.controller.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.AxisReading;
 import org.asmus.model.PolarCoords;
 import org.asmus.model.TimedValue;
 import org.asmus.service.JoyWorker;
@@ -37,7 +38,7 @@ public class RawSourceCtrl {
     }
 
     @GetMapping("axis")
-    public Flux<Map<String, Integer>> getGpadAxisStateStream() {
+    public Flux<AxisReading> getGpadAxisStateStream() {
         return worker.getAxisStream().publish().autoConnect();
     }
 

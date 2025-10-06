@@ -24,7 +24,7 @@ public class ModeSelectConfig {
 
         unoSelectApplication.setItems(actuatorModules.keySet().stream().toList(), Function.identity())
                 .update(q -> eventPublisher.publishEvent(
-                        new ModeEvent(this, q.getAnalogControl())
+                        new ModeEvent(this, q.getElement() , q.getDevice())
                 ));
 
         return unoSelectApplication;
