@@ -79,7 +79,8 @@ public class GPadEventStreamService {
         return scene -> {
             Set<EventDto> eventsRelevantForCurrentClickModificators = Objects.isNull(click.getModifiers()) ?
                     Set.of() : scrape.apply(scene).stream()
-                    .filter(deepNonNull)
+                    .filter(deepNonNullModifiersEq(click))
+//                    .filter(q -> click.getModifiers().isEmpty() || q.getButtonEvent().getModifiers().equals(click.getModifiers()))
                     .collect(Collectors.toSet());
 
             Predicate<EQualifiedSceneDict> longestQualifForRelevantEvents =
@@ -97,9 +98,15 @@ public class GPadEventStreamService {
         };
     }
 
+    Predicate<EventDto> deepNonNullModifiersEq(ButtonActionDef click) {
+        return q ->
+                deepNonNull.and(p -> p.getButtonEvent().getModifiers().equals(click.getModifiers())).test(q);
+    }
+
     Predicate<EventDto> deepNonNull = q -> Optional.ofNullable(q)
             .map(EventDto::getButtonEvent)
             .map(ButtonEventDto::getModifiers)
+            .map(Set::isEmpty)
             .isPresent();
 
     Predicate<EQualifiedSceneDict> predicateForRelevantQualificators(Set<EventDto> evts, ButtonActionDef click) {
