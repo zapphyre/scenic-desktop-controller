@@ -1,4 +1,4 @@
-package org.remote.desktop.ui.component;
+package org.remote.desktop.ui.keyboard;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;

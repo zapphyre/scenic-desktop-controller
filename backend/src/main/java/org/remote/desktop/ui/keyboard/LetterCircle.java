@@ -1,7 +1,6 @@
-package org.remote.desktop.ui.component;
+package org.remote.desktop.ui.keyboard;
 
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;

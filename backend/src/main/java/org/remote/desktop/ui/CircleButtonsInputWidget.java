@@ -12,7 +12,7 @@ import org.asmus.model.EButtonAxisMapping;
 import org.mapstruct.ap.internal.util.Strings;
 import org.remote.desktop.model.UiButtonBase;
 import org.remote.desktop.model.dto.LanguageDto;
-import org.remote.desktop.ui.component.FourButtonWidget;
+import org.remote.desktop.ui.keyboard.FourButtonWidget;
 import org.remote.desktop.ui.model.ButtonInputProcessor;
 import org.remote.desktop.ui.model.ButtonsSettings;
 import org.remote.desktop.ui.model.EKeyboardInputButton;

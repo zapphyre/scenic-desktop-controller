@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.mapstruct.ap.internal.util.Strings;
 import org.remote.desktop.model.dto.LanguageDto;
-import org.remote.desktop.ui.component.TextContainer;
+import org.remote.desktop.ui.keyboard.TextContainer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

@@ -11,6 +11,7 @@ import org.remote.desktop.text.translator.PolarCoordsSectionTranslator;
 import org.remote.desktop.text.translator.PolarSettings;
 import org.remote.desktop.ui.InputWidgetBase;
 import org.remote.desktop.ui.VariableGroupingInputWidgetBase;
+import org.remote.desktop.ui.scene.SceneReporter;
 import org.remote.desktop.ui.select.DuoSelectApplication;
 import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
@@ -36,6 +37,7 @@ public class StickTextAdapter {
     private final TriggerUiSelector unoSelectApplication;
     private final UnoSelectApplication<?> singleSelector;
     private final ModeSelector modeSelector;
+    private final SceneReporter sceneReporter;
 
     private PolarCoordsSectionTranslator letterSegmentTranslator = createTranslator(new PolarSettings(210, 4));
 
@@ -48,6 +50,7 @@ public class StickTextAdapter {
                 duoSelectApplication.start(new Stage());
                 unoSelectApplication.start(new Stage());
                 modeSelector.getApplication().start(new Stage());
+                sceneReporter.start(new Stage());
             });
         });
 

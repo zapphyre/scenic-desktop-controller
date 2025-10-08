@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.dto.LanguageDto;
-import org.remote.desktop.ui.component.LetterCircle;
+import org.remote.desktop.ui.keyboard.LetterCircle;
 import org.remote.desktop.ui.model.EKeyboardInputButton;
 
 import java.util.List;
