@@ -14,7 +14,7 @@ public enum EQualifiedSceneDict {
 
     //order matters!
     MULTI_CLICK(EQualificationType.MULTIPLE, Behavioral::hasClickMultiplicity),
-    MODIFIED(EQualificationType.RELEASE, Behavioral::hasModifiersAssigned),
+    MODIFIED(EQualificationType.RELEASE, Behavioral::hasModifiersAssigned), // it means now modified command takes precedense when on scene with long defined too; long however fires after long hold and is processed as event
     LONG_CLICK(EQualificationType.LONG, Behavioral::isLongPress),
     FAST_CLICK(EQualificationType.PUSH, q -> true),
     ;

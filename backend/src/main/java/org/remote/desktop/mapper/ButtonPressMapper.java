@@ -1,6 +1,7 @@
 package org.remote.desktop.mapper;
 
 import org.asmus.model.EButtonAxisMapping;
+import org.asmus.model.GamepadDevice;
 import org.asmus.model.GamepadEvent;
 import org.mapstruct.*;
 import org.remote.desktop.model.*;
@@ -62,6 +63,10 @@ public interface ButtonPressMapper {
 
     @Mapping(target = "qualified", ignore = true)
     ButtonActionDef map(ButtonEventDto vto);
+
+    default Function<ButtonEventDto, ButtonActionDef> map(GamepadDevice device) {
+        return q -> map(q).withDevice(device);
+    }
 
     @Named("map")
     @Mapping(target = "multiplicity", defaultValue = "CLICK")

@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.builder.AxisEventProcessorFactory;
+import org.asmus.model.GamepadDevice;
 import org.asmus.model.PolarCoords;
 import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.mapper.ButtonPressMapper;
@@ -94,7 +95,7 @@ public class StickGestureProcessor implements AppEventMapper {
                 .peek(q -> log.info("Match: {}", q))
                 .findFirst().stream()
                 .map(MatchResult::getKey)
-                .map(buttonPressMapper::map)
+                .map(buttonPressMapper.map(new GamepadDevice(g.getName(), g.getDev())))
                 .map(triggerActionMatcher.appEventMapper(this))
                 .flatMap(Collection::stream)
                 .forEach(eventPublisher::publishEvent)
