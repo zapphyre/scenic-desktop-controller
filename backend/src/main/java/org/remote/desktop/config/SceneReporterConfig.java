@@ -15,7 +15,7 @@ public class SceneReporterConfig {
         SceneReporter sceneReporter = new SceneReporter();
 
         xdoSceneService.registerForcedSceneObserver(sceneReporter::render);
-        xdoSceneService.registerRecognizedSceneObserverChange(_ -> sceneReporter.close());
+        xdoSceneService.registerRecognizedSceneObserverChange(_ -> sceneReporter.hide());
 
         return sceneReporter;
     }

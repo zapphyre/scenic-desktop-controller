@@ -21,7 +21,6 @@ public class RequestCacheAop {
 
     private final CacheManager cacheManager;
 
-    // Pointcut for all controller methods in your package
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void restControllerMethods() {
     }
@@ -34,7 +33,6 @@ public class RequestCacheAop {
     public void evictAll() {
     }
 
-    // Pointcut for methods with POST, PUT, PATCH, DELETE annotations
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) || " +
             "@annotation(org.springframework.web.bind.annotation.PutMapping) || " +
             "@annotation(org.springframework.web.bind.annotation.PatchMapping) || " +

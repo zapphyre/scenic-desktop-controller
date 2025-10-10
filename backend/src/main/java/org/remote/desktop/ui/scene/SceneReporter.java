@@ -6,82 +6,136 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Glow;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 public class SceneReporter extends Application {
 
     private Label label;
-    private Stage primaryStage;
+    private Popup popup;
+    private TrayIcon trayIcon;
+    private Stage ownerStage; // invisible owner
 
     @Override
-    public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        this.label = new Label();
+    public void start(Stage stage) {
+        // ---- Invisible owner stage for the popup ----
+        ownerStage = new Stage(StageStyle.UTILITY);
+        ownerStage.setOpacity(0);
+        ownerStage.setWidth(1);
+        ownerStage.setHeight(1);
+        ownerStage.setX(-10000); // offscreen
+        ownerStage.setY(-10000);
+        ownerStage.setScene(new Scene(new StackPane(), Color.TRANSPARENT));
+        ownerStage.show();
 
-        // Styling the label
-        label.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: limegreen; -fx-background-color: transparent;");
+        // ---- Overlay label ----
+        label = new Label("not-set-so-far");
+        label.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: limegreen;");
         label.setEffect(new Glow(0.8));
 
-        AnchorPane root = new AnchorPane();
-        root.setBackground(null);
-        root.getChildren().add(label);
+        popup = new Popup();
+        popup.setAutoFix(false);
+        popup.setAutoHide(false);
+        popup.getContent().add(label);
+        label.setMouseTransparent(true);
+        popup.hide();
 
-        Scene scene = new Scene(root);
-        scene.setFill(Color.TRANSPARENT);
+        // ---- Setup tray ----
+        try {
+            setupSystemTray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        primaryStage.initStyle(StageStyle.TRANSPARENT);
-        primaryStage.setTitle("Trigger Selector");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
+        // ---- Demo usage ----
         Platform.runLater(() -> {
-            label.applyCss();
-            label.layout();
-            primaryStage.sizeToScene();
-            positionStageBottomCenter();
+            render("Hello Overlay!");
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    hide();
+                    Thread.sleep(1000);
+                    render("Back again!");
+                } catch (InterruptedException ignored) {}
+            }).start();
         });
-
-        primaryStage.setOnCloseRequest(event -> {
-            event.consume();
-            primaryStage.hide();
-        });
-
     }
 
-    public void close() {
-        Platform.runLater(() -> primaryStage.hide());
+    private void setupSystemTray() throws IOException, AWTException {
+        if (!SystemTray.isSupported()) return;
+
+        BufferedImage image;
+        try {
+            image = ImageIO.read(getClass().getResource("/icon.png"));
+        } catch (Exception e) {
+            image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = image.createGraphics();
+            g.fillOval(0, 0, 16, 16);
+            g.dispose();
+        }
+
+        PopupMenu menu = new PopupMenu();
+
+        MenuItem showItem = new MenuItem("Show overlay");
+        showItem.addActionListener(e -> Platform.runLater(this::showOverlay));
+
+        MenuItem hideItem = new MenuItem("Hide overlay");
+        hideItem.addActionListener(e -> Platform.runLater(this::hide));
+
+        MenuItem exitItem = new MenuItem("Exit");
+        exitItem.addActionListener(e -> {
+            SystemTray.getSystemTray().remove(trayIcon);
+            Platform.exit();
+        });
+
+        menu.add(showItem);
+        menu.add(hideItem);
+        menu.addSeparator();
+        menu.add(exitItem);
+
+        trayIcon = new TrayIcon(image, "Overlay Control", menu);
+        trayIcon.setImageAutoSize(true);
+        trayIcon.addActionListener(e -> Platform.runLater(this::showOverlay));
+
+        SystemTray.getSystemTray().add(trayIcon);
+    }
+
+    private void showOverlay() {
+        render("Overlay active!");
     }
 
     public void render(String sceneName) {
-        label.setText(sceneName);
         Platform.runLater(() -> {
+            label.setText(sceneName);
             label.applyCss();
             label.layout();
-            primaryStage.sizeToScene();
-            positionStageBottomCenter();
-            primaryStage.setAlwaysOnTop(true);
-            primaryStage.show();
+
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            double x = screenBounds.getMinX() + (screenBounds.getWidth() - label.getWidth()) / 2;
+            double y = screenBounds.getMinY() + screenBounds.getHeight() - label.getHeight() - 100;
+
+            if (!popup.isShowing()) {
+                popup.show(ownerStage, x, y); // uses invisible owner stage
+            } else {
+                popup.setX(x);
+                popup.setY(y);
+            }
         });
     }
 
-    /**
-     * Positions the stage 100px above the bottom of the primary screen, centered horizontally.
-     */
-    private void positionStageBottomCenter() {
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-        double stageWidth = primaryStage.getWidth();
-        double stageHeight = primaryStage.getHeight();
-
-        double x = screenBounds.getMinX() + (screenBounds.getWidth() - stageWidth) / 2;
-        double y = screenBounds.getMinY() + screenBounds.getHeight() - stageHeight - 100;
-
-        primaryStage.setX(x);
-        primaryStage.setY(Math.max(y, 0)); // Prevent it from going offscreen if screen is small
+    public void hide() {
+        Platform.runLater(() -> {
+            if (popup.isShowing()) popup.hide();
+        });
     }
 
     public static void main(String[] args) {

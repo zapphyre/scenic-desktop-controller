@@ -66,7 +66,7 @@ public class GPadEventStreamService {
                 sceneService.getSceneForModeAndWindowNameOrBase(device).apply(xdoSceneService.tryGetCurrentName());
     }
 
-    //    @Cacheable(value = "klik", keyGenerator = "clickKeyGclickKeyGeneratorenerator")
+        @Cacheable(value = "klik", keyGenerator = "clickKeyGclickKeyGeneratorenerator")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
         return of(sceneNow(click.getDevice()))
                 .map(isIncomingQualificatorRelevantForCurrentScene(click))
@@ -79,17 +79,15 @@ public class GPadEventStreamService {
         return scene -> {
             Set<EventDto> eventsRelevantForCurrentClickModificators = Objects.isNull(click.getModifiers()) ?
                     Set.of() : scrape.apply(scene).stream()
-                    .filter(deepNonNullModifiersEq(click))
+                    .filter(deepNonNull)
+                    .filter(modifiersRelevant(click))
                     .collect(Collectors.toSet());
 
             Predicate<EQualifiedSceneDict> longestQualifForRelevantEvents =
                     predicateForRelevantQualificators(eventsRelevantForCurrentClickModificators, click);
 
-            return (click.getModifiers().isEmpty() ?
-                    Arrays.stream(EQualifiedSceneDict.values()) : Arrays.stream(EQualifiedSceneDict.values())
+            return Arrays.stream(EQualifiedSceneDict.values())
                     .filter(longestQualifForRelevantEvents)
-            )
-                    .filter(longestQualifForRelevantEvents) // yes, it needs to be there otherwise auto-longclick won't work
                     .findFirst()
                     .map(EQualifiedSceneDict::getQualifierType)
                     .map(q -> q == click.getQualified())
@@ -97,15 +95,26 @@ public class GPadEventStreamService {
         };
     }
 
-    Predicate<EventDto> deepNonNullModifiersEq(ButtonActionDef click) {
-        return deepNonNull.and(p -> p.getButtonEvent().getModifiers().equals(click.getModifiers()));
+    Predicate<EventDto> modifiersRelevant(ButtonActionDef click) {
+        return modifiersEqual(click).or(modifiersEmpty(click));
+    }
+
+    Predicate<EventDto> modifiersEqual(ButtonActionDef click) {
+        return q -> q.getButtonEvent().getModifiers().equals(click.getModifiers());
+    }
+
+    Predicate<EventDto> modifiersEmpty(ButtonActionDef click) {
+        return _ -> click.getModifiers().isEmpty();
     }
 
     Predicate<EventDto> deepNonNull = q -> Optional.ofNullable(q)
             .map(EventDto::getButtonEvent)
             .map(ButtonEventDto::getModifiers)
-            .map(Set::isEmpty)
             .isPresent();
+
+    Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
+        return sameAsClick(click).or(modifiersEqualAsClickTrigger(click));
+    }
 
     Predicate<EQualifiedSceneDict> predicateForRelevantQualificators(Set<EventDto> evts, ButtonActionDef click) {
         return q -> evts.stream()
@@ -115,14 +124,17 @@ public class GPadEventStreamService {
                 .anyMatch(q.getPredicate());
     }
 
-    Predicate<ButtonEventDto> triggerAndModifiersSameAsClick(ButtonActionDef click) {
-        return q -> sameAsClick(click).test(q.getTrigger()) ||
-                q.getModifiers().stream()
-                        .map(Enum::name)
-                        .anyMatch(sameAsClick(click));
+    Predicate<ButtonEventDto> modifiersEqualAsClickTrigger(ButtonActionDef click) {
+        return q -> q.getModifiers().stream()
+                .map(Enum::name)
+                .anyMatch(equalsTrigger(click));
     }
 
-    Predicate<String> sameAsClick(ButtonActionDef click) {
+    Predicate<ButtonEventDto> sameAsClick(ButtonActionDef click) {
+        return q -> equalsTrigger(click).test(q.getTrigger());
+    }
+
+    Predicate<String> equalsTrigger(ButtonActionDef click) {
         return click.getTrigger()::equals;
     }
 
