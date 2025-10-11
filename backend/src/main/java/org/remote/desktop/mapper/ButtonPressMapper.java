@@ -24,6 +24,8 @@ public interface ButtonPressMapper {
     @Mapping(target = "trigger", source = ".", qualifiedByName = "logicalTriggerName")
     ButtonActionDef map(GamepadEvent gamepadEvent);
 
+    CachedButtonActionDef mapCache(ButtonActionDef click);
+
     @Mapping(target = "buttonEvent", source = "source.buttonEvent")
 //    @Mapping(target = "buttonEvent.modifiers", source = "modifiers")
     EventDto concatModifiers(EventDto source, Set<EButtonAxisMapping> modifiers);

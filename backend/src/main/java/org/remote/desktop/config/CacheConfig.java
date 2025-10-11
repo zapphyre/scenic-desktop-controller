@@ -1,7 +1,11 @@
 package org.remote.desktop.config;
 
 import lombok.RequiredArgsConstructor;
+import org.asmus.model.GamepadDevice;
+import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.CachedButtonActionDef;
+import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.service.impl.ModeService;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -10,52 +14,60 @@ import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 @EnableCaching
 @Configuration
 @RequiredArgsConstructor
 public class CacheConfig implements CachingConfigurer {
 
-    private final ModeService  modeService;
+    private final ModeService modeService;
+    private final ButtonPressMapper buttonPressMapper;
 
     @Override
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
-            params = Stream.of(params)
+            Object[] nnPrms = Arrays.stream(params)
                     .filter(Objects::nonNull)
                     .toArray(Object[]::new);
 
-//            if (params.length == 0)
-//                return new SimpleKey(modeService.getCurrentMode().getName());
+            CachedButtonActionDef bad = Arrays.stream(nnPrms)
+                    .filter(ButtonActionDef.class::isInstance)
+                    .map(ButtonActionDef.class::cast)
+                    .map(buttonPressMapper::mapCache)
+                    .findFirst()
+                    .orElse(null);
 
-            Object[] keyParts = new Object[params.length + 1];
-            System.arraycopy(params, 0, keyParts, 0, params.length);
+            GamepadDevice dev = Arrays.stream(nnPrms)
+                    .filter(GamepadDevice.class::isInstance)
+                    .map(GamepadDevice.class::cast)
+                    .findFirst()
+                    .orElseGet(() -> Arrays.stream(nnPrms)
+                            .filter(GamepadDto.class::isInstance)
+                            .map(GamepadDto.class::cast)
+                            .map(q -> new GamepadDevice(q.getName(), q.getDev()))
+                            .findFirst()
+                            .orElse(null)
+                    );
 
-//            keyParts[params.length] = modeService.getCurrentMode().getName();
+            if (bad != null && dev != null)
+                return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
 
-            return new SimpleKey(keyParts);
+            if (dev != null)
+                return new SimpleKey(nnPrms, modeService.getCurrentModeNameFor(dev));
+
+            if (bad != null)
+                return new SimpleKey(bad, nnPrms);
+
+            return new SimpleKey(nnPrms);
         };
     }
 
     @Bean
-    public KeyGenerator clickKeyGenerator() { // b/c
+    public KeyGenerator eventSceneRelevancyCacheKeyGenerator() {
         return (target, method, params) -> {
-            ButtonActionDef click = params[0] instanceof ButtonActionDef c ? c : null; // Safe cast since click is never null
-
-            if (click == null) return new SimpleKey("null-click");
-
-            // Create key from click, its properties, and service state
-            Object[] keyParts = new Object[] {
-                    click.getTrigger(),
-                    click.getModifiers(),
-                    click.getMultiplicity(),
-                    click.isLongPress(),
-//                    modeService.getCurrentMode().getName()
-            };
-
-            return new SimpleKey(keyParts);
+            return null;
         };
     }
 }

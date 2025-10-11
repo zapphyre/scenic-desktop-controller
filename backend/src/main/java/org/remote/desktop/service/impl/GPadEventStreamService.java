@@ -45,14 +45,14 @@ public class GPadEventStreamService {
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName, GamepadDevice device) {
         return ofNullable(windowName)
                 .map(sceneService.getSceneForModeAndWindowNameOrBase(device))
-                .map(sceneDto -> extractInheritedActions(sceneDto, device))
+                .map(this::extractInheritedActions)
                 .orElseGet(Map::of);
     }
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
-    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto, GamepadDevice device) {
+    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
         return of(sceneDto)
-                .map(scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system")))
+                .map(scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getSystemScene()))
                 .orElseThrow().stream()
                 .map(activatorGroupingEventMapper::groupByActivator)
                 .flatMap(Collection::stream)
@@ -66,15 +66,16 @@ public class GPadEventStreamService {
                 sceneService.getSceneForModeAndWindowNameOrBase(device).apply(xdoSceneService.tryGetCurrentName());
     }
 
-        @Cacheable(value = "klik", keyGenerator = "clickKeyGclickKeyGeneratorenerator")
+    @Cacheable(value = "klik")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        return of(sceneNow(click.getDevice()))
+        return of(sceneNow(click
+                .getDevice()))
                 .map(isIncomingQualificatorRelevantForCurrentScene(click))
                 .orElse(false);
     }
 
     public Function<SceneDto, Boolean> isIncomingQualificatorRelevantForCurrentScene(ButtonActionDef click) {
-        Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getScene("system"));
+        Function<SceneDto, Set<EventDto>> scrape = scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getSystemScene());
 
         return scene -> {
             Set<EventDto> eventsRelevantForCurrentClickModificators = Objects.isNull(click.getModifiers()) ?
@@ -96,7 +97,7 @@ public class GPadEventStreamService {
     }
 
     Predicate<EventDto> modifiersRelevant(ButtonActionDef click) {
-        return modifiersEqual(click).or(modifiersEmpty(click));
+        return modifiersEmpty(click).or(modifiersEqual(click));
     }
 
     Predicate<EventDto> modifiersEqual(ButtonActionDef click) {

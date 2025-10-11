@@ -56,7 +56,7 @@ public class TriggerActionMatcher {
 
     Map<ActionMatch, NextSceneXdoAction> actionMapForCurrentScene(GamepadDevice device) {
         return xdoSceneService.isSceneForced() ?
-                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene(), device) :
+                gPadEventStreamService.extractInheritedActions(xdoSceneService.getForcedScene()) :
                 gPadEventStreamService.relativeWindowNameActions(xdoSceneService.tryGetCurrentName(), device);
     }
 

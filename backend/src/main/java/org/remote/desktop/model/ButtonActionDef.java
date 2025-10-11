@@ -36,7 +36,7 @@ public class ButtonActionDef implements Repeatable {
     GamepadDevice device;
 
     @Override
-    public boolean isRepeatable() {
+    public boolean isRepeatable() { // this should be rephrased more systematically
         return logicalEventType.equals(ELogicalEventType.STEP_POSITIVE) ||
                 logicalEventType.equals(ELogicalEventType.STEP_NEGATIVE);
     }
