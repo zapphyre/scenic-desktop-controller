@@ -24,10 +24,6 @@ public class ModeService {
     private final Map<String, GpadOsActionModule> moduleMap;
     private final GamepadModeDao gamepadModeDao;
 
-    @PostConstruct
-    void init() {
-    }
-
     public boolean isCurrentGamepadModeScenic(GamepadDevice device) {
         return Optional.ofNullable(device)
                 .map(this::getCurrentModeNameFor)

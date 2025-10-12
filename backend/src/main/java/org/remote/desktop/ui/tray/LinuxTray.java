@@ -1,21 +1,22 @@
 package org.remote.desktop.ui.tray;
 
 import javafx.application.Platform;
-import javafx.geometry.Rectangle2D;
 import javafx.stage.Popup;
-import javafx.stage.Screen;
+import org.asmus.model.GamepadDevice;
+import org.remote.desktop.model.dto.GamepadDto;
+import org.remote.desktop.ui.select.mode.ModeSelector;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.util.List;
 
 public class LinuxTray {
 
     private Popup popup;
     private TrayIcon trayIcon;
 
-    private void setupSystemTray() throws IOException, AWTException {
+    public void setupSystemTray(ModeSelector modeSelector, List<GamepadDto> gamepads, Runnable keysUp) throws AWTException {
         if (!SystemTray.isSupported()) return;
 
         BufferedImage image;
@@ -30,11 +31,11 @@ public class LinuxTray {
 
         PopupMenu menu = new PopupMenu();
 
-        MenuItem showItem = new MenuItem("Show overlay");
-        showItem.addActionListener(e -> Platform.runLater(this::showOverlay));
+        Menu adjust = new Menu("Adjust");
 
-        MenuItem hideItem = new MenuItem("Hide overlay");
-        hideItem.addActionListener(e -> Platform.runLater(this::hide));
+        gamepads.forEach(q -> adjust.add(new MenuItem(q.getName()) {{
+            addActionListener(p -> modeSelector.getApplication().render(null, "", new GamepadDevice(q.getName(), q.getDev())));
+        }}));
 
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener(e -> {
@@ -42,37 +43,24 @@ public class LinuxTray {
             Platform.exit();
         });
 
-        menu.add(showItem);
-        menu.add(hideItem);
+        MenuItem keysUpItem = new MenuItem("Keys Up");
+        keysUpItem.addActionListener(e -> keysUp.run());
+
+        menu.add(adjust);
+        menu.addSeparator();
+        menu.add(keysUpItem);
         menu.addSeparator();
         menu.add(exitItem);
 
         trayIcon = new TrayIcon(image, "Overlay Control", menu);
         trayIcon.setImageAutoSize(true);
-        trayIcon.addActionListener(e -> Platform.runLater(this::showOverlay));
+        trayIcon.addActionListener(e -> keysUp.run());
 
         popup = new Popup();
         popup.setAutoFix(false);
         popup.setAutoHide(false);
-        popup.getContent().add(new javafx.scene.control.Label(""));
-        popup.hide();
-
-        setupSystemTray();
 
         SystemTray.getSystemTray().add(trayIcon);
-    }
-
-    public void showOverlay() {
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-//        double x = screenBounds.getMinX() + (screenBounds.getWidth() - label.getWidth()) / 2;
-//        double y = screenBounds.getMinY() + screenBounds.getHeight() - label.getHeight() - 100;
-//
-//        if (!popup.isShowing()) {
-//            popup.show(ownerStage, x, y); // uses invisible owner stage
-//        } else {
-//            popup.setX(x);
-//            popup.setY(y);
-//        }
     }
 
     public void hide() {

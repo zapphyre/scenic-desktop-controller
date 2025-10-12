@@ -19,7 +19,7 @@ public class StateService {
     private final Sinks.Many<String> sceneStateStream = Sinks.many().multicast().directBestEffort();
     private final Sinks.Many<KeyPart> keydownStateStream = Sinks.many().multicast().directBestEffort();
 
-    protected final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final KeyboardStateRepository keyboardStateRepository;
     private final XdoSceneService xdoSceneService;
 

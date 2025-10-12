@@ -53,11 +53,10 @@ public class XdoActionModule implements GpadOsActionModule {
                 case "TIMEOUT" -> Thread.sleep(Integer.parseInt(xdoKeyPart));
                 case "SCENE_RESET" -> stateService.nullifyForced();
                 case "CLIPBOARD" -> {
-                    if (xdoKeyPart.equals("PASTE")) {
+                    if (xdoKeyPart.equals("PASTE"))
                         paste();
-                    } else {
+                    else
                         copyToClipboard("");
-                    }
                 }
             }
         } catch (Exception e) {

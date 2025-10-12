@@ -29,8 +29,6 @@ public class DuoSelectApplication<L, R> extends Application {
         setCols = () -> selector.setColumns(
                 leftItems, rightItems, leftLabelGetter, rightLabelGetter
         );
-        selector.requestFocus();
-        selector.toFront();
 
         return callback ->
                 selector.setOnKeyPressed(event -> {
