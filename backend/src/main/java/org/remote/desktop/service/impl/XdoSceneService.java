@@ -55,10 +55,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     void setLastDesktopRecognized(String windowName) {
         Optional.ofNullable(sceneDao.getSceneByWindowName(windowName, "DESKTOP"))
                 .filter(p -> p.getMode().getScenic())
-                .ifPresent(p -> {
-                    System.out.printf("re-setting scene %s now and setting %s%n", lastRecognizedWindowName, p.getName());
-                    lastRecognizedScene = p;
-                });
+                .ifPresent(p -> lastRecognizedScene = p);
     }
 
     public String tryGetCurrentName() {
