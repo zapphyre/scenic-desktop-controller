@@ -7,16 +7,16 @@ import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.CachedButtonActionDef;
 import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.service.impl.ModeService;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.SimpleKey;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @EnableCaching
 @Configuration
@@ -24,26 +24,7 @@ import java.util.Objects;
 public class CacheConfig implements CachingConfigurer {
 
     private final ModeService modeService;
-    private final XdoSceneService stateService;
     private final ButtonPressMapper buttonPressMapper;
-
-    @Bean
-    public KeyGenerator sceneRelevanceClickCacheGen() {
-        return (target, method, params) -> {
-            Object[] nnPrms = Arrays.stream(params)
-                    .filter(Objects::nonNull)
-                    .toArray(Object[]::new);
-
-            CachedButtonActionDef bad = Arrays.stream(nnPrms)
-                    .filter(ButtonActionDef.class::isInstance)
-                    .map(ButtonActionDef.class::cast)
-                    .map(buttonPressMapper::mapCache)
-                    .findFirst()
-                    .orElse(null);
-
-            return new SimpleKey(bad, stateService.getLastRecognizedScene());
-        };
-    }
 
     @Override
     public KeyGenerator keyGenerator() {
@@ -53,24 +34,20 @@ public class CacheConfig implements CachingConfigurer {
                     .toArray(Object[]::new);
 
             CachedButtonActionDef bad = Arrays.stream(nnPrms)
-                    .filter(ButtonActionDef.class::isInstance)
-                    .map(ButtonActionDef.class::cast)
+                    .flatMap(only(ButtonActionDef.class))
                     .map(buttonPressMapper::mapCache)
                     .findFirst()
                     .orElse(null);
 
             GamepadDevice dev = Arrays.stream(nnPrms)
-                    .filter(GamepadDevice.class::isInstance)
-                    .map(GamepadDevice.class::cast)
+                    .flatMap(only(GamepadDevice.class))
                     .findFirst()
                     .orElseGet(() -> Arrays.stream(nnPrms)
-                            .filter(GamepadDto.class::isInstance)
-                            .map(GamepadDto.class::cast)
+                            .flatMap(only(GamepadDto.class))
                             .map(q -> new GamepadDevice(q.getName(), q.getDev()))
                             .findFirst()
                             .orElseGet(() -> Arrays.stream(nnPrms)
-                                    .filter(ButtonActionDef.class::isInstance)
-                                    .map(ButtonActionDef.class::cast)
+                                    .flatMap(only(ButtonActionDef.class))
                                     .findFirst()
                                     .map(ButtonActionDef::getDevice)
                                     .orElse(null)
@@ -88,5 +65,10 @@ public class CacheConfig implements CachingConfigurer {
 
             return new SimpleKey(nnPrms);
         };
+    }
+
+    <T> Function<Object, Stream<T>> only(Class<T> clazz) {
+        return q -> clazz.isInstance(q) ?
+                Stream.of(clazz.cast(q)) : Stream.empty();
     }
 }

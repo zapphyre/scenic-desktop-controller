@@ -9,6 +9,7 @@ import org.remote.desktop.mapper.ActivatorGroupingEventMapper;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ActionMatch;
 import org.remote.desktop.model.ButtonActionDef;
+import org.remote.desktop.model.CachedButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.model.dto.ButtonEventDto;
 import org.remote.desktop.model.dto.EventDto;
@@ -16,9 +17,13 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.dto.XdoActionDto;
 import org.remote.desktop.pojo.EQualifiedSceneDict;
 import org.remote.desktop.util.RecursiveScraper;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,7 +32,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.zapphyre.function.FunHelper.laterMerger;
+import static org.zapphyre.function.FunHelper.*;
 
 @Slf4j
 @Service
@@ -39,18 +44,20 @@ public class GPadEventStreamService {
     private final ButtonPressMapper buttonPressMapper;
     private final ActivatorGroupingEventMapper activatorGroupingEventMapper;
 
+    private final CacheManager  cacheManager;
+
     private final RecursiveScraper<EventDto, SceneDto> scraper = new RecursiveScraper<>();
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
     public Map<ActionMatch, NextSceneXdoAction> relativeWindowNameActions(String windowName, GamepadDevice device) {
         return ofNullable(windowName)
                 .map(sceneService.getSceneForModeAndWindowNameOrBase(device))
-                .map(this::extractInheritedActions)
+                .map(sceneDto -> extractInheritedActions(sceneDto, device))
                 .orElseGet(Map::of);
     }
 
     @Cacheable(SceneDao.SCENE_ACTIONS_CACHE_NAME)
-    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto) {
+    public Map<ActionMatch, NextSceneXdoAction> extractInheritedActions(SceneDto sceneDto, GamepadDevice device) {
         return of(sceneDto)
                 .map(scraper.scrapeActionsRecursiveWithCurrentOn(sceneService.getSystemScene()))
                 .orElseThrow().stream()
@@ -66,11 +73,18 @@ public class GPadEventStreamService {
                 sceneService.getSceneForModeAndWindowNameOrBase(device).apply(xdoSceneService.tryGetCurrentName());
     }
 
-    @Cacheable(value = "klik", keyGenerator = "sceneRelevanceClickCacheGen")
     public boolean isCurrentClickQualificationSceneRelevant(ButtonActionDef click) {
-        return of(sceneNow(click.getDevice()))
-                .map(isIncomingQualificatorRelevantForCurrentScene(click))
-                .orElse(false);
+        SceneDto sceneDto = sceneNow(click.getDevice());
+        Cache cache = cacheManager.getCache("klik");
+        CachedButtonActionDef caClick = buttonPressMapper.mapCache(click);
+
+        return Optional.ofNullable(cache)
+                .map(q -> q.get(new SimpleKey(caClick, sceneDto), Boolean.class))
+                .orElseGet(() -> of(sceneDto)
+                        .map(isIncomingQualificatorRelevantForCurrentScene(click))
+                        .map(funky(q -> cache.put(new SimpleKey(caClick, sceneDto), q)))
+                        .map(funky(logFun("saving relevancy '%s' for scene: %s with trigger: %s", sceneDto.getName(), click.getTrigger())))
+                        .orElse(false));
     }
 
     public Function<SceneDto, Boolean> isIncomingQualificatorRelevantForCurrentScene(ButtonActionDef click) {
