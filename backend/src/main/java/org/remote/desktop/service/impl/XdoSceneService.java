@@ -16,6 +16,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static org.zapphyre.function.FunHelper.funky;
+
 @Service
 public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
@@ -42,14 +44,10 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     public void onApplicationEvent(GpadCommandEvent event) {
         Optional.of(event)
                 .map(GpadCommandEvent::getNextScene)
-                .map(q -> {
-                    lastRecognizedWindowName = q.getWindowName();
-
-                    setLastDesktopRecognized(lastRecognizedWindowName);
-
-                    return forcedScene = q;
-                })
-                .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q).getName())));
+                .map(funky(q -> lastRecognizedScene = q))
+                .map(SceneDto::getWindowName)
+                .map(funky(this::setLastDesktopRecognized))
+                .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q))));
     }
 
     void setLastDesktopRecognized(String windowName) {
@@ -64,9 +62,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
         System.out.println("Current name: " + windowName);
 
         if (!windowName.equals(lastRecognizedWindowName))
-            recognizedSceneObservers.forEach(p -> {
-                p.accept(windowName);
-            });
+            recognizedSceneObservers.forEach(p -> p.accept(windowName));
 
         setLastDesktopRecognized(windowName);
 

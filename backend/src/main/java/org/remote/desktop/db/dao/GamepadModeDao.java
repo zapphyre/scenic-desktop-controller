@@ -48,7 +48,7 @@ public class GamepadModeDao {
                         .build()
                 )
                 .map(gamepadModeRepository::save)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Game pad device not found: "  + device));
     }
 
     public GamepadModeDto getGamepadModeByDeviceName(String deviceName) {

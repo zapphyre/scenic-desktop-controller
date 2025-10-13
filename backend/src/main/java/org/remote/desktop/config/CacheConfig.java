@@ -7,12 +7,10 @@ import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.CachedButtonActionDef;
 import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.service.impl.ModeService;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.cache.interceptor.SimpleKey;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
@@ -24,26 +22,7 @@ import java.util.Objects;
 public class CacheConfig implements CachingConfigurer {
 
     private final ModeService modeService;
-    private final XdoSceneService stateService;
     private final ButtonPressMapper buttonPressMapper;
-
-    @Bean
-    public KeyGenerator sceneRelevanceClickCacheGen() {
-        return (target, method, params) -> {
-            Object[] nnPrms = Arrays.stream(params)
-                    .filter(Objects::nonNull)
-                    .toArray(Object[]::new);
-
-            CachedButtonActionDef bad = Arrays.stream(nnPrms)
-                    .filter(ButtonActionDef.class::isInstance)
-                    .map(ButtonActionDef.class::cast)
-                    .map(buttonPressMapper::mapCache)
-                    .findFirst()
-                    .orElse(null);
-
-            return new SimpleKey(bad, stateService.getLastRecognizedScene());
-        };
-    }
 
     @Override
     public KeyGenerator keyGenerator() {

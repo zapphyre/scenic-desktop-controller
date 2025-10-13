@@ -25,8 +25,8 @@ public class RepeatingAxisAdapter {
     private final AxisEventProcessorFactory axisEventProcessorFactory;
 
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
-                                AxisEventProcessorFactory axisEventProcessorFactory, ScheduledExecutorService executorService,
-                                CacheManager cacheManager, PolarCoordsMapper polarCoordsMapper, ModeService modeService) {
+                                AxisEventProcessorFactory axisEventProcessorFactory, CacheManager cacheManager,
+                                PolarCoordsMapper polarCoordsMapper, ModeService modeService) {
         this.axisEventProcessorFactory = axisEventProcessorFactory;
 
         for (GamepadDto g : modeService.getAllGamepads()) {
