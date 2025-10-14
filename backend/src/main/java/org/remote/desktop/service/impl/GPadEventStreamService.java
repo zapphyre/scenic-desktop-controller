@@ -83,7 +83,7 @@ public class GPadEventStreamService {
                 .orElseGet(() -> of(sceneDto)
                         .map(isIncomingQualificatorRelevantForCurrentScene(click))
                         .map(funky(q -> cache.put(new SimpleKey(caClick, sceneDto), q)))
-                        .map(funky(logFun("saving relevancy '%s' for scene: %s with trigger: %s", sceneDto.getName(), click.getTrigger())))
+                        .map(funky(logFun("saving relevancy '{}' for scene: {} with trigger: {}", sceneDto.getName(), click.getTrigger())))
                         .orElse(false));
     }
 
