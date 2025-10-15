@@ -18,14 +18,11 @@ import static org.remote.desktop.db.dao.SceneDao.SCENE_ACTIONS_CACHE_NAME;
 public class XdoActionService {
 
     private final XdoActionDao xdoActionDao;
-    private final List<String> winderOps = List.of();
 
     @Cacheable(SCENE_ACTIONS_CACHE_NAME)
     public List<String> getAllCurrentXdoStrokes(EKeyEvt eKeyEvt) {
         return switch (eKeyEvt) {
-            default -> xdoActionDao.getAllCurrentXdoStrokes().stream()
-                    .filter(Predicate.not(winderOps::contains))
-                    .toList();
+            default -> xdoActionDao.getAllCurrentXdoStrokes();
         } ;
     }
 

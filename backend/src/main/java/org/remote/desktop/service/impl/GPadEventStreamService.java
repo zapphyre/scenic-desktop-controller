@@ -93,7 +93,6 @@ public class GPadEventStreamService {
         return scene -> {
             Set<EventDto> eventsRelevantForCurrentClickModificators = Objects.isNull(click.getModifiers()) ?
                     Set.of() : scrape.apply(scene).stream()
-                    .filter(deepNonNull)
                     .filter(modifiersRelevant(click))
                     .collect(Collectors.toSet());
 
@@ -110,7 +109,7 @@ public class GPadEventStreamService {
     }
 
     Predicate<EventDto> modifiersRelevant(ButtonActionDef click) {
-        return modifiersEmpty(click).or(modifiersEqual(click));
+        return deepNonNull.and(modifiersEmpty(click).or(modifiersEqual(click)));
     }
 
     Predicate<EventDto> modifiersEqual(ButtonActionDef click) {

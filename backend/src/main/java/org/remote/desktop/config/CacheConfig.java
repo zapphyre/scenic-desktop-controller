@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -33,26 +34,18 @@ public class CacheConfig implements CachingConfigurer {
                     .filter(Objects::nonNull)
                     .toArray(Object[]::new);
 
-            CachedButtonActionDef bad = Arrays.stream(nnPrms)
-                    .flatMap(only(ButtonActionDef.class))
+            CachedButtonActionDef bad = firstOfType(ButtonActionDef.class, nnPrms)
                     .map(buttonPressMapper::mapCache)
-                    .findFirst()
                     .orElse(null);
 
-            GamepadDevice dev = Arrays.stream(nnPrms)
-                    .flatMap(only(GamepadDevice.class))
-                    .findFirst()
-                    .orElseGet(() -> Arrays.stream(nnPrms)
-                            .flatMap(only(GamepadDto.class))
+            GamepadDevice dev = firstOfType(GamepadDevice.class, nnPrms)
+                    .orElseGet(() -> firstOfType(GamepadDto.class, nnPrms)
                             .map(q -> new GamepadDevice(q.getName(), q.getDev()))
-                            .findFirst()
-                            .orElseGet(() -> Arrays.stream(nnPrms)
-                                    .flatMap(only(ButtonActionDef.class))
-                                    .findFirst()
+                            .orElseGet(() -> firstOfType(ButtonActionDef.class, nnPrms)
                                     .map(ButtonActionDef::getDevice)
-                                    .orElse(null)
-                            )
-                    );
+                                    .orElse(null)));
+
+//            return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
 
             if (bad != null && dev != null)
                 return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
@@ -65,6 +58,12 @@ public class CacheConfig implements CachingConfigurer {
 
             return new SimpleKey(nnPrms);
         };
+    }
+
+    <T> Optional<T> firstOfType(Class<T> clazz, Object[] nnPrms) {
+        return Arrays.stream(nnPrms)
+                .flatMap(only(clazz))
+                .findFirst();
     }
 
     <T> Function<Object, Stream<T>> only(Class<T> clazz) {
