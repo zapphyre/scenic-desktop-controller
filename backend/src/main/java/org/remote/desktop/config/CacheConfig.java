@@ -45,18 +45,7 @@ public class CacheConfig implements CachingConfigurer {
                                     .map(ButtonActionDef::getDevice)
                                     .orElse(null)));
 
-//            return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
-
-            if (bad != null && dev != null)
-                return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
-
-            if (dev != null)
-                return new SimpleKey(nnPrms, modeService.getCurrentModeNameFor(dev));
-
-            if (bad != null)
-                return new SimpleKey(bad, nnPrms);
-
-            return new SimpleKey(nnPrms);
+            return new SimpleKey(bad, nnPrms, modeService.getCurrentModeNameFor(dev));
         };
     }
 

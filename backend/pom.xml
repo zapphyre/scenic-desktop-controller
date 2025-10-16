@@ -275,7 +275,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> <!--why do i have this-->
+            </plugin>
         </plugins>
     </build>
 </project>
