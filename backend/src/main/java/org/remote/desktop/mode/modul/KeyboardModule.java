@@ -3,7 +3,6 @@ package org.remote.desktop.mode.modul;
 import lombok.RequiredArgsConstructor;
 import org.desktop.remote.mode.GpadOsActionModule;
 import org.remote.desktop.service.impl.StateService;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.remote.desktop.ui.model.EKeyboardInputButton;
 
@@ -12,8 +11,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.Set;
-
-import static org.remote.desktop.actuate.MouseAct.paste;
 
 //@Component
 @RequiredArgsConstructor

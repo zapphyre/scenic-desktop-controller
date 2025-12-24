@@ -7,11 +7,11 @@ import org.remote.desktop.service.impl.StateService;
 
 import java.util.List;
 
-import static jxdotool.xDoToolUtil.*;
+import static jxdotool.YdoToolUtil.*;
 
 //@Component
 @RequiredArgsConstructor
-public class XdoActionModule implements GpadOsActionModule {
+public class YdoActionModule implements GpadOsActionModule {
 
     private final StateService stateService;
 
@@ -39,15 +39,16 @@ public class XdoActionModule implements GpadOsActionModule {
     @Override
     public boolean handleEvent(String verb, List<String> noun) {
         String xdoKeyPart = String.join("+", noun);
-//        System.out.println("xdoKeyPart: " + e);
+        System.out.println("YdoKeyPart: " + xdoKeyPart);
+
         try {
             switch (verb) {
                 case "PRESS" -> keydown(xdoKeyPart);
                 case "STROKE" -> pressKey(xdoKeyPart);
                 case "RELEASE" -> keyup(xdoKeyPart);
                 case "CLICK" -> click(xdoKeyPart);
-                case "MOUSE_DOWN" -> xDo("mousedown", xdoKeyPart);
-                case "MOUSE_UP" -> xDo("mouseup", xdoKeyPart);
+                case "MOUSE_DOWN" -> mousedown(xdoKeyPart);
+                case "MOUSE_UP" -> mouseup(xdoKeyPart);
                 case "TIMEOUT" -> Thread.sleep(Integer.parseInt(xdoKeyPart));
                 case "SCENE_RESET" -> stateService.nullifyForced();
                 case "CLIPBOARD" -> {

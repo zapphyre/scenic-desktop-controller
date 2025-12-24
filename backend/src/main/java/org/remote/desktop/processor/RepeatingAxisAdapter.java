@@ -9,25 +9,25 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
-import static org.remote.desktop.util.FluxUtil.axisEventConsumerMap;
-import static org.remote.desktop.util.FluxUtil.easerMap;
 import static org.zapphyre.function.FunHelper.*;
 
 @Component
 public class RepeatingAxisAdapter {
 
     private final AxisEventProcessorFactory axisEventProcessorFactory;
+    private final FluxUtil fluxUtil;
 
     public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, CacheManager cacheManager,
-                                PolarCoordsMapper polarCoordsMapper, ModeService modeService) {
+                                PolarCoordsMapper polarCoordsMapper, ModeService modeService, FluxUtil fluxUtil) {
         this.axisEventProcessorFactory = axisEventProcessorFactory;
+        this.fluxUtil = fluxUtil;
 
         for (GamepadDto g : modeService.getAllGamepads()) {
             var right = new InlineEasingFluxDecorator<>(
@@ -35,9 +35,9 @@ public class RepeatingAxisAdapter {
                     axisEventProcessorFactory.rightPolarFlux()
                             .filter(q -> q.getDevice().name().equals(g.getName()))
                             .map(polarCoordsMapper::mapRep),
-                    easerMap,
+                    fluxUtil.easerMap,
                     SceneDto::getRightAxisEaser,
-                    axisEventConsumerMap,
+                    fluxUtil.getAxisEventConsumerMap(),
                     SceneDto::getRightAxisEvent
             );
 
@@ -46,9 +46,9 @@ public class RepeatingAxisAdapter {
                     axisEventProcessorFactory.leftPolarFlux()
                             .filter(q -> q.getDevice().name().equals(g.getName()))
                             .map(polarCoordsMapper::mapRep),
-                    easerMap,
+                    fluxUtil.easerMap,
                     SceneDto::getLeftAxisEaser,
-                    axisEventConsumerMap,
+                    fluxUtil.getAxisEventConsumerMap(),
                     SceneDto::getLeftAxisEvent
             );
 

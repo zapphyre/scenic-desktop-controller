@@ -2,7 +2,6 @@ package org.remote.desktop.event.keyboard;
 
 import lombok.RequiredArgsConstructor;
 import org.asmus.model.EButtonAxisMapping;
-import org.remote.desktop.actuate.MouseAct;
 import org.remote.desktop.model.event.keyboard.KeyboardWidgetControlEvent;
 import org.remote.desktop.model.event.keyboard.LongHoldEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
@@ -12,9 +11,6 @@ import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
 import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
@@ -89,8 +85,8 @@ public class KeyboardWidgetMainActuator implements ApplicationListener<Predictio
         public void onApplicationEvent(KeyboardWidgetControlEvent event) {
             if (event.isOn())
                 widget.render();
-            else
-                MouseAct.paste();
+//            else
+//                XdoMouseAct.paste();
         }
     }
 }

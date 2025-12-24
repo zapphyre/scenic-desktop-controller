@@ -6,6 +6,7 @@ import org.remote.desktop.GamepadDesktopController;
 import org.remote.desktop.mode.modul.AnalogAdjustModule;
 import org.remote.desktop.mode.modul.KeyboardModule;
 import org.remote.desktop.mode.modul.XdoActionModule;
+import org.remote.desktop.mode.modul.YdoActionModule;
 import org.remote.desktop.service.impl.StateService;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
@@ -39,7 +40,8 @@ public class GpadOsModuleLoader {
     public Map<String, GpadOsActionModule> actuatorModules(StateService stateService,
                                                            CircleButtonsInputWidget widget) {
         ClassLoader pluginClassLoader = loadPlugins();
-        XdoActionModule xdoActionModule = new XdoActionModule(stateService);
+//        XdoActionModule xdoActionModule = new XdoActionModule(stateService);
+        YdoActionModule xdoActionModule = new YdoActionModule(stateService);
         KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
         AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher);
 

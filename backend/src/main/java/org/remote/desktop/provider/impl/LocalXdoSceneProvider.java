@@ -4,8 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jxdotool.xDoToolUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.remote.desktop.provider.XdoSceneProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.remote.desktop.provider.SceneProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LocalXdoSceneProvider implements XdoSceneProvider {
+public class LocalXdoSceneProvider implements SceneProvider {
 
     private String lastRecognized = "";
 
@@ -51,7 +50,8 @@ public class LocalXdoSceneProvider implements XdoSceneProvider {
                 .completeOnTimeout(lastRecognized, timeout, TimeUnit.MILLISECONDS);
 
         try {
-            return future.get(21, TimeUnit.MILLISECONDS);
+            String s = future.get(21, TimeUnit.MILLISECONDS);
+            return s;
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             log.error("scene script timed out");
             return lastRecognized;

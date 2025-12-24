@@ -1,7 +1,7 @@
 package org.remote.desktop.actuate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.asmus.model.PolarCoords;
 
 import java.awt.*;
@@ -12,20 +12,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.asmus.model.NamingConstants.MAX;
 import static org.remote.desktop.util.NumUtil.mapVal;
 
-@UtilityClass
-public class MouseAct {
+@RequiredArgsConstructor
+public class XdoMouseAct implements PointingService {
     double sensitivity = 0.004;
-    final static Robot robot;
+    private final Robot robot;
 
-    static {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void paste() {
+    public void paste() {
         click();
         robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_V);
@@ -33,12 +25,12 @@ public class MouseAct {
         robot.keyRelease(KeyEvent.VK_CONTROL);
     }
 
-    public static void click() {
+    public  void click() {
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
-    public static void moveMouse(PolarCoords polarCoords) {
+    public void moveMouse(PolarCoords polarCoords) {
         double scaledRadius = polarCoords.getRadius();
 
         scaledRadius = mapVal(scaledRadius, -32767, 32768, -10, 10);
@@ -56,7 +48,7 @@ public class MouseAct {
     }
 
     double sen = 0.0136D;
-    public static void scrollR(PolarCoords coords) {
+    public void scrollR(PolarCoords coords) {
         double radius = coords.getRadius(); // Example value within your range
         double mappedRadius = mapVal(radius, -0, 32768, 0, 2_000_000); // One third of the range
 
@@ -70,7 +62,7 @@ public class MouseAct {
     }
 
     AtomicInteger drop = new  AtomicInteger(0);
-    public static void scrollWithStick(PolarCoords coords) {
+    public void scrollWithStick(PolarCoords coords) {
 
         if (coords.isZero() ||  drop.incrementAndGet() < 12) {
             return;
@@ -107,7 +99,7 @@ public class MouseAct {
 
     int delay = 3; // milliseconds between each scroll step
     @SneakyThrows
-    public static void scroll(PolarCoords coords) {
+    public void scroll(PolarCoords coords) {
         double theta = coords.getTheta(); // 45 degrees in radians
         double radius = coords.getRadius(); // Example value within your range
 

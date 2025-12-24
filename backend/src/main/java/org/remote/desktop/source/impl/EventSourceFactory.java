@@ -9,6 +9,7 @@ import org.remote.desktop.processor.ArrowsAdapter;
 import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.processor.RepeatingAxisAdapter;
+import org.remote.desktop.provider.SceneProvider;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class EventSourceFactory {
 
     private final SettingsDao settingsDao;
     private final XdoSceneService xdoSceneService;
-    private final LocalXdoSceneProvider localXdoSceneProvider;
+    private final SceneProvider sceneProvider;
 
     @Getter
     private LocalSource localSource;
@@ -45,7 +46,7 @@ public class EventSourceFactory {
                 .digitizedTriggerAdapter(digitizedTriggerAdapter)
                 .axisAdapter(axisAdapter)
                 .definition(def)
-                .localXdoSceneProvider(localXdoSceneProvider)
+                .sceneProvider(sceneProvider)
                 .xdoSceneService(xdoSceneService)
                 .settingsDao(settingsDao)
                 .build();

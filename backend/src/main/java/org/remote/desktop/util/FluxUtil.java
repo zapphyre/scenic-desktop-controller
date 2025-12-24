@@ -1,29 +1,27 @@
 package org.remote.desktop.util;
 
-import lombok.experimental.UtilityClass;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.asmus.model.ELogicalEventType;
-import org.asmus.model.PolarCoords;
-import org.remote.desktop.actuate.MouseAct;
+import org.remote.desktop.actuate.PointingService;
+import org.remote.desktop.actuate.XdoMouseAct;
 import org.remote.desktop.model.*;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import static org.remote.desktop.model.EAxisEaser.*;
 
-@UtilityClass
+@Service
+@RequiredArgsConstructor
 public class FluxUtil {
+
+    private final PointingService pointingService;
 
     int TRIGGER_EASING_INTERVAL = 141;
 
@@ -64,32 +62,33 @@ public class FluxUtil {
         return flux.map(adjustRadiusForScroll);
     }
 
-    public static final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap = Map.of(
-            EAxisEvent.MOUSE, MouseAct::moveMouse,
-//            EAxisEvent.SCROLL, MouseAct::scroll,
-//            EAxisEvent.SCROLL, MouseAct::scrollR,
-            EAxisEvent.SCROLL, MouseAct::scrollWithStick,
-            EAxisEvent.VOL, e -> {
-                System.out.println("lowering volume");
-            },
-            EAxisEvent.NOOP, e -> {
-            }
-    );
+    @Getter(lazy = true)
+    private final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap =
+            createAxisEventConsumerMap();
 
-    public static final Map<ETriggerEvent, Consumer<ButtonActionDef>> triggerEventConsumerMap = Map.of(
+    private Map<EAxisEvent, Consumer<RepeatablePolarCoords>> createAxisEventConsumerMap() {
+        return Map.of(
+                EAxisEvent.MOUSE, pointingService::moveMouse,
+                EAxisEvent.SCROLL, pointingService::scrollWithStick,
+                EAxisEvent.VOL, e -> System.out.println("lowering volume"),
+                EAxisEvent.NOOP, e -> {}
+        );
+    }
+
+    public final Map<ETriggerEvent, Consumer<ButtonActionDef>> triggerEventConsumerMap = Map.of(
             ETriggerEvent.VOLUME_DOWN, q -> System.out.println("lowering volume"),
             ETriggerEvent.VOLUME_UP, q -> System.out.println("increasing volume")
     );
 
-    public static final Map<EAxisEaser, Function<Flux<RepeatablePolarCoords>, Flux<RepeatablePolarCoords>>> easerMap =
+    public final Map<EAxisEaser, Function<Flux<RepeatablePolarCoords>, Flux<RepeatablePolarCoords>>> easerMap =
             Map.of(
-                    CONTINUOUS, FluxUtil::repeat,
+                    CONTINUOUS, this::repeat,
                     NONE, Function.identity()
             );
 
-    public static final Map<EAxisEaser, Function<Flux<ButtonActionDef>, Flux<ButtonActionDef>>> GEeaserMap = Map.of(
-            CONTINUOUS, FluxUtil::repeatGE,
-            EDGE_STEPPER, FluxUtil::repeatGEdge,
+    public Map<EAxisEaser, Function<Flux<ButtonActionDef>, Flux<ButtonActionDef>>> GEeaserMap = Map.of(
+            CONTINUOUS, this::repeatGE,
+            EDGE_STEPPER, this::repeatGEdge,
             NONE, Function.identity()
     );
 

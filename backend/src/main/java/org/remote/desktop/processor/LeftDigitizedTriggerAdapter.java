@@ -8,13 +8,13 @@ import org.remote.desktop.component.TriggerActionMatcher;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.mapper.ButtonPressMapper;
 import org.remote.desktop.model.ButtonActionDef;
-import org.remote.desktop.model.EAxisEvent;
 import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
@@ -22,20 +22,19 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Predicate;
 
 import static org.remote.desktop.util.ETriggerFilter.trigger;
-import static org.remote.desktop.util.FluxUtil.GEeaserMap;
-import static org.remote.desktop.util.FluxUtil.triggerEventConsumerMap;
 
 @Primary
 @Component
 public class LeftDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
 
-    public LeftDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService, ModeService modeService) {
+    private final FluxUtil fluxUtil;
+
+    public LeftDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService, ModeService modeService, FluxUtil fluxUtil) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao, cacheManager, sceneService, xdoSceneService, modeService);
+        this.fluxUtil = fluxUtil;
     }
 
     @Override
@@ -43,9 +42,9 @@ public class LeftDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
         return new InlineEasingFluxDecorator<>(
                 cacheManager,
                 gamepadEvents,
-                GEeaserMap,
+                fluxUtil.GEeaserMap,
                 SceneDto::getLeftTriggerEaser,
-                triggerEventConsumerMap,
+                fluxUtil.triggerEventConsumerMap,
                 SceneDto::getLeftTriggerEvent
         );
     }

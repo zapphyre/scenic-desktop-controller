@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
+import org.remote.desktop.provider.SceneProvider;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.remote.desktop.service.impl.XdoSceneService;
 
@@ -20,7 +21,7 @@ public class LocalSource extends BaseSource {
 
     SettingsDao settingsDao;
     XdoSceneService xdoSceneService;
-    LocalXdoSceneProvider localXdoSceneProvider;
+    SceneProvider sceneProvider;
 
     @Override
     public ESourceEvent connect() {
@@ -38,7 +39,7 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream(), axisAdapter.leftAxis());
         connectAndRemember(worker.getAxisStream(), axisAdapter.rightAxis());
 
-        xdoSceneService.setSceneProvider(localXdoSceneProvider::tryGetCurrentName);
+        xdoSceneService.setSceneProvider(sceneProvider::tryGetCurrentName);
 
         return state = ESourceEvent.CONNECTED;
     }

@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.GpadCommandEvent;
+import org.remote.desktop.provider.SceneProvider;
 import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,8 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     @Setter
     private Supplier<String> sceneProvider;
 
-    public XdoSceneService(LocalXdoSceneProvider localXdoSceneProvider, SceneDao sceneDao) {
-        this.sceneProvider = localXdoSceneProvider::tryGetCurrentName;
+    public XdoSceneService(SceneProvider sceneProvider, SceneDao sceneDao) {
+        this.sceneProvider = sceneProvider::tryGetCurrentName;
         this.sceneDao = sceneDao;
     }
 
