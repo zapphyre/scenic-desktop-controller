@@ -7,7 +7,6 @@ import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.pojo.KeyPart;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;

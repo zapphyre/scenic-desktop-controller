@@ -6,7 +6,6 @@ import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.GpadCommandEvent;
 import org.remote.desktop.provider.SceneProvider;
-import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ import static org.zapphyre.function.FunHelper.chew;
 import static org.zapphyre.function.FunHelper.funky;
 
 @Service
-public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
+public class SceneManager implements ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
     private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
@@ -30,9 +29,10 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
     @Setter
     private Supplier<String> sceneProvider;
 
-    public XdoSceneService(SceneProvider sceneProvider, SceneDao sceneDao) {
+    public SceneManager(SceneProvider sceneProvider, SceneDao sceneDao) {
         this.sceneProvider = sceneProvider::tryGetCurrentName;
         this.sceneDao = sceneDao;
+        this.lastRecognizedScene = sceneDao.getSceneForWindowNameOrBase(sceneProvider.tryGetCurrentName(), "DESKTOP");
     }
 
     @Getter
@@ -52,7 +52,7 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
                 .ifPresent(q -> forcedSceneObservers.forEach(p -> p.accept((q))));
     }
 
-    void setLastDesktopRecognized(String windowName) {
+    public void setLastDesktopRecognized(String windowName) {
         Optional.ofNullable(sceneDao.getSceneByWindowName(windowName, "DESKTOP"))
                 .filter(p -> p.getMode().getScenic())
                 .ifPresent(p -> lastRecognizedScene = p);
@@ -90,6 +90,10 @@ public class XdoSceneService implements ApplicationListener<GpadCommandEvent> {
 
     @Override
     public boolean supportsAsyncExecution() {
-        return true;
+        return false;
+    }
+
+    public void update() {
+        recognizedSceneObservers.forEach(q -> q.accept(lastRecognizedWindowName));
     }
 }

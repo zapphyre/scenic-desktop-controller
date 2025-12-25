@@ -13,7 +13,7 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,7 +30,7 @@ public class RightDigitizedTriggerAdapter extends DigitizedTriggerAdapter {
 
     private final FluxUtil fluxUtil;
 
-    public RightDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService, ModeService modeService, FluxUtil fluxUtil) {
+    public RightDigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, SceneManager xdoSceneService, ModeService modeService, FluxUtil fluxUtil) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao, cacheManager, sceneService, xdoSceneService, modeService);
         this.fluxUtil = fluxUtil;
     }

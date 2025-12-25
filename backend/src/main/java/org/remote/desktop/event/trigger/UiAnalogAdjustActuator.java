@@ -6,7 +6,7 @@ import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.select.AnalogControllerSelectEvent;
 import org.remote.desktop.model.event.select.UiAnalogAdjustEvent;
 import org.remote.desktop.service.impl.SceneService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.remote.desktop.ui.select.UnoSelectApplication;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
 import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
@@ -22,7 +22,7 @@ public class UiAnalogAdjustActuator implements ApplicationListener<UiAnalogAdjus
 
     private final UnoSelectApplication<EAnalogControl> unoSelectApplication;
 
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
     private final SceneService sceneService;
 
     private SceneDto adjustScene;

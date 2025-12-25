@@ -5,7 +5,7 @@ import org.asmus.model.EButtonAxisMapping;
 import org.remote.desktop.model.event.keyboard.KeyboardWidgetControlEvent;
 import org.remote.desktop.model.event.keyboard.LongHoldEvent;
 import org.remote.desktop.model.event.keyboard.PredictionControlEvent;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.remote.desktop.ui.model.EKeyboardInputButton;
 import org.springframework.context.ApplicationListener;
@@ -20,7 +20,7 @@ import static org.remote.desktop.mode.modul.KeyboardModule.copyToClipboard;
 public class KeyboardWidgetMainActuator implements ApplicationListener<PredictionControlEvent> {
 
     private final CircleButtonsInputWidget widget;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
     private final List<String> regularButtons = List.of("A", "X", "Y", "B");
 
     @Override

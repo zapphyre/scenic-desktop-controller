@@ -16,7 +16,7 @@ import org.remote.desktop.model.dto.*;
 import org.remote.desktop.model.event.NoopCommandEvent;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,7 @@ public class StickGestureProcessor implements AppEventMapper {
 
     private final AxisEventProcessorFactory axisEventProcessorFactory;
     private final TriggerActionMatcher triggerActionMatcher;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
     private final ButtonAdapter buttonAdapter;
     private final SceneService sceneService;
     private final ModeService modeService;

@@ -7,7 +7,7 @@ import org.remote.desktop.model.ETriggerEvent;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.StateService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.remote.desktop.ui.select.axis.AxisUiSelector;
 import org.remote.desktop.ui.select.trigger.TriggerUiSelector;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ public class AxisSelectorConfig {
 
     private final SceneService sceneDao;
     private final StateService stateService;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
 
     @Bean
     @Primary

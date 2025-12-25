@@ -10,8 +10,7 @@ import org.remote.desktop.processor.ButtonAdapter;
 import org.remote.desktop.processor.DigitizedTriggerAdapter;
 import org.remote.desktop.processor.RepeatingAxisAdapter;
 import org.remote.desktop.provider.SceneProvider;
-import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.zapphyre.discovery.model.WebSourceDef;
@@ -29,7 +28,7 @@ public class EventSourceFactory {
     private final JoyWorker worker;
 
     private final SettingsDao settingsDao;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
     private final SceneProvider sceneProvider;
 
     @Getter

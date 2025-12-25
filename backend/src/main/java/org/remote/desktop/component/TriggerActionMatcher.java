@@ -8,7 +8,7 @@ import org.remote.desktop.model.AppEventMapper;
 import org.remote.desktop.model.ButtonActionDef;
 import org.remote.desktop.model.NextSceneXdoAction;
 import org.remote.desktop.service.impl.GPadEventStreamService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ public class TriggerActionMatcher {
 
     private final GPadEventStreamService gPadEventStreamService;
     private final ButtonPressMapper buttonPressMapper;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
 
     public Function<ButtonActionDef, List<ApplicationEvent>> appEventMapper(AppEventMapper mapper) {
         return button -> {
@@ -47,7 +47,7 @@ public class TriggerActionMatcher {
                 .orElse(null);
     }
 
-    Function<ActionMatch,    NextSceneXdoAction> getAction(GamepadDevice device) {
+    Function<ActionMatch, NextSceneXdoAction> getAction(GamepadDevice device) {
         return of(device)
                 .map(this::actionMapForCurrentScene)
                 .map(this::actionMatcher)

@@ -57,22 +57,16 @@ public class YdoMouseAct implements PointingService {
 
 //        System.out.println("rawRadius: " + rawRadius + " thetaRad: " + thetaRad);
 
-        // Deadzone – ignore small inputs
-        if (rawRadius < 2000) {
-            return;
-        }
-
         // Scale magnitude: full stick = strong scroll
-        double scaledMagnitude = mapVal(rawRadius, 2000, 32768, 0, 1);  // 0 to 8 "units"
+        double scaledMagnitude = mapVal(rawRadius, 0, 32768, 0, 2);  // 0 to 8 "units"
 
         // Optional: acceleration curve for better feel
         scaledMagnitude = Math.pow(scaledMagnitude / 8.0, 1.3) * 8.0;
 
         int magnitude = (int) Math.round(scaledMagnitude);
 
-        if (magnitude == 0) {
+        if (magnitude == 0)
             return;
-        }
 
         // Compute direction components
         double dx = magnitude * Math.cos(thetaRad);  // right > 0

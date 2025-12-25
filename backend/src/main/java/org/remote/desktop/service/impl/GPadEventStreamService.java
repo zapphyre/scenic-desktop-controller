@@ -23,7 +23,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -40,7 +39,7 @@ import static org.zapphyre.function.FunHelper.*;
 public class GPadEventStreamService {
 
     private final SceneService sceneService;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
     private final ButtonPressMapper buttonPressMapper;
     private final ActivatorGroupingEventMapper activatorGroupingEventMapper;
 

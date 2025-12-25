@@ -3,16 +3,11 @@ package org.remote.desktop.config;
 import javafx.scene.paint.Color;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SettingsDao;
-import org.remote.desktop.model.dto.SettingDto;
 import org.remote.desktop.service.impl.LanguageService;
-import org.remote.desktop.service.impl.SceneService;
 import org.remote.desktop.service.impl.TrieService;
-import org.remote.desktop.service.impl.XdoSceneService;
 import org.remote.desktop.ui.CircleButtonsInputWidget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Optional;
 
 import static org.zapphyre.function.FunHelper.eat;
 

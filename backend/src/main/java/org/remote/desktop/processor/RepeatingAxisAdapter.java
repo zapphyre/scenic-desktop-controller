@@ -8,7 +8,7 @@ import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.remote.desktop.util.FluxUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -21,13 +21,11 @@ import static org.zapphyre.function.FunHelper.*;
 public class RepeatingAxisAdapter {
 
     private final AxisEventProcessorFactory axisEventProcessorFactory;
-    private final FluxUtil fluxUtil;
 
-    public RepeatingAxisAdapter(SceneService sceneService, XdoSceneService xdoSceneService,
+    public RepeatingAxisAdapter(SceneService sceneService, SceneManager xdoSceneService,
                                 AxisEventProcessorFactory axisEventProcessorFactory, CacheManager cacheManager,
                                 PolarCoordsMapper polarCoordsMapper, ModeService modeService, FluxUtil fluxUtil) {
         this.axisEventProcessorFactory = axisEventProcessorFactory;
-        this.fluxUtil = fluxUtil;
 
         for (GamepadDto g : modeService.getAllGamepads()) {
             var right = new InlineEasingFluxDecorator<>(
@@ -53,8 +51,9 @@ public class RepeatingAxisAdapter {
             );
 
             glob(xdoSceneService::registerRecognizedSceneObserverChange, xdoSceneService::registerForcedSceneObserver)
-                    .to(chew(sceneService.getSceneForModeAndWindowNameOrBase(modeService.getAllGamepads().getFirst()), pipe(left::setScene, right::setScene)));
+                    .to(chew(sceneService.getSceneForModeAndWindowNameOrBase(g), pipe(left::setScene, right::setScene)));
 
+            xdoSceneService.update();
         }
     }
 

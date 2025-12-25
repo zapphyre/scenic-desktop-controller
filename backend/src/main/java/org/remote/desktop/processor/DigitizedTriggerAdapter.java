@@ -12,17 +12,13 @@ import org.remote.desktop.model.dto.GamepadDto;
 import org.remote.desktop.service.impl.GPadEventStreamService;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.SceneService;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import static org.zapphyre.function.FunHelper.chew;
@@ -32,10 +28,10 @@ public abstract class DigitizedTriggerAdapter extends ButtonProcessorBase {
 
     protected final CacheManager cacheManager;
     protected final SceneService sceneService;
-    protected final XdoSceneService xdoSceneService;
+    protected final SceneManager xdoSceneService;
     private final ModeService modeService;
 
-    public DigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, XdoSceneService xdoSceneService, ModeService modeService) {
+    public DigitizedTriggerAdapter(ButtonPressMapper buttonPressMapper, ApplicationEventPublisher eventPublisher, GPadEventStreamService gPadEventStreamService, IntrospectedEventFactory gamepadObserver, TriggerActionMatcher triggerActionMatcher, Scheduler executor, SettingsDao settingsDao, CacheManager cacheManager, SceneService sceneService, SceneManager xdoSceneService, ModeService modeService) {
         super(buttonPressMapper, eventPublisher, gPadEventStreamService, gamepadObserver, triggerActionMatcher, executor, settingsDao);
 
         this.cacheManager = cacheManager;

@@ -63,17 +63,12 @@ public class FluxUtil {
     }
 
     @Getter(lazy = true)
-    private final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap =
-            createAxisEventConsumerMap();
-
-    private Map<EAxisEvent, Consumer<RepeatablePolarCoords>> createAxisEventConsumerMap() {
-        return Map.of(
-                EAxisEvent.MOUSE, pointingService::moveMouse,
-                EAxisEvent.SCROLL, pointingService::scrollWithStick,
-                EAxisEvent.VOL, e -> System.out.println("lowering volume"),
-                EAxisEvent.NOOP, e -> {}
-        );
-    }
+    private final Map<EAxisEvent, Consumer<RepeatablePolarCoords>> axisEventConsumerMap = Map.of(
+                    EAxisEvent.MOUSE, pointingService::moveMouse,
+                    EAxisEvent.SCROLL, pointingService::scrollWithStick,
+                    EAxisEvent.VOL, e -> System.out.println("lowering volume"),
+                    EAxisEvent.NOOP, e -> {}
+            );
 
     public final Map<ETriggerEvent, Consumer<ButtonActionDef>> triggerEventConsumerMap = Map.of(
             ETriggerEvent.VOLUME_DOWN, q -> System.out.println("lowering volume"),

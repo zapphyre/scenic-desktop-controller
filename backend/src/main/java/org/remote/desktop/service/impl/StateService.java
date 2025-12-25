@@ -21,7 +21,7 @@ public class StateService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final KeyboardStateRepository keyboardStateRepository;
-    private final XdoSceneService xdoSceneService;
+    private final SceneManager xdoSceneService;
 
 
     @PostConstruct

@@ -8,8 +8,7 @@ import org.asmus.service.JoyWorker;
 import org.remote.desktop.db.dao.SettingsDao;
 import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.provider.SceneProvider;
-import org.remote.desktop.provider.impl.LocalXdoSceneProvider;
-import org.remote.desktop.service.impl.XdoSceneService;
+import org.remote.desktop.service.impl.SceneManager;
 
 @Slf4j
 @Value
@@ -20,7 +19,7 @@ public class LocalSource extends BaseSource {
     JoyWorker worker;
 
     SettingsDao settingsDao;
-    XdoSceneService xdoSceneService;
+    SceneManager xdoSceneService;
     SceneProvider sceneProvider;
 
     @Override
