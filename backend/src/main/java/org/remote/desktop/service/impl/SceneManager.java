@@ -90,7 +90,7 @@ public class SceneManager implements ApplicationListener<GpadCommandEvent> {
 
     @Override
     public boolean supportsAsyncExecution() {
-        return false;
+        return true;
     }
 
     public void update() {

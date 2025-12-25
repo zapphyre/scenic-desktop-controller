@@ -2,6 +2,10 @@ package org.remote.desktop.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.io.Serializable;
+import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.Method;
+
 @UtilityClass
 public class TextUtil {
 
@@ -19,5 +23,17 @@ public class TextUtil {
         while (pos < text.length() && !Character.isWhitespace(text.charAt(pos))) pos++;
         while (pos < text.length() && Character.isWhitespace(text.charAt(pos))) pos++;
         return pos;
+    }
+
+    public static String extractMethodName(Serializable lambda) {
+        try {
+            Method writeReplace = lambda.getClass().getDeclaredMethod("writeReplace");
+            writeReplace.setAccessible(true);
+
+            SerializedLambda serialized = (SerializedLambda) writeReplace.invoke(lambda);
+            return serialized.getImplMethodName();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract method name", e);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package org.remote.desktop.component;
 
+import lombok.Getter;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.Repeatable;
 import org.remote.desktop.model.dto.SceneDto;
@@ -7,12 +8,17 @@ import org.springframework.cache.CacheManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
+import java.io.Serializable;
+import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.remote.desktop.util.TextUtil.extractMethodName;
 import static org.zapphyre.function.FunHelper.funky;
 import static org.zapphyre.function.FunHelper.logFun;
 
@@ -22,21 +28,24 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
     private final Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap;
     private final Function<SceneDto, EAxisEaser> easerGetter;
     private final String REPEATER_CACHE_NAME = "repeater";
-    private final Function<SceneDto, String> CACHE_KEY = q -> "EASER_SCENE_%s_TRIGGER_%s".formatted(q.getName(), q.getName()); //this key aint no good
+    private final BiFunction<SceneDto, String, String> CACHE_KEY = (q, p) -> "EASER_SCENE_%s_TRIGGER_%s".formatted(q.getName(), p);
 
     private final Sinks.Many<SceneDto> sceneSink = Sinks.many().unicast().onBackpressureBuffer();
     private final Sinks.Many<T> outputSink = Sinks.many().unicast().onBackpressureBuffer();
+
+    private final String triggerName;
 
     public InlineEasingFluxDecorator(CacheManager cacheManager,
                                      Flux<T> sourceFlux,
                                      Map<EAxisEaser, Function<Flux<T>, Flux<T>>> easerMap,
                                      Function<SceneDto, EAxisEaser> easerGetter,
                                      Map<E, Consumer<T>> consumerMap,
-                                     Function<SceneDto, E> axisActionGetter) {
+                                     SerializableFunction<SceneDto, E> axisActionGetter) {
         this.cacheManager = cacheManager;
         this.easerMap = easerMap;
         this.easerGetter = easerGetter;
 
+        triggerName = extractMethodName(axisActionGetter);
         sceneSink.asFlux()
                 .map(this::getCachedOrFreshEaser)
                 .switchMap(repeaterDef ->
@@ -62,8 +71,8 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
     }
 
     SceneAndRepeater<T> getCachedOrFreshEaser(SceneDto scene) {
-        return tryGetCachedEaser(CACHE_KEY.apply(scene)) instanceof SceneAndRepeater<T> c ?
-                c : getEaserAndCache(scene);
+        return tryGetCachedEaser(CACHE_KEY.apply(scene, triggerName)) instanceof SceneAndRepeater<T> c ?
+                    c : getEaserAndCache(scene);
     }
 
     private SceneAndRepeater<T> tryGetCachedEaser(String key) {
@@ -81,7 +90,7 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
                 //napisat util fun ktora bude sluzit ako podmienka na vukonanie funkcie a posunutia jeho vysledku alebo hodnoty
-//                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene))))
+                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene, triggerName))))
                 .apply(scene);
     }
 
