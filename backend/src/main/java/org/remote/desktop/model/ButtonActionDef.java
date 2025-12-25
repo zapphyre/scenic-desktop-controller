@@ -37,7 +37,7 @@ public class ButtonActionDef implements Repeatable {
 
     @Override
     public boolean isRepeatable() { // this should be rephrased more systematically
-        return logicalEventType.equals(ELogicalEventType.STEP_POSITIVE) ||
-                logicalEventType.equals(ELogicalEventType.STEP_NEGATIVE);
+        return position > 0 && (logicalEventType.equals(ELogicalEventType.STEP_POSITIVE) ||
+                logicalEventType.equals(ELogicalEventType.STEP_NEGATIVE));
     }
 }
