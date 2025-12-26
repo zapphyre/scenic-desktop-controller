@@ -1,6 +1,5 @@
 package org.remote.desktop.component;
 
-import lombok.Getter;
 import org.remote.desktop.model.EAxisEaser;
 import org.remote.desktop.model.Repeatable;
 import org.remote.desktop.model.dto.SceneDto;
@@ -8,12 +7,8 @@ import org.springframework.cache.CacheManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.io.Serializable;
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -86,10 +81,9 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
 
     private SceneAndRepeater<T> getEaserAndCache(SceneDto scene) {
         return easerGetter
-//                .andThen(funky(logFun("getting easer name: '{}'")))
+                .andThen(funky(logFun("getting easer name: '{}'")))
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
-                //napisat util fun ktora bude sluzit ako podmienka na vukonanie funkcie a posunutia jeho vysledku alebo hodnoty
                 .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene, triggerName))))
                 .apply(scene);
     }

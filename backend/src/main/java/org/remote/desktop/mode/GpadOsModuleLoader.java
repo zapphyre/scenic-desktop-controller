@@ -21,6 +21,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,39 +38,20 @@ public class GpadOsModuleLoader {
     public Map<String, GpadOsActionModule> actuatorModules(StateService stateService,
                                                            CircleButtonsInputWidget widget) {
         ClassLoader pluginClassLoader = loadPlugins();
+        List<GpadOsActionModule> providers = new ArrayList<>();
+
+        ServiceLoader<GpadOsActionModule> loader =
+                ServiceLoader.load(GpadOsActionModule.class, pluginClassLoader);
+
+        for (GpadOsActionModule gpadOsActionModule : loader)
+            providers.add(gpadOsActionModule);
+
 //        XdoActionModule xdoActionModule = new XdoActionModule(stateService);
         YdoActionModule xdoActionModule = new YdoActionModule(stateService);
         KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
         AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher);
 
         // Manually load providers
-        List<GpadOsActionModule> providers = new ArrayList<>();
-        try {
-            URL serviceFile = pluginClassLoader.getResource("META-INF/services/org.desktop.remote.module.winder.GpadOsActionModule");
-            if (serviceFile != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(serviceFile.openStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        line = line.trim();
-                        if (!line.isEmpty() && !line.startsWith("#")) {
-                            try {
-                                Class<?> clazz = pluginClassLoader.loadClass(line);
-                                if (GpadOsActionModule.class.isAssignableFrom(clazz)) {
-                                    GpadOsActionModule instance = (GpadOsActionModule) clazz.getDeclaredConstructor().newInstance();
-                                    providers.add(instance);
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Failed to load/instantiate provider " + line + ": " + e.getMessage());
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error reading service file: " + e.getMessage());
-            e.printStackTrace();
-        }
 
         System.out.println("Total providers loaded: " + providers.size());
 
