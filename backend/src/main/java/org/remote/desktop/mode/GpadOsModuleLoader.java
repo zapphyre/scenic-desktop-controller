@@ -12,9 +12,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,20 +38,13 @@ public class GpadOsModuleLoader {
         ClassLoader pluginClassLoader = loadPlugins();
         List<GpadOsActionModule> providers = new ArrayList<>();
 
-        ServiceLoader<GpadOsActionModule> loader =
-                ServiceLoader.load(GpadOsActionModule.class, pluginClassLoader);
-
-        for (GpadOsActionModule gpadOsActionModule : loader)
+        for (GpadOsActionModule gpadOsActionModule : ServiceLoader.load(GpadOsActionModule.class, pluginClassLoader))
             providers.add(gpadOsActionModule);
 
-//        XdoActionModule xdoActionModule = new XdoActionModule(stateService);
-        YdoActionModule xdoActionModule = new YdoActionModule(stateService);
-        KeyboardModule keyboardModule = new KeyboardModule(widget, stateService);
-        AnalogAdjustModule analogAdjustModule = new AnalogAdjustModule(eventPublisher);
-
-        // Manually load providers
-
-        System.out.println("Total providers loaded: " + providers.size());
+//        providers.add(new XdoActionModule(stateService));
+        providers.add(new YdoActionModule(stateService));
+        providers.add(new KeyboardModule(widget, stateService));
+        providers.add(new AnalogAdjustModule(eventPublisher));
 
         Map<String, GpadOsActionModule> moduleMap = providers.stream()
                 .collect(Collectors.toMap(
@@ -61,9 +52,6 @@ public class GpadOsModuleLoader {
                         Function.identity(),
                         laterMerger()
                 ));
-        moduleMap.put(xdoActionModule.getName(), xdoActionModule);
-        moduleMap.put(keyboardModule.getName(), keyboardModule);
-        moduleMap.put(analogAdjustModule.getName(), analogAdjustModule);
 
         System.out.println("Module map size: " + moduleMap.size());
         moduleMap.forEach((name, module) -> System.out.println("Module: " + name + " -> " + module.getClass().getName()));
