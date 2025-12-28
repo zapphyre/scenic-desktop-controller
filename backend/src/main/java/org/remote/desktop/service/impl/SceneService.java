@@ -24,7 +24,7 @@ public class SceneService {
     private final ModeService  modeService;
     private final GamepadMapper gamepadMapper;
 
-//    @Cacheable(SCENE_LIST_CACHE_NAME)
+    @Cacheable(SCENE_LIST_CACHE_NAME)
     public List<SceneVto> getAllSceneVtos(String mode) {
         return sceneDao.getAllSceneVtos(mode);
     }
@@ -38,7 +38,7 @@ public class SceneService {
         return sceneDao.getScene("system");
     }
 
-//    @Cacheable(SCENE_CACHE_NAME_CONTAINING)
+    @Cacheable(SCENE_CACHE_NAME_CONTAINING)
     public Function<String, SceneDto> getSceneForModeAndWindowNameOrBase(GamepadDto device) {
         return getSceneForModeAndWindowNameOrBase(gamepadMapper.map(device));
     }

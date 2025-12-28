@@ -23,8 +23,7 @@ public class KeyboardStateRepository implements ApplicationListener<GpadCommandE
 
     @Override
     public void onApplicationEvent(GpadCommandEvent event) {
-        System.out.printf("GpadCommandEvent: %s\n", event);
-        System.out.println("berofre process: " + pressedKeys);
+//        System.out.printf("GpadCommandEvent: %s\n", event);
 
         Optional.of(event)
                 .map(GpadCommandEvent::getKeyPart)
@@ -34,8 +33,6 @@ public class KeyboardStateRepository implements ApplicationListener<GpadCommandE
                     default -> true;
                 })
                 .ifPresent(q -> issuedCommandObservers.forEach(p -> p.accept(q)));
-
-        System.out.println("pressed keys: " + pressedKeys);
     }
 
     public void registerXdoCommandObserver(Consumer<KeyPart> observer) {

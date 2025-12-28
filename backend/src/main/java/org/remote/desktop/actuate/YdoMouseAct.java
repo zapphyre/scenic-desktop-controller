@@ -5,7 +5,6 @@ import org.asmus.model.PolarCoords;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import static jxdotool.YdoToolUtil.moveMousePolar;
 import static org.remote.desktop.util.NumUtil.mapVal;
 
 @Primary
@@ -50,32 +49,33 @@ public class YdoMouseAct implements PointingService {
         YdoToolUtil.moveMouse(dx, dy);
     }
 
-    @Override
+    private static final long SCROLL_COOLDOWN_MS = 111; // 500 ms
+    private volatile long lastScrollTime = 0;
+
     public void scrollWithStick(PolarCoords coords) {
-        double rawRadius = coords.getRadius();  // 0 to ~32_000
+        double rawRadius = coords.getRadius();
         double thetaRad = coords.getTheta();
 
-//        System.out.println("rawRadius: " + rawRadius + " thetaRad: " + thetaRad);
+        long now = System.currentTimeMillis();
 
-        // Scale magnitude: full stick = strong scroll
-        double scaledMagnitude = mapVal(rawRadius, 0, 32768, 0, 2);  // 0 to 8 "units"
+        if (now - lastScrollTime < SCROLL_COOLDOWN_MS) return;
 
-        // Optional: acceleration curve for better feel
+        lastScrollTime = now;
+
+        double scaledMagnitude = mapVal(rawRadius, 0, 32768, 0, 8);  // 0 to 8 "units"
+
         scaledMagnitude = Math.pow(scaledMagnitude / 8.0, 1.3) * 8.0;
 
         int magnitude = (int) Math.round(scaledMagnitude);
 
-        if (magnitude == 0)
-            return;
+        if (magnitude == 0) return;
 
-        // Compute direction components
-        double dx = magnitude * Math.cos(thetaRad);  // right > 0
-        double dy = magnitude * Math.sin(thetaRad);  // down > 0
+        double dx = magnitude * Math.cos(thetaRad);
+        double dy = magnitude * Math.sin(thetaRad);
 
-        int scrollX = (int) Math.round(dx);  // horizontal scroll
-        int scrollY = (int) Math.round(-dy);  // vertical scroll (positive = down)
+        int scrollX = (int) Math.round(dx);
+        int scrollY = (int) Math.round(-dy);
 
-        // Invert Y for ydotool (we want positive dy = scroll up)
         YdoToolUtil.scroll(scrollX, -scrollY);
     }
 }

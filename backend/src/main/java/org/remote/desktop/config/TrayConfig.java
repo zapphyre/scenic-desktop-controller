@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.awt.*;
 
-@Configuration
+//@Configuration
 @RequiredArgsConstructor
 public class TrayConfig {
 

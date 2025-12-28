@@ -58,6 +58,7 @@ public class EventDao {
                         optToNull(vto.getParentFk(), sceneRepository::findById),
                         optToNull(vto.getNextSceneFk(), sceneRepository::findById)
                 ))
+                .map(eventRepository::save)
                 .map(eventMapper::map)
                 .orElseThrow();
     }

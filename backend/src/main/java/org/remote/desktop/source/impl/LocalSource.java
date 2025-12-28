@@ -1,7 +1,6 @@
 package org.remote.desktop.source.impl;
 
 import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.asmus.service.JoyWorker;
@@ -11,7 +10,6 @@ import org.remote.desktop.provider.SceneProvider;
 import org.remote.desktop.service.impl.SceneManager;
 
 @Slf4j
-@Value
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class LocalSource extends BaseSource {
