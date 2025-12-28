@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "settings")
 public class SettingsProperties {
     private String instanceName;
-    private String winderInstanceName;
     private Boolean allowNetworkDiscovery;
     private String baseSceneName;
     private Boolean disconnectLocalOnRemoteConnection;

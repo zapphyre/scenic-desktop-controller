@@ -47,11 +47,7 @@ public class GpadOsModuleLoader {
         providers.add(new AnalogAdjustModule(eventPublisher));
 
         Map<String, GpadOsActionModule> moduleMap = providers.stream()
-                .collect(Collectors.toMap(
-                        GpadOsActionModule::getName,
-                        Function.identity(),
-                        laterMerger()
-                ));
+                .collect(Collectors.toMap(GpadOsActionModule::getName, Function.identity(), laterMerger()));
 
         System.out.println("Module map size: " + moduleMap.size());
         moduleMap.forEach((name, module) -> System.out.println("Module: " + name + " -> " + module.getClass().getName()));

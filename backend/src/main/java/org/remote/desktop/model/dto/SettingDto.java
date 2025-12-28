@@ -13,7 +13,6 @@ import java.util.Set;
 public class SettingDto {
     Long id;
     String instanceName;
-    String winderInstanceName;
     boolean allowNetworkDiscovery;
     String baseSceneName;
     boolean disconnectLocalOnRemoteConnection;

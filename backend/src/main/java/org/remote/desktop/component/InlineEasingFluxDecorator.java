@@ -81,10 +81,10 @@ public class InlineEasingFluxDecorator<E, T extends Repeatable> {
 
     private SceneAndRepeater<T> getEaserAndCache(SceneDto scene) {
         return easerGetter
-                .andThen(funky(logFun("getting easer name: '{}'")))
+//                .andThen(funky(logFun("getting easer name: '{}'")))
                 .andThen(easerMap::get)
                 .andThen(createCacheRecord(scene))
-                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene, triggerName))))
+//                .andThen(funky(cache(cacheManager).apply(CACHE_KEY.apply(scene, triggerName))))
                 .apply(scene);
     }
 

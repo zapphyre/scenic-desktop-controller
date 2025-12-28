@@ -1,11 +1,11 @@
 package org.remote.desktop.service.impl;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.remote.desktop.db.dao.SceneDao;
 import org.remote.desktop.model.dto.SceneDto;
 import org.remote.desktop.model.event.GpadCommandEvent;
-import org.remote.desktop.provider.SceneProvider;
+import org.remote.desktop.provider.SceneNameContainer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -14,26 +14,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static org.zapphyre.function.FunHelper.chew;
 import static org.zapphyre.function.FunHelper.funky;
 
 @Service
-public class SceneManager implements ApplicationListener<GpadCommandEvent> {
+@RequiredArgsConstructor
+public class SceneManager implements SceneNameContainer, ApplicationListener<GpadCommandEvent> {
     private final List<Consumer<String>> recognizedSceneObservers = new LinkedList<>();
     private final List<Consumer<String>> forcedSceneObservers = new LinkedList<>();
 
     private final SceneDao sceneDao;
-
-    @Setter
-    private Supplier<String> sceneProvider;
-
-    public SceneManager(SceneProvider sceneProvider, SceneDao sceneDao) {
-        this.sceneProvider = sceneProvider::tryGetCurrentName;
-        this.sceneDao = sceneDao;
-        this.lastRecognizedScene = sceneDao.getSceneForWindowNameOrBase(sceneProvider.tryGetCurrentName(), "DESKTOP");
-    }
 
     @Getter
     private SceneDto forcedScene;
@@ -44,6 +35,9 @@ public class SceneManager implements ApplicationListener<GpadCommandEvent> {
 
     @Override
     public void onApplicationEvent(GpadCommandEvent event) {
+        if (event.getKeyPart().getKeyEvt().equals("SCENE_RESET"))
+            forcedSceneObservers.forEach(p -> p.accept(lastRecognizedWindowName));
+
         Optional.of(event)
                 .map(GpadCommandEvent::getNextScene)
                 .map(funky(q -> forcedScene = q))
@@ -59,21 +53,11 @@ public class SceneManager implements ApplicationListener<GpadCommandEvent> {
     }
 
     public String tryGetCurrentName() {
-        String windowName = sceneProvider.get();
-
-        System.out.println("Current name: " + windowName);
-
-        if (!windowName.equals(lastRecognizedWindowName))
-            recognizedSceneObservers.forEach(p -> p.accept(windowName));
-
-        setLastDesktopRecognized(windowName);
-
-        return lastRecognizedWindowName = windowName;
+        return lastRecognizedWindowName;
     }
 
     public void nullifyForcedScene() {
         forcedScene = null;
-        tryGetCurrentName();
     }
 
     public boolean isSceneForced() {
@@ -95,5 +79,11 @@ public class SceneManager implements ApplicationListener<GpadCommandEvent> {
 
     public void update() {
         recognizedSceneObservers.forEach(q -> q.accept(lastRecognizedWindowName));
+    }
+
+    @Override
+    public void setRecognizedSceneName(String recognizedSceneName) {
+        lastRecognizedWindowName = recognizedSceneName;
+        recognizedSceneObservers.forEach(q -> q.accept(recognizedSceneName));
     }
 }

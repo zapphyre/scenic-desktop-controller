@@ -38,8 +38,6 @@ public class LocalSource extends BaseSource {
         connectAndRemember(worker.getAxisStream(), axisAdapter.leftAxis());
         connectAndRemember(worker.getAxisStream(), axisAdapter.rightAxis());
 
-        xdoSceneService.setSceneProvider(sceneProvider::tryGetCurrentName);
-
         return state = ESourceEvent.CONNECTED;
     }
 
