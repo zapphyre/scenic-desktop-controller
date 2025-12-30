@@ -56,6 +56,7 @@ public class DuoSelectApplication<L, R> extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
+        selector.initOwnerStage();
         Scene scene = new Scene(selector, 400, 300);
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 

@@ -1,5 +1,6 @@
 package org.remote.desktop.config;
 
+import javafx.application.Platform;
 import lombok.RequiredArgsConstructor;
 import org.remote.desktop.service.impl.ModeService;
 import org.remote.desktop.service.impl.StateService;
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.awt.*;
 
-//@Configuration
+@Configuration
 @RequiredArgsConstructor
 public class TrayConfig {
 
@@ -22,7 +23,7 @@ public class TrayConfig {
     public LinuxTray createLinuxTray() throws AWTException {
         LinuxTray linuxTray = new LinuxTray();
 
-        linuxTray.setupSystemTray(modeSelector, modeService.getAllGamepads(), stateService::nullifyForced);
+        Platform.runLater(() -> linuxTray.setupSystemTray(modeSelector, modeService.getAllGamepads(), stateService::nullifyForced));
 
         return linuxTray;
     }

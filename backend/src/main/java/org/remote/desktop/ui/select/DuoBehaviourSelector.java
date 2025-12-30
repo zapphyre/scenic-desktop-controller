@@ -34,7 +34,7 @@ public class DuoBehaviourSelector<L, R> extends HBox {
         getChildren().addAll(leftSelector, rightSelector);
     }
 
-    private void initOwnerStage() {
+    public void initOwnerStage() {
         if (ownerStage != null) return; // already initialized
         ownerStage = new Stage(StageStyle.UTILITY);
         ownerStage.setOpacity(0);
@@ -56,7 +56,7 @@ public class DuoBehaviourSelector<L, R> extends HBox {
                            Function<? super L, String> leftLabelExtractor,
                            Function<? super R, String> rightLabelExtractor) {
         // Prepare invisible owner stage after FX runtime is ready
-        Platform.runLater(this::initOwnerStage);
+//        Platform.runLater(this::initOwnerStage);
 
         Platform.runLater(() -> {
             leftSelector.setItems(leftItems, leftLabelExtractor);

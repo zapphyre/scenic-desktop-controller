@@ -11,6 +11,7 @@ import org.remote.desktop.model.ESourceEvent;
 import org.remote.desktop.model.SourceEvent;
 import org.remote.desktop.source.ConnectableSource;
 import org.remote.desktop.source.impl.EventSourceFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zapphyre.discovery.intf.JmAutoRegistry;
 import org.zapphyre.discovery.intf.RegistryController;
@@ -38,6 +39,9 @@ public class GpadHostRepository implements JmAutoRegistry {
     private final Map<WebSourceDef, ConnectableSource> connectableSources = new HashMap<>();
     private final Sinks.Many<SourceEvent> sourceStateStream = Sinks.many().multicast().directBestEffort();
     private final AtomicBoolean connected = new AtomicBoolean();
+
+    @Value("${server.port}")
+    private int port;
 
     @PostConstruct
     void init() {
@@ -114,6 +118,7 @@ public class GpadHostRepository implements JmAutoRegistry {
                 .baseUrl(hostProperties.getMineIpAddress().getHostAddress())
                 .greetingMessage("hi")
                 .group("gevt")
+                .port(port)
                 .instanceName(settingsDao.getInstanceName())
                 .build();
     }
